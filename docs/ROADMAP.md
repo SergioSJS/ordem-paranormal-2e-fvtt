@@ -20,7 +20,6 @@ Manifesto, tooling, testes, docs, símbolo do projeto. Sem conteúdo de jogo.
 - [x] Ficha do personagem: perícias com par de dados, PV/PD em pips, aptidão extensível
 - [x] Ficha de NPC e de itens
 - [x] i18n pt-BR + en com teste de paridade
-- [ ] Compêndio de habilidades dos 3 perfis e das ocupações do playtest
 - [x] Busca na coluna de perícias
 - [x] Validação em Foundry v14 real (`npm run e2e`, 24 verificações)
 - [ ] Validação em Foundry v13
@@ -28,6 +27,12 @@ Manifesto, tooling, testes, docs, símbolo do projeto. Sem conteúdo de jogo.
 **Pronto quando:** dá para criar um agente, montar a ficha, rolar qualquer perícia
 trocando o atributo, ver RA/RB e crítico no chat, e o mestre aplicar falha crítica com
 um clique — em v13 e v14.
+
+**Sem compêndio de habilidades, e é intencional.** O playtest não publica uma lista de
+habilidades: elas aparecem só nas fichas dos personagens prontos, que são conteúdo da
+aventura *A Maldição do Ídolo de Pedra* — fora de escopo deste repositório. O tipo de
+Item `habilidade` existe e é funcional; o conteúdo é criado pela mesa, ou vem de um
+*adventure module* separado. Ver `docs/LACUNAS.md`.
 
 ## Fase 2 — Investigação → `0.2.0`
 

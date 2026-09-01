@@ -65,6 +65,23 @@ Sem fórmula publicada — vêm prontos nas fichas dos personagens do playtest.
 
 Não publicadas. Os campos existem na ficha; nenhuma mecânica os consome.
 
+### Lista de habilidades (spec §2.1, §11)
+
+O playtest cita que o personagem começa com duas habilidades — uma do perfil, outra da
+ocupação — e que ganha mais por nível ou treino. Mas **não publica a lista**: as
+habilidades só aparecem preenchidas nas fichas dos personagens prontos, que são conteúdo
+da aventura.
+
+**Decisão:** o sistema não distribui compêndio de habilidades. O tipo de Item
+`habilidade` é funcional e cobre o que o motor sabe aplicar (aumento de passo e dado
+extra); o resto é texto livre. Quem tiver o material cria os itens na sua mesa, ou usa um
+*adventure module* separado.
+
+### Progressão por nível não publicada (spec §11)
+
+Quantas habilidades por nível, e quais, não está no playtest. O campo `nivel` existe e
+não dispara nada.
+
 ### Curva do problema matemático no hack técnico (spec §7.3)
 
 O texto só dá a direção: quanto maior o resultado, mais fácil o problema.
