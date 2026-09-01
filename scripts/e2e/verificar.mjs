@@ -95,7 +95,7 @@ const relato = await page.evaluate(async () => {
   const linhas = el?.querySelectorAll(".op2-pericia").length ?? 0;
   ok("19 perícias + 6 aptidões = 25 linhas", linhas === 25);
   ok("ícones de dado renderizados", (el?.querySelectorAll(".op2-dado").length ?? 0) > 20);
-  ok("trilhas de PV e PD com 26 pips", (el?.querySelectorAll(".op2-pip").length ?? 0) === 26);
+  ok("trilhas de PV e PD com 26 traços", (el?.querySelectorAll(".op2-traco").length ?? 0) === 26);
   ok("faixa de estado aparece com redução ativa", Boolean(el?.querySelector(".op2-estado")));
 
   // Nome de atributo cortado é regressão de layout — em inglês a caixa é mais apertada.
@@ -233,6 +233,94 @@ const relato = await page.evaluate(async () => {
   await game.user.update({ character: null });
   await poi.sheet.close();
   await poi.delete();
+  /* ---------------------------------------------- regressão: bugs de uso real -- */
+  // Achados numa sessão de uso manual, não pelos testes com dados fixos. Cada um vira
+  // uma verificação permanente para não voltar em silêncio.
+
+  // 1) `.op2 button { font-family: inherit }` batia com a camada do FontAwesome
+  //    (Foundry declara a camada do core ANTES da "system"; em CSS Layers a ordem
+  //    declarada decide, não a especificidade). Os ícones do chrome da janela
+  //    (fechar, alternar controles) viravam caixa vazia.
+  {
+    const janela = ator.sheet.element.closest(".window-app") ?? ator.sheet.element.parentElement;
+    const fechar = janela.querySelector('[data-action="close"]');
+    const fonte = fechar ? getComputedStyle(fechar, "::before").fontFamily : "";
+    ok("ícone de fechar a janela usa a fonte do FontAwesome", fonte.includes("Font Awesome"));
+  }
+
+  // 2) ApplicationV2.changeTab() exige a classe literal "tabs" no <nav> para achar o
+  //    botão — sem ela, todo clique em Inventário/Notas lançava
+  //    "No matching tab element found".
+  {
+    const painelAntes = el.querySelector(".op2-painel[data-tab='inventario']")?.classList.contains("active");
+    el.querySelector("button.op2-aba[data-tab='inventario']")?.click();
+    await esperar(400);
+    const painelDepois = el.querySelector(".op2-painel[data-tab='inventario']")?.classList.contains("active");
+    ok("clique na aba Inventário ativa o painel", !painelAntes && painelDepois);
+  }
+
+  // 3) Clicar num atributo puro (Físico/Mente/Emoção) pareava com ele mesmo
+  //    (atributoDe() não encontra perícia e caía no fallback "fisico"), rolando o
+  //    mesmo dado duas vezes. Um atributo não tem par: a regra é sempre perícia +
+  //    atributo (spec §4.1).
+  {
+    let formulaAtributo = null;
+    Hooks.once("createChatMessage", (msg) => { formulaAtributo = msg.rolls?.[0]?.formula ?? null; });
+    el.querySelector(".op2-atributo__nome")?.click();
+    await esperar(700);
+    ok("clicar num atributo rola só o dado dele, sem pareamento", formulaAtributo === "1d6");
+  }
+
+  // 4) Shift+clique não existe em toque. Sem outro gatilho, não havia como abrir o
+  //    diálogo completo no celular ou no tablet.
+  {
+    const antes = document.querySelectorAll(".op2-teste-dialog").length;
+    el.querySelector(".op2-pericia .op2-abrir-dialogo")?.click();
+    await esperar(500);
+    const depois = document.querySelectorAll(".op2-teste-dialog").length;
+    ok("botão dedicado abre o diálogo sem precisar de Shift", depois > antes);
+    document.querySelector(".op2-teste-dialog")?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    await esperar(200);
+  }
+
+  // 5) A roda do mouse sobre o ícone de um dado mudava o valor mesmo sem foco — rolar a
+  //    lista de perícias com o cursor de passagem sobre um ícone corrompia a ficha.
+  {
+    const controle = el.querySelector(".op2-pericia .op2-controle-dado[data-caminho]");
+    const caminho = controle.dataset.caminho;
+    document.activeElement?.blur();
+    const antes = foundry.utils.getProperty(ator, caminho);
+    controle.dispatchEvent(new WheelEvent("wheel", { deltaY: -100, bubbles: true, cancelable: true }));
+    await esperar(200);
+    const semFoco = foundry.utils.getProperty(ator, caminho);
+    ok("roda do mouse sem foco não altera o dado", semFoco === antes);
+
+    controle.querySelector(".op2-controle-dado__botao")?.focus();
+    controle.dispatchEvent(new WheelEvent("wheel", { deltaY: -100, bubbles: true, cancelable: true }));
+    await esperar(200);
+    const comFoco = foundry.utils.getProperty(ator, caminho);
+    ok("roda do mouse com foco altera o dado", comFoco !== antes);
+  }
+
+
+  // 6) O número e o traço sempre concordam: clicar no traço N muda o número, e o
+  //    número editado à mão precisa refletir nos traços no próximo render.
+  {
+    await ator.update({ "system.recursos.pv": { value: 0, max: 10 } });
+    await esperar(150);
+    el.querySelector(".op2-recurso--pv .op2-traco[data-valor='5']")?.click();
+    await esperar(400);
+    ok("clicar no 5º traço de PV define o valor em 5", ator.system.recursos.pv.value === 5);
+  }
+
+  // 7) O grupo de Aptidão se confundia com a lista plana de perícias — sem borda, sem
+  //    seta, o botão de novo campo parecia solto no meio da coluna.
+  {
+    const aptidao = el.querySelector(".op2-aptidao");
+    ok("Aptidão é um <details> que abre e fecha", aptidao.tagName === "DETAILS" && aptidao.open);
+    ok("Aptidão tem o card visualmente distinto (borda própria)", getComputedStyle(aptidao).borderStyle !== "none");
+  }
+
   await ator.delete();
   return { passos, dados };
 });

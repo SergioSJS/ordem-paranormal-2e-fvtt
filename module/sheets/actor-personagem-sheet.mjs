@@ -11,6 +11,7 @@ import { rolarTeste } from "../dice/teste.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
 import { lerConfig } from "../settings/register.mjs";
 import { encerrarCena } from "../cena/encerrar-cena.mjs";
+import { ligarRodaDoMouse } from "../ui/controle-dado.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -23,10 +24,11 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
       rolar: PersonagemSheet.#rolar,
+      abrirDialogoTeste: PersonagemSheet.#abrirDialogoTeste,
+      definirRecurso: PersonagemSheet.#definirRecurso,
       passoDado: PersonagemSheet.#passoDado,
       escolherDado: PersonagemSheet.#escolherDado,
       abrirSeletor: PersonagemSheet.#abrirSeletor,
-      definirRecurso: PersonagemSheet.#definirRecurso,
       criarItem: PersonagemSheet.#criarItem,
       editarItem: PersonagemSheet.#editarItem,
       apagarItem: PersonagemSheet.#apagarItem,
@@ -136,11 +138,13 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   #aptidoes(sistema) {
     const chaves = Object.keys(sistema.aptidoes ?? {});
+    const chaveAtributo = sistema.pericias.aptidao.atributo;
     return {
       rotulo: game.i18n.localize("OP2.Pericia.aptidao"),
       atributo: {
-        chave: sistema.pericias.aptidao.atributo,
-        rotulo: game.i18n.localize(`OP2.Atributo.${sistema.pericias.aptidao.atributo}`),
+        chave: chaveAtributo,
+        rotulo: game.i18n.localize(`OP2.Atributo.${chaveAtributo}`),
+        icone: iconeDado(sistema.atributos[chaveAtributo].dadoEfetivo),
       },
       campos: chaves
         .map((sub) => this.#linhaDePericia(sistema, "aptidao", { chaveAptidao: sub }))
@@ -148,15 +152,19 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     };
   }
 
-  /** PV/PD como trilha de pips — é assim que a ficha oficial mostra os recursos. */
+  /** PV/PD como barra proporcional — a ficha oficial usa pips, mas em valores altos
+   *  (16, 20+) uma trilha de quadradinhos vira ilegível. A barra escala sem esse
+   *  problema, e o número ao lado continua sendo a fonte exata do valor. */
   #recurso(recurso, chave) {
     const max = Math.max(recurso.max, recurso.value, 0);
     return {
       chave,
       value: recurso.value,
       max: recurso.max,
-      // Trilhas muito longas viram número puro: 40 pips não são legíveis nem clicáveis.
-      pips: max <= 30 ? Array.from({ length: max }, (_, i) => ({ n: i + 1, cheio: i < recurso.value })) : null,
+      // Acima disso o tally de traços vira ilegível; o número ao lado basta.
+      tracos: max > 0 && max <= 30
+        ? Array.from({ length: max }, (_, i) => ({ n: i + 1, cheio: i < recurso.value }))
+        : null,
     };
   }
 
@@ -166,6 +174,14 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const chave = alvo.dataset.chave;
     const abrirDialogo = evento.shiftKey !== lerConfig("cliqueAbreDialogo");
     await rolarTeste(this.actor, { chavePericia: chave, rapido: !abrirDialogo });
+  }
+
+  /**
+   * Gatilho explícito do diálogo completo — sem depender de Shift, que não existe em
+   * toque. É o caminho de quem está no celular ou no tablet.
+   */
+  static async #abrirDialogoTeste(_evento, alvo) {
+    await rolarTeste(this.actor, { chavePericia: alvo.dataset.chave, rapido: false });
   }
 
   /** Roda do mouse e teclas de seta andam na escada sem abrir nada. */
@@ -178,6 +194,9 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async #abrirSeletor(_evento, alvo) {
     const controle = alvo.closest(".op2-controle-dado");
     controle.classList.toggle("aberto");
+    // Alguns navegadores (Safari) não focam botão em clique por padrão; forçamos aqui
+    // porque a roda do mouse só ajusta o dado quando o controle está focado.
+    alvo.focus();
     if (controle.classList.contains("aberto")) {
       const fechar = (e) => {
         if (controle.contains(e.target)) return;
@@ -192,14 +211,6 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const { caminho, dado } = alvo.dataset;
     alvo.closest(".op2-controle-dado")?.classList.remove("aberto");
     await this.actor.update({ [caminho]: dado });
-  }
-
-  /** Clicar no pip N define o recurso em N; clicar no pip atual zera de N para N-1. */
-  static async #definirRecurso(_evento, alvo) {
-    const { recurso, valor } = alvo.dataset;
-    const atual = this.actor.system.recursos[recurso].value;
-    const novo = Number(valor) === atual ? Number(valor) - 1 : Number(valor);
-    await this.actor.update({ [`system.recursos.${recurso}.value`]: Math.max(0, novo) });
   }
 
   static async #criarItem(_evento, alvo) {
@@ -244,6 +255,14 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await this.actor.update({ [`system.aptidoes.${chave}`]: { rotulo, die: "d4" } });
   }
 
+  /** Clicar no traço N define o recurso em N; clicar no atual zera de N para N-1. */
+  static async #definirRecurso(_evento, alvo) {
+    const { recurso, valor } = alvo.dataset;
+    const atual = this.actor.system.recursos[recurso].value;
+    const novo = Number(valor) === atual ? Number(valor) - 1 : Number(valor);
+    await this.actor.update({ [`system.recursos.${recurso}.value`]: Math.max(0, novo) });
+  }
+
   static async #removerAptidao(_evento, alvo) {
     await this.actor.update({ [`system.aptidoes.-=${alvo.dataset.sub}`]: null });
   }
@@ -270,16 +289,10 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     if (!this.isEditable) return;
 
-    // A roda do mouse sobre um dado anda na escada — o gesto mais rápido para ajustar
-    // uma ficha inteira na criação de personagem.
-    for (const controle of this.element.querySelectorAll(".op2-controle-dado[data-caminho]")) {
-      controle.addEventListener("wheel", (evento) => {
-        evento.preventDefault();
-        const caminho = controle.dataset.caminho;
-        const atual = foundry.utils.getProperty(this.actor, caminho);
-        this.actor.update({ [caminho]: stepDie(atual, evento.deltaY < 0 ? 1 : -1) });
-      }, { passive: false });
-    }
+    ligarRodaDoMouse(this.element, (caminho, passos) => {
+      const atual = foundry.utils.getProperty(this.actor, caminho);
+      this.actor.update({ [caminho]: stepDie(atual, passos) });
+    });
   }
 
   /**

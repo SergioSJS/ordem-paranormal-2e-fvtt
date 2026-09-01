@@ -34,9 +34,9 @@
 
     <div class="op2-recursos">
       {{> (op2Caminho "partials/trilha-recurso") chave="pv" rotulo="OP2.Recurso.pv"
-          value=recursos.pv.value max=recursos.pv.max pips=recursos.pv.pips}}
+          value=recursos.pv.value max=recursos.pv.max tracos=recursos.pv.tracos}}
       {{> (op2Caminho "partials/trilha-recurso") chave="pd" rotulo="OP2.Recurso.pd"
-          value=recursos.pd.value max=recursos.pd.max pips=recursos.pd.pips}}
+          value=recursos.pd.value max=recursos.pd.max tracos=recursos.pd.tracos}}
     </div>
   </div>
 
@@ -48,6 +48,7 @@
           data-tooltip="{{localize 'OP2.Pericia.Rolar'}}">{{rotulo}}</button>
         {{> (op2Caminho "partials/controle-dado") caminho=caminho icone=icone valorAtual=die
             reduzido=reduzido dica=dica}}
+        {{> (op2Caminho "partials/abrir-dialogo") chave=chave}}
       </div>
     {{/each}}
 

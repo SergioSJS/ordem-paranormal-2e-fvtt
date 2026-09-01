@@ -2,6 +2,7 @@
 import { ATRIBUTOS, ESCADA } from "../config.mjs";
 import { stepDie } from "../dice/escada.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
+import { ligarRodaDoMouse } from "../ui/controle-dado.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -53,6 +54,9 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   static async #abrirSeletor(_evento, alvo) {
     alvo.closest(".op2-controle-dado")?.classList.toggle("aberto");
+    // Alguns navegadores (Safari) não focam botão em clique por padrão; forçamos aqui
+    // porque a roda do mouse só ajusta o dado quando o controle está focado.
+    alvo.focus();
   }
 
   static async #escolherDado(_evento, alvo) {
@@ -77,14 +81,9 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _onRender(contexto, opcoes) {
     super._onRender(contexto, opcoes);
     if (!this.isEditable) return;
-    for (const controle of this.element.querySelectorAll(".op2-controle-dado[data-caminho]")) {
-      controle.addEventListener("wheel", (evento) => {
-        evento.preventDefault();
-        const caminho = controle.dataset.caminho;
-        this.actor.update({
-          [caminho]: stepDie(foundry.utils.getProperty(this.actor, caminho), evento.deltaY < 0 ? 1 : -1),
-        });
-      }, { passive: false });
-    }
+    ligarRodaDoMouse(this.element, (caminho, passos) => {
+      const atual = foundry.utils.getProperty(this.actor, caminho);
+      this.actor.update({ [caminho]: stepDie(atual, passos) });
+    });
   }
 }

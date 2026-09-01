@@ -29,11 +29,18 @@ export async function rolarTeste(ator, { chavePericia, chaveAtributo, dt, oposto
     return null;
   }
 
+  // Clicar direto num atributo (Físico/Mente/Emoção) não tem par natural — a regra do
+  // playtest é sempre perícia + atributo (spec §4.1), e um atributo não pareia consigo
+  // mesmo. `atributoDe()` só sabe o pareamento de perícias; para um atributo puro o
+  // teste é o dado dele sozinho, sem segundo componente automático.
+  const somenteAtributo = pericia.tipo === "atributo";
+
   const base = {
     chavePericia,
     rotuloPericia: rotuloDePericia(chavePericia),
     pericia: { ...pericia, dadoEfetivo: pericia.dado },
-    chaveAtributo: chaveAtributo ?? sistema.atributoDe(chavePericia) ?? "fisico",
+    chaveAtributo: somenteAtributo ? null : (chaveAtributo ?? sistema.atributoDe(chavePericia) ?? "fisico"),
+    somenteAtributo,
     dt: semDT ? null : (dt ?? lerConfig("dtPadrao")),
     oposto,
     semDT,
@@ -66,19 +73,24 @@ export async function rolarTeste(ator, { chavePericia, chaveAtributo, dt, oposto
 
 /** Configuração sem diálogo: perícia + atributo pareado, DT padrão. */
 function configuracaoRapida(ator, base) {
-  const atributo = ator.system.atributos[base.chaveAtributo];
+  const componentes = [
+    { chave: `pericia.${base.chavePericia}`, rotulo: base.rotuloPericia, tipo: "pericia", dado: base.pericia.dado },
+  ];
+
+  if (!base.somenteAtributo) {
+    const atributo = ator.system.atributos[base.chaveAtributo];
+    componentes.push({
+      chave: `atributo.${base.chaveAtributo}`,
+      rotulo: game.i18n.localize(`OP2.Atributo.${base.chaveAtributo}`),
+      tipo: "atributo",
+      dado: atributo.dadoEfetivo,
+    });
+  }
+
   return {
     dt: (base.oposto || base.semDT) ? null : base.dt,
     oposto: base.oposto,
-    componentes: [
-      { chave: `pericia.${base.chavePericia}`, rotulo: base.rotuloPericia, tipo: "pericia", dado: base.pericia.dado },
-      {
-        chave: `atributo.${base.chaveAtributo}`,
-        rotulo: game.i18n.localize(`OP2.Atributo.${base.chaveAtributo}`),
-        tipo: "atributo",
-        dado: atributo.dadoEfetivo,
-      },
-    ],
+    componentes,
   };
 }
 

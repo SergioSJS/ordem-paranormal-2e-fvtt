@@ -1,22 +1,26 @@
-{{!-- PV e PD numa linha só, como na ficha do livro: rótulo, valor, máximo, trilha. --}}
+{{!-- PV e PD numa linha só, como na ficha do livro: rótulo, valor, máximo, traços
+      inclinados. Clicar num traço define o valor até ali — o número ao lado é a
+      mesma fonte de dados, então os dois nunca desincronizam. --}}
 <div class="op2-recurso op2-recurso--{{chave}}">
   <span class="op2-tag op2-tag--pequena">{{localize rotulo}}</span>
 
   <input type="number" class="op2-recurso__valor" name="system.recursos.{{chave}}.value"
     value="{{value}}" {{#unless @root.editavel}}disabled{{/unless}}
     aria-label="{{localize rotulo}} {{localize 'OP2.Recurso.Atual'}}">
-  <span class="op2-recurso__barra" aria-hidden="true">/</span>
+  <span class="op2-recurso__barra-sep" aria-hidden="true">/</span>
   <input type="number" class="op2-recurso__max" name="system.recursos.{{chave}}.max"
     value="{{max}}" min="0" {{#unless @root.editavel}}disabled{{/unless}}
     aria-label="{{localize rotulo}} {{localize 'OP2.Recurso.Maximo'}}">
 
-  {{#if pips}}
-    <div class="op2-pips" role="group" aria-label="{{localize rotulo}}">
-      {{#each pips}}
-        <button type="button" class="op2-pip{{#if cheio}} op2-pip--cheio{{/if}}"
+  {{#if tracos}}
+    <div class="op2-tracos" role="group" aria-label="{{localize rotulo}}">
+      {{#each tracos}}
+        <button type="button" class="op2-traco{{#if cheio}} op2-traco--cheio{{/if}}"
           data-action="definirRecurso" data-recurso="{{../chave}}" data-valor="{{n}}"
           {{#unless @root.editavel}}disabled{{/unless}} aria-label="{{n}}"></button>
       {{/each}}
     </div>
+  {{else}}
+    {{!-- Acima do razoável para traços individuais: mostra só os números. --}}
   {{/if}}
 </div>

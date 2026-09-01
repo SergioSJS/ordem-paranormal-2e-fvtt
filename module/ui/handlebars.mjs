@@ -17,6 +17,7 @@ const TEMPLATES = [
   `${RAIZ}/partials/controle-dado.hbs`,
   `${RAIZ}/partials/linha-pericia.hbs`,
   `${RAIZ}/partials/trilha-recurso.hbs`,
+  `${RAIZ}/partials/abrir-dialogo.hbs`,
   `${RAIZ}/dialog/teste.hbs`,
   `${RAIZ}/dialog/selecao-dados.hbs`,
   `${RAIZ}/chat/teste.hbs`,

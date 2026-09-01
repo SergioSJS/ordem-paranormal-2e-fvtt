@@ -12,8 +12,12 @@
     {{!-- Aptidão vem primeiro: é a única com subcampos, e a lista dela é aberta. --}}
     <details class="op2-aptidao" data-sync open>
       <summary class="op2-aptidao__resumo">
+        <i class="op2-aptidao__seta fa-solid fa-chevron-right" aria-hidden="true"></i>
         <span class="op2-aptidao__nome">{{aptidoes.rotulo}}</span>
-        <span class="op2-aptidao__atributo">{{aptidoes.atributo.rotulo}}</span>
+        <span class="op2-aptidao__atributo" data-tooltip="{{aptidoes.atributo.rotulo}}">
+          {{{aptidoes.atributo.icone}}}
+          <span class="op2-aptidao__atributo-nome">{{aptidoes.atributo.rotulo}}</span>
+        </span>
       </summary>
 
       <div class="op2-aptidao__campos">

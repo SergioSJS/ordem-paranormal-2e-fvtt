@@ -130,7 +130,10 @@
   gap: var(--op2-e2);
 }
 
-// Rótulo, valor, máximo e trilha na mesma linha — a leitura da ficha do livro.
+// Rótulo, valor, máximo e barra na mesma linha — a leitura da ficha do livro, mas com
+// barra em vez de pips: uma trilha de 20+ quadradinhos deixa de ser legível bem antes
+// de um PD alto (achado em uso real). O número ao lado é a mesma fonte de dados — os
+// dois sempre concordam porque vêm do mesmo `value` a cada render.
 .op2-recurso {
   display: flex;
   flex-wrap: wrap;
@@ -146,28 +149,33 @@
     text-align: center;
   }
 
-  &__barra { color: var(--op2-vermelho); }
-
-  .op2-pips { margin-left: var(--op2-e2); }
+  &__barra-sep { color: var(--op2-vermelho); }
 }
 
-// Pips: PV e PD são trilhas de quadradinhos na ficha do livro, não campos numéricos.
-.op2-pips {
+// Traços inclinados: é assim que o livro desenha PV e PD, um tally de segmentos
+// tortos, não uma barra contínua nem quadradinhos retos.
+.op2-tracos {
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
 }
 
-.op2-pip {
-  width: 0.72rem;
-  height: 0.9rem;
+.op2-traco {
+  // `skewX` em vez de `clip-path`: um clip corta a borda junto com o resto, e as
+  // duas laterais inclinadas ficam sem traço. Inclinando a caixa inteira, a borda
+  // acompanha e sai fechada nos quatro lados.
+  width: 0.5rem;
+  height: 0.85rem;
   padding: 0;
   border: 1px solid var(--op2-linha-forte);
-  border-radius: 1px;
   background: transparent;
   cursor: pointer;
+  transform: skewX(-18deg);
 
-  &--cheio { border-color: var(--op2-tinta); background: var(--op2-tinta); }
+  &--cheio {
+    border-color: var(--op2-tinta);
+    background: var(--op2-tinta);
+  }
 
   &:hover { border-color: var(--op2-vermelho-claro); }
 }

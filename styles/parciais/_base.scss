@@ -3,10 +3,15 @@
   color: var(--op2-texto);
   font-family: var(--op2-fonte-corpo);
 
+  // `:not([class*="fa-"])` importa: o Foundry declara a camada @layer do FontAwesome
+  // ANTES da nossa (`system`), então em CSS Layers a ordem declarada decide — não a
+  // especificidade. Qualquer regra nossa que alcance um elemento com classe de ícone
+  // (ex.: os botões de janela do core, que carregam "fa-solid" direto no <button>)
+  // ganha da fonte do FontAwesome e o glifo vira uma caixa vazia.
   input,
   select,
   textarea,
-  button {
+  button:not([class*="fa-"]) {
     font-family: inherit;
     color: inherit;
   }
@@ -139,6 +144,16 @@
   &:hover {
     color: var(--op2-vermelho-claro);
   }
+}
+
+// Fica sempre visível (não só em hover): é o único jeito de abrir o diálogo de teste
+// em toque, onde Shift+clique não existe.
+.op2-abrir-dialogo {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  opacity: 0.65;
+
+  &:hover { opacity: 1; }
 }
 
 .op2-ajuda,

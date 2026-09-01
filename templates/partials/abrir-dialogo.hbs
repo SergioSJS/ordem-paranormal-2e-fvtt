@@ -1,0 +1,7 @@
+{{!-- Gatilho explícito para o diálogo de teste completo. Existe porque o gesto padrão
+     (Shift+clique) não existe em toque — sem shift não tem como abrir o diálogo no
+     celular ou tablet. Fica sempre visível, não só em hover. --}}
+<button type="button" class="op2-botao-icone op2-abrir-dialogo" data-action="abrirDialogoTeste" data-chave="{{chave}}"
+  data-tooltip="{{localize 'OP2.Pericia.AbrirDialogo'}}" aria-label="{{localize 'OP2.Pericia.AbrirDialogo'}}">
+  <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+</button>

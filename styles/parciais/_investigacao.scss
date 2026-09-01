@@ -56,18 +56,20 @@
     input { width: 3.5rem; }
   }
 
-  // Ferramentas em duas colunas: são nove campos, em coluna única a aba fica longa demais.
-  &__ferramentas {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--op2-e1) var(--op2-e2);
+  // Ferramentas: só as que reagem aparecem; as demais ficam no seletor (spec §9.3).
+  &__ferramenta {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--op2-e1);
 
-    legend, > .op2-ajuda, .op2-campo--inline { grid-column: 1 / -1; }
-
-    .op2-campo { margin: 0; }
-
-    textarea { min-height: 2.2rem; }
+    .op2-campo { flex: 1 1 auto; margin: 0; }
   }
+
+  &__ferramenta + &__ferramenta { margin-top: var(--op2-e2); }
+
+  &__seletor-ferramenta { margin-top: var(--op2-e2); }
+
+  prose-mirror { min-height: 5rem; }
 }
 
 // Painel de investigação da cena.

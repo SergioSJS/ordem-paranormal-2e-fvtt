@@ -165,6 +165,9 @@
       "DescricaoContextualAjuda": "The full explanation. It resolves the players' freeform interactions.",
       "Ferramentas": "Tool section",
       "FerramentasAjuda": "Empty = normal reading, no reaction. A normal reading is also information — only reveal it after they investigate.",
+      "FerramentasVazio": "No reactions registered — all readings are normal.",
+      "AdicionarFerramenta": "Add tool reaction…",
+      "RemoverFerramenta": "Remove reaction",
       "FerramentaSemReacao": "No reaction",
       "ReveladoPorLaser": "Reacts to the Sweep Laser",
       "SomenteMestre": "The information board and the contextual description are GM-only.",
@@ -178,7 +181,10 @@
         "poRevelador": "Revealing Dust",
         "radio": "Modified Radio",
         "termometro": "Differential Thermometer"
-      }
+      },
+      "RemoverFerramenta": "Remove tool",
+      "FerramentasVazio": "No tools configured on this POI.",
+      "AdicionarFerramenta": "Add tool…"
     },
     "Investigacao": {
       "Investigar": "Investigate",

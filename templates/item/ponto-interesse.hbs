@@ -14,8 +14,8 @@
   <section class="op2-painel tab {{tabs.investigacao.cssClass}}" data-group="principal" data-tab="investigacao">
     <label class="op2-campo">
       <span>{{localize "OP2.POI.DescricaoBasica"}}</span>
-      <textarea name="system.descricaoBasica" rows="3"
-        {{#unless editavel}}disabled{{/unless}}>{{sistema.descricaoBasica}}</textarea>
+      {{formInput fields.descricaoBasica value=sistema.descricaoBasica enriched=descricaoBasicaEnriquecida
+        toggled=true editable=editavel name="system.descricaoBasica"}}
       <p class="op2-ajuda">{{localize "OP2.POI.DescricaoBasicaAjuda"}}</p>
     </label>
 
@@ -65,28 +65,51 @@
     <section class="op2-painel tab {{tabs.mestre.cssClass}}" data-group="principal" data-tab="mestre">
       <label class="op2-campo">
         <span>{{localize "OP2.POI.DescricaoContextual"}}</span>
-        <textarea name="system.descricaoContextual" rows="5"
-          {{#unless editavel}}disabled{{/unless}}>{{sistema.descricaoContextual}}</textarea>
+        {{formInput fields.descricaoContextual value=sistema.descricaoContextual enriched=descricaoContextualEnriquecida
+          toggled=true editable=editavel name="system.descricaoContextual"}}
         <p class="op2-ajuda">{{localize "OP2.POI.DescricaoContextualAjuda"}}</p>
       </label>
 
       <fieldset class="op2-poi__ferramentas">
         <legend>{{localize "OP2.POI.Ferramentas"}}</legend>
         <p class="op2-ajuda">{{localize "OP2.POI.FerramentasAjuda"}}</p>
-        {{#each ferramentas}}
-          <label class="op2-campo">
-            <span>{{rotulo}}</span>
-            <textarea name="system.ferramentas.{{chave}}" rows="1"
-              placeholder="{{localize 'OP2.POI.FerramentaSemReacao'}}"
-              {{#unless @root.editavel}}disabled{{/unless}}>{{valor}}</textarea>
-          </label>
+
+        {{#each ferramentasConfiguradas}}
+          <div class="op2-poi__ferramenta">
+            <label class="op2-campo">
+              <span>{{rotulo}}</span>
+              <textarea name="system.ferramentas.{{chave}}" rows="2"
+                {{#unless @root.editavel}}disabled{{/unless}}>{{valor}}</textarea>
+            </label>
+            {{#if @root.editavel}}
+              <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo"
+                data-action="removerFerramenta" data-ferramenta="{{chave}}"
+                aria-label="{{localize 'OP2.POI.RemoverFerramenta'}}">
+                <i class="fa-solid fa-trash" aria-hidden="true"></i>
+              </button>
+            {{/if}}
+          </div>
         {{/each}}
-        <label class="op2-campo op2-campo--inline">
-          <input type="checkbox" name="system.reveladoPorLaser"
-            {{#if sistema.reveladoPorLaser}}checked{{/if}} {{#unless editavel}}disabled{{/unless}}>
-          <span>{{localize "OP2.POI.ReveladoPorLaser"}}</span>
-        </label>
+
+        {{#unless ferramentasConfiguradas.length}}
+          <p class="op2-ajuda">{{localize "OP2.POI.FerramentasVazio"}}</p>
+        {{/unless}}
+
+        {{#if editavel}}
+          <select class="op2-poi__seletor-ferramenta" data-seletor-ferramenta>
+            <option value="">{{localize "OP2.POI.AdicionarFerramenta"}}</option>
+            {{#each ferramentasDisponiveis}}
+              <option value="{{chave}}">{{rotulo}}</option>
+            {{/each}}
+          </select>
+        {{/if}}
       </fieldset>
+
+      <label class="op2-campo op2-campo--inline">
+        <input type="checkbox" name="system.reveladoPorLaser"
+          {{#if sistema.reveladoPorLaser}}checked{{/if}} {{#unless editavel}}disabled{{/unless}}>
+        <span>{{localize "OP2.POI.ReveladoPorLaser"}}</span>
+      </label>
     </section>
   {{/if}}
 </div>

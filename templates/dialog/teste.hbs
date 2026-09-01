@@ -16,15 +16,17 @@
     {{/each}}
   </ol>
 
-  <label class="op2-campo">
-    <span>{{localize "OP2.Dialog.Teste.Atributo"}}</span>
-    <select name="chaveAtributo">
-      {{#each atributos}}
-        <option value="{{chave}}" {{#if selecionado}}selected{{/if}}>{{rotulo}} — {{dado}}</option>
-      {{/each}}
-    </select>
-    <p class="op2-ajuda">{{localize "OP2.Dialog.Teste.AtributoAjuda"}}</p>
-  </label>
+  {{#unless estado.somenteAtributo}}
+    <label class="op2-campo">
+      <span>{{localize "OP2.Dialog.Teste.Atributo"}}</span>
+      <select name="chaveAtributo">
+        {{#each atributos}}
+          <option value="{{chave}}" {{#if selecionado}}selected{{/if}}>{{rotulo}} — {{dado}}</option>
+        {{/each}}
+      </select>
+      <p class="op2-ajuda">{{localize "OP2.Dialog.Teste.AtributoAjuda"}}</p>
+    </label>
+  {{/unless}}
 
   {{#if temExtras}}
     <fieldset class="op2-extras">

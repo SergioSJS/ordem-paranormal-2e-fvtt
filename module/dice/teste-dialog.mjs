@@ -42,6 +42,7 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     this.#resolver = resolver;
     this.estado = {
       chaveAtributo: base.chaveAtributo,
+      somenteAtributo: base.somenteAtributo ?? false,
       passos: { pericia: 0, atributo: 0 },
       extras: new Set(),
       dt: base.dt ?? lerConfig("dtPadrao"),
@@ -81,7 +82,6 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Os dados que serão rolados com a configuração atual. */
   componentes() {
     const perfilPericia = this.base.pericia;
-    const atributo = this.ator.system.atributos[this.estado.chaveAtributo];
 
     let passosPericia = this.estado.passos.pericia;
     const extras = [];
@@ -104,15 +104,21 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
         tipo: "pericia",
         dado: stepDie(perfilPericia.dadoEfetivo, passosPericia, { permitirD20 }),
       },
-      {
+    ];
+
+    // Um atributo puro não pareia com outro atributo (spec §4.1): o teste é o dado
+    // dele sozinho, sem o segundo componente automático.
+    if (!this.estado.somenteAtributo) {
+      const atributo = this.ator.system.atributos[this.estado.chaveAtributo];
+      lista.push({
         chave: `atributo.${this.estado.chaveAtributo}`,
         rotulo: game.i18n.localize(`OP2.Atributo.${this.estado.chaveAtributo}`),
         tipo: "atributo",
         dado: stepDie(atributo.dadoEfetivo, this.estado.passos.atributo, { permitirD20 }),
-      },
-      ...extras,
-    ];
+      });
+    }
 
+    lista.push(...extras);
     return lista.slice(0, MAX_DADOS_ROLADOS);
   }
 
@@ -130,7 +136,8 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     return {
       ator: this.ator,
       estado: this.estado,
-      atributos: Object.keys(ATRIBUTOS).map((chave) => ({
+      // Sem atributo pareado para trocar quando o teste já É de um atributo puro.
+      atributos: this.estado.somenteAtributo ? [] : Object.keys(ATRIBUTOS).map((chave) => ({
         chave,
         rotulo: game.i18n.localize(`OP2.Atributo.${chave}`),
         dado: this.ator.system.atributos[chave].dadoEfetivo,
