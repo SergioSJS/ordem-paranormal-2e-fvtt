@@ -490,6 +490,20 @@ export function abrirPainelInvestigacao() {
  * hora. Um elemento próprio, fora do ciclo de controles de cena, não tem esse
  * problema.
  */
+/**
+ * A barra lateral (#sidebar) expande/recolhe com largura própria em CSS — um
+ * `right` fixo em px ou fica embaixo dela expandida, ou sobra vazio com ela
+ * recolhida (achado em uso real). Reposiciona contra a borda de verdade da
+ * sidebar sempre que ela muda de estado, em vez de chutar um valor fixo.
+ */
+function reposicionarBotaoFlutuante() {
+  const botao = document.getElementById("op2-botao-painel");
+  const sidebar = document.getElementById("sidebar");
+  if (!botao) return;
+  const largura = sidebar?.getBoundingClientRect().width ?? 0;
+  botao.style.right = `${largura + 12}px`;
+}
+
 function criarBotaoFlutuante() {
   if (document.getElementById("op2-botao-painel")) return;
   const botao = document.createElement("button");
@@ -497,10 +511,19 @@ function criarBotaoFlutuante() {
   botao.type = "button";
   botao.className = "op2 op2-botao-flutuante";
   botao.dataset.tooltip = game.i18n.localize("OP2.Painel.Controle");
-  botao.dataset.tooltipDirection = "RIGHT";
+  botao.dataset.tooltipDirection = "LEFT";
   botao.innerHTML = `<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>`;
   botao.addEventListener("click", () => abrirPainelInvestigacao());
   document.body.appendChild(botao);
+  reposicionarBotaoFlutuante();
+
+  // A sidebar anima a largura via CSS transition — um atraso fixo lia a largura
+  // no meio da animação, não a final (achado em uso real: um `setTimeout(250)`
+  // pegava ~48px de uma transição de mais de 250ms e o botão saía por baixo da
+  // sidebar aberta). `transitionend` no próprio elemento é a hora certa.
+  document.getElementById("sidebar")?.addEventListener("transitionend", reposicionarBotaoFlutuante);
+  Hooks.on("collapseSidebar", () => setTimeout(reposicionarBotaoFlutuante, 400));
+  Hooks.on("renderSidebar", () => setTimeout(reposicionarBotaoFlutuante, 50));
 }
 
 export function registrarPainelInvestigacao() {

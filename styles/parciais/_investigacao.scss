@@ -356,8 +356,12 @@
 // core, sempre clicável, independente de qual camada/tool está ativa.
 .op2-botao-flutuante {
   position: fixed;
-  left: 12px;
-  bottom: 190px;
+  top: 12px;
+  // `right` é calculado em JS contra a largura de verdade da sidebar (achado em
+  // uso real: um valor fixo em CSS ou fica embaixo da sidebar aberta, ou sobra
+  // vazio com ela recolhida) — ver reposicionarBotaoFlutuante().
+  right: 12px;
+  transition: right 0.2s ease;
   z-index: 20;
   width: 2.6rem;
   height: 2.6rem;
