@@ -1,0 +1,48 @@
+<aside class="op2-dock-pericias op2-moldura">
+  <div class="op2-dock-pericias__topo">
+    <span class="op2-tag op2-tag--secao">{{localize "OP2.Secao.Pericias"}}</span>
+    <label class="op2-busca">
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      <input type="search" class="op2-busca__campo" placeholder="{{localize 'OP2.Pericia.Buscar'}}"
+        aria-label="{{localize 'OP2.Pericia.Buscar'}}">
+    </label>
+  </div>
+
+  <div class="op2-lista-pericias">
+    {{!-- Aptidão vem primeiro: é a única com subcampos, e a lista dela é aberta. --}}
+    <details class="op2-aptidao" data-sync open>
+      <summary class="op2-aptidao__resumo">
+        <span class="op2-aptidao__nome">{{aptidoes.rotulo}}</span>
+        <span class="op2-aptidao__atributo">{{aptidoes.atributo.rotulo}}</span>
+      </summary>
+
+      <div class="op2-aptidao__campos">
+        {{#each aptidoes.campos}}
+          <div class="op2-aptidao__campo" data-sub="{{sub}}">
+            {{> (op2Caminho "partials/linha-pericia") chave=chave rotulo=rotulo die=die
+                caminho=caminho icone=icone atributo=atributo}}
+            {{#unless padrao}}
+              <button type="button" class="op2-botao-icone" data-action="removerAptidao" data-sub="{{sub}}"
+                data-tooltip="{{localize 'OP2.Aptidao.Remover'}}" aria-label="{{localize 'OP2.Aptidao.Remover'}}">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            {{/unless}}
+          </div>
+        {{/each}}
+
+        {{#if editavel}}
+          <button type="button" class="op2-botao op2-botao--fantasma op2-aptidao__adicionar" data-action="adicionarAptidao">
+            <i class="fa-solid fa-plus"></i> {{localize "OP2.Aptidao.Adicionar"}}
+          </button>
+        {{/if}}
+      </div>
+    </details>
+
+    {{#each pericias}}
+      {{> (op2Caminho "partials/linha-pericia") chave=chave rotulo=rotulo die=die
+          caminho=caminho icone=icone atributo=atributo}}
+    {{/each}}
+  </div>
+
+  <p class="op2-dica">{{localize "OP2.Pericia.Dica"}}</p>
+</aside>

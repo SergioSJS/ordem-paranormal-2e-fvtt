@@ -1,0 +1,57 @@
+<div class="op2-card op2-card--{{desfecho}}">
+  <header class="op2-card__topo">
+    <span class="op2-tag op2-tag--pequena">{{rotulo}}</span>
+    {{#if dt}}<span class="op2-card__dt">{{localize "OP2.DT"}} {{dt}}</span>{{/if}}
+  </header>
+
+  <div class="op2-card__dados">
+    {{#each componentes}}
+      <span class="op2-card__dado{{#unless contado}} descartado{{/unless}}"
+        data-tooltip="{{componente.rotulo}}">{{dadoResultado this}}</span>
+    {{/each}}
+    <span class="op2-card__igual" aria-hidden="true">=</span>
+    <span class="op2-card__total">{{total}}</span>
+  </div>
+
+  {{#if critico}}
+    <p class="op2-card__desfecho op2-card__desfecho--critico">
+      <i class="fa-solid fa-star" aria-hidden="true"></i>
+      {{localize "OP2.Critico"}} — {{localize "OP2.CriticoExplica"}}
+    </p>
+  {{else if falhaCritica}}
+    <p class="op2-card__desfecho op2-card__desfecho--falha-critica">
+      <i class="fa-solid fa-skull" aria-hidden="true"></i> {{localize "OP2.FalhaCriticaTitulo"}}
+    </p>
+  {{else if (op2Eq desfecho "sucesso")}}
+    <p class="op2-card__desfecho op2-card__desfecho--sucesso">
+      <i class="fa-solid fa-check" aria-hidden="true"></i> {{localize "OP2.Sucesso"}}
+    </p>
+  {{else if (op2Eq desfecho "falha")}}
+    <p class="op2-card__desfecho op2-card__desfecho--falha">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i> {{localize "OP2.Falha"}}
+    </p>
+  {{/if}}
+
+  {{!-- RA e RB são lidos direto por arrombar, alcançar e combate (spec §4.2). --}}
+  <dl class="op2-card__leituras">
+    <div><dt>{{localize "OP2.RA"}}</dt><dd>{{ra}}</dd></div>
+    <div><dt>{{localize "OP2.RB"}}</dt><dd>{{rb}}</dd></div>
+  </dl>
+
+  <div class="op2-card__acoes">
+    <button type="button" class="op2-botao op2-botao--pequeno" data-op2-acao="aplicar-dano"
+      data-quantidade="{{ra}}" data-recurso="pv" data-ator-id="{{atorId}}">
+      {{localize "OP2.Chat.DanoRA"}} ({{ra}})
+    </button>
+    <button type="button" class="op2-botao op2-botao--pequeno" data-op2-acao="aplicar-dano"
+      data-quantidade="{{rb}}" data-recurso="pv" data-ator-id="{{atorId}}">
+      {{localize "OP2.Chat.DanoRB"}} ({{rb}})
+    </button>
+    {{#if falhaCritica}}
+      <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-op2-gm
+        data-op2-acao="rolar-falha-critica" data-ator-id="{{atorId}}">
+        {{localize "OP2.Chat.RolarFalhaCritica"}}
+      </button>
+    {{/if}}
+  </div>
+</div>

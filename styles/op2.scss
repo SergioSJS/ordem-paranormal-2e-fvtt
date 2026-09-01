@@ -1,0 +1,13 @@
+// Ordem Paranormal 2 — Playtest (Não-Oficial)
+//
+// O v13 trouxe CSS Layers para o core. Cada parcial declara `@layer system`, o que
+// mantém a especificidade previsível no v13 e no v14 e evita depender de estilo do core.
+// As `@font-face` ficam fora da layer de propósito: são declarações globais.
+@use "parciais/fontes";
+@use "parciais/tokens";
+@use "parciais/base";
+@use "parciais/dados";
+@use "parciais/ficha";
+@use "parciais/pericias";
+@use "parciais/dialogos";
+@use "parciais/chat";

@@ -1,0 +1,25 @@
+{{!-- Controle de dado: o ícone é o botão; o menu mostra as cinco formas da escada. --}}
+<div class="op2-controle-dado{{#unless @root.editavel}} desabilitado{{/unless}}" data-caminho="{{caminho}}">
+  <button type="button" class="op2-controle-dado__botao" data-action="abrirSeletor"
+    {{#unless @root.editavel}}disabled{{/unless}}
+    aria-haspopup="true" aria-label="{{localize 'OP2.Dado.Alterar'}} — {{valorAtual}}">
+    {{{icone}}}
+  </button>
+
+  <div class="op2-controle-dado__menu" role="menu">
+    {{#each @root.escada}}
+      <button type="button" role="menuitemradio" aria-checked="{{#if (op2Eq dado ../valorAtual)}}true{{else}}false{{/if}}"
+        class="op2-controle-dado__opcao{{#if (op2Eq dado ../valorAtual)}} ativo{{/if}}"
+        data-action="escolherDado" data-caminho="{{../caminho}}" data-dado="{{dado}}"
+        aria-label="{{dado}}">{{{icone}}}</button>
+    {{/each}}
+  </div>
+
+  {{!-- O select real mantém o campo no form e dá acesso por teclado. --}}
+  <select class="op2-controle-dado__nativo" name="{{caminho}}" {{#unless @root.editavel}}disabled{{/unless}}
+    aria-label="{{localize 'OP2.Dado.Alterar'}}">
+    {{#each @root.escada}}
+      <option value="{{dado}}" {{#if (op2Eq dado ../valorAtual)}}selected{{/if}}>{{dado}}</option>
+    {{/each}}
+  </select>
+</div>

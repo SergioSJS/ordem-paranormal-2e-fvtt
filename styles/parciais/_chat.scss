@@ -1,0 +1,101 @@
+@layer system {
+.op2-card {
+  padding: var(--op2-e2);
+  border: 1px solid var(--op2-linha);
+  border-left: 3px solid var(--op2-linha-forte);
+  border-radius: var(--op2-raio);
+  background: var(--op2-superficie);
+  color: var(--op2-texto);
+  font-family: var(--op2-fonte-corpo);
+
+  &--critico { border-left-color: var(--op2-critico); }
+  &--sucesso { border-left-color: var(--op2-sucesso); }
+  &--falha,
+  &--falha-critica { border-left-color: var(--op2-vermelho); }
+
+  &__topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--op2-e2);
+    gap: var(--op2-e2);
+  }
+
+  &__dt {
+    color: var(--op2-texto-fraco);
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  &__dados {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--op2-e2);
+  }
+
+  &__dado .op2-dado { width: 2.1rem; height: 2.1rem; }
+
+  &__igual { color: var(--op2-texto-fraco); font-family: var(--op2-fonte-display); }
+
+  &__total {
+    font-family: var(--op2-fonte-display);
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  &__desfecho {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: var(--op2-e2) 0 0;
+    font-family: var(--op2-fonte-display);
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+
+    &--critico { color: var(--op2-critico); }
+    &--sucesso { color: var(--op2-sucesso); }
+    &--falha { color: var(--op2-texto-fraco); }
+    &--falha-critica { color: var(--op2-vermelho-claro); }
+  }
+
+  // RA e RB são lidos direto por várias mecânicas, então ficam sempre visíveis.
+  &__leituras {
+    display: flex;
+    margin: var(--op2-e2) 0 0;
+    gap: var(--op2-e3);
+
+    div { display: flex; align-items: baseline; gap: 0.3rem; }
+
+    dt {
+      color: var(--op2-texto-fraco);
+      font-family: var(--op2-fonte-display);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+    }
+
+    dd { margin: 0; font-family: var(--op2-fonte-mono); font-size: 0.9rem; }
+  }
+
+  &__acoes {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: var(--op2-e2);
+    gap: var(--op2-e1);
+  }
+
+  &__efeito {
+    margin: var(--op2-e2) 0 0;
+    font-family: var(--op2-fonte-display);
+    font-size: 1.05rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__descricao { margin: 0.2rem 0 0; font-size: 0.85rem; }
+}
+
+}

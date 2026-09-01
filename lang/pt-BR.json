@@ -1,0 +1,241 @@
+{
+  "TYPES": {
+    "Actor": { "personagem": "Personagem", "npc": "NPC" },
+    "Item": { "habilidade": "Habilidade", "equipamento": "Equipamento" }
+  },
+
+  "OP2": {
+    "Ficha": {
+      "Personagem": "Ficha de Personagem",
+      "Npc": "Ficha de NPC",
+      "Item": "Ficha de Item",
+      "SemNome": "Sem nome"
+    },
+
+    "Atributo": {
+      "fisico": "Físico",
+      "mente": "Mente",
+      "emocao": "Emoção",
+      "Reduzido": "Atributo reduzido até o fim da cena"
+    },
+
+    "Pericia": {
+      "acrobacia": "Acrobacia",
+      "aptidao": "Aptidão",
+      "atletismo": "Atletismo",
+      "crime": "Crime",
+      "disciplina": "Disciplina",
+      "enganacao": "Enganação",
+      "furtividade": "Furtividade",
+      "intimidar": "Intimidar",
+      "intuicao": "Intuição",
+      "luta": "Luta",
+      "maquinas": "Máquinas",
+      "medicina": "Medicina",
+      "ocultismo": "Ocultismo",
+      "percepcao": "Percepção",
+      "persuasao": "Persuasão",
+      "pesquisar": "Pesquisar",
+      "pontaria": "Pontaria",
+      "sobrevivencia": "Sobrevivência",
+      "tecnologia": "Tecnologia",
+      "vigor": "Vigor",
+      "Rolar": "Clique para rolar · Shift para abrir o diálogo",
+      "Buscar": "Buscar",
+      "Dica": "O atributo pareado é sugestão — troque no diálogo de teste."
+    },
+
+    "Aptidao": {
+      "artes": "Artes",
+      "atualidades": "Atualidades",
+      "burocracia": "Burocracia",
+      "exatas": "Exatas",
+      "humanas": "Humanas",
+      "tatica": "Tática",
+      "Adicionar": "Novo campo",
+      "Remover": "Remover campo",
+      "Exemplo": "Ex.: Culinária, Náutica, Zoologia"
+    },
+
+    "Perfil": { "executor": "Executor", "analista": "Analista", "vigilante": "Vigilante" },
+    "Tipo": { "agente": "Agente", "sobrevivente": "Sobrevivente" },
+
+    "Campo": { "Perfil": "Perfil", "Ocupacao": "Ocupação", "Nivel": "Nível", "Nex": "NEX" },
+
+    "Recurso": {
+      "pv": "PV",
+      "pd": "PD",
+      "Atual": "Atual",
+      "Maximo": "Máximo"
+    },
+
+    "Secao": {
+      "Atributos": "Atributos",
+      "Pericias": "Perícias",
+      "Habilidades": "Habilidades",
+      "Inventario": "Inventário",
+      "Notas": "Notas",
+      "Conteudo": "Conteúdo da ficha"
+    },
+
+    "Aba": { "habilidades": "Habilidades", "inventario": "Inventário", "notas": "Notas" },
+
+    "Dado": { "Alterar": "Alterar o dado" },
+
+    "Habilidade": {
+      "Adicionar": "Nova habilidade",
+      "Vazio": "Nenhuma habilidade. O personagem começa com duas: uma do perfil, uma da ocupação.",
+      "OrigemRotulo": "Origem",
+      "Custo": "Custo",
+      "SemCusto": "Sem custo",
+      "Descricao": "Descrição",
+      "EfeitoRotulo": "Efeito em testes",
+      "EfeitoAjuda": "Só o que o motor sabe aplicar. Efeitos narrativos ficam na descrição.",
+      "EfeitoTipo": "Tipo de efeito",
+      "Passos": "Passos",
+      "DadoExtra": "Dado extra",
+      "DadoExtraAjuda": "Conta contra o teto de 4 dados rolados por teste.",
+      "PermitirD20": "Permite chegar a d20",
+      "PermitirD20Ajuda": "Só efeitos paranormais explícitos passam do d12. Fora do escopo do playtest.",
+      "UsoEmInvestigacao": "Uso em investigação",
+      "UsoEmInvestigacaoAjuda": "O padrão sugerido pelo playtest é um aumento de passo no teste em questão.",
+      "Origem": {
+        "perfil": "Perfil",
+        "ocupacao": "Ocupação",
+        "nivel": "Nível",
+        "treino": "Treino",
+        "outra": "Outra"
+      },
+      "Efeito": {
+        "nenhum": "Nenhum",
+        "passo": "Aumento de passo",
+        "dado-extra": "Dado adicional"
+      }
+    },
+
+    "Equipamento": {
+      "Adicionar": "Novo item",
+      "Vazio": "Inventário vazio.",
+      "Quantidade": "Quantidade",
+      "Equipado": "Equipado",
+      "Arma": "Arma",
+      "ArmaAjuda": "Empunhar arma faz o dano do corpo a corpo usar a RA em vez da RB.",
+      "Cargas": "Cargas",
+      "UsaCargas": "Tem cargas limitadas",
+      "Descricao": "Descrição"
+    },
+
+    "Item": {
+      "Novo": "Novo {tipo}",
+      "Apagar": "Apagar item",
+      "ApagarConfirma": "Apagar <strong>{nome}</strong> desta ficha?"
+    },
+
+    "Npc": {
+      "Categoria": "Categoria",
+      "AdicionarPericia": "Nova perícia",
+      "RemoverPericia": "Remover perícia",
+      "PericiasAjuda": "NPCs não usam a lista completa: declare só as perícias que este NPC realmente usa."
+    },
+
+    "Dialog": {
+      "Teste": {
+        "Titulo": "Teste",
+        "Rolar": "Rolar",
+        "Passos": "Ajustar passos",
+        "Atributo": "Atributo pareado",
+        "AtributoAjuda": "O atributo-base é sugestão. O mestre pode pedir outro para uma ação específica.",
+        "Extras": "Habilidades aplicáveis",
+        "Oposto": "Teste oposto (sem DT)",
+        "AvisoSelecao": "Você vai rolar mais dados do que pode somar — escolherá quais 3 contam.",
+        "NoTeto": "Teto de 4 dados rolados atingido."
+      },
+      "Selecao": {
+        "Titulo": "Escolha os dados",
+        "Confirmar": "Confirmar",
+        "Intro": "Rolam-se até 4 dados, mas só 3 entram no resultado.",
+        "Incompleto": "Escolha mais dados para completar o resultado.",
+        "Dica": "A soma máxima nem sempre é a melhor escolha: RA e RB alimentam dano, arrombamento e alcance."
+      }
+    },
+
+    "Passo": "passo",
+    "StepUp": "Aumentar um passo",
+    "StepDown": "Reduzir um passo",
+
+    "DT": "DT",
+    "RA": "RA",
+    "RB": "RB",
+    "Total": "Total",
+    "Sucesso": "Sucesso",
+    "Falha": "Falha",
+    "Critico": "Sucesso crítico",
+    "CriticoExplica": "passa automaticamente e rende informação extra em investigação",
+    "FalhaCriticaTitulo": "Falha crítica",
+
+    "FalhaCritica": {
+      "DecisaoDoMestre": "Se o efeito não fizer sentido na situação, o mestre escolhe outro.",
+      "Aplicada": "{efeito} aplicado a {ator}.",
+      "vexame": { "nome": "Vexame", "texto": "Narre a ação de forma vergonhosa. Sem efeito mecânico." },
+      "machucado": { "nome": "Machucado", "texto": "Físico reduzido em um passo até o fim da cena." },
+      "desatencao": { "nome": "Desatenção", "texto": "Mente reduzida em um passo até o fim da cena." },
+      "irritacao": { "nome": "Irritação", "texto": "Emoção reduzida em um passo até o fim da cena." },
+      "acidente": { "nome": "Acidente", "texto": "Perde 1d4 PV." },
+      "frustracao": { "nome": "Frustração", "texto": "Perde 1d4 PD." },
+      "perda": { "nome": "Perda", "texto": "Perde um item carregado ou um espaço de compra. O mestre decide qual." },
+      "nenhum": { "nome": "Sem efeito adicional", "texto": "A falha já basta." }
+    },
+
+    "Chat": {
+      "DanoRA": "Dano RA",
+      "DanoRB": "Dano RB",
+      "RolarFalhaCritica": "Rolar efeito (1d8)",
+      "AplicarEfeito": "Aplicar efeito",
+      "DanoAplicado": "{quantidade} de dano em {alvos}."
+    },
+
+    "Cena": {
+      "Encerrar": "Encerrar cena",
+      "Encerrada": "Cena encerrada. {total} personagem(ns) tiveram as reduções temporárias zeradas.",
+      "SemPersonagens": "Nenhum personagem na cena ativa."
+    },
+
+    "Aviso": {
+      "TetoDeDados": "Máximo de {max} dados rolados por teste.",
+      "TetoDeContados": "Só {max} dados entram no resultado.",
+      "PericiaDesconhecida": "Perícia desconhecida: {chave}",
+      "AptidaoDuplicada": "Já existe um campo de Aptidão chamado \"{rotulo}\".",
+      "AtorAusente": "O personagem deste card não existe mais."
+    },
+
+    "Config": {
+      "dtPadrao": { "name": "DT padrão", "hint": "Dificuldade sugerida pelo playtest quando nada é indicado." },
+      "escopoCritico": {
+        "name": "Crítico considera",
+        "hint": "O playtest não diz se os dados descartados contam para o crítico. O padrão varre todos os rolados.",
+        "todos": "Todos os dados rolados",
+        "contados": "Só os dados contabilizados"
+      },
+      "compartilharPericia": {
+        "name": "Perícia de Compartilhar",
+        "hint": "O corpo do texto diz Pesquisar; a tabela-resumo diz Intuição. O padrão segue o texto normativo."
+      },
+      "ajudaAlvo": {
+        "name": "Ajuda aumenta",
+        "hint": "O texto não diz qual dado recebe o aumento de passo da ação de Ajudar.",
+        "pericia": "O dado da perícia",
+        "atributo": "O dado do atributo"
+      },
+      "falhaTrauma": {
+        "name": "Falha no teste de trauma",
+        "hint": "O playtest avisa que na versão final não será tão fácil morrer por perda de PD.",
+        "morte": "Colapso mental e morte",
+        "colapso": "Colapso, sem morte"
+      },
+      "cliqueAbreDialogo": {
+        "name": "Clique abre o diálogo de teste",
+        "hint": "Por padrão, o clique rola direto e Shift abre o diálogo. Ative para inverter."
+      }
+    }
+  }
+}

@@ -1,0 +1,141 @@
+// A coluna de perícias reproduz a leitura da ficha oficial:
+//   NOME DA PERÍCIA        [dado]  +  [dado]  ATRIBUTO
+// O par que será rolado fica visível sem abrir nada.
+@layer system {
+.op2-dock-pericias {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  padding: var(--op2-e2);
+  gap: var(--op2-e2);
+  grid-area: pericias;
+  overflow: hidden;
+
+  &__topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: var(--op2-e2);
+    border-bottom: 2px solid var(--op2-vermelho);
+    gap: var(--op2-e2);
+  }
+}
+
+.op2-busca {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--op2-texto-fraco);
+  font-size: 0.75rem;
+
+  &__campo {
+    width: 6.5rem;
+    height: 1.6rem;
+    padding: 0 0.4rem;
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.75rem;
+  }
+}
+
+.op2-lista-pericias {
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.op2-pericia {
+  display: grid;
+  align-items: center;
+  min-height: 1.9rem;
+  padding: 0.1rem 0.25rem;
+  border-radius: var(--op2-raio);
+  column-gap: 0.3rem;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+
+  &:hover { background: var(--op2-superficie-alta); }
+
+  // Escondida pela busca da coluna.
+  &[hidden] { display: none; }
+
+  &__nome {
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--op2-texto);
+    cursor: pointer;
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+    text-align: right;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    &:hover { color: var(--op2-vermelho-claro); }
+  }
+
+  &__mais {
+    color: var(--op2-texto-fraco);
+    font-family: var(--op2-fonte-display);
+    font-size: 0.85rem;
+  }
+
+  &__atributo {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__atributo-nome {
+    color: var(--op2-vermelho-claro);
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}
+
+.op2-aptidao {
+  margin-bottom: var(--op2-e1);
+
+  &__resumo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.25rem 0.25rem 0.25rem 1.1rem;
+    border-radius: var(--op2-raio);
+    cursor: pointer;
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+
+    &:hover { background: var(--op2-superficie-alta); }
+  }
+
+  &__atributo {
+    color: var(--op2-vermelho-claro);
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+  }
+
+  &__campos {
+    padding-left: 0.5rem;
+    border-left: 1px solid var(--op2-linha);
+    margin-left: 0.4rem;
+  }
+
+  &__campo {
+    display: grid;
+    align-items: center;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  &__adicionar {
+    width: 100%;
+    margin-top: var(--op2-e1);
+    font-size: 0.7rem;
+  }
+}
+
+}

@@ -1,0 +1,26 @@
+<div class="op2-selecao">
+  <p class="op2-selecao__intro">{{localize "OP2.Dialog.Selecao.Intro"}}</p>
+
+  <div class="op2-selecao__dados" role="group">
+    {{#each dados}}
+      <button type="button" class="op2-selecao__dado{{#if contado}} escolhido{{/if}}"
+        data-action="alternar" data-indice="{{indice}}" aria-pressed="{{contado}}"
+        aria-label="{{componente.rotulo}} — {{dado}}: {{resultado}}">
+        {{{icone}}}
+        <span class="op2-selecao__origem">{{componente.rotulo}}</span>
+      </button>
+    {{/each}}
+  </div>
+
+  <dl class="op2-selecao__previa">
+    <div><dt>{{localize "OP2.Total"}}</dt><dd class="op2-destaque">{{parcial.total}}</dd></div>
+    <div><dt>{{localize "OP2.RA"}}</dt><dd>{{parcial.ra}}</dd></div>
+    <div><dt>{{localize "OP2.RB"}}</dt><dd>{{parcial.rb}}</dd></div>
+    {{#if dt}}<div><dt>{{localize "OP2.DT"}}</dt><dd>{{dt}}</dd></div>{{/if}}
+  </dl>
+
+  {{#unless completo}}
+    <p class="op2-ajuda">{{localize "OP2.Dialog.Selecao.Incompleto"}}</p>
+  {{/unless}}
+  <p class="op2-ajuda">{{localize "OP2.Dialog.Selecao.Dica"}}</p>
+</div>

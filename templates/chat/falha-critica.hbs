@@ -1,0 +1,20 @@
+<div class="op2-card op2-card--falha-critica">
+  <header class="op2-card__topo">
+    <span class="op2-tag op2-tag--pequena">{{localize "OP2.FalhaCriticaTitulo"}}</span>
+    <span class="op2-card__dt">1d8 = {{face}}</span>
+  </header>
+
+  <h4 class="op2-card__efeito">{{localize (op2Concat "OP2.FalhaCritica." chave ".nome")}}</h4>
+  <p class="op2-card__descricao">{{localize (op2Concat "OP2.FalhaCritica." chave ".texto")}}</p>
+
+  {{#if aplicavel}}
+    <div class="op2-card__acoes">
+      <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-op2-gm
+        data-op2-acao="aplicar-falha-critica" data-face="{{face}}" data-ator-id="{{atorId}}">
+        {{localize "OP2.Chat.AplicarEfeito"}}
+      </button>
+    </div>
+    {{!-- O mestre pode trocar o efeito se não fizer sentido na situação (spec §4.4). --}}
+    <p class="op2-ajuda">{{localize "OP2.FalhaCritica.DecisaoDoMestre"}}</p>
+  {{/if}}
+</div>

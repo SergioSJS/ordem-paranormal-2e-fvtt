@@ -1,0 +1,66 @@
+<div class="op2-teste">
+  <ol class="op2-teste__componentes">
+    {{#each componentes}}
+      <li class="op2-teste__componente op2-teste__componente--{{tipo}}">
+        <span class="op2-teste__rotulo">{{rotulo}}</span>
+        <span class="op2-teste__dado">{{{icone}}}</span>
+        {{#unless (op2Eq tipo "extra")}}
+          <div class="op2-passo" role="group" aria-label="{{localize 'OP2.Dialog.Teste.Passos'}}">
+            <button type="button" data-action="passo" data-alvo="{{tipo}}" data-delta="-1"
+              aria-label="{{localize 'OP2.StepDown'}}">−</button>
+            <button type="button" data-action="passo" data-alvo="{{tipo}}" data-delta="1"
+              aria-label="{{localize 'OP2.StepUp'}}">+</button>
+          </div>
+        {{/unless}}
+      </li>
+    {{/each}}
+  </ol>
+
+  <label class="op2-campo">
+    <span>{{localize "OP2.Dialog.Teste.Atributo"}}</span>
+    <select name="chaveAtributo">
+      {{#each atributos}}
+        <option value="{{chave}}" {{#if selecionado}}selected{{/if}}>{{rotulo}} — {{dado}}</option>
+      {{/each}}
+    </select>
+    <p class="op2-ajuda">{{localize "OP2.Dialog.Teste.AtributoAjuda"}}</p>
+  </label>
+
+  {{#if temExtras}}
+    <fieldset class="op2-extras">
+      <legend>{{localize "OP2.Dialog.Teste.Extras"}}</legend>
+      {{#each extras}}
+        <button type="button" class="op2-extra{{#if ativo}} ativo{{/if}}" data-action="alternarExtra" data-item-id="{{id}}"
+          aria-pressed="{{ativo}}">
+          <img src="{{img}}" alt="">
+          <span class="op2-extra__nome">{{nome}}</span>
+          <span class="op2-extra__efeito">
+            {{#if (op2Eq tipo "passo")}}{{#if (op2Eq passos 1)}}+1{{else}}{{passos}}{{/if}} {{localize "OP2.Passo"}}{{/if}}
+            {{#if (op2Eq tipo "dado-extra")}}+{{dado}}{{/if}}
+          </span>
+        </button>
+      {{/each}}
+    </fieldset>
+  {{/if}}
+
+  <div class="op2-teste__dificuldade">
+    <label class="op2-campo">
+      <span>{{localize "OP2.DT"}}</span>
+      <input type="number" name="dt" value="{{estado.dt}}" min="1" step="1" inputmode="numeric" autofocus>
+    </label>
+    <label class="op2-campo op2-campo--inline">
+      <input type="checkbox" name="oposto" {{#if estado.oposto}}checked{{/if}}>
+      <span>{{localize "OP2.Dialog.Teste.Oposto"}}</span>
+    </label>
+  </div>
+
+  {{#if excedeContagem}}
+    <p class="op2-aviso">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      {{localize "OP2.Dialog.Teste.AvisoSelecao"}}
+    </p>
+  {{/if}}
+  {{#if noTeto}}
+    <p class="op2-ajuda">{{localize "OP2.Dialog.Teste.NoTeto"}}</p>
+  {{/if}}
+</div>

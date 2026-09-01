@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+env:
+  SYSTEM_ID: ordem-paranormal-2e
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Verificação
+        run: npm run lint && npm test
+
+      - name: Build do CSS
+        run: npm run build:css
+
+      # O sistema ainda não tem packs; o passo entra quando houver.
+      - name: Build dos compêndios
+        run: npm run pack:build
+
+      - name: Fixar versão e URL de download no manifesto
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          REPO=${{ github.repository }}
+          DOWNLOAD="https://github.com/${REPO}/releases/download/${GITHUB_REF_NAME}/${SYSTEM_ID}.zip"
+          jq --arg ver "$VERSION" --arg dl "$DOWNLOAD" \
+            '.version = $ver | .download = $dl' \
+            system.json > system.tmp.json && mv system.tmp.json system.json
+          cat system.json
+
+      - name: Empacotar
+        run: |
+          zip -r "${SYSTEM_ID}.zip" \
+            module/ templates/ lang/ assets/ packs/ \
+            styles/op2.css \
+            system.json \
+            README.md LICENSE \
+            --exclude "packs/sources/*"
+
+      - name: Publicar release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ env.SYSTEM_ID }}.zip
+            system.json
+          generate_release_notes: true
+          fail_on_unmatched_files: true

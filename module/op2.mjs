@@ -1,0 +1,68 @@
+/**
+ * Ordem Paranormal 2 (Playtest Alpha) — sistema não-oficial para Foundry VTT.
+ * Compatível com v13 e v14.
+ */
+import { SYSTEM_ID, OP2 } from "./config.mjs";
+import { PersonagemData } from "./data/actor-personagem.mjs";
+import { NpcData } from "./data/actor-npc.mjs";
+import { HabilidadeData } from "./data/item-habilidade.mjs";
+import { EquipamentoData } from "./data/item-equipamento.mjs";
+import { PersonagemSheet } from "./sheets/actor-personagem-sheet.mjs";
+import { NpcSheet } from "./sheets/actor-npc-sheet.mjs";
+import { OP2ItemSheet } from "./sheets/item-sheet.mjs";
+import { OP2Roll } from "./dice/op2-roll.mjs";
+import { rolarTeste } from "./dice/teste.mjs";
+import { stepDie, faces } from "./dice/escada.mjs";
+import { registrarSettings } from "./settings/register.mjs";
+import { registrarHelpersDeDado } from "./ui/dice-icons.mjs";
+import { registrarHelpers, precarregarTemplates } from "./ui/handlebars.mjs";
+import { registrarChat } from "./ui/chat.mjs";
+import { encerrarCena } from "./cena/encerrar-cena.mjs";
+
+Hooks.once("init", () => {
+  console.log(`${SYSTEM_ID} | inicializando`);
+
+  CONFIG.OP2 = OP2;
+
+  CONFIG.Actor.dataModels.personagem = PersonagemData;
+  CONFIG.Actor.dataModels.npc = NpcData;
+  CONFIG.Item.dataModels.habilidade = HabilidadeData;
+  CONFIG.Item.dataModels.equipamento = EquipamentoData;
+
+  CONFIG.Dice.rolls.unshift(OP2Roll);
+
+  registrarSettings();
+  registrarHelpersDeDado();
+  registrarHelpers();
+  registrarSheets();
+  registrarChat();
+
+  // Sem iniciativa rolada: os jogadores decidem a ordem entre si (spec §5.2).
+  CONFIG.Combat.initiative = { formula: "0", decimals: 0 };
+
+  game.op2 = { rolarTeste, encerrarCena, stepDie, faces, OP2Roll };
+});
+
+Hooks.once("ready", () => precarregarTemplates());
+
+/**
+ * Registro de fichas. `foundry.documents.collections` e
+ * `foundry.applications.sheets` existem no v13 e no v14 — é o caminho que mantém o
+ * sistema compatível com as duas versões sem camada de adaptação.
+ */
+function registrarSheets() {
+  const { Actors, Items } = foundry.documents.collections;
+
+  Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
+  Actors.registerSheet(SYSTEM_ID, PersonagemSheet, {
+    types: ["personagem"], makeDefault: true, label: "OP2.Ficha.Personagem",
+  });
+  Actors.registerSheet(SYSTEM_ID, NpcSheet, {
+    types: ["npc"], makeDefault: true, label: "OP2.Ficha.Npc",
+  });
+
+  Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
+  Items.registerSheet(SYSTEM_ID, OP2ItemSheet, {
+    types: ["habilidade", "equipamento"], makeDefault: true, label: "OP2.Ficha.Item",
+  });
+}

@@ -1,0 +1,59 @@
+{
+  "id": "ordem-paranormal-2e",
+  "title": "Ordem Paranormal 2 — Playtest (Não-Oficial)",
+  "description": "Sistema não-oficial para Foundry VTT do playtest alpha de Ordem Paranormal RPG 2. Dados em escada (d4→d12), testes com Rolagem Alta/Baixa, cenas de investigação e ferramentas da Ordo Realitas. Feito por fã, sem afiliação com os detentores dos direitos de Ordem Paranormal RPG. Não distribui textos, artes ou conteúdo protegido do jogo.",
+  "version": "0.0.1",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "14"
+  },
+  "esmodules": [
+    "module/op2.mjs"
+  ],
+  "styles": [
+    "styles/op2.css"
+  ],
+  "languages": [
+    {
+      "lang": "pt-BR",
+      "name": "Português (Brasil)",
+      "path": "lang/pt-BR.json"
+    },
+    {
+      "lang": "pt",
+      "name": "Português (Brasil)",
+      "path": "lang/pt-BR.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "documentTypes": {
+    "Actor": {
+      "personagem": {},
+      "npc": {}
+    },
+    "Item": {
+      "habilidade": {},
+      "equipamento": {}
+    }
+  },
+  "authors": [
+    {
+      "name": "Sérgio Sousa",
+      "url": "https://meioorc.com"
+    }
+  ],
+  "url": "https://github.com/SergioSJS/ordem-paranormal-2e-fvtt",
+  "manifest": "https://github.com/SergioSJS/ordem-paranormal-2e-fvtt/releases/latest/download/system.json",
+  "download": "https://github.com/SergioSJS/ordem-paranormal-2e-fvtt/releases/latest/download/ordem-paranormal-2e.zip",
+  "license": "LICENSE",
+  "grid": {
+    "distance": 1.5,
+    "units": "m"
+  },
+  "primaryTokenAttribute": "recursos.pv",
+  "secondaryTokenAttribute": "recursos.pd"
+}

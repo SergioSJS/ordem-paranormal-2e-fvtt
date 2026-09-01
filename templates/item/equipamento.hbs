@@ -1,0 +1,57 @@
+<div class="op2-item-ficha">
+  <header class="op2-item-ficha__topo">
+    <img src="{{item.img}}" alt="" data-action="editImage" data-edit="img">
+    <input type="text" class="op2-nome" name="name" value="{{item.name}}" {{#unless editavel}}disabled{{/unless}}>
+  </header>
+
+  <div class="op2-grade-campos">
+    <label class="op2-campo">
+      <span>{{localize "OP2.Equipamento.Quantidade"}}</span>
+      <input type="number" name="system.quantidade" value="{{sistema.quantidade}}" min="0"
+        {{#unless editavel}}disabled{{/unless}}>
+    </label>
+
+    <label class="op2-campo op2-campo--inline">
+      <input type="checkbox" name="system.equipado" {{#if sistema.equipado}}checked{{/if}}
+        {{#unless editavel}}disabled{{/unless}}>
+      <span>{{localize "OP2.Equipamento.Equipado"}}</span>
+    </label>
+
+    <label class="op2-campo op2-campo--inline">
+      <input type="checkbox" name="system.arma" {{#if sistema.arma}}checked{{/if}}
+        {{#unless editavel}}disabled{{/unless}}>
+      <span>{{localize "OP2.Equipamento.Arma"}}</span>
+    </label>
+  </div>
+  <p class="op2-ajuda">{{localize "OP2.Equipamento.ArmaAjuda"}}</p>
+
+  <fieldset class="op2-cargas">
+    <legend>{{localize "OP2.Equipamento.Cargas"}}</legend>
+    <label class="op2-campo op2-campo--inline">
+      <input type="checkbox" name="system.cargas.usa" {{#if sistema.cargas.usa}}checked{{/if}}
+        {{#unless editavel}}disabled{{/unless}}>
+      <span>{{localize "OP2.Equipamento.UsaCargas"}}</span>
+    </label>
+
+    {{#if sistema.cargas.usa}}
+      <div class="op2-grade-campos">
+        <label class="op2-campo">
+          <span>{{localize "OP2.Recurso.Atual"}}</span>
+          <input type="number" name="system.cargas.value" value="{{sistema.cargas.value}}" min="0"
+            {{#unless editavel}}disabled{{/unless}}>
+        </label>
+        <label class="op2-campo">
+          <span>{{localize "OP2.Recurso.Maximo"}}</span>
+          <input type="number" name="system.cargas.max" value="{{sistema.cargas.max}}" min="0"
+            {{#unless editavel}}disabled{{/unless}}>
+        </label>
+      </div>
+    {{/if}}
+  </fieldset>
+
+  <label class="op2-campo">
+    <span>{{localize "OP2.Equipamento.Descricao"}}</span>
+    {{formInput fields.descricao value=sistema.descricao enriched=descricao toggled=true
+      editable=editavel name="system.descricao"}}
+  </label>
+</div>

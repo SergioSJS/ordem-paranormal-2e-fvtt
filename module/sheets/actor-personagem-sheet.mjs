@@ -1,0 +1,268 @@
+/**
+ * Ficha do personagem.
+ *
+ * Segue a diagramação da ficha oficial do playtest: cada perícia mostra o *par* de
+ * dados que será rolado — o dado da perícia e o do atributo pareado — em vez de um
+ * seletor de texto. É a leitura que o livro usa e a que torna a ficha escaneável.
+ */
+import { ESCADA, ATRIBUTOS, PERICIAS, PERFIS, APTIDOES_PADRAO } from "../config.mjs";
+import { stepDie } from "../dice/escada.mjs";
+import { rolarTeste } from "../dice/teste.mjs";
+import { iconeDado } from "../ui/dice-icons.mjs";
+import { lerConfig } from "../settings/register.mjs";
+import { encerrarCena } from "../cena/encerrar-cena.mjs";
+
+const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { ActorSheetV2 } = foundry.applications.sheets;
+
+export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
+  static DEFAULT_OPTIONS = {
+    classes: ["op2", "op2-ficha", "op2-ficha--personagem"],
+    position: { width: 860, height: 720 },
+    window: { resizable: true, icon: "fa-solid fa-user-secret" },
+    form: { submitOnChange: true, closeOnSubmit: false },
+    actions: {
+      rolar: PersonagemSheet.#rolar,
+      passoDado: PersonagemSheet.#passoDado,
+      escolherDado: PersonagemSheet.#escolherDado,
+      abrirSeletor: PersonagemSheet.#abrirSeletor,
+      definirRecurso: PersonagemSheet.#definirRecurso,
+      criarItem: PersonagemSheet.#criarItem,
+      editarItem: PersonagemSheet.#editarItem,
+      apagarItem: PersonagemSheet.#apagarItem,
+      adicionarAptidao: PersonagemSheet.#adicionarAptidao,
+      removerAptidao: PersonagemSheet.#removerAptidao,
+      encerrarCena: PersonagemSheet.#encerrarCena,
+    },
+  };
+
+  static PARTS = {
+    cabecalho: { template: "systems/ordem-paranormal-2e/templates/actor/personagem-cabecalho.hbs" },
+    abas: { template: "systems/ordem-paranormal-2e/templates/actor/personagem-abas.hbs" },
+    habilidades: { template: "systems/ordem-paranormal-2e/templates/actor/personagem-habilidades.hbs" },
+    inventario: { template: "systems/ordem-paranormal-2e/templates/actor/personagem-inventario.hbs" },
+    notas: { template: "systems/ordem-paranormal-2e/templates/actor/personagem-notas.hbs" },
+    pericias: { template: "systems/ordem-paranormal-2e/templates/actor/personagem-pericias.hbs" },
+  };
+
+  static TABS = {
+    principal: {
+      tabs: [{ id: "habilidades" }, { id: "inventario" }, { id: "notas" }],
+      initial: "habilidades",
+      labelPrefix: "OP2.Aba",
+    },
+  };
+
+  async _prepareContext(opcoes) {
+    const contexto = await super._prepareContext(opcoes);
+    const sistema = this.actor.system;
+
+    return {
+      ...contexto,
+      sistema,
+      editavel: this.isEditable,
+      ehGM: game.user.isGM,
+      atributos: this.#atributos(sistema),
+      pericias: this.#pericias(sistema),
+      aptidoes: this.#aptidoes(sistema),
+      recursos: {
+        pv: this.#recurso(sistema.recursos.pv, "pv"),
+        pd: this.#recurso(sistema.recursos.pd, "pd"),
+      },
+      perfis: PERFIS.map((chave) => ({ chave, rotulo: game.i18n.localize(`OP2.Perfil.${chave}`) })),
+      // Opções do seletor de dado, com o ícone já renderizado.
+      escada: ESCADA.map((dado) => ({ dado, icone: iconeDado(dado) })),
+      habilidades: this.actor.items.filter((i) => i.type === "habilidade"),
+      equipamentos: this.actor.items.filter((i) => i.type === "equipamento"),
+      temReducao: Object.values(sistema.estado.reducoesTemporarias).some((n) => n > 0),
+      biografia: await enriquecer(sistema.biografia, this.actor),
+    };
+  }
+
+  #atributos(sistema) {
+    return Object.keys(ATRIBUTOS).map((chave) => {
+      const atributo = sistema.atributos[chave];
+      return {
+        chave,
+        rotulo: game.i18n.localize(`OP2.Atributo.${chave}`),
+        die: atributo.die,
+        dadoEfetivo: atributo.dadoEfetivo,
+        reduzido: atributo.reduzido,
+        icone: iconeDado(atributo.dadoEfetivo, { titulo: `${game.i18n.localize(`OP2.Atributo.${chave}`)}: ${atributo.dadoEfetivo}` }),
+        iconeBase: atributo.reduzido ? iconeDado(atributo.die, { classe: "op2-dado--base" }) : null,
+        caminho: `system.atributos.${chave}.die`,
+      };
+    });
+  }
+
+  #pericias(sistema) {
+    return Object.keys(PERICIAS)
+      .filter((chave) => !PERICIAS[chave].especializada)
+      .map((chave) => this.#linhaDePericia(sistema, chave))
+      .sort((a, b) => a.rotulo.localeCompare(b.rotulo, "pt-BR"));
+  }
+
+  /** Uma linha da ficha: nome, dado da perícia, dado do atributo pareado. */
+  #linhaDePericia(sistema, chave, { chaveAptidao } = {}) {
+    const pericia = chaveAptidao ? sistema.aptidoes[chaveAptidao] : sistema.pericias[chave];
+    const chaveAtributo = sistema.pericias[chave].atributo;
+    const atributo = sistema.atributos[chaveAtributo];
+    const chaveTeste = chaveAptidao ? `aptidao.${chaveAptidao}` : chave;
+
+    return {
+      chave: chaveTeste,
+      rotulo: chaveAptidao
+        ? (sistema.aptidoes[chaveAptidao].rotulo || game.i18n.localize(`OP2.Aptidao.${chaveAptidao}`))
+        : game.i18n.localize(`OP2.Pericia.${chave}`),
+      die: pericia.die,
+      dadoEfetivo: pericia.dadoEfetivo ?? pericia.die,
+      valor: pericia.valor,
+      caminho: chaveAptidao ? `system.aptidoes.${chaveAptidao}.die` : `system.pericias.${chave}.die`,
+      icone: iconeDado(pericia.dadoEfetivo ?? pericia.die),
+      atributo: {
+        chave: chaveAtributo,
+        rotulo: game.i18n.localize(`OP2.Atributo.${chaveAtributo}`),
+        icone: iconeDado(atributo.dadoEfetivo),
+      },
+    };
+  }
+
+  #aptidoes(sistema) {
+    const chaves = Object.keys(sistema.aptidoes ?? {});
+    return {
+      rotulo: game.i18n.localize("OP2.Pericia.aptidao"),
+      atributo: {
+        chave: sistema.pericias.aptidao.atributo,
+        rotulo: game.i18n.localize(`OP2.Atributo.${sistema.pericias.aptidao.atributo}`),
+      },
+      campos: chaves
+        .map((sub) => this.#linhaDePericia(sistema, "aptidao", { chaveAptidao: sub }))
+        .map((linha, i) => ({ ...linha, sub: chaves[i], padrao: APTIDOES_PADRAO.includes(chaves[i]) })),
+    };
+  }
+
+  /** PV/PD como trilha de pips — é assim que a ficha oficial mostra os recursos. */
+  #recurso(recurso, chave) {
+    const max = Math.max(recurso.max, recurso.value, 0);
+    return {
+      chave,
+      value: recurso.value,
+      max: recurso.max,
+      // Trilhas muito longas viram número puro: 40 pips não são legíveis nem clicáveis.
+      pips: max <= 30 ? Array.from({ length: max }, (_, i) => ({ n: i + 1, cheio: i < recurso.value })) : null,
+    };
+  }
+
+  /* ---------------------------------------------------------------- ações -- */
+
+  static async #rolar(evento, alvo) {
+    const chave = alvo.dataset.chave;
+    const abrirDialogo = evento.shiftKey !== lerConfig("cliqueAbreDialogo");
+    await rolarTeste(this.actor, { chavePericia: chave, rapido: !abrirDialogo });
+  }
+
+  /** Roda do mouse e teclas de seta andam na escada sem abrir nada. */
+  static async #passoDado(_evento, alvo) {
+    const { caminho, delta } = alvo.dataset;
+    const atual = foundry.utils.getProperty(this.actor, caminho);
+    await this.actor.update({ [caminho]: stepDie(atual, Number(delta)) });
+  }
+
+  static async #abrirSeletor(_evento, alvo) {
+    const controle = alvo.closest(".op2-controle-dado");
+    controle.classList.toggle("aberto");
+    if (controle.classList.contains("aberto")) {
+      const fechar = (e) => {
+        if (controle.contains(e.target)) return;
+        controle.classList.remove("aberto");
+        document.removeEventListener("click", fechar, true);
+      };
+      document.addEventListener("click", fechar, true);
+    }
+  }
+
+  static async #escolherDado(_evento, alvo) {
+    const { caminho, dado } = alvo.dataset;
+    alvo.closest(".op2-controle-dado")?.classList.remove("aberto");
+    await this.actor.update({ [caminho]: dado });
+  }
+
+  /** Clicar no pip N define o recurso em N; clicar no pip atual zera de N para N-1. */
+  static async #definirRecurso(_evento, alvo) {
+    const { recurso, valor } = alvo.dataset;
+    const atual = this.actor.system.recursos[recurso].value;
+    const novo = Number(valor) === atual ? Number(valor) - 1 : Number(valor);
+    await this.actor.update({ [`system.recursos.${recurso}.value`]: Math.max(0, novo) });
+  }
+
+  static async #criarItem(_evento, alvo) {
+    const type = alvo.dataset.tipo;
+    await this.actor.createEmbeddedDocuments("Item", [{
+      name: game.i18n.format("OP2.Item.Novo", { tipo: game.i18n.localize(`TYPES.Item.${type}`) }),
+      type,
+    }]);
+  }
+
+  static async #editarItem(_evento, alvo) {
+    this.#itemDe(alvo)?.sheet.render({ force: true });
+  }
+
+  static async #apagarItem(_evento, alvo) {
+    const item = this.#itemDe(alvo);
+    if (!item) return;
+    const confirmado = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("OP2.Item.Apagar") },
+      content: `<p>${game.i18n.format("OP2.Item.ApagarConfirma", { nome: item.name })}</p>`,
+    });
+    if (confirmado) await item.delete();
+  }
+
+  #itemDe(alvo) {
+    return this.actor.items.get(alvo.closest("[data-item-id]")?.dataset.itemId);
+  }
+
+  /** Aptidão é coleção aberta: o texto fala em "um campo específico" (spec §2.3). */
+  static async #adicionarAptidao() {
+    const rotulo = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("OP2.Aptidao.Adicionar") },
+      content: `<input type="text" name="rotulo" autofocus placeholder="${game.i18n.localize("OP2.Aptidao.Exemplo")}">`,
+      ok: { callback: (_e, botao) => botao.form.elements.rotulo.value.trim() },
+    });
+    if (!rotulo) return;
+
+    const chave = rotulo.slugify({ strict: true });
+    if (this.actor.system.aptidoes[chave]) {
+      return void ui.notifications.warn(game.i18n.format("OP2.Aviso.AptidaoDuplicada", { rotulo }));
+    }
+    await this.actor.update({ [`system.aptidoes.${chave}`]: { rotulo, die: "d4" } });
+  }
+
+  static async #removerAptidao(_evento, alvo) {
+    await this.actor.update({ [`system.aptidoes.-=${alvo.dataset.sub}`]: null });
+  }
+
+  static async #encerrarCena() {
+    await encerrarCena({ atores: [this.actor] });
+  }
+
+  _onRender(contexto, opcoes) {
+    super._onRender(contexto, opcoes);
+    if (!this.isEditable) return;
+
+    // A roda do mouse sobre um dado anda na escada — o gesto mais rápido para ajustar
+    // uma ficha inteira na criação de personagem.
+    for (const controle of this.element.querySelectorAll(".op2-controle-dado[data-caminho]")) {
+      controle.addEventListener("wheel", (evento) => {
+        evento.preventDefault();
+        const caminho = controle.dataset.caminho;
+        const atual = foundry.utils.getProperty(this.actor, caminho);
+        this.actor.update({ [caminho]: stepDie(atual, evento.deltaY < 0 ? 1 : -1) });
+      }, { passive: false });
+    }
+  }
+}
+
+function enriquecer(html, ator) {
+  const editor = foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
+  return editor.enrichHTML(html, { relativeTo: ator, secrets: ator.isOwner });
+}

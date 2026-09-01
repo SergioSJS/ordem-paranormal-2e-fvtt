@@ -1,0 +1,232 @@
+{
+  "TYPES": {
+    "Actor": { "personagem": "Character", "npc": "NPC" },
+    "Item": { "habilidade": "Ability", "equipamento": "Equipment" }
+  },
+
+  "OP2": {
+    "Ficha": {
+      "Personagem": "Character Sheet",
+      "Npc": "NPC Sheet",
+      "Item": "Item Sheet",
+      "SemNome": "Unnamed"
+    },
+
+    "Atributo": {
+      "fisico": "Physical",
+      "mente": "Mind",
+      "emocao": "Emotion",
+      "Reduzido": "Attribute reduced until the end of the scene"
+    },
+
+    "Pericia": {
+      "acrobacia": "Acrobatics",
+      "aptidao": "Aptitude",
+      "atletismo": "Athletics",
+      "crime": "Crime",
+      "disciplina": "Discipline",
+      "enganacao": "Deception",
+      "furtividade": "Stealth",
+      "intimidar": "Intimidation",
+      "intuicao": "Insight",
+      "luta": "Fighting",
+      "maquinas": "Machinery",
+      "medicina": "Medicine",
+      "ocultismo": "Occultism",
+      "percepcao": "Perception",
+      "persuasao": "Persuasion",
+      "pesquisar": "Research",
+      "pontaria": "Marksmanship",
+      "sobrevivencia": "Survival",
+      "tecnologia": "Technology",
+      "vigor": "Fortitude",
+      "Rolar": "Click to roll · Shift to open the dialog",
+      "Buscar": "Search",
+      "Dica": "The paired attribute is a suggestion — swap it in the check dialog."
+    },
+
+    "Aptidao": {
+      "artes": "Arts",
+      "atualidades": "Current Affairs",
+      "burocracia": "Bureaucracy",
+      "exatas": "Sciences",
+      "humanas": "Humanities",
+      "tatica": "Tactics",
+      "Adicionar": "New field",
+      "Remover": "Remove field",
+      "Exemplo": "e.g. Cooking, Sailing, Zoology"
+    },
+
+    "Perfil": { "executor": "Enforcer", "analista": "Analyst", "vigilante": "Sentinel" },
+    "Tipo": { "agente": "Agent", "sobrevivente": "Survivor" },
+
+    "Campo": { "Perfil": "Profile", "Ocupacao": "Occupation", "Nivel": "Level", "Nex": "NEX" },
+
+    "Recurso": { "pv": "HP", "pd": "DP", "Atual": "Current", "Maximo": "Maximum" },
+
+    "Secao": {
+      "Atributos": "Attributes",
+      "Pericias": "Skills",
+      "Habilidades": "Abilities",
+      "Inventario": "Inventory",
+      "Notas": "Notes",
+      "Conteudo": "Sheet content"
+    },
+
+    "Aba": { "habilidades": "Abilities", "inventario": "Inventory", "notas": "Notes" },
+
+    "Dado": { "Alterar": "Change the die" },
+
+    "Habilidade": {
+      "Adicionar": "New ability",
+      "Vazio": "No abilities yet. A character starts with two: one from the profile, one from the occupation.",
+      "OrigemRotulo": "Source",
+      "Custo": "Cost",
+      "SemCusto": "No cost",
+      "Descricao": "Description",
+      "EfeitoRotulo": "Effect on checks",
+      "EfeitoAjuda": "Only what the engine can apply. Narrative effects belong in the description.",
+      "EfeitoTipo": "Effect type",
+      "Passos": "Steps",
+      "DadoExtra": "Extra die",
+      "DadoExtraAjuda": "Counts against the cap of 4 dice rolled per check.",
+      "PermitirD20": "Can reach d20",
+      "PermitirD20Ajuda": "Only explicit paranormal effects go past d12. Out of scope for the playtest.",
+      "UsoEmInvestigacao": "Use in investigation",
+      "UsoEmInvestigacaoAjuda": "The playtest's suggested default is one step up on the check at hand.",
+      "Origem": {
+        "perfil": "Profile",
+        "ocupacao": "Occupation",
+        "nivel": "Level",
+        "treino": "Training",
+        "outra": "Other"
+      },
+      "Efeito": { "nenhum": "None", "passo": "Step up", "dado-extra": "Extra die" }
+    },
+
+    "Equipamento": {
+      "Adicionar": "New item",
+      "Vazio": "Inventory is empty.",
+      "Quantidade": "Quantity",
+      "Equipado": "Equipped",
+      "Arma": "Weapon",
+      "ArmaAjuda": "Wielding a weapon makes melee damage use the High Roll instead of the Low Roll.",
+      "Cargas": "Charges",
+      "UsaCargas": "Has limited charges",
+      "Descricao": "Description"
+    },
+
+    "Item": {
+      "Novo": "New {tipo}",
+      "Apagar": "Delete item",
+      "ApagarConfirma": "Delete <strong>{nome}</strong> from this sheet?"
+    },
+
+    "Npc": {
+      "Categoria": "Category",
+      "AdicionarPericia": "New skill",
+      "RemoverPericia": "Remove skill",
+      "PericiasAjuda": "NPCs don't use the full list: declare only the skills this NPC actually uses."
+    },
+
+    "Dialog": {
+      "Teste": {
+        "Titulo": "Check",
+        "Rolar": "Roll",
+        "Passos": "Adjust steps",
+        "Atributo": "Paired attribute",
+        "AtributoAjuda": "The base attribute is a suggestion. The GM may call for a different one.",
+        "Extras": "Applicable abilities",
+        "Oposto": "Opposed check (no DT)",
+        "AvisoSelecao": "You'll roll more dice than you can add — you'll pick which 3 count.",
+        "NoTeto": "Cap of 4 rolled dice reached."
+      },
+      "Selecao": {
+        "Titulo": "Pick your dice",
+        "Confirmar": "Confirm",
+        "Intro": "Up to 4 dice are rolled, but only 3 make the result.",
+        "Incompleto": "Pick more dice to complete the result.",
+        "Dica": "The highest sum isn't always best: the High and Low Rolls drive damage, forcing and climbing."
+      }
+    },
+
+    "Passo": "step",
+    "StepUp": "Step up",
+    "StepDown": "Step down",
+
+    "DT": "DT",
+    "RA": "HR",
+    "RB": "LR",
+    "Total": "Total",
+    "Sucesso": "Success",
+    "Falha": "Failure",
+    "Critico": "Critical success",
+    "CriticoExplica": "succeeds automatically and yields extra information while investigating",
+    "FalhaCriticaTitulo": "Critical failure",
+
+    "FalhaCritica": {
+      "DecisaoDoMestre": "If the effect doesn't fit the situation, the GM picks another.",
+      "Aplicada": "{efeito} applied to {ator}.",
+      "vexame": { "nome": "Embarrassment", "texto": "Narrate the action in a humiliating way. No mechanical effect." },
+      "machucado": { "nome": "Hurt", "texto": "Physical steps down until the end of the scene." },
+      "desatencao": { "nome": "Distraction", "texto": "Mind steps down until the end of the scene." },
+      "irritacao": { "nome": "Irritation", "texto": "Emotion steps down until the end of the scene." },
+      "acidente": { "nome": "Accident", "texto": "Lose 1d4 HP." },
+      "frustracao": { "nome": "Frustration", "texto": "Lose 1d4 DP." },
+      "perda": { "nome": "Loss", "texto": "Lose a carried item or a purchase slot. The GM decides which." },
+      "nenhum": { "nome": "No further effect", "texto": "The failure is enough." }
+    },
+
+    "Chat": {
+      "DanoRA": "HR damage",
+      "DanoRB": "LR damage",
+      "RolarFalhaCritica": "Roll effect (1d8)",
+      "AplicarEfeito": "Apply effect",
+      "DanoAplicado": "{quantidade} damage to {alvos}."
+    },
+
+    "Cena": {
+      "Encerrar": "End scene",
+      "Encerrada": "Scene ended. Temporary reductions cleared for {total} character(s).",
+      "SemPersonagens": "No characters in the active scene."
+    },
+
+    "Aviso": {
+      "TetoDeDados": "At most {max} dice rolled per check.",
+      "TetoDeContados": "Only {max} dice make the result.",
+      "PericiaDesconhecida": "Unknown skill: {chave}",
+      "AptidaoDuplicada": "An Aptitude field named \"{rotulo}\" already exists.",
+      "AtorAusente": "The character for this card no longer exists."
+    },
+
+    "Config": {
+      "dtPadrao": { "name": "Default DT", "hint": "The difficulty the playtest suggests when none is given." },
+      "escopoCritico": {
+        "name": "Critical looks at",
+        "hint": "The playtest doesn't say whether discarded dice count toward a critical. The default scans every rolled die.",
+        "todos": "Every rolled die",
+        "contados": "Only the counted dice"
+      },
+      "compartilharPericia": {
+        "name": "Share check skill",
+        "hint": "The body text says Research; the summary table says Insight. The default follows the normative text."
+      },
+      "ajudaAlvo": {
+        "name": "Help steps up",
+        "hint": "The text doesn't say which die receives the step up from the Help action.",
+        "pericia": "The skill die",
+        "atributo": "The attribute die"
+      },
+      "falhaTrauma": {
+        "name": "Failed trauma check",
+        "hint": "The playtest warns that dying from DP loss won't be this easy in the final version.",
+        "morte": "Mental collapse and death",
+        "colapso": "Collapse, no death"
+      },
+      "cliqueAbreDialogo": {
+        "name": "Click opens the check dialog",
+        "hint": "By default a click rolls directly and Shift opens the dialog. Enable to swap them."
+      }
+    }
+  }
+}

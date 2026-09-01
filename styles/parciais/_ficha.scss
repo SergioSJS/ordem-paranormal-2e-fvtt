@@ -1,0 +1,281 @@
+@layer system {
+.op2-ficha {
+  .window-content {
+    padding: var(--op2-e3);
+    background: var(--op2-fundo);
+    gap: var(--op2-e3);
+  }
+}
+
+// Duas colunas: a ficha à esquerda, as perícias sempre visíveis à direita —
+// como na diagramação oficial, onde a coluna de perícias nunca sai da vista.
+.op2-ficha--personagem .window-content {
+  display: grid;
+  align-content: start;
+  grid-template-areas:
+    "cabecalho pericias"
+    "abas      pericias"
+    "painel    pericias";
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 300px);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.op2-cabecalho {
+  display: grid;
+  padding: var(--op2-e3);
+  gap: var(--op2-e3);
+  grid-area: cabecalho;
+  grid-template-columns: 116px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+
+  &__retrato {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--op2-linha-forte);
+    border-radius: var(--op2-raio);
+    background: color-mix(in srgb, var(--op2-preto) 60%, transparent);
+    grid-row: span 2;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      object-fit: cover;
+    }
+
+    &--pequeno { grid-row: auto; height: 96px; }
+  }
+
+  &__identidade {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: var(--op2-e2);
+  }
+}
+
+.op2-nome {
+  height: 2.4rem;
+  border: 0;
+  border-bottom: 2px solid var(--op2-vermelho);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--op2-fonte-display);
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.op2-identidade {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--op2-e2);
+
+  &__ponto { color: var(--op2-vermelho); }
+}
+
+.op2-ocupacao {
+  flex: 1 1 8rem;
+  height: 1.9rem;
+  padding: 0 0.5rem;
+  font-family: var(--op2-fonte-mono);
+  font-size: 0.85rem;
+}
+
+.op2-nivel {
+  display: flex;
+  align-items: center;
+  gap: var(--op2-e1);
+  color: var(--op2-texto-fraco);
+  font-family: var(--op2-fonte-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  input {
+    width: 3rem;
+    height: 1.9rem;
+    text-align: center;
+  }
+}
+
+.op2-recursos {
+  display: grid;
+  gap: var(--op2-e2);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.op2-recurso {
+  display: flex;
+  flex-direction: column;
+  gap: var(--op2-e1);
+
+  &__topo {
+    display: flex;
+    align-items: center;
+    gap: var(--op2-e1);
+  }
+
+  &__valor,
+  &__max {
+    width: 3rem;
+    height: 1.6rem;
+    font-family: var(--op2-fonte-mono);
+    text-align: center;
+  }
+
+  &__barra { color: var(--op2-vermelho); }
+}
+
+// Pips: PV e PD são trilhas de quadradinhos na ficha do livro, não campos numéricos.
+.op2-pips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.op2-pip {
+  width: 0.72rem;
+  height: 0.9rem;
+  padding: 0;
+  border: 1px solid var(--op2-linha-forte);
+  border-radius: 1px;
+  background: transparent;
+  cursor: pointer;
+
+  &--cheio { border-color: var(--op2-tinta); background: var(--op2-tinta); }
+
+  &:hover { border-color: var(--op2-vermelho-claro); }
+}
+
+.op2-atributos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--op2-e2);
+  grid-column: span 2;
+
+  &--npc { grid-column: auto; }
+}
+
+.op2-atributo {
+  display: flex;
+  align-items: center;
+  gap: var(--op2-e1);
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--op2-linha);
+  border-radius: var(--op2-raio);
+
+  &__nome {
+    border: 0;
+    background: transparent;
+    color: var(--op2-texto);
+    cursor: pointer;
+    font-family: var(--op2-fonte-display);
+    font-size: 0.95rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+
+    &:hover { color: var(--op2-vermelho-claro); }
+  }
+
+  &--reduzido { border-color: var(--op2-vermelho-escuro); }
+
+  &__base { display: flex; }
+}
+
+.op2-encerrar-cena { margin-left: auto; }
+
+.op2-abas {
+  display: flex;
+  border-bottom: 1px solid var(--op2-linha);
+  grid-area: abas;
+}
+
+.op2-aba {
+  flex: 1 1 0;
+  padding: 0.5rem 0.6rem 0.6rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--op2-texto-fraco);
+  cursor: pointer;
+  font-family: var(--op2-fonte-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+
+  &.active {
+    color: var(--op2-texto);
+    box-shadow: inset 0 -2px var(--op2-vermelho);
+  }
+}
+
+.op2-painel {
+  display: none;
+  min-height: 0;
+  padding: var(--op2-e3);
+  overflow-y: auto;
+  grid-area: painel;
+
+  &.active { display: block; }
+
+  &__topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--op2-e2);
+    gap: var(--op2-e2);
+  }
+}
+
+.op2-lista-itens {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  gap: var(--op2-e1);
+  list-style: none;
+}
+
+.op2-item {
+  display: grid;
+  align-items: center;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--op2-linha);
+  border-radius: var(--op2-raio);
+  gap: var(--op2-e2);
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+
+  &:hover { border-color: var(--op2-linha-forte); background: var(--op2-superficie-alta); }
+
+  &__icone { width: 2rem; height: 2rem; border: 0; object-fit: cover; }
+
+  &__texto { display: flex; min-width: 0; flex-direction: column; }
+
+  &__nome {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--op2-texto);
+    cursor: pointer;
+    font-family: var(--op2-fonte-display);
+    font-size: 1rem;
+    letter-spacing: 0.03em;
+    text-align: left;
+
+    &:hover { color: var(--op2-vermelho-claro); }
+  }
+
+  &__meta {
+    color: var(--op2-vermelho-claro);
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.7rem;
+  }
+}
+
+}

@@ -1,0 +1,123 @@
+// O ícone de dado é a assinatura do sistema: a forma diz o tamanho antes de você ler
+// o número. Triângulo d4, quadrado d6, losango d8, pipa d10, octógono d12.
+@layer system {
+.op2-dado {
+  display: block;
+  width: 1.55rem;
+  height: 1.55rem;
+  flex: 0 0 auto;
+
+  .op2-dado__forma {
+    fill: var(--op2-vermelho);
+    stroke: none;
+    transition: fill 120ms ease;
+  }
+
+  .op2-dado__texto {
+    fill: #fff;
+    font-family: var(--op2-fonte-display);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  &--d4 .op2-dado__texto { font-size: 10px; }
+  &--d12 .op2-dado__texto { font-size: 10.5px; }
+
+  // Dado base mostrado ao lado do efetivo quando há redução temporária.
+  &--base {
+    width: 1.1rem;
+    height: 1.1rem;
+    opacity: 0.45;
+
+    .op2-dado__forma { fill: var(--op2-texto-fraco); }
+  }
+
+  &--descartado {
+    opacity: 0.4;
+
+    .op2-dado__forma { fill: var(--op2-texto-fraco); }
+  }
+}
+
+.op2-controle-dado {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  &__botao {
+    display: grid;
+    padding: 0.1rem;
+    border: 1px solid transparent;
+    border-radius: var(--op2-raio);
+    background: transparent;
+    cursor: pointer;
+    place-items: center;
+
+    &:hover:not([disabled]) {
+      border-color: var(--op2-linha-forte);
+      .op2-dado__forma { fill: var(--op2-vermelho-claro); }
+    }
+  }
+
+  // O select real fica fora da vista, mas continua no form e alcançável por teclado.
+  &__nativo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    margin: -1px;
+    clip-path: inset(50%);
+    overflow: hidden;
+    white-space: nowrap;
+
+    &:focus-visible {
+      position: static;
+      width: auto;
+      height: auto;
+      margin: 0;
+      clip-path: none;
+    }
+  }
+
+  &__menu {
+    position: absolute;
+    z-index: 20;
+    top: 100%;
+    left: 50%;
+    display: none;
+    padding: 0.2rem;
+    border: 1px solid var(--op2-linha-forte);
+    border-radius: var(--op2-raio);
+    margin-top: 2px;
+    background: var(--op2-superficie-alta);
+    box-shadow: 0 6px 18px rgb(0 0 0 / 45%);
+    gap: 0.1rem;
+    transform: translateX(-50%);
+  }
+
+  &.aberto &__menu {
+    display: flex;
+  }
+
+  &__opcao {
+    display: grid;
+    padding: 0.15rem;
+    border: 1px solid transparent;
+    border-radius: var(--op2-raio);
+    background: transparent;
+    cursor: pointer;
+    place-items: center;
+
+    &:hover { border-color: var(--op2-linha-forte); }
+
+    &.ativo {
+      border-color: var(--op2-vermelho);
+      background: color-mix(in srgb, var(--op2-vermelho) 18%, transparent);
+    }
+  }
+
+  &.desabilitado &__botao { cursor: default; }
+}
+
+}

@@ -1,0 +1,23 @@
+{{!-- PV e PD: valor, máximo e a trilha de pips que a ficha do livro usa. --}}
+<div class="op2-recurso op2-recurso--{{chave}}">
+  <div class="op2-recurso__topo">
+    <span class="op2-tag op2-tag--pequena">{{localize rotulo}}</span>
+    <input type="number" class="op2-recurso__valor" name="system.recursos.{{chave}}.value"
+      value="{{value}}" {{#unless @root.editavel}}disabled{{/unless}}
+      aria-label="{{localize rotulo}} {{localize 'OP2.Recurso.Atual'}}">
+    <span class="op2-recurso__barra" aria-hidden="true">/</span>
+    <input type="number" class="op2-recurso__max" name="system.recursos.{{chave}}.max"
+      value="{{max}}" min="0" {{#unless @root.editavel}}disabled{{/unless}}
+      aria-label="{{localize rotulo}} {{localize 'OP2.Recurso.Maximo'}}">
+  </div>
+
+  {{#if pips}}
+    <div class="op2-pips" role="group" aria-label="{{localize rotulo}}">
+      {{#each pips}}
+        <button type="button" class="op2-pip{{#if cheio}} op2-pip--cheio{{/if}}"
+          data-action="definirRecurso" data-recurso="{{../chave}}" data-valor="{{n}}"
+          {{#unless @root.editavel}}disabled{{/unless}} aria-label="{{n}}"></button>
+      {{/each}}
+    </div>
+  {{/if}}
+</div>

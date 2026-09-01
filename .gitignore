@@ -1,0 +1,18 @@
+# Nunca commitar o PDF do playtest (material protegido)
+*.pdf
+docs/*.pdf
+
+node_modules/
+.DS_Store
+*.DS_Store
+
+# CSS gerado pelo sass
+styles/*.css
+styles/*.css.map
+
+# Packs compilados (fonte fica em packs/sources/)
+packs/habilidades/
+packs/perfis/
+
+.fvtt-config
+.vscode/settings.json

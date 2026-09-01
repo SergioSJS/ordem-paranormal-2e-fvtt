@@ -1,0 +1,35 @@
+<section class="op2-painel tab {{tabs.habilidades.cssClass}}" data-group="principal" data-tab="habilidades">
+  <div class="op2-painel__topo">
+    <span class="op2-tag op2-tag--secao">{{localize "OP2.Secao.Habilidades"}}</span>
+    {{#if editavel}}
+      <button type="button" class="op2-botao op2-botao--fantasma" data-action="criarItem" data-tipo="habilidade">
+        <i class="fa-solid fa-plus"></i> {{localize "OP2.Habilidade.Adicionar"}}
+      </button>
+    {{/if}}
+  </div>
+
+  {{#if habilidades.length}}
+    <ul class="op2-lista-itens">
+      {{#each habilidades}}
+        <li class="op2-item" data-item-id="{{id}}">
+          <img class="op2-item__icone" src="{{img}}" alt="">
+          <div class="op2-item__texto">
+            <button type="button" class="op2-item__nome" data-action="editarItem">{{name}}</button>
+            <span class="op2-item__meta">
+              {{localize (op2Concat "OP2.Habilidade.Origem." system.origem)}}
+              {{#if system.custo}} · {{system.custo}}{{/if}}
+            </span>
+          </div>
+          {{#if @root.editavel}}
+            <button type="button" class="op2-botao-icone" data-action="apagarItem"
+              data-tooltip="{{localize 'OP2.Item.Apagar'}}" aria-label="{{localize 'OP2.Item.Apagar'}}">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          {{/if}}
+        </li>
+      {{/each}}
+    </ul>
+  {{else}}
+    <p class="op2-vazio">{{localize "OP2.Habilidade.Vazio"}}</p>
+  {{/if}}
+</section>

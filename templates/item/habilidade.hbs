@@ -1,0 +1,72 @@
+<div class="op2-item-ficha">
+  <header class="op2-item-ficha__topo">
+    <img src="{{item.img}}" alt="" data-action="editImage" data-edit="img">
+    <input type="text" class="op2-nome" name="name" value="{{item.name}}" {{#unless editavel}}disabled{{/unless}}>
+  </header>
+
+  <div class="op2-grade-campos">
+    <label class="op2-campo">
+      <span>{{localize "OP2.Habilidade.OrigemRotulo"}}</span>
+      <select name="system.origem" {{#unless editavel}}disabled{{/unless}}>
+        {{#each origens}}<option value="{{v}}" {{#if (op2Eq v @root.sistema.origem)}}selected{{/if}}>{{rotulo}}</option>{{/each}}
+      </select>
+    </label>
+
+    <label class="op2-campo">
+      <span>{{localize "OP2.Habilidade.Custo"}}</span>
+      <input type="text" name="system.custo" value="{{sistema.custo}}"
+        placeholder="{{localize 'OP2.Habilidade.SemCusto'}}" {{#unless editavel}}disabled{{/unless}}>
+    </label>
+  </div>
+
+  <fieldset class="op2-efeito">
+    <legend>{{localize "OP2.Habilidade.EfeitoRotulo"}}</legend>
+    <p class="op2-ajuda">{{localize "OP2.Habilidade.EfeitoAjuda"}}</p>
+
+    <label class="op2-campo">
+      <span>{{localize "OP2.Habilidade.EfeitoTipo"}}</span>
+      <select name="system.efeito.tipo" {{#unless editavel}}disabled{{/unless}}>
+        {{#each efeitos}}<option value="{{v}}" {{#if (op2Eq v @root.sistema.efeito.tipo)}}selected{{/if}}>{{rotulo}}</option>{{/each}}
+      </select>
+    </label>
+
+    {{#if (op2Eq sistema.efeito.tipo "passo")}}
+      <label class="op2-campo">
+        <span>{{localize "OP2.Habilidade.Passos"}}</span>
+        <input type="number" name="system.efeito.passos" value="{{sistema.efeito.passos}}" min="-4" max="4"
+          {{#unless editavel}}disabled{{/unless}}>
+      </label>
+    {{/if}}
+
+    {{#if (op2Eq sistema.efeito.tipo "dado-extra")}}
+      <div class="op2-campo">
+        <span>{{localize "OP2.Habilidade.DadoExtra"}}</span>
+        {{> (op2Caminho "partials/controle-dado") caminho="system.efeito.dado"
+            icone=(dado sistema.efeito.dado) valorAtual=sistema.efeito.dado}}
+        <p class="op2-ajuda">{{localize "OP2.Habilidade.DadoExtraAjuda"}}</p>
+      </div>
+    {{/if}}
+
+    {{#unless (op2Eq sistema.efeito.tipo "nenhum")}}
+      <label class="op2-campo op2-campo--inline">
+        <input type="checkbox" name="system.efeito.permitirD20" {{#if sistema.efeito.permitirD20}}checked{{/if}}
+          {{#unless editavel}}disabled{{/unless}}>
+        <span>{{localize "OP2.Habilidade.PermitirD20"}}</span>
+      </label>
+      <p class="op2-ajuda">{{localize "OP2.Habilidade.PermitirD20Ajuda"}}</p>
+    {{/unless}}
+  </fieldset>
+
+  <label class="op2-campo">
+    <span>{{localize "OP2.Habilidade.Descricao"}}</span>
+    {{formInput fields.descricao value=sistema.descricao enriched=descricao toggled=true
+      editable=editavel name="system.descricao"}}
+  </label>
+
+  <label class="op2-campo">
+    <span>{{localize "OP2.Habilidade.UsoEmInvestigacao"}}</span>
+    {{formInput fields.usoEmInvestigacao value=sistema.usoEmInvestigacao toggled=true
+      editable=editavel name="system.usoEmInvestigacao"}}
+    <p class="op2-ajuda">{{localize "OP2.Habilidade.UsoEmInvestigacaoAjuda"}}</p>
+  </label>
+</div>

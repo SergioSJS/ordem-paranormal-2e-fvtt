@@ -1,0 +1,62 @@
+<header class="op2-cabecalho op2-moldura">
+  <div class="op2-cabecalho__retrato">
+    <img src="{{actor.img}}" alt="{{actor.name}}" data-action="editImage" data-edit="img"
+      {{#unless editavel}}class="somente-leitura"{{/unless}}>
+  </div>
+
+  <div class="op2-cabecalho__identidade">
+    <input type="text" class="op2-nome" name="name" value="{{actor.name}}"
+      placeholder="{{localize 'OP2.Ficha.SemNome'}}" {{#unless editavel}}disabled{{/unless}}>
+
+    <div class="op2-identidade">
+      <label class="op2-tag op2-tag--perfil">
+        <select name="system.perfil" {{#unless editavel}}disabled{{/unless}} aria-label="{{localize 'OP2.Campo.Perfil'}}">
+          {{#each perfis}}
+            <option value="{{chave}}" {{#if (op2Eq chave @root.sistema.perfil)}}selected{{/if}}>{{rotulo}}</option>
+          {{/each}}
+        </select>
+      </label>
+
+      <span class="op2-identidade__ponto" aria-hidden="true">·</span>
+
+      <input type="text" class="op2-ocupacao" name="system.ocupacao" value="{{sistema.ocupacao}}"
+        placeholder="{{localize 'OP2.Campo.Ocupacao'}}" {{#unless editavel}}disabled{{/unless}}
+        aria-label="{{localize 'OP2.Campo.Ocupacao'}}">
+
+      <span class="op2-identidade__ponto" aria-hidden="true">·</span>
+
+      <label class="op2-nivel">
+        <span>{{localize "OP2.Campo.Nivel"}}</span>
+        <input type="number" name="system.nivel" value="{{sistema.nivel}}" min="1" max="10"
+          {{#unless editavel}}disabled{{/unless}}>
+      </label>
+    </div>
+
+    <div class="op2-recursos">
+      {{> (op2Caminho "partials/trilha-recurso") chave="pv" rotulo="OP2.Recurso.pv"
+          value=recursos.pv.value max=recursos.pv.max pips=recursos.pv.pips}}
+      {{> (op2Caminho "partials/trilha-recurso") chave="pd" rotulo="OP2.Recurso.pd"
+          value=recursos.pd.value max=recursos.pd.max pips=recursos.pd.pips}}
+    </div>
+  </div>
+
+  <div class="op2-atributos">
+    <span class="op2-tag op2-tag--secao">{{localize "OP2.Secao.Atributos"}}</span>
+    {{#each atributos}}
+      <div class="op2-atributo{{#if reduzido}} op2-atributo--reduzido{{/if}}">
+        <button type="button" class="op2-atributo__nome" data-action="rolar" data-chave="{{chave}}"
+          data-tooltip="{{localize 'OP2.Pericia.Rolar'}}">{{rotulo}}</button>
+        {{#if reduzido}}
+          <span class="op2-atributo__base" data-tooltip="{{localize 'OP2.Atributo.Reduzido'}}">{{{iconeBase}}}</span>
+        {{/if}}
+        {{> (op2Caminho "partials/controle-dado") caminho=caminho icone=icone valorAtual=die}}
+      </div>
+    {{/each}}
+
+    {{#if temReducao}}
+      <button type="button" class="op2-botao op2-botao--fantasma op2-encerrar-cena" data-action="encerrarCena">
+        <i class="fa-solid fa-hourglass-end"></i> {{localize "OP2.Cena.Encerrar"}}
+      </button>
+    {{/if}}
+  </div>
+</header>

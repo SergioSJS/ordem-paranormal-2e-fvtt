@@ -1,0 +1,47 @@
+// Paleta amostrada da ficha oficial do playtest (PDF p.15) e das páginas de regra (p.16).
+@layer system {
+.op2 {
+  --op2-preto: #0d0908;
+  --op2-painel: #16100e;
+  --op2-painel-alto: #1e1614;
+  --op2-vermelho: #c8321e;
+  --op2-vermelho-claro: #e0472f;
+  --op2-vermelho-escuro: #8f2315;
+  --op2-tinta: #f2ede6;
+  --op2-tinta-fraca: #8a7f79;
+  --op2-linha: #{rgba(#f2ede6, 0.12)};
+  --op2-linha-forte: #{rgba(#f2ede6, 0.22)};
+  --op2-sucesso: #6f9a4e;
+  --op2-critico: #e8b53a;
+
+  --op2-raio: 3px;
+  --op2-e1: 0.25rem;
+  --op2-e2: 0.5rem;
+  --op2-e3: 0.75rem;
+  --op2-e4: 1rem;
+
+  --op2-fonte-display: "OP2 Display", "Oswald", "Arial Narrow", sans-serif;
+  --op2-fonte-mono: "OP2 Mono", "Courier New", monospace;
+  --op2-fonte-corpo: "OP2 Corpo", Georgia, serif;
+
+  // Superfícies do tema. O escuro é a ficha do livro; o claro são as páginas de regra.
+  --op2-fundo: var(--op2-preto);
+  --op2-superficie: var(--op2-painel);
+  --op2-superficie-alta: var(--op2-painel-alto);
+  --op2-texto: var(--op2-tinta);
+  --op2-texto-fraco: var(--op2-tinta-fraca);
+}
+
+// Foundry marca o tema no root; o sistema segue, sem forçar um dos dois.
+:root[data-theme="light"] .op2,
+.theme-light .op2 {
+  --op2-fundo: #ece7df;
+  --op2-superficie: #f4f0e9;
+  --op2-superficie-alta: #fbf8f3;
+  --op2-texto: #1a1512;
+  --op2-texto-fraco: #6b615a;
+  --op2-linha: #{rgba(#1a1512, 0.14)};
+  --op2-linha-forte: #{rgba(#1a1512, 0.26)};
+}
+
+}

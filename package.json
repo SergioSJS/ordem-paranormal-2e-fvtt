@@ -1,0 +1,23 @@
+{
+  "name": "ordem-paranormal-2e-fvtt",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Sistema Foundry VTT não-oficial para Ordem Paranormal RPG 2 (Playtest Alpha)",
+  "type": "module",
+  "scripts": {
+    "setup": "bash scripts/setup-dev.sh",
+    "build:css": "sass styles/op2.scss styles/op2.css --style=compressed --no-source-map",
+    "watch:css": "sass styles/op2.scss styles/op2.css --watch",
+    "lint": "eslint module/**/*.mjs",
+    "lint:fix": "eslint module/**/*.mjs --fix",
+    "test": "node --test module/tests/*.test.mjs",
+    "pack:build": "node scripts/build-packs.mjs",
+    "check": "npm run lint && npm test && npm run build:css"
+  },
+  "devDependencies": {
+    "@foundryvtt/foundryvtt-cli": "^2.0.0",
+    "eslint": "^8.57.0",
+    "handlebars": "^4.7.9",
+    "sass": "^1.70.0"
+  }
+}

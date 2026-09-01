@@ -1,0 +1,6 @@
+<nav class="op2-abas" data-group="principal" aria-label="{{localize 'OP2.Secao.Conteudo'}}">
+  {{#each tabs}}
+    <button type="button" class="op2-aba {{cssClass}}" data-action="tab" data-group="{{group}}" data-tab="{{id}}"
+      aria-pressed="{{active}}">{{localize label}}</button>
+  {{/each}}
+</nav>

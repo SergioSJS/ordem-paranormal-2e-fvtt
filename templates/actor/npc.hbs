@@ -1,0 +1,60 @@
+<div class="op2-ficha-npc">
+  <header class="op2-cabecalho op2-moldura">
+    <div class="op2-cabecalho__retrato op2-cabecalho__retrato--pequeno">
+      <img src="{{actor.img}}" alt="{{actor.name}}" data-action="editImage" data-edit="img">
+    </div>
+    <div class="op2-cabecalho__identidade">
+      <input type="text" class="op2-nome" name="name" value="{{actor.name}}" {{#unless editavel}}disabled{{/unless}}>
+      <input type="text" class="op2-ocupacao" name="system.categoria" value="{{sistema.categoria}}"
+        placeholder="{{localize 'OP2.Npc.Categoria'}}" {{#unless editavel}}disabled{{/unless}}>
+      <div class="op2-recursos">
+        {{> (op2Caminho "partials/trilha-recurso") chave="pv" rotulo="OP2.Recurso.pv"
+            value=sistema.recursos.pv.value max=sistema.recursos.pv.max}}
+        {{> (op2Caminho "partials/trilha-recurso") chave="pd" rotulo="OP2.Recurso.pd"
+            value=sistema.recursos.pd.value max=sistema.recursos.pd.max}}
+      </div>
+    </div>
+  </header>
+
+  <section class="op2-painel">
+    <span class="op2-tag op2-tag--secao">{{localize "OP2.Secao.Atributos"}}</span>
+    <div class="op2-atributos op2-atributos--npc">
+      {{#each atributos}}
+        <div class="op2-atributo">
+          <span class="op2-atributo__nome">{{rotulo}}</span>
+          {{> (op2Caminho "partials/controle-dado") caminho=caminho icone=icone valorAtual=die}}
+        </div>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="op2-painel">
+    <div class="op2-painel__topo">
+      <span class="op2-tag op2-tag--secao">{{localize "OP2.Secao.Pericias"}}</span>
+      {{#if editavel}}
+        <button type="button" class="op2-botao op2-botao--fantasma" data-action="adicionarPericia">
+          <i class="fa-solid fa-plus"></i> {{localize "OP2.Npc.AdicionarPericia"}}
+        </button>
+      {{/if}}
+    </div>
+    <p class="op2-ajuda">{{localize "OP2.Npc.PericiasAjuda"}}</p>
+
+    <div class="op2-lista-pericias">
+      {{#each pericias}}
+        <div class="op2-pericia" data-sub="{{sub}}">
+          <span class="op2-pericia__nome">{{rotulo}}</span>
+          {{> (op2Caminho "partials/controle-dado") caminho=caminho icone=icone valorAtual=die}}
+          {{#if @root.editavel}}
+            <button type="button" class="op2-botao-icone" data-action="removerPericia" data-sub="{{sub}}"
+              aria-label="{{localize 'OP2.Npc.RemoverPericia'}}"><i class="fa-solid fa-xmark"></i></button>
+          {{/if}}
+        </div>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="op2-painel op2-painel--notas">
+    <span class="op2-tag op2-tag--secao">{{localize "OP2.Secao.Notas"}}</span>
+    {{formInput fields.notas value=sistema.notas toggled=true editable=editavel name="system.notas"}}
+  </section>
+</div>

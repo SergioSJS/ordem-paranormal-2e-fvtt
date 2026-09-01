@@ -1,0 +1,198 @@
+@layer system {
+.op2 {
+  color: var(--op2-texto);
+  font-family: var(--op2-fonte-corpo);
+
+  input,
+  select,
+  textarea,
+  button {
+    font-family: inherit;
+    color: inherit;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="search"],
+  select,
+  textarea {
+    min-width: 0;
+    border: 1px solid var(--op2-linha);
+    border-radius: var(--op2-raio);
+    background: color-mix(in srgb, var(--op2-fundo) 70%, transparent);
+    box-shadow: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--op2-vermelho-claro);
+    outline-offset: 2px;
+  }
+
+  [disabled] {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+// Tag vermelha rasgada — a forma que o livro usa para rotular tudo.
+// Os ângulos são irregulares de propósito: retângulo arredondado não é a linguagem daqui.
+.op2-tag {
+  display: inline-block;
+  padding: 0.2em 0.7em 0.25em;
+  background: var(--op2-vermelho);
+  color: #fff;
+  font-family: var(--op2-fonte-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  clip-path: polygon(0 6%, 100% 0, 99% 88%, 1% 100%);
+
+  &--pequena {
+    padding: 0.15em 0.55em 0.2em;
+    font-size: 0.72rem;
+  }
+
+  &--secao {
+    align-self: start;
+    clip-path: polygon(0 8%, 100% 0, 98% 90%, 2% 100%);
+  }
+
+  &--perfil {
+    padding: 0;
+    select {
+      padding: 0.2em 0.6em;
+      border: 0;
+      background: transparent;
+      color: #fff;
+      font-family: var(--op2-fonte-display);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+  }
+}
+
+// Moldura de canto: as duas linhas finas que emolduram a ficha oficial.
+.op2-moldura {
+  position: relative;
+  border: 1px solid var(--op2-linha);
+  border-radius: var(--op2-raio);
+  background: var(--op2-superficie);
+
+  &::before {
+    position: absolute;
+    inset: 4px;
+    border: 1px solid color-mix(in srgb, var(--op2-vermelho) 45%, transparent);
+    border-radius: 2px;
+    content: "";
+    pointer-events: none;
+    // Só os cantos, como na diagramação do livro.
+    mask-image:
+      linear-gradient(to right, #000 0 22px, transparent 22px calc(100% - 22px), #000 calc(100% - 22px)),
+      linear-gradient(to bottom, #000 0 22px, transparent 22px calc(100% - 22px), #000 calc(100% - 22px));
+    mask-composite: intersect;
+  }
+}
+
+.op2-botao {
+  padding: 0.35em 0.8em;
+  border: 1px solid var(--op2-linha-forte);
+  border-radius: var(--op2-raio);
+  background: var(--op2-superficie-alta);
+  color: var(--op2-texto);
+  font-family: var(--op2-fonte-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+
+  &:hover:not([disabled]) {
+    border-color: var(--op2-vermelho);
+    color: var(--op2-vermelho-claro);
+  }
+
+  &--fantasma {
+    background: transparent;
+  }
+
+  &--pequeno {
+    padding: 0.25em 0.6em;
+    font-size: 0.75rem;
+  }
+
+  &--perigo {
+    border-color: var(--op2-vermelho);
+    background: color-mix(in srgb, var(--op2-vermelho) 22%, transparent);
+  }
+}
+
+.op2-botao-icone {
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--op2-raio);
+  background: transparent;
+  color: var(--op2-texto-fraco);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--op2-vermelho-claro);
+  }
+}
+
+.op2-ajuda,
+.op2-dica {
+  margin: 0.25rem 0 0;
+  color: var(--op2-texto-fraco);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.op2-vazio {
+  margin: 0;
+  padding: var(--op2-e4);
+  color: var(--op2-texto-fraco);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.op2-aviso {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: var(--op2-e2) 0 0;
+  padding: 0.4rem 0.6rem;
+  border-left: 3px solid var(--op2-vermelho);
+  background: color-mix(in srgb, var(--op2-vermelho) 12%, transparent);
+  font-size: 0.78rem;
+}
+
+.op2-campo {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--op2-e1);
+
+  > span {
+    color: var(--op2-texto-fraco);
+    font-family: var(--op2-fonte-display);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &--inline {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--op2-e2);
+  }
+}
+
+.op2-grade-campos {
+  display: grid;
+  gap: var(--op2-e2);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+}
