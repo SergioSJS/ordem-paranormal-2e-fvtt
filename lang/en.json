@@ -138,7 +138,11 @@
       "ArmaAjuda": "Wielding a weapon makes melee damage use the High Roll instead of the Low Roll.",
       "Cargas": "Charges",
       "UsaCargas": "Has limited charges",
-      "Descricao": "Description"
+      "Descricao": "Description",
+      "NaoEquipado": "Not equipped",
+      "AlternarEquipado": "Equip or unequip",
+      "AumentarCarga": "Add one charge (increase)",
+      "DiminuirCarga": "Spend one charge (decrease)"
     },
     "Item": {
       "Novo": "New {tipo}",

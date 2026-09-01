@@ -138,7 +138,11 @@
       "ArmaAjuda": "Empunhar arma faz o dano do corpo a corpo usar a RA em vez da RB.",
       "Cargas": "Cargas",
       "UsaCargas": "Tem cargas limitadas",
-      "Descricao": "Descrição"
+      "Descricao": "Descrição",
+      "NaoEquipado": "Não equipado",
+      "AlternarEquipado": "Equipar ou desequipar",
+      "AumentarCarga": "Usar uma carga a mais (aumentar)",
+      "DiminuirCarga": "Gastar uma carga (diminuir)"
     },
     "Item": {
       "Novo": "Novo {tipo}",

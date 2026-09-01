@@ -290,6 +290,36 @@ const relato = await page.evaluate(async () => {
     ok("clique na aba Inventário ativa o painel", !painelAntes && painelDepois);
   }
 
+  // Indicador de equipado e controle de cargas na lista de inventário: visíveis sem
+  // precisar abrir a ficha do item, com botões de +/- para as cargas.
+  {
+    const itemPeDeCabra = ator.items.getName("Pé de cabra");
+    await itemPeDeCabra.update({ "system.cargas": { usa: true, value: 2, max: 3 } });
+    await esperar(200);
+
+    // Cada `actor.update()` troca o nó da linha inteira — uma referência de antes do
+    // re-render fica presa ao DOM anterior (o mesmo problema já visto no teste do
+    // pulso crítico). Reconsultar a cada passo, não guardar `linha` de uma vez só.
+    const linhaDoItem = () => [...el.querySelectorAll(".op2-item")].find((li) => li.dataset.itemId === itemPeDeCabra.id);
+
+    ok("item lista o botão de equipado", Boolean(linhaDoItem().querySelector(".op2-item__equipado")));
+    ok("item começa desequipado (sem destaque ativo)",
+      !linhaDoItem().querySelector(".op2-item__equipado").classList.contains("op2-item__equipado--ativo"));
+
+    linhaDoItem().querySelector(".op2-item__equipado").click();
+    await esperar(300);
+    ok("clicar no escudo equipa o item", itemPeDeCabra.system.equipado === true);
+    ok("linha do item ganha destaque quando equipado", linhaDoItem().classList.contains("op2-item--equipado"));
+
+    ok("cargas aparecem como 2/3", linhaDoItem().querySelector(".op2-item__cargas-valor")?.textContent.trim() === "2/3");
+    linhaDoItem().querySelector('[data-action="ajustarCarga"][data-delta="1"]').click();
+    await esperar(300);
+    ok("botão + aumenta a carga (2 → 3)", itemPeDeCabra.system.cargas.value === 3);
+    linhaDoItem().querySelector('[data-action="ajustarCarga"][data-delta="1"]').click();
+    await esperar(300);
+    ok("carga não passa do máximo (trava em 3)", itemPeDeCabra.system.cargas.value === 3);
+  }
+
   // 3) Clicar num atributo puro (Físico/Mente/Emoção) pareava com ele mesmo
   //    (atributoDe() não encontra perícia e caía no fallback "fisico"), rolando o
   //    mesmo dado duas vezes. Um atributo não tem par: a regra é sempre perícia +

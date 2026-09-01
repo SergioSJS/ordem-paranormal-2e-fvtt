@@ -30,6 +30,8 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       escolherDado: PersonagemSheet.#escolherDado,
       abrirSeletor: PersonagemSheet.#abrirSeletor,
       criarItem: PersonagemSheet.#criarItem,
+      alternarEquipado: PersonagemSheet.#alternarEquipado,
+      ajustarCarga: PersonagemSheet.#ajustarCarga,
       editarItem: PersonagemSheet.#editarItem,
       apagarItem: PersonagemSheet.#apagarItem,
       adicionarAptidao: PersonagemSheet.#adicionarAptidao,
@@ -240,6 +242,19 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       content: `<p>${game.i18n.format("OP2.Item.ApagarConfirma", { nome: item.name })}</p>`,
     });
     if (confirmado) await item.delete();
+  }
+
+  static async #alternarEquipado(_evento, alvo) {
+    const item = this.#itemDe(alvo);
+    if (item) await item.update({ "system.equipado": !item.system.equipado });
+  }
+
+  static async #ajustarCarga(_evento, alvo) {
+    const item = this.#itemDe(alvo);
+    if (!item) return;
+    const { value, max } = item.system.cargas;
+    const novo = Math.min(max, Math.max(0, value + Number(alvo.dataset.delta)));
+    await item.update({ "system.cargas.value": novo });
   }
 
   #itemDe(alvo) {
