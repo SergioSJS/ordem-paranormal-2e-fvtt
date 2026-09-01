@@ -320,6 +320,18 @@ const relato = await page.evaluate(async () => {
     ok("carga não passa do máximo (trava em 3)", itemPeDeCabra.system.cargas.value === 3);
   }
 
+  // O grid de 5 colunas do `.op2-item` do inventário (ícone·equipado·nome·cargas·apagar)
+  // é a mesma classe usada por Habilidades, que só tem 3 filhos (ícone·nome·apagar) — sem
+  // escopo, o nome da habilidade caía na coluna estreita de "equipado" (achado em uso real).
+  {
+    el.querySelector("button.op2-aba[data-tab='habilidades']")?.click();
+    await esperar(300);
+    const linhaHabilidade = [...el.querySelectorAll(".op2-item")]
+      .find((li) => li.dataset.itemId === ator.items.getName("Foco Mental").id);
+    const larguraNome = linhaHabilidade?.querySelector(".op2-item__nome")?.getBoundingClientRect().width ?? 0;
+    ok("nome da habilidade não fica espremido na coluna de equipado", larguraNome > 100);
+  }
+
   // 3) Clicar num atributo puro (Físico/Mente/Emoção) pareava com ele mesmo
   //    (atributoDe() não encontra perícia e caía no fallback "fisico"), rolando o
   //    mesmo dado duas vezes. Um atributo não tem par: a regra é sempre perícia +

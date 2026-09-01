@@ -270,6 +270,23 @@
   }
 }
 
+// Barra de progresso dos desafios de acesso (Arrombar): pontuação atual sobre a
+// Pontuação Alvo. É preenchimento contínuo, não tally — não há "passos" aqui,
+// só uma soma de RA subindo até estourar o alvo.
+.op2-progresso {
+  width: 100%;
+  height: 0.6rem;
+  border: 1px solid var(--op2-linha-forte);
+  background: transparent;
+  overflow: hidden;
+
+  &__preenchido {
+    height: 100%;
+    background: var(--op2-tinta);
+    transition: width 0.2s ease-out;
+  }
+}
+
 // Os três atributos dividem a linha, como na ficha do livro.
 // Empilhados — cada atributo com a própria linha, largura toda. É o que dá espaço
 // de sobra para "EMOÇÃO" (o nome mais longo dos três) sem cortar contra o dado.
@@ -402,8 +419,9 @@
   border: 1px solid var(--op2-linha);
   border-radius: var(--op2-raio);
   gap: var(--op2-e2);
-  // ícone · equipado · nome/meta · cargas (só quando existem) · apagar
-  grid-template-columns: 2rem 1.5rem minmax(0, 1fr) auto 1.6rem;
+  // ícone · nome/meta · apagar. Base para qualquer lista de item (Habilidades
+  // inclusive); o inventário tem duas colunas a mais e se estende logo abaixo.
+  grid-template-columns: 2rem minmax(0, 1fr) 1.6rem;
 
   &:hover { border-color: var(--op2-linha-forte); background: var(--op2-superficie-alta); }
 
@@ -474,6 +492,14 @@
       text-align: center;
     }
   }
+}
+
+// Só o inventário tem indicador de equipado e cargas — Habilidades usa a mesma
+// `.op2-item` com só ícone/nome/apagar (achado em uso real: o grid de 5 colunas
+// aqui espremia o nome da habilidade na coluna estreita do "equipado").
+.op2-lista-itens--inventario .op2-item {
+  // ícone · equipado · nome/meta · cargas (só quando existem) · apagar
+  grid-template-columns: 2rem 1.5rem minmax(0, 1fr) auto 1.6rem;
 }
 
 // A ficha de NPC não usa o grid de abas da ficha de personagem — é uma coluna simples
