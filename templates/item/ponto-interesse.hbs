@@ -6,7 +6,7 @@
 
   <label class="op2-campo">
     <span>{{localize "OP2.POI.DescricaoBasica"}}</span>
-    {{formInput fields.descricaoBasica value=sistema.descricaoBasica toggled=true
+    {{formInput fields.descricaoBasica value=sistema.descricaoBasica enriched=descricaoBasicaEnriquecida toggled=true
       editable=editavel name="system.descricaoBasica"}}
     <p class="op2-ajuda">{{localize "OP2.POI.DescricaoBasicaAjuda"}}</p>
   </label>
@@ -55,7 +55,7 @@
 
     <label class="op2-campo">
       <span>{{localize "OP2.POI.DescricaoContextual"}}</span>
-      {{formInput fields.descricaoContextual value=sistema.descricaoContextual toggled=true
+      {{formInput fields.descricaoContextual value=sistema.descricaoContextual enriched=descricaoContextualEnriquecida toggled=true
         editable=editavel name="system.descricaoContextual"}}
       <p class="op2-ajuda">{{localize "OP2.POI.DescricaoContextualAjuda"}}</p>
     </label>

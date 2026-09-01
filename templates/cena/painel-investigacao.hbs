@@ -1,0 +1,189 @@
+<div class="op2-painel-corpo">
+  {{#unless temCena}}
+    <p class="op2-ajuda">{{localize "OP2.Painel.SemCena"}}</p>
+  {{/unless}}
+
+  {{#if temCena}}
+    <header class="op2-painel-topo">
+      <div class="op2-painel-topo__info">
+        <span class="op2-tag op2-tag--pequena">{{nomeCena}}</span>
+        <span class="op2-painel-rodada">{{localize "OP2.Painel.Rodada"}} {{rodada}}</span>
+      </div>
+      {{#if ehGM}}
+        <div class="op2-painel-topo__acoes">
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="novaRodada">
+            <i class="fa-solid fa-forward-step" aria-hidden="true"></i> {{localize "OP2.Painel.NovaRodada"}}
+          </button>
+          <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="encerrarCena">
+            <i class="fa-solid fa-door-closed" aria-hidden="true"></i> {{localize "OP2.Cena.Encerrar"}}
+          </button>
+        </div>
+      {{/if}}
+    </header>
+
+    <section class="op2-painel-secao op2-painel-acoes-grupo">
+      {{#if temPersonagem}}
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="recapitular"
+          {{#if recapitularUsado}}disabled{{/if}}>
+          {{localize "OP2.Investigacao.Recapitular"}}
+          {{#if recapitularUsado}}<span class="op2-painel-trava">· {{recapitularUsado.nome}}</span>{{/if}}
+        </button>
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="compartilhar"
+          {{#if compartilharUsado}}disabled{{/if}}>
+          {{localize "OP2.Investigacao.Compartilhar"}}
+          {{#if compartilharUsado}}<span class="op2-painel-trava">· {{compartilharUsado.nome}}</span>{{/if}}
+        </button>
+      {{else}}
+        <p class="op2-ajuda">{{localize "OP2.Painel.SemPersonagem"}}</p>
+      {{/if}}
+    </section>
+
+    <section class="op2-painel-secao">
+      <h3 class="op2-painel-titulo">{{localize "OP2.Painel.POIs"}}</h3>
+      {{#unless pois.length}}
+        <p class="op2-ajuda">{{localize "OP2.Painel.SemPOIs"}}</p>
+      {{/unless}}
+
+      <ol class="op2-painel-pois">
+        {{#each pois}}
+          <li class="op2-poi-card">
+            <header class="op2-poi-card__topo">
+              <img src="{{img}}" alt="">
+              <strong>{{nome}}</strong>
+              {{#if @root.ehGM}}
+                <span class="op2-poi-card__acoes-gm">
+                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="abrirPoi"
+                    data-poi-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.AbrirPOI'}}">
+                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="removerPoi"
+                    data-poi-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.RemoverPOI'}}">
+                    <i class="fa-solid fa-link-slash" aria-hidden="true"></i>
+                  </button>
+                </span>
+              {{/if}}
+            </header>
+
+            {{#if descricaoBasica}}
+              <div class="op2-poi-card__basica">{{{descricaoBasica}}}</div>
+            {{/if}}
+
+            {{#if verQuadro}}
+              <ul class="op2-poi-card__quadro">
+                {{#each quadro}}
+                  <li class="op2-poi-card__pericia">
+                    <div class="op2-poi-card__pericia-linha">
+                      <span class="op2-poi-card__rotulo">{{rotulo}}</span>
+                      {{#if valor}}<span class="op2-poi-card__dado">{{op2Dado (op2Concat "d" valor)}}</span>{{/if}}
+                      {{#if @root.temPersonagem}}
+                        <span class="op2-poi-card__botoes">
+                          <button type="button" class="op2-botao op2-botao--pequeno" data-action="investigar"
+                            data-poi-uuid="{{../uuid}}" data-pericia="{{chave}}">
+                            {{localize "OP2.Investigacao.Investigar"}}
+                          </button>
+                          <button type="button" class="op2-botao op2-botao--pequeno" data-action="examinar"
+                            data-poi-uuid="{{../uuid}}" data-pericia="{{chave}}"
+                            data-tooltip="{{localize 'OP2.Painel.ExaminarDica'}}">
+                            {{localize "OP2.Investigacao.Examinar"}}
+                          </button>
+                        </span>
+                      {{/if}}
+                    </div>
+                    {{#if infos.length}}
+                      <ul class="op2-poi-card__infos">
+                        {{#each infos}}
+                          <li>
+                            {{{texto}}}
+                            {{#if @root.ehGM}}
+                              <span class="op2-poi-card__dt">DT {{dt}}</span>
+                              {{#if reveladoPor.length}}
+                                <span class="op2-poi-card__revelado-por">— {{reveladoPor}}</span>
+                              {{/if}}
+                            {{/if}}
+                          </li>
+                        {{/each}}
+                      </ul>
+                    {{/if}}
+                  </li>
+                {{/each}}
+              </ul>
+              {{#if @root.temPersonagem}}
+                <button type="button" class="op2-botao op2-botao--pequeno" data-action="interagir"
+                  data-poi-uuid="{{uuid}}">
+                  {{localize "OP2.Investigacao.Interagir"}}
+                </button>
+              {{/if}}
+            {{else}}
+              {{#if @root.temPersonagem}}
+                <button type="button" class="op2-botao op2-botao--pequeno" data-action="investigar"
+                  data-poi-uuid="{{uuid}}">
+                  {{localize "OP2.Investigacao.Investigar"}}
+                </button>
+              {{/if}}
+            {{/if}}
+          </li>
+        {{/each}}
+      </ol>
+    </section>
+
+    <section class="op2-painel-secao">
+      <h3 class="op2-painel-titulo">{{localize "OP2.Painel.OrdemRodadas"}}</h3>
+      <ol class="op2-painel-ordem">
+        {{#each ordem}}
+          <li class="op2-painel-ordem__linha" data-ator-ordem="{{id}}" {{#if @root.ehGM}}draggable="true"{{/if}}>
+            <img src="{{img}}" alt=""> <span>{{nome}}</span>
+          </li>
+        {{/each}}
+        {{#each npcs}}
+          <li class="op2-painel-ordem__linha op2-painel-ordem__linha--npc">
+            <img src="{{img}}" alt=""> <span>{{nome}}</span>
+            <span class="op2-painel-ordem__npc-tag">NPC</span>
+          </li>
+        {{/each}}
+      </ol>
+      <p class="op2-ajuda">{{localize "OP2.Painel.OrdemAjuda"}}</p>
+    </section>
+
+    {{#if ehGM}}
+      <section class="op2-painel-secao op2-painel-sobrecarga">
+        <h3 class="op2-painel-titulo">{{localize "OP2.Painel.Sobrecarga"}}</h3>
+        <label class="op2-campo op2-campo--inline">
+          <input type="checkbox" data-action="alternarSobrecarga" {{#if sobrecarga.ativa}}checked{{/if}}>
+          <span>{{localize "OP2.Painel.SobrecargaAtiva"}}</span>
+        </label>
+
+        {{#if sobrecarga.ativa}}
+          <table class="op2-painel-tabela">
+            <thead>
+              <tr>
+                <th>{{localize "OP2.Painel.SobrecargaRodada"}}</th>
+                <th>{{localize "OP2.Painel.SobrecargaDano"}}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each sobrecarga.tabela}}
+                <tr data-sobrecarga-linha>
+                  <td><input type="number" data-sobrecarga-campo="rodada" value="{{rodada}}" min="1" step="1"></td>
+                  <td><input type="text" data-sobrecarga-campo="dano" value="{{dano}}"></td>
+                  <td>
+                    <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo"
+                      data-action="removerLinhaSobrecarga" data-indice="{{indice}}"
+                      aria-label="{{localize 'OP2.Painel.RemoverLinha'}}">
+                      <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="adicionarLinhaSobrecarga">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "OP2.Painel.AdicionarLinha"}}
+          </button>
+          <p class="op2-ajuda">{{localize "OP2.Painel.SobrecargaAjuda"}}</p>
+          <p class="op2-ajuda">{{localize "OP2.Painel.ProximoDano" rodada=rodada dano=sobrecarga.proximoDano}}</p>
+        {{/if}}
+      </section>
+    {{/if}}
+  {{/if}}
+</div>

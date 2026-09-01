@@ -21,11 +21,15 @@ export class PontoInteresseSheet extends OP2ItemSheet {
 
   async _prepareContext(opcoes) {
     const contexto = await super._prepareContext(opcoes);
+    const editor = foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
+    const enriquecer = (html) => editor.enrichHTML(html ?? "", { relativeTo: this.item, secrets: this.item.isOwner });
 
     return {
       ...contexto,
       ehGM: game.user.isGM,
       informacoes: this.item.system.informacoes.map((info, indice) => ({ ...info, indice })),
+      descricaoBasicaEnriquecida: await enriquecer(this.item.system.descricaoBasica),
+      descricaoContextualEnriquecida: await enriquecer(this.item.system.descricaoContextual),
       // Perícias válidas no quadro: as 19 comuns + cada campo de Aptidão.
       opcoesPericia: [
         ...Object.keys(PERICIAS).filter((c) => !PERICIAS[c].especializada),

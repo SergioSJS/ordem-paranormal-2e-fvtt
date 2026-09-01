@@ -282,6 +282,35 @@
       "Encerrada": "Cena encerrada. {total} personagem(ns) tiveram as reduções temporárias zeradas.",
       "SemPersonagens": "Nenhum personagem na cena ativa."
     },
+    "Painel": {
+      "Titulo": "Painel de investigação",
+      "Controle": "Painel de investigação",
+      "Rodada": "Rodada",
+      "NovaRodada": "Nova rodada",
+      "SemCena": "Nenhuma cena ativa no momento.",
+      "SemPersonagem": "Atribua um personagem ao seu usuário para agir na investigação.",
+      "POIs": "Pontos de interesse",
+      "SemPOIs": "Nenhum ponto de interesse nesta cena. O mestre pode arrastar um Ponto de Interesse para cá.",
+      "AbrirPOI": "Abrir a ficha do ponto de interesse",
+      "RemoverPOI": "Desvincular da cena",
+      "ExaminarDica": "Rola a perícia contra a DT. Se não revelar nada novo, perde 1 PD.",
+      "OrdemRodadas": "Ordem das rodadas",
+      "OrdemAjuda": "Os jogadores decidem a ordem entre si; o mestre arrasta. NPCs sempre agem por último.",
+      "Sobrecarga": "Sobrecarga mental",
+      "SobrecargaAtiva": "Ativa nesta cena",
+      "SobrecargaAjuda": "Dano emocional ao fim de cada rodada. A última linha vale para todas as rodadas seguintes.",
+      "SobrecargaRodada": "Rodada",
+      "SobrecargaDano": "Dano",
+      "AdicionarLinha": "Nova linha",
+      "RemoverLinha": "Remover linha",
+      "ProximoDano": "Ao encerrar a rodada {rodada}: {dano} de dano emocional."
+    },
+    "Rodada": {
+      "Titulo": "Rodada {rodada}",
+      "Sobrecarga": "Sobrecarga mental",
+      "SobrecargaTexto": "Fim da rodada {encerrada}: {dano} de dano emocional (PD). Cada jogador rola o seu.",
+      "SemDano": "Fim da rodada {encerrada}: sem dano de sobrecarga."
+    },
     "Aviso": {
       "TetoDeDados": "Máximo de {max} dados rolados por teste.",
       "TetoDeContados": "Só {max} dados entram no resultado.",

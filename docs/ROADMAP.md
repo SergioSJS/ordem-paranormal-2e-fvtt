@@ -21,7 +21,7 @@ Manifesto, tooling, testes, docs, símbolo do projeto. Sem conteúdo de jogo.
 - [x] Ficha de NPC e de itens
 - [x] i18n pt-BR + en com teste de paridade
 - [x] Busca na coluna de perícias
-- [x] Validação em Foundry v14 real (`npm run e2e`, 24 verificações)
+- [x] Validação em Foundry v14 real (`npm run e2e`, 47 verificações)
 - [ ] Validação em Foundry v13
 
 **Pronto quando:** dá para criar um agente, montar a ficha, rolar qualquer perícia
@@ -34,22 +34,24 @@ aventura *A Maldição do Ídolo de Pedra* — fora de escopo deste repositório
 Item `habilidade` existe e é funcional; o conteúdo é criado pela mesa, ou vem de um
 *adventure module* separado. Ver `docs/LACUNAS.md`.
 
-## Fase 2 — Investigação → `0.2.0`
+## Fase 2 — Investigação → `0.2.0` ◀ atual
 
 O coração do playtest, e o que nenhum outro sistema tem.
 
-- `ponto-interesse` como Item, com sheet de mestre (cabeçalho, quadro de perícias,
+- [x] `ponto-interesse` como Item, com sheet de mestre (cabeçalho, quadro de perícias,
   descrição contextual só do GM)
-- Painel de investigação por cena
-- Investigar / Examinar / Interagir / Recapitular / Compartilhar
-- Revelação **por personagem** — a informação é de quem descobriu
-- Travas de 1×-por-cena em Recapitular e Compartilhar
-- Tracker de rodadas sem iniciativa: ordem arrastável, NPCs por último
-- Sobrecarga mental com tabela editável por cena
+- [x] Painel de investigação por cena
+- [x] Investigar / Examinar / Interagir / Recapitular / Compartilhar
+- [x] Revelação **por personagem** — a informação é de quem descobriu
+- [x] Travas de 1×-por-cena em Recapitular e Compartilhar
+- [x] Tracker de rodadas sem iniciativa: ordem arrastável, NPCs por último
+- [x] Sobrecarga mental com tabela editável por cena
+- [ ] Validação em Foundry v13 (bloqueada: sem instalação v13 na máquina)
 
-**Ponto crítico:** a coluna DT é lida de duas formas. Investigar compara o *tamanho* do
-dado, sem rolar. Examinar rola e compara a soma — e custa **1 PD se não trouxer
-informação nova**. A UI precisa avisar antes de confirmar.
+**Ponto crítico entregue:** a coluna DT é lida de duas formas. Investigar compara o
+*tamanho* do dado, sem rolar (`resolverInvestigacao`). Examinar rola e compara a soma —
+e custa **1 PD se não trouxer informação nova**, com aviso antes de confirmar e botão
+de pagamento no chat.
 
 ## Fase 3 — Desafios e ferramentas → `0.3.0`
 

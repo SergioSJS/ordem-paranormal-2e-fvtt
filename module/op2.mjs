@@ -20,6 +20,8 @@ import { registrarHelpersDeDado } from "./ui/dice-icons.mjs";
 import { registrarHelpers, precarregarTemplates } from "./ui/handlebars.mjs";
 import { registrarChat } from "./ui/chat.mjs";
 import { encerrarCena } from "./cena/encerrar-cena.mjs";
+import { registrarPainelInvestigacao, abrirPainelInvestigacao } from "./cena/painel-investigacao.mjs";
+import { avancarRodada } from "./cena/rodada.mjs";
 import {
   investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar,
 } from "./cena/acoes-investigacao.mjs";
@@ -43,6 +45,7 @@ Hooks.once("init", () => {
   registrarHelpers();
   registrarSheets();
   registrarChat();
+  registrarPainelInvestigacao();
 
   // Sem iniciativa rolada: os jogadores decidem a ordem entre si (spec §5.2).
   CONFIG.Combat.initiative = { formula: "0", decimals: 0 };
@@ -50,6 +53,7 @@ Hooks.once("init", () => {
   game.op2 = {
     rolarTeste, encerrarCena, stepDie, faces, OP2Roll,
     investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar,
+    painelInvestigacao: abrirPainelInvestigacao, avancarRodada,
   };
 });
 

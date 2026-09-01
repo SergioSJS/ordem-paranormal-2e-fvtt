@@ -10,7 +10,9 @@ Foi este harness que encontrou:
 - `{{formInput}}` reclamando de campo inexistente, sem `fields` no contexto;
 - o hook `renderChatMessage` avisando depreciação a cada mensagem;
 - as aptidões padrão nunca criadas, porque `migrateData` não roda na criação;
-- nomes de atributo cortados no layout em inglês.
+- nomes de atributo cortados no layout em inglês;
+- o `evento.currentTarget` nulo após o primeiro `await` nos botões de chat — foi a
+  sobrecarga mental, com rolagem mais lenta, que expôs o erro.
 
 Nenhum desses aparece em `npm test`.
 

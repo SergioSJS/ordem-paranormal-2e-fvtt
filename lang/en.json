@@ -282,6 +282,35 @@
       "Encerrada": "Scene ended. Temporary reductions cleared for {total} character(s).",
       "SemPersonagens": "No characters in the active scene."
     },
+    "Painel": {
+      "Titulo": "Investigation panel",
+      "Controle": "Investigation panel",
+      "Rodada": "Round",
+      "NovaRodada": "New round",
+      "SemCena": "No active scene right now.",
+      "SemPersonagem": "Assign a character to your user to act in the investigation.",
+      "POIs": "Points of interest",
+      "SemPOIs": "No points of interest in this scene. The GM can drag a Point of Interest here.",
+      "AbrirPOI": "Open the point of interest sheet",
+      "RemoverPOI": "Unlink from the scene",
+      "ExaminarDica": "Rolls the skill against the DT. If nothing new is revealed, lose 1 DP.",
+      "OrdemRodadas": "Round order",
+      "OrdemAjuda": "Players decide the order among themselves; the GM drags. NPCs always act last.",
+      "Sobrecarga": "Mental overload",
+      "SobrecargaAtiva": "Active in this scene",
+      "SobrecargaAjuda": "Emotional damage at the end of each round. The last row applies to every round after it.",
+      "SobrecargaRodada": "Round",
+      "SobrecargaDano": "Damage",
+      "AdicionarLinha": "New row",
+      "RemoverLinha": "Remove row",
+      "ProximoDano": "When round {rodada} ends: {dano} emotional damage."
+    },
+    "Rodada": {
+      "Titulo": "Round {rodada}",
+      "Sobrecarga": "Mental overload",
+      "SobrecargaTexto": "End of round {encerrada}: {dano} emotional damage (DP). Each player rolls their own.",
+      "SemDano": "End of round {encerrada}: no overload damage."
+    },
     "Aviso": {
       "TetoDeDados": "At most {max} dice rolled per check.",
       "TetoDeContados": "Only {max} dice make the result.",

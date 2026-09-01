@@ -30,7 +30,7 @@ sheets/ · dialogs · chat   apresentação
 | `module/dice/` | Escada, análise, `OP2Roll`, diálogo de teste, seleção de dados, falha crítica. |
 | `module/sheets/` | Fichas de ator e item. |
 | `module/ui/` | Ícones de dado, helpers de Handlebars, listeners de chat. |
-| `module/cena/` | Encerrar cena. Ganha tracker de rodadas na fase 2. |
+| `module/cena/` | Cena: encerrar, regras puras de investigação, ações, painel, rodadas e sobrecarga. |
 | `module/settings/` | Registro dos settings. Um por lacuna do playtest. |
 | `module/tests/` | `node --test`, sem runner externo. |
 | `templates/partials/` | Peças reutilizadas: controle de dado, linha de perícia, trilha de recurso. |
@@ -59,6 +59,20 @@ existe como função exportada, não como detalhe interno.
 **Nada é aplicado sem confirmação.** Dano, reduções e efeitos de falha crítica sempre
 passam por um botão. O playtest é explícito sobre isso na tabela de falha crítica, e a
 regra vale para o resto.
+
+**Revelação de investigação mora no actor, não na cena.** `estado.infosReveladas` é um
+conjunto de `"<uuid do POI>:<id da info>"`. Como o jogador é dono do próprio actor, ele
+grava as próprias descobertas sem socket nem delegação ao mestre — e o painel de cada um
+mostra só o que o seu personagem descobriu. Zera ao encerrar a cena.
+
+**Travas de 1×-por-cena passam pelo mestre.** Recapitular e Compartilhar exigem que o
+mestre julgue a interpretação (spec §6.4/§6.5), então quem registra a trava é um botão
+`data-op2-gm` no card de sucesso — nunca o cliente do jogador. As travas são flags da
+cena, escritas só pelo GM.
+
+**Sem Combat do core para rodadas.** O tracker diverge entre v13 (AppV1) e v14 (AppV2);
+o painel de investigação implementa a ordem arrastável com NPCs ao fim (spec §5.2) e o
+avanço de rodada que dispara a sobrecarga mental (spec §7.6).
 
 ## Compatibilidade v13 + v14
 

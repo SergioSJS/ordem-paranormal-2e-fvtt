@@ -1,0 +1,19 @@
+<div class="op2 op2-card op2-card--investigacao">
+  <header class="op2-card__topo">
+    <span class="op2-tag op2-tag--pequena">{{localize "OP2.Rodada.Titulo" rodada=nova}}</span>
+  </header>
+
+  {{#if temDano}}
+    <p class="op2-card__texto">{{localize "OP2.Rodada.SobrecargaTexto" encerrada=encerrada dano=dano}}</p>
+    <div class="op2-card__acoes">
+      {{#each personagens}}
+        <button type="button" class="op2-botao op2-botao--pequeno" data-op2-acao="rolar-sobrecarga"
+          data-ator-id="{{id}}" data-expressao="{{../dano}}">
+          {{nome}} — {{../dano}}
+        </button>
+      {{/each}}
+    </div>
+  {{else}}
+    {{#if encerrada}}<p class="op2-ajuda">{{localize "OP2.Rodada.SemDano" encerrada=encerrada}}</p>{{/if}}
+  {{/if}}
+</div>

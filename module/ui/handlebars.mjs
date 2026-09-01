@@ -25,6 +25,8 @@ const TEMPLATES = [
   `${RAIZ}/chat/examinar-custo.hbs`,
   `${RAIZ}/chat/acao-cena.hbs`,
   `${RAIZ}/chat/interagir.hbs`,
+  `${RAIZ}/chat/rodada.hbs`,
+  `${RAIZ}/cena/painel-investigacao.hbs`,
 ];
 
 export function precarregarTemplates() {

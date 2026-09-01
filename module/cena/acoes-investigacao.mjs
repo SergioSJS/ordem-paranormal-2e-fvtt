@@ -26,7 +26,7 @@ async function carregarPoi(poiUuid) {
 }
 
 /** Ids das infos deste POI que este personagem já revelou. */
-function idsRevelados(ator, poiUuid) {
+export function idsRevelados(ator, poiUuid) {
   const prefixo = `${poiUuid}:`;
   return new Set([...ator.system.estado.infosReveladas]
     .filter((chave) => chave.startsWith(prefixo))
@@ -106,21 +106,27 @@ export async function investigar(ator, poiUuid, chavePericia) {
  * nova — por não atingir a DT ou por não haver mais nada — custa 1 PD. A aposta é
  * avisada antes de confirmar. Crítico ignora a DT e revela o que falta da perícia
  * (a "informação adicional" do crítico em investigação, spec §4.3).
- * @returns {Promise<string[]|null>} ids revelados, [] se pagou PD, null se cancelou
+ * @param {object} [opcoes]
+ * @param {boolean} [opcoes.confirmar]  exibe o aviso da aposta de 1 PD antes
+ * @param {boolean} [opcoes.rapido]     rola sem o diálogo de teste
+ * @returns {Promise<{roll: OP2Roll, revelaveis: string[], perdePD: boolean}|null>}
  */
-export async function examinar(ator, poiUuid, chavePericia) {
+export async function examinar(ator, poiUuid, chavePericia, { confirmar = true, rapido = false } = {}) {
   const poi = await carregarPoi(poiUuid);
   if (!poi) return null;
 
-  const confirmou = await foundry.applications.api.DialogV2.confirm({
-    window: { title: game.i18n.localize("OP2.Investigacao.Examinar") },
-    content: `<p>${game.i18n.format("OP2.Investigacao.ExaminarAviso", { custo: CUSTO_PD_EXAMINAR })}</p>`,
-  });
-  if (!confirmou) return null;
+  if (confirmar) {
+    const confirmou = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("OP2.Investigacao.Examinar") },
+      content: `<p>${game.i18n.format("OP2.Investigacao.ExaminarAviso", { custo: CUSTO_PD_EXAMINAR })}</p>`,
+    });
+    if (!confirmou) return null;
+  }
 
   const roll = await rolarTeste(ator, {
     chavePericia,
     semDT: true,
+    rapido,
     contexto: `${game.i18n.localize("OP2.Investigacao.Examinar")} — ${rotuloDePericia(chavePericia)}`,
   });
   if (!roll) return null;
@@ -137,7 +143,7 @@ export async function examinar(ator, poiUuid, chavePericia) {
       atorId: ator.id,
       rotuloCusto: game.i18n.format("OP2.Investigacao.PerderPD", { custo: CUSTO_PD_EXAMINAR }),
     });
-    return [];
+    return { roll, revelaveis: [], perdePD: true };
   }
 
   await gravarRevelacoes(ator, poiUuid, revelaveis);
@@ -149,7 +155,7 @@ export async function examinar(ator, poiUuid, chavePericia) {
     temInfos: true,
   }, { whisper: sussurroPara(ator) });
 
-  return revelaveis;
+  return { roll, revelaveis, perdePD: false };
 }
 
 /**
@@ -171,21 +177,24 @@ export async function interagir(ator, poiUuid) {
  * RECAPITULAR (spec §6.4): o jogador interpreta a recapitulação; se o mestre julgar
  * coerente, teste de Intuição DT 10. Sucesso trava a ação para o grupo na cena.
  */
-export async function recapitular(ator) {
+export async function recapitular(ator, { confirmar = true, rapido = false } = {}) {
   if (canvas.scene?.getFlag(SYSTEM_ID, "recapitularUsado")) {
     ui.notifications.warn(game.i18n.localize("OP2.Investigacao.AcaoTravada"));
     return null;
   }
 
-  const confirmou = await foundry.applications.api.DialogV2.confirm({
-    window: { title: game.i18n.localize("OP2.Investigacao.Recapitular") },
-    content: `<p>${game.i18n.format("OP2.Investigacao.RecapitularAviso", { dt: DT_RECAPITULAR })}</p>`,
-  });
-  if (!confirmou) return null;
+  if (confirmar) {
+    const confirmou = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("OP2.Investigacao.Recapitular") },
+      content: `<p>${game.i18n.format("OP2.Investigacao.RecapitularAviso", { dt: DT_RECAPITULAR })}</p>`,
+    });
+    if (!confirmou) return null;
+  }
 
   const roll = await rolarTeste(ator, {
     chavePericia: "intuicao",
     dt: DT_RECAPITULAR,
+    rapido,
     contexto: game.i18n.localize("OP2.Investigacao.Recapitular"),
   });
   if (!roll?.sucesso) return roll;
@@ -205,7 +214,7 @@ export async function recapitular(ator) {
  * testa a perícia de Compartilhar (setting `compartilharPericia`, DT 10) como ação
  * livre. Sucesso trava a ação para o grupo na cena.
  */
-export async function compartilhar(ator) {
+export async function compartilhar(ator, { aliadoId = null } = {}) {
   if (canvas.scene?.getFlag(SYSTEM_ID, "compartilharUsado")) {
     ui.notifications.warn(game.i18n.localize("OP2.Investigacao.AcaoTravada"));
     return null;
@@ -217,18 +226,21 @@ export async function compartilhar(ator) {
     return null;
   }
 
-  const aliadoId = await foundry.applications.api.DialogV2.prompt({
-    window: { title: game.i18n.localize("OP2.Investigacao.Compartilhar") },
-    content: `
-      <div class="form-group">
-        <label>${game.i18n.localize("OP2.Investigacao.EscolherAliado")}</label>
-        <select name="aliado">${aliados.map((a) => `<option value="${a.id}">${a.name}</option>`).join("")}</select>
-      </div>
-      <p class="op2-ajuda">${game.i18n.format("OP2.Investigacao.CompartilharAjuda", { dt: DT_COMPARTILHAR })}</p>`,
-    ok: { callback: (_evento, botao) => botao.form.elements.aliado.value },
-    rejectClose: false,
-  });
-  const aliado = aliados.find((a) => a.id === aliadoId);
+  let aliado = aliados.find((a) => a.id === aliadoId);
+  if (!aliado) {
+    const escolhido = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("OP2.Investigacao.Compartilhar") },
+      content: `
+        <div class="form-group">
+          <label>${game.i18n.localize("OP2.Investigacao.EscolherAliado")}</label>
+          <select name="aliado">${aliados.map((a) => `<option value="${a.id}">${a.name}</option>`).join("")}</select>
+        </div>
+        <p class="op2-ajuda">${game.i18n.format("OP2.Investigacao.CompartilharAjuda", { dt: DT_COMPARTILHAR })}</p>`,
+      ok: { callback: (_evento, botao) => botao.form.elements.aliado.value },
+      rejectClose: false,
+    });
+    aliado = aliados.find((a) => a.id === escolhido);
+  }
   if (!aliado) return null;
 
   const pericia = lerConfig("compartilharPericia");

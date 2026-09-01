@@ -7,6 +7,7 @@
 import { SYSTEM_ID, CUSTO_PD_EXAMINAR } from "../config.mjs";
 import { rolarFalhaCritica, aplicarFalhaCritica, aplicarDano } from "../dice/falha-critica.mjs";
 import { testarCompartilhamento, registrarTravaDeCena } from "../cena/acoes-investigacao.mjs";
+import { rolarSobrecarga } from "../cena/rodada.mjs";
 
 /** @type {Record<string, (ator: Actor, dataset: DOMStringMap) => Promise<void>>} */
 const ACOES = {
@@ -42,6 +43,14 @@ const ACOES = {
   async "registrar-compartilhar"(ator) {
     await registrarTravaDeCena("compartilharUsado", ator);
   },
+  // Sobrecarga mental: cada jogador rola o próprio dano; o mestre cobre ausentes.
+  async "rolar-sobrecarga"(ator, dataset) {
+    if (!game.user.isGM && !ator.isOwner) {
+      ui.notifications.warn(game.i18n.localize("OP2.Aviso.SemPermissao"));
+      return;
+    }
+    await rolarSobrecarga(ator, dataset.expressao);
+  },
 };
 
 /**
@@ -58,18 +67,20 @@ function ligar(elemento) {
   for (const botao of elemento.querySelectorAll("[data-op2-acao]")) {
     botao.addEventListener("click", async (evento) => {
       evento.preventDefault();
-      const { op2Acao, atorId } = evento.currentTarget.dataset;
+      // currentTarget zera ao fim do dispatch: guardamos o botão antes do primeiro await.
+      const clicado = evento.currentTarget;
+      const { op2Acao, atorId } = clicado.dataset;
       const acao = ACOES[op2Acao];
       if (!acao) return;
 
       const ator = game.actors.get(atorId);
       if (!ator) return void ui.notifications.warn(game.i18n.localize("OP2.Aviso.AtorAusente"));
 
-      evento.currentTarget.disabled = true;
+      clicado.disabled = true;
       try {
-        await acao(ator, evento.currentTarget.dataset);
+        await acao(ator, clicado.dataset);
       } finally {
-        evento.currentTarget.disabled = false;
+        clicado.disabled = false;
       }
     });
   }
