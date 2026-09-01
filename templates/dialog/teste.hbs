@@ -43,16 +43,18 @@
     </fieldset>
   {{/if}}
 
-  <div class="op2-teste__dificuldade">
-    <label class="op2-campo">
-      <span>{{localize "OP2.DT"}}</span>
-      <input type="number" name="dt" value="{{estado.dt}}" min="1" step="1" inputmode="numeric" autofocus>
-    </label>
-    <label class="op2-campo op2-campo--inline">
-      <input type="checkbox" name="oposto" {{#if estado.oposto}}checked{{/if}}>
-      <span>{{localize "OP2.Dialog.Teste.Oposto"}}</span>
-    </label>
-  </div>
+  {{#unless estado.semDT}}
+    <div class="op2-teste__dificuldade">
+      <label class="op2-campo">
+        <span>{{localize "OP2.DT"}}</span>
+        <input type="number" name="dt" value="{{estado.dt}}" min="1" step="1" inputmode="numeric" autofocus>
+      </label>
+      <label class="op2-campo op2-campo--inline">
+        <input type="checkbox" name="oposto" {{#if estado.oposto}}checked{{/if}}>
+        <span>{{localize "OP2.Dialog.Teste.Oposto"}}</span>
+      </label>
+    </div>
+  {{/unless}}
 
   {{#if excedeContagem}}
     <p class="op2-aviso">

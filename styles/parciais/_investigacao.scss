@@ -1,0 +1,210 @@
+@layer system {
+
+// Cards de investigação: revelação sussurrada, custo de Examinar, ações de cena.
+.op2-card--investigacao { border-left-color: var(--op2-vermelho); }
+
+.op2-card__texto { margin: var(--op2-e2) 0 0; font-size: 0.85rem; }
+
+.op2-card__infos {
+  margin: var(--op2-e2) 0 0;
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+
+  li + li { margin-top: var(--op2-e1); }
+}
+
+.op2-card__info-pericia {
+  font-family: var(--op2-fonte-mono);
+  color: var(--op2-texto-fraco);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+// Ficha do Ponto de Interesse.
+.op2-poi {
+  &__infos {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li + li { margin-top: var(--op2-e2); }
+  }
+
+  &__info textarea { width: 100%; margin-top: var(--op2-e1); }
+
+  &__info-linha {
+    display: flex;
+    align-items: center;
+    gap: var(--op2-e2);
+
+    select { flex: 1; }
+  }
+
+  &__dt {
+    display: flex;
+    align-items: center;
+    gap: var(--op2-e1);
+
+    span {
+      font-family: var(--op2-fonte-display);
+      font-size: 0.75rem;
+      color: var(--op2-texto-fraco);
+    }
+
+    input { width: 3.5rem; }
+  }
+}
+
+// Painel de investigação da cena.
+.op2-painel-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--op2-e3);
+  font-family: var(--op2-fonte-corpo);
+}
+
+.op2-painel-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--op2-e2);
+
+  &__info { display: flex; align-items: baseline; gap: var(--op2-e2); }
+
+  &__acoes { display: flex; gap: var(--op2-e1); }
+}
+
+.op2-painel-rodada {
+  font-family: var(--op2-fonte-mono);
+  color: var(--op2-texto-fraco);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.op2-painel-titulo {
+  margin: 0 0 var(--op2-e2);
+  font-family: var(--op2-fonte-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.op2-painel-acoes-grupo { display: flex; gap: var(--op2-e2); }
+
+.op2-painel-trava { color: var(--op2-texto-fraco); }
+
+.op2-painel-pois {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--op2-e2);
+}
+
+.op2-poi-card {
+  padding: var(--op2-e2);
+  border: 1px solid var(--op2-linha);
+  border-left: 3px solid var(--op2-vermelho);
+  border-radius: var(--op2-raio);
+  background: var(--op2-superficie);
+
+  &__topo {
+    display: flex;
+    align-items: center;
+    gap: var(--op2-e2);
+
+    img { width: 2rem; height: 2rem; object-fit: cover; border-radius: var(--op2-raio); }
+
+    strong { flex: 1; font-family: var(--op2-fonte-display); letter-spacing: 0.03em; }
+  }
+
+  &__acoes-gm { display: flex; gap: var(--op2-e1); }
+
+  &__basica { margin: var(--op2-e2) 0; font-size: 0.85rem; }
+
+  &__quadro {
+    margin: 0 0 var(--op2-e2);
+    padding: 0;
+    list-style: none;
+  }
+
+  &__pericia + &__pericia { margin-top: var(--op2-e2); }
+
+  &__pericia-linha {
+    display: flex;
+    align-items: center;
+    gap: var(--op2-e2);
+  }
+
+  &__rotulo {
+    font-family: var(--op2-fonte-mono);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+  }
+
+  &__dado .op2-dado { width: 1.6rem; height: 1.6rem; }
+
+  &__botoes { margin-left: auto; display: flex; gap: var(--op2-e1); }
+
+  &__infos {
+    margin: var(--op2-e1) 0 0;
+    padding-left: 1.2rem;
+    font-size: 0.85rem;
+  }
+
+  &__dt {
+    font-family: var(--op2-fonte-mono);
+    color: var(--op2-texto-fraco);
+    font-size: 0.75rem;
+  }
+
+  &__revelado-por { color: var(--op2-sucesso); font-size: 0.75rem; }
+}
+
+.op2-painel-ordem {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__linha {
+    display: flex;
+    align-items: center;
+    gap: var(--op2-e2);
+    padding: var(--op2-e1) var(--op2-e2);
+    border-bottom: 1px dashed var(--op2-linha);
+
+    &[draggable="true"] { cursor: grab; }
+
+    img { width: 1.6rem; height: 1.6rem; object-fit: cover; border-radius: var(--op2-raio); }
+
+    &--npc { color: var(--op2-texto-fraco); }
+  }
+
+  &__npc-tag {
+    margin-left: auto;
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+  }
+}
+
+.op2-painel-tabela {
+  width: 100%;
+  margin: var(--op2-e2) 0;
+  border-collapse: collapse;
+
+  th {
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--op2-texto-fraco);
+    text-align: left;
+  }
+
+  td { padding: var(--op2-e1) var(--op2-e1) var(--op2-e1) 0; }
+
+  input[type="number"] { width: 4rem; }
+  input[type="text"] { width: 100%; }
+}
+
+}

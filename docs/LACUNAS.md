@@ -25,6 +25,23 @@ A diagramação da linha "9 ou mais" comporta mais de uma leitura. A mais prová
 
 ## Regras não definidas
 
+### Examinar revela uma ou várias informações? (spec §6.3.1)
+
+O texto diz "recebe essa informação", no singular, sem dizer qual quando várias DTs
+ficam abaixo do total.
+
+**Default adotado:** todas as informações da perícia com DT ≤ soma rolada — a mesma
+leitura da coluna DT que o Investigar faz com o tamanho do dado. O custo de 1 PD não
+muda: só é cobrado quando nada novo é revelado.
+
+### Crítico no Examinar (spec §4.3 + §6.3.1)
+
+O crítico "passa automaticamente, ignorando a DT" e em investigação "concede
+informação adicional", sem definir o que isso significa em um quadro com várias DTs.
+
+**Default adotado:** o crítico ignora a DT e revela todas as informações que faltam
+daquela perícia naquele POI. É a leitura mais direta de "informação adicional".
+
 ### Escopo do aumento de passo da Ajuda (spec §4.7)
 
 O texto diz que a ajuda concede "um aumento de passo", sem dizer em qual dado.

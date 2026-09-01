@@ -1,0 +1,20 @@
+<div class="op2 op2-card op2-card--investigacao">
+  <header class="op2-card__topo">
+    <span class="op2-tag op2-tag--pequena">{{titulo}}</span>
+    <span class="op2-card__dt">{{poiNome}}</span>
+  </header>
+
+  {{#if primeiraVez}}
+    <div class="op2-card__texto">{{{descricaoBasica}}}</div>
+  {{/if}}
+
+  {{#if temInfos}}
+    <ol class="op2-card__infos">
+      {{#each infos}}
+        <li><span class="op2-card__info-pericia">{{rotuloPericia}}:</span> {{{texto}}}</li>
+      {{/each}}
+    </ol>
+  {{else}}
+    <p class="op2-ajuda">{{localize "OP2.Investigacao.NadaNovo"}}</p>
+  {{/if}}
+</div>

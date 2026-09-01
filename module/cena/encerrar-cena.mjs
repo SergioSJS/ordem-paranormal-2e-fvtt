@@ -24,13 +24,24 @@ export async function encerrarCena({ atores, avisar = true } = {}) {
     "system.estado.reducoesTemporarias.mente": 0,
     "system.estado.reducoesTemporarias.emocao": 0,
     "system.estado.acoesUsadasNaCena": [],
+    // A revelação é por cena: encerrada a cena, o que foi descoberto nela é
+    // conhecimento da mesa, não estado do sistema.
+    "system.estado.poisInvestigados": [],
+    "system.estado.infosReveladas": [],
   };
 
   const atualizacoes = alvos.map((ator) => ({ _id: ator.id, ...zerado }));
   await Actor.updateDocuments(atualizacoes);
 
   // O contador de rodadas alimenta a sobrecarga mental (spec §7.6) e reinicia junto.
-  await canvas.scene?.unsetFlag(SYSTEM_ID, "rodada");
+  // Travas de 1×-por-cena e a ordem das rodadas também são da cena que terminou.
+  const cena = canvas.scene;
+  if (cena) {
+    await cena.unsetFlag(SYSTEM_ID, "rodada");
+    await cena.unsetFlag(SYSTEM_ID, "recapitularUsado");
+    await cena.unsetFlag(SYSTEM_ID, "compartilharUsado");
+    await cena.unsetFlag(SYSTEM_ID, "ordemRodada");
+  }
 
   if (avisar) {
     ui.notifications.info(game.i18n.format("OP2.Cena.Encerrada", { total: alvos.length }));
@@ -40,11 +51,20 @@ export async function encerrarCena({ atores, avisar = true } = {}) {
 
 /** Personagens com token na cena ativa. */
 export function personagensDaCenaAtiva() {
+  return atoresDaCenaAtiva("personagem");
+}
+
+/** NPCs com token na cena ativa — agem por último (spec §5.2). */
+export function npcsDaCenaAtiva() {
+  return atoresDaCenaAtiva("npc");
+}
+
+function atoresDaCenaAtiva(tipo) {
   const tokens = canvas.scene?.tokens ?? [];
   const atores = new Map();
   for (const token of tokens) {
     const ator = token.actor;
-    if (ator?.type === "personagem") atores.set(ator.id, ator);
+    if (ator?.type === tipo) atores.set(ator.id, ator);
   }
   return [...atores.values()];
 }

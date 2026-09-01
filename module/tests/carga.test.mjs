@@ -51,11 +51,15 @@ test("system.json declara um data model para cada tipo de documento", async () =
   const manifesto = JSON.parse(readFileSync(join(RAIZ, "system.json"), "utf8"));
   const entrada = readFileSync(join(RAIZ, "module/op2.mjs"), "utf8");
 
+  // Tipos com hífen ("ponto-interesse") são registrados com colchetes, não com ponto.
+  const registrado = (colecao, tipo) =>
+    new RegExp(`CONFIG\\.${colecao}\\.dataModels(\\.${tipo}|\\["${tipo}"\\])\\s*=`);
+
   for (const tipo of Object.keys(manifesto.documentTypes.Actor)) {
-    assert.match(entrada, new RegExp(`CONFIG\\.Actor\\.dataModels\\.${tipo}\\s*=`), `Actor ${tipo}`);
+    assert.match(entrada, registrado("Actor", tipo), `Actor ${tipo}`);
   }
   for (const tipo of Object.keys(manifesto.documentTypes.Item)) {
-    assert.match(entrada, new RegExp(`CONFIG\\.Item\\.dataModels\\.${tipo}\\s*=`), `Item ${tipo}`);
+    assert.match(entrada, registrado("Item", tipo), `Item ${tipo}`);
   }
 });
 

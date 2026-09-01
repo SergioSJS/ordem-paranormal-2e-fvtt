@@ -13,6 +13,7 @@ const TEMPLATES = [
   `${RAIZ}/actor/npc.hbs`,
   `${RAIZ}/item/habilidade.hbs`,
   `${RAIZ}/item/equipamento.hbs`,
+  `${RAIZ}/item/ponto-interesse.hbs`,
   `${RAIZ}/partials/controle-dado.hbs`,
   `${RAIZ}/partials/linha-pericia.hbs`,
   `${RAIZ}/partials/trilha-recurso.hbs`,
@@ -20,6 +21,12 @@ const TEMPLATES = [
   `${RAIZ}/dialog/selecao-dados.hbs`,
   `${RAIZ}/chat/teste.hbs`,
   `${RAIZ}/chat/falha-critica.hbs`,
+  `${RAIZ}/chat/revelacao.hbs`,
+  `${RAIZ}/chat/examinar-custo.hbs`,
+  `${RAIZ}/chat/acao-cena.hbs`,
+  `${RAIZ}/chat/interagir.hbs`,
+  `${RAIZ}/chat/rodada.hbs`,
+  `${RAIZ}/cena/painel-investigacao.hbs`,
 ];
 
 export function precarregarTemplates() {

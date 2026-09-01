@@ -85,9 +85,45 @@ export const PASSOS_DE_AJUDA = { d4: 0, d6: 1, d8: 1, d10: 2, d12: 2 };
 export const DT_FERIMENTO_BASE = 7;
 export const DT_FERIMENTO_INCREMENTO = 3;
 
+/** Ações de investigação travadas para o grupo após um sucesso (spec §6.4/§6.5). */
+export const DT_RECAPITULAR = 10;
+export const DT_COMPARTILHAR = 10;
+
+/** Examinar é uma aposta: não revelar nada novo custa 1 PD (spec §6.3.1). */
+export const CUSTO_PD_EXAMINAR = 1;
+
+/**
+ * Setor de ferramentas de um POI (spec §6.2/§9.3). `null` = leitura normal, sem reação
+ * — que também é informação, e por isso só se revela depois da investigação.
+ */
+export const FERRAMENTAS_POI = [
+  "camera", "laboratorio", "lanternaUV", "laser", "infravermelho",
+  "emf", "poRevelador", "radio", "termometro",
+];
+
+/**
+ * Sobrecarga mental de referência (spec §7.6): dano emocional ao fim de cada rodada.
+ * A última linha cobre "9 ou mais" — a diagramação da tabela admite outra leitura,
+ * então a tabela é editável por cena (docs/LACUNAS.md). `dano` é uma expressão de
+ * rolagem: "0" não machuca, "1" é fixo, "1d4" rola.
+ */
+export const TABELA_SOBRECARGA_PADRAO = [
+  { rodada: 1, dano: "0" },
+  { rodada: 2, dano: "0" },
+  { rodada: 3, dano: "1" },
+  { rodada: 4, dano: "1" },
+  { rodada: 5, dano: "1d4" },
+  { rodada: 6, dano: "1d4" },
+  { rodada: 7, dano: "1d6" },
+  { rodada: 8, dano: "1d6" },
+  { rodada: 9, dano: "2d4" },
+];
+
 export const OP2 = {
   SYSTEM_ID, I18N, ESCADA, DADO_SOBRE_HUMANO, ATRIBUTOS, PERICIAS, APTIDOES_PADRAO,
   PERFIS, TIPOS_PERSONAGEM, DT_PADRAO, MAX_DADOS_ROLADOS, MAX_DADOS_CONTADOS,
   VALOR_MINIMO_CRITICO, TABELA_FALHA_CRITICA, PASSOS_DE_AJUDA,
   DT_FERIMENTO_BASE, DT_FERIMENTO_INCREMENTO,
+  DT_RECAPITULAR, DT_COMPARTILHAR, CUSTO_PD_EXAMINAR, FERRAMENTAS_POI,
+  TABELA_SOBRECARGA_PADRAO,
 };

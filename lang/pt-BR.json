@@ -6,7 +6,8 @@
     },
     "Item": {
       "habilidade": "Habilidade",
-      "equipamento": "Equipamento"
+      "equipamento": "Equipamento",
+      "ponto-interesse": "Ponto de Interesse"
     }
   },
   "OP2": {
@@ -14,6 +15,7 @@
       "Personagem": "Ficha de Personagem",
       "Npc": "Ficha de NPC",
       "Item": "Ficha de Item",
+      "PontoInteresse": "Ponto de Interesse",
       "SemNome": "Sem nome"
     },
     "Atributo": {
@@ -147,6 +149,59 @@
       "RemoverPericia": "Remover perícia",
       "PericiasAjuda": "NPCs não usam a lista completa: declare só as perícias que este NPC realmente usa."
     },
+    "POI": {
+      "DescricaoBasica": "Descrição básica",
+      "DescricaoBasicaAjuda": "Narrada quando alguém investiga o ponto de interesse pela primeira vez.",
+      "Quadro": "Quadro de informações",
+      "QuadroAjuda": "Investigar compara o tamanho do dado contra a DT, sem rolar. Examinar rola e compara a soma.",
+      "AdicionarInformacao": "Nova informação",
+      "RemoverInformacao": "Remover informação",
+      "DescricaoContextual": "Descrição contextual (só do mestre)",
+      "DescricaoContextualAjuda": "A explicação completa. Resolve as interações livres dos jogadores.",
+      "Ferramentas": "Setor de ferramentas",
+      "FerramentasAjuda": "Vazio = leitura normal, sem reação. Uma leitura normal também é informação — só revele depois que investigarem.",
+      "FerramentaSemReacao": "Sem reação",
+      "ReveladoPorLaser": "Reage ao Laser de Varredura",
+      "SomenteMestre": "O quadro de informações e a descrição contextual são só do mestre.",
+      "Ferramenta": {
+        "camera": "Câmera Modificada",
+        "laboratorio": "Laboratório Portátil",
+        "lanternaUV": "Lanterna de Estouro UV",
+        "laser": "Laser de Varredura",
+        "infravermelho": "Leitor Infravermelho",
+        "emf": "Medidor EMF",
+        "poRevelador": "Pó Revelador",
+        "radio": "Rádio Modificado",
+        "termometro": "Termômetro Diferencial"
+      }
+    },
+    "Investigacao": {
+      "Investigar": "Investigar",
+      "Examinar": "Examinar",
+      "Interagir": "Interagir",
+      "Recapitular": "Recapitular",
+      "Compartilhar": "Compartilhar",
+      "EscolherPericia": "Perícia do quadro",
+      "EscolherPericiaAjuda": "Investigar entrega toda informação com DT até o tamanho do seu dado, sem rolar.",
+      "NadaNovo": "Nenhuma informação nova com esta perícia.",
+      "ExaminarAviso": "Examinar é uma aposta: se o teste não revelar nenhuma informação nova, você perde {custo} PD.",
+      "ExaminarSemInfo": "O exame não revelou nenhuma informação nova.",
+      "PerderPD": "Perder {custo} PD",
+      "PDPago": "{ator} perdeu {custo} PD ao examinar sem descobrir nada.",
+      "InteragirQuem": "{ator} interage com o ponto de interesse. Resolva pela descrição contextual:",
+      "RecapitularAviso": "Interprete a recapitulação de tudo que o grupo descobriu. Se o mestre julgar coerente, faça um teste de Intuição (DT {dt}). Após um sucesso, Recapitular trava para o grupo nesta cena.",
+      "RecapitularSucesso": "{ator} recapitulou a investigação. O mestre pode conceder uma nova pista — registrar trava a ação para o grupo nesta cena.",
+      "CompartilharAjuda": "O aliado testa a perícia de Compartilhar (DT {dt}) como ação livre.",
+      "EscolherAliado": "Aliado que recebe a pista",
+      "CompartilharTexto": "{ator} explica uma pista desta cena para {aliado}.",
+      "TestarCompartilhar": "Testar {pericia} (DT {dt})",
+      "CompartilharSucesso": "{aliado} entendeu a explicação de {ator} e pode deduzir uma nova pista — registrar trava Compartilhar para o grupo nesta cena.",
+      "RegistrarPista": "Registrar pista",
+      "TravaRegistrada": "{acao} fica bloqueada para o grupo até o fim da cena.",
+      "AcaoTravada": "Esta ação já foi usada com sucesso nesta cena.",
+      "SemAliados": "Nenhum outro personagem na cena para receber a pista.",
+      "POIVazio": "Este ponto de interesse não tem informações no quadro."
+    },
     "Dialog": {
       "Teste": {
         "Titulo": "Teste",
@@ -227,12 +282,43 @@
       "Encerrada": "Cena encerrada. {total} personagem(ns) tiveram as reduções temporárias zeradas.",
       "SemPersonagens": "Nenhum personagem na cena ativa."
     },
+    "Painel": {
+      "Titulo": "Painel de investigação",
+      "Controle": "Painel de investigação",
+      "Rodada": "Rodada",
+      "NovaRodada": "Nova rodada",
+      "SemCena": "Nenhuma cena ativa no momento.",
+      "SemPersonagem": "Atribua um personagem ao seu usuário para agir na investigação.",
+      "POIs": "Pontos de interesse",
+      "SemPOIs": "Nenhum ponto de interesse nesta cena. O mestre pode arrastar um Ponto de Interesse para cá.",
+      "AbrirPOI": "Abrir a ficha do ponto de interesse",
+      "RemoverPOI": "Desvincular da cena",
+      "ExaminarDica": "Rola a perícia contra a DT. Se não revelar nada novo, perde 1 PD.",
+      "OrdemRodadas": "Ordem das rodadas",
+      "OrdemAjuda": "Os jogadores decidem a ordem entre si; o mestre arrasta. NPCs sempre agem por último.",
+      "Sobrecarga": "Sobrecarga mental",
+      "SobrecargaAtiva": "Ativa nesta cena",
+      "SobrecargaAjuda": "Dano emocional ao fim de cada rodada. A última linha vale para todas as rodadas seguintes.",
+      "SobrecargaRodada": "Rodada",
+      "SobrecargaDano": "Dano",
+      "AdicionarLinha": "Nova linha",
+      "RemoverLinha": "Remover linha",
+      "ProximoDano": "Ao encerrar a rodada {rodada}: {dano} de dano emocional."
+    },
+    "Rodada": {
+      "Titulo": "Rodada {rodada}",
+      "Sobrecarga": "Sobrecarga mental",
+      "SobrecargaTexto": "Fim da rodada {encerrada}: {dano} de dano emocional (PD). Cada jogador rola o seu.",
+      "SemDano": "Fim da rodada {encerrada}: sem dano de sobrecarga."
+    },
     "Aviso": {
       "TetoDeDados": "Máximo de {max} dados rolados por teste.",
       "TetoDeContados": "Só {max} dados entram no resultado.",
       "PericiaDesconhecida": "Perícia desconhecida: {chave}",
       "AptidaoDuplicada": "Já existe um campo de Aptidão chamado \"{rotulo}\".",
-      "AtorAusente": "O personagem deste card não existe mais."
+      "AtorAusente": "O personagem deste card não existe mais.",
+      "POIAusente": "Ponto de interesse não encontrado.",
+      "SemPermissao": "Este botão é de outro jogador ou do mestre."
     },
     "Config": {
       "dtPadrao": {

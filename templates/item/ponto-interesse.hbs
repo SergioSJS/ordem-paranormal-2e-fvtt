@@ -1,0 +1,83 @@
+<div class="op2-item-ficha op2-poi">
+  <header class="op2-item-ficha__topo">
+    <img src="{{item.img}}" alt="" data-action="editImage" data-edit="img">
+    <input type="text" class="op2-nome" name="name" value="{{item.name}}" {{#unless editavel}}disabled{{/unless}}>
+  </header>
+
+  <label class="op2-campo">
+    <span>{{localize "OP2.POI.DescricaoBasica"}}</span>
+    {{formInput fields.descricaoBasica value=sistema.descricaoBasica enriched=descricaoBasicaEnriquecida toggled=true
+      editable=editavel name="system.descricaoBasica"}}
+    <p class="op2-ajuda">{{localize "OP2.POI.DescricaoBasicaAjuda"}}</p>
+  </label>
+
+  {{!-- O quadro, a descrição contextual e as ferramentas são só do mestre (spec §6.2). --}}
+  {{#if ehGM}}
+    <fieldset class="op2-poi__quadro">
+      <legend>{{localize "OP2.POI.Quadro"}}</legend>
+      <p class="op2-ajuda">{{localize "OP2.POI.QuadroAjuda"}}</p>
+
+      <ol class="op2-poi__infos">
+        {{#each informacoes}}
+          <li class="op2-poi__info">
+            <input type="hidden" name="system.informacoes.{{indice}}.id" value="{{id}}">
+            <div class="op2-poi__info-linha">
+              <select name="system.informacoes.{{indice}}.pericia" {{#unless @root.editavel}}disabled{{/unless}}>
+                {{#each @root.opcoesPericia}}
+                  <option value="{{chave}}" {{#if (op2Eq chave ../pericia)}}selected{{/if}}>{{rotulo}}</option>
+                {{/each}}
+              </select>
+              <label class="op2-poi__dt">
+                <span>{{localize "OP2.DT"}}</span>
+                <input type="number" name="system.informacoes.{{indice}}.dt" value="{{dt}}" min="0" step="1"
+                  inputmode="numeric" {{#unless @root.editavel}}disabled{{/unless}}>
+              </label>
+              {{#if @root.editavel}}
+                <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo"
+                  data-action="removerInformacao" data-info-id="{{id}}"
+                  aria-label="{{localize 'OP2.POI.RemoverInformacao'}}">
+                  <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                </button>
+              {{/if}}
+            </div>
+            <textarea name="system.informacoes.{{indice}}.texto" rows="2"
+              {{#unless @root.editavel}}disabled{{/unless}}>{{texto}}</textarea>
+          </li>
+        {{/each}}
+      </ol>
+
+      {{#if editavel}}
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="adicionarInformacao">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "OP2.POI.AdicionarInformacao"}}
+        </button>
+      {{/if}}
+    </fieldset>
+
+    <label class="op2-campo">
+      <span>{{localize "OP2.POI.DescricaoContextual"}}</span>
+      {{formInput fields.descricaoContextual value=sistema.descricaoContextual enriched=descricaoContextualEnriquecida toggled=true
+        editable=editavel name="system.descricaoContextual"}}
+      <p class="op2-ajuda">{{localize "OP2.POI.DescricaoContextualAjuda"}}</p>
+    </label>
+
+    <fieldset class="op2-poi__ferramentas">
+      <legend>{{localize "OP2.POI.Ferramentas"}}</legend>
+      <p class="op2-ajuda">{{localize "OP2.POI.FerramentasAjuda"}}</p>
+      {{#each ferramentas}}
+        <label class="op2-campo">
+          <span>{{rotulo}}</span>
+          <textarea name="system.ferramentas.{{chave}}" rows="1"
+            placeholder="{{localize 'OP2.POI.FerramentaSemReacao'}}"
+            {{#unless @root.editavel}}disabled{{/unless}}>{{valor}}</textarea>
+        </label>
+      {{/each}}
+      <label class="op2-campo op2-campo--inline">
+        <input type="checkbox" name="system.reveladoPorLaser"
+          {{#if sistema.reveladoPorLaser}}checked{{/if}} {{#unless editavel}}disabled{{/unless}}>
+        <span>{{localize "OP2.POI.ReveladoPorLaser"}}</span>
+      </label>
+    </fieldset>
+  {{else}}
+    <p class="op2-ajuda">{{localize "OP2.POI.SomenteMestre"}}</p>
+  {{/if}}
+</div>

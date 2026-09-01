@@ -62,6 +62,7 @@ export function instalarStubs() {
       fields: {
         SchemaField: campo(), StringField: campo(), NumberField: campo(),
         BooleanField: campo(), HTMLField: campo(), SetField: campo(),
+        ArrayField: campo(),
         ObjectField: campo(), TypedObjectField: campo(), DocumentUUIDField: campo(),
       },
     },

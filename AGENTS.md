@@ -17,9 +17,9 @@ da spec e das amostras visuais; extraia dele em vez de adivinhar.
 
 ## Estado
 
-**Fase:** 1 — Ficha + motor de dados
+**Fase:** 2 — Investigação
 **Versão:** 0.0.1
-**Próxima milestone:** 0.1.0 — ficha jogável em v13 e v14
+**Próxima milestone:** 0.2.0 — investigação jogável em v13 e v14 (falta validar o v13)
 
 ## Convenções
 
@@ -88,6 +88,7 @@ O servidor do Foundry v14 exige **Node 24**. O `npm test` do projeto roda em Nod
 
 - `escada.test.mjs` — piso, teto, d20, passos compostos.
 - `analise.test.mjs` — RA/RB, crítico, falha crítica, precedência sobre a DT.
+- `investigacao.test.mjs` — as duas leituras da coluna DT, custo de PD, sobrecarga.
 - `i18n.test.mjs` — paridade pt-BR/en e chave inexistente usada no código.
 - `carga.test.mjs` — todo módulo importa, todo template compila, manifesto consistente.
 
