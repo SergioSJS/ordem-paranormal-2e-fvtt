@@ -235,6 +235,22 @@ const relato = await page.evaluate(async () => {
   // título da janela mostrava a chave crua em vez do nome traduzido.
   ok("título da janela não vaza a chave de tradução crua",
     !investigacao.sheet.element?.closest(".application")?.querySelector(".window-title")?.textContent.includes("TYPES."));
+
+  // A ficha de investigação sem overflow-y crescia sem teto, igual o painel já
+  // tinha corrigido antes — e os botões de editar/desvincular por linha saíam
+  // afastados um do outro em vez de colados na borda (dois `margin-left: auto`
+  // dividem o espaço livre ao meio) — os dois achados em uso real.
+  {
+    const wc = investigacao.sheet.element.querySelector(".window-content");
+    ok("ficha da investigação tem rolagem interna", getComputedStyle(wc).overflowY === "auto");
+
+    const linhaPoi = [...investigacao.sheet.element.querySelectorAll(".op2-painel-ordem__linha")]
+      .find((li) => li.textContent.includes("Quadro na Parede"));
+    const botoes = [...(linhaPoi?.querySelectorAll(".op2-botao-icone") ?? [])].map((b) => b.getBoundingClientRect());
+    ok("botões de editar/desvincular do POI ficam colados, não afastados",
+      botoes.length === 2 && (botoes[1].left - botoes[0].right) < 12);
+  }
+
   await investigacao.sheet.close();
 
   // `position: { height: "auto" }` cresce sem teto — numa cena cheia a janela

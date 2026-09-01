@@ -225,9 +225,11 @@
 
     &--npc { color: var(--op2-texto-fraco); }
 
-    // O botão de remover participante fica sempre na ponta direita, com ou sem a
-    // tag de NPC antes dele.
-    .op2-botao-icone { margin-left: auto; }
+    // Um grupo de botões (editar + desvincular) fica sempre na ponta direita. O
+    // `margin-left: auto` precisa estar só no primeiro — com dois irmãos com auto
+    // margin, o espaço livre se divide entre os dois e eles saem afastados um do
+    // outro em vez de colados na borda (achado em uso real).
+    .op2-botao-icone:first-of-type { margin-left: auto; }
   }
 
   &__npc-tag {

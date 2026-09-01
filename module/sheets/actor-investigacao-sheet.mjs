@@ -15,8 +15,8 @@ const { ActorSheetV2 } = foundry.applications.sheets;
 export class InvestigacaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["op2", "op2-ficha", "op2-ficha--investigacao"],
-    position: { width: 560, height: 640 },
-    window: { resizable: true, icon: "fa-solid fa-magnifying-glass" },
+    position: { width: 620, height: 760 },
+    window: { resizable: true, icon: "fa-solid fa-folder-open" },
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
       removerParticipante: InvestigacaoSheet.#removerParticipante,

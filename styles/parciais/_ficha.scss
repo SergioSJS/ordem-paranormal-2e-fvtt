@@ -515,7 +515,8 @@
 
 // A ficha de NPC não usa o grid de abas da ficha de personagem — é uma coluna simples
 // que precisa rolar sozinha, com espaço de verdade entre as seções.
-.op2-ficha--npc .window-content {
+.op2-ficha--npc .window-content,
+.op2-ficha--investigacao .window-content {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
