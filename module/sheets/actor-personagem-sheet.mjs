@@ -157,10 +157,14 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
    *  problema, e o número ao lado continua sendo a fonte exata do valor. */
   #recurso(recurso, chave) {
     const max = Math.max(recurso.max, recurso.value, 0);
+    // Abaixo de 30% do máximo os traços pulsam em vermelho — o mesmo aviso visual
+    // que barra de vida baixa usa em qualquer jogo, só que com o traço do livro.
+    const critico = recurso.max > 0 && recurso.value / recurso.max <= 0.3;
     return {
       chave,
       value: recurso.value,
       max: recurso.max,
+      critico,
       // Acima disso o tally de traços vira ilegível; o número ao lado basta.
       tracos: max > 0 && max <= 30
         ? Array.from({ length: max }, (_, i) => ({ n: i + 1, cheio: i < recurso.value }))

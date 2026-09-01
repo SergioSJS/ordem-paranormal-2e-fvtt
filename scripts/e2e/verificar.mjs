@@ -320,6 +320,23 @@ const relato = await page.evaluate(async () => {
     ok("Aptidão é um <details> que abre e fecha", aptidao.tagName === "DETAILS" && aptidao.open);
     ok("Aptidão tem o card visualmente distinto (borda própria)", getComputedStyle(aptidao).borderStyle !== "none");
   }
+  // 8) Abaixo de 30% do máximo, o traço preenchido pulsa em vermelho — aviso de
+  //    recurso crítico, no estilo de barra de vida baixa de qualquer jogo.
+  {
+    await ator.update({ "system.recursos.pv.value": 6, "system.recursos.pv.max": 30 });
+    await esperar(200);
+    const tracos = el.querySelector(".op2-recurso--pv .op2-tracos");
+    ok("PV a 20% do máximo entra em estado crítico", tracos.classList.contains("op2-tracos--critico"));
+    const cheio = tracos.querySelector(".op2-traco--cheio");
+    ok("traço preenchido crítico tem animação de pulso", getComputedStyle(cheio).animationName === "op2-pulso-critico");
+
+    await ator.update({ "system.recursos.pv.value": 25 });
+    await esperar(200);
+    // Um novo render troca o nó — a referência antiga fica presa ao DOM anterior.
+    const tracosDepois = el.querySelector(".op2-recurso--pv .op2-tracos");
+    ok("PV acima de 30% não pulsa", !tracosDepois.classList.contains("op2-tracos--critico"));
+  }
+
 
   await ator.delete();
   return { passos, dados };

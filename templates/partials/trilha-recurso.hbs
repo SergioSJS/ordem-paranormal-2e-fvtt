@@ -13,7 +13,7 @@
     aria-label="{{localize rotulo}} {{localize 'OP2.Recurso.Maximo'}}">
 
   {{#if tracos}}
-    <div class="op2-tracos" role="group" aria-label="{{localize rotulo}}">
+    <div class="op2-tracos{{#if critico}} op2-tracos--critico{{/if}}" role="group" aria-label="{{localize rotulo}}">
       {{#each tracos}}
         <button type="button" class="op2-traco{{#if cheio}} op2-traco--cheio{{/if}}"
           data-action="definirRecurso" data-recurso="{{../chave}}" data-valor="{{n}}"

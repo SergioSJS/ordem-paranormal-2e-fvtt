@@ -157,6 +157,9 @@
 .op2-tracos {
   display: flex;
   flex-wrap: wrap;
+  // `gap` do flex pai (.op2-recurso) é pensado para os campos numéricos lado a lado;
+  // os traços, ao quebrar pra linha de baixo, ficavam colados no número acima.
+  margin-top: 0.3rem;
   gap: 3px;
 }
 
@@ -178,6 +181,35 @@
   }
 
   &:hover { border-color: var(--op2-vermelho-claro); }
+}
+
+// Abaixo de 30% do máximo, os traços preenchidos pulsam em vermelho — o mesmo aviso
+// que uma barra de vida baixa dá em qualquer jogo, aplicado ao traço do livro.
+.op2-tracos--critico .op2-traco--cheio {
+  animation: op2-pulso-critico 1.1s ease-in-out infinite;
+}
+
+@keyframes op2-pulso-critico {
+  0%, 100% {
+    border-color: var(--op2-tinta);
+    background: var(--op2-tinta);
+    box-shadow: 0 0 0 var(--op2-vermelho-claro);
+  }
+  50% {
+    border-color: var(--op2-vermelho-claro);
+    background: var(--op2-vermelho-claro);
+    box-shadow: 0 0 4px 1px var(--op2-vermelho-claro);
+  }
+}
+
+// Pulso rápido pode incomodar quem pediu menos movimento na interface — some a
+// animação e deixa só a cor de aviso, fixa.
+@media (prefers-reduced-motion: reduce) {
+  .op2-tracos--critico .op2-traco--cheio {
+    animation: none;
+    border-color: var(--op2-vermelho-claro);
+    background: var(--op2-vermelho-claro);
+  }
 }
 
 // Os três atributos dividem a linha, como na ficha do livro.
