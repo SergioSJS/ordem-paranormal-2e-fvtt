@@ -47,7 +47,8 @@
       "vigor": "Vigor",
       "Rolar": "Clique para rolar · Shift para abrir o diálogo",
       "Buscar": "Buscar",
-      "Dica": "O atributo pareado é sugestão — troque no diálogo de teste."
+      "Dica": "O atributo pareado é sugestão — troque no diálogo de teste.",
+      "AbrirDialogo": "Abrir diálogo de teste — atributo, passos e habilidades"
     },
     "Aptidao": {
       "artes": "Artes",
@@ -150,6 +151,10 @@
       "PericiasAjuda": "NPCs não usam a lista completa: declare só as perícias que este NPC realmente usa."
     },
     "POI": {
+      "Aba": {
+        "investigacao": "Investigação",
+        "mestre": "Só do mestre"
+      },
       "DescricaoBasica": "Descrição básica",
       "DescricaoBasicaAjuda": "Narrada quando alguém investiga o ponto de interesse pela primeira vez.",
       "Quadro": "Quadro de informações",

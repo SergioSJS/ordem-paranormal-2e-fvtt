@@ -69,6 +69,27 @@
   text-transform: uppercase;
 }
 
+// Cabeçalho das fichas de item: o ícone é um thumbnail, nunca a imagem inteira —
+// o ícone padrão do core (o saco) cresce sem limite se não for contido.
+.op2-item-ficha__topo {
+  display: flex;
+  align-items: center;
+  gap: var(--op2-e2);
+
+  img {
+    width: 3rem;
+    height: 3rem;
+    flex: 0 0 auto;
+    margin: 0;
+    border: 1px solid var(--op2-linha);
+    border-radius: var(--op2-raio);
+    object-fit: cover;
+    cursor: pointer;
+  }
+
+  .op2-nome { flex: 1 1 auto; min-width: 0; }
+}
+
 .op2-identidade {
   display: flex;
   flex-wrap: wrap;

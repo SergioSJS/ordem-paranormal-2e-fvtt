@@ -4,15 +4,21 @@
     <input type="text" class="op2-nome" name="name" value="{{item.name}}" {{#unless editavel}}disabled{{/unless}}>
   </header>
 
-  <label class="op2-campo">
-    <span>{{localize "OP2.POI.DescricaoBasica"}}</span>
-    {{formInput fields.descricaoBasica value=sistema.descricaoBasica enriched=descricaoBasicaEnriquecida toggled=true
-      editable=editavel name="system.descricaoBasica"}}
-    <p class="op2-ajuda">{{localize "OP2.POI.DescricaoBasicaAjuda"}}</p>
-  </label>
+  <nav class="op2-abas tabs" data-group="principal" aria-label="{{localize 'OP2.Secao.Conteudo'}}">
+    {{#each tabs}}
+      <button type="button" class="op2-aba {{cssClass}}" data-action="tab" data-group="{{group}}" data-tab="{{id}}"
+        aria-pressed="{{active}}">{{localize label}}</button>
+    {{/each}}
+  </nav>
 
-  {{!-- O quadro, a descrição contextual e as ferramentas são só do mestre (spec §6.2). --}}
-  {{#if ehGM}}
+  <section class="op2-painel tab {{tabs.investigacao.cssClass}}" data-group="principal" data-tab="investigacao">
+    <label class="op2-campo">
+      <span>{{localize "OP2.POI.DescricaoBasica"}}</span>
+      <textarea name="system.descricaoBasica" rows="3"
+        {{#unless editavel}}disabled{{/unless}}>{{sistema.descricaoBasica}}</textarea>
+      <p class="op2-ajuda">{{localize "OP2.POI.DescricaoBasicaAjuda"}}</p>
+    </label>
+
     <fieldset class="op2-poi__quadro">
       <legend>{{localize "OP2.POI.Quadro"}}</legend>
       <p class="op2-ajuda">{{localize "OP2.POI.QuadroAjuda"}}</p>
@@ -52,32 +58,35 @@
         </button>
       {{/if}}
     </fieldset>
+  </section>
 
-    <label class="op2-campo">
-      <span>{{localize "OP2.POI.DescricaoContextual"}}</span>
-      {{formInput fields.descricaoContextual value=sistema.descricaoContextual enriched=descricaoContextualEnriquecida toggled=true
-        editable=editavel name="system.descricaoContextual"}}
-      <p class="op2-ajuda">{{localize "OP2.POI.DescricaoContextualAjuda"}}</p>
-    </label>
-
-    <fieldset class="op2-poi__ferramentas">
-      <legend>{{localize "OP2.POI.Ferramentas"}}</legend>
-      <p class="op2-ajuda">{{localize "OP2.POI.FerramentasAjuda"}}</p>
-      {{#each ferramentas}}
-        <label class="op2-campo">
-          <span>{{rotulo}}</span>
-          <textarea name="system.ferramentas.{{chave}}" rows="1"
-            placeholder="{{localize 'OP2.POI.FerramentaSemReacao'}}"
-            {{#unless @root.editavel}}disabled{{/unless}}>{{valor}}</textarea>
-        </label>
-      {{/each}}
-      <label class="op2-campo op2-campo--inline">
-        <input type="checkbox" name="system.reveladoPorLaser"
-          {{#if sistema.reveladoPorLaser}}checked{{/if}} {{#unless editavel}}disabled{{/unless}}>
-        <span>{{localize "OP2.POI.ReveladoPorLaser"}}</span>
+  {{!-- Descrição contextual e ferramentas são só do mestre (spec §6.2). --}}
+  {{#if ehGM}}
+    <section class="op2-painel tab {{tabs.mestre.cssClass}}" data-group="principal" data-tab="mestre">
+      <label class="op2-campo">
+        <span>{{localize "OP2.POI.DescricaoContextual"}}</span>
+        <textarea name="system.descricaoContextual" rows="5"
+          {{#unless editavel}}disabled{{/unless}}>{{sistema.descricaoContextual}}</textarea>
+        <p class="op2-ajuda">{{localize "OP2.POI.DescricaoContextualAjuda"}}</p>
       </label>
-    </fieldset>
-  {{else}}
-    <p class="op2-ajuda">{{localize "OP2.POI.SomenteMestre"}}</p>
+
+      <fieldset class="op2-poi__ferramentas">
+        <legend>{{localize "OP2.POI.Ferramentas"}}</legend>
+        <p class="op2-ajuda">{{localize "OP2.POI.FerramentasAjuda"}}</p>
+        {{#each ferramentas}}
+          <label class="op2-campo">
+            <span>{{rotulo}}</span>
+            <textarea name="system.ferramentas.{{chave}}" rows="1"
+              placeholder="{{localize 'OP2.POI.FerramentaSemReacao'}}"
+              {{#unless @root.editavel}}disabled{{/unless}}>{{valor}}</textarea>
+          </label>
+        {{/each}}
+        <label class="op2-campo op2-campo--inline">
+          <input type="checkbox" name="system.reveladoPorLaser"
+            {{#if sistema.reveladoPorLaser}}checked{{/if}} {{#unless editavel}}disabled{{/unless}}>
+          <span>{{localize "OP2.POI.ReveladoPorLaser"}}</span>
+        </label>
+      </fieldset>
+    </section>
   {{/if}}
 </div>

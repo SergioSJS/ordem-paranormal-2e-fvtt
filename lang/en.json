@@ -47,7 +47,8 @@
       "vigor": "Fortitude",
       "Rolar": "Click to roll · Shift to open the dialog",
       "Buscar": "Search",
-      "Dica": "The paired attribute is a suggestion — swap it in the check dialog."
+      "Dica": "The paired attribute is a suggestion — swap it in the check dialog.",
+      "AbrirDialogo": "Open the check dialog — attribute, steps and abilities"
     },
     "Aptidao": {
       "artes": "Arts",
@@ -150,6 +151,10 @@
       "PericiasAjuda": "NPCs don't use the full list: declare only the skills this NPC actually uses."
     },
     "POI": {
+      "Aba": {
+        "investigacao": "Investigation",
+        "mestre": "GM only"
+      },
       "DescricaoBasica": "Basic description",
       "DescricaoBasicaAjuda": "Narrated the first time someone investigates this point of interest.",
       "Quadro": "Information board",
