@@ -466,6 +466,24 @@ const relato = await page.evaluate(async () => {
     await desafioVitrine.delete();
   }
 
+  /* ------------------------------------------------------ laboratório portátil -- */
+  // Fase 3 M3, parte 2 (spec §9.1). A escada crescente já é testada como regra
+  // pura em ferramentas.test.mjs; aqui só confere a ponte com o app de verdade.
+  {
+    const app = await game.op2.abrirLaboratorio(ator, 4);
+    await esperar(600);
+    ok("app do Laboratório renderizou", Boolean(app.element));
+    ok("mostra as 4 posições da escada", app.element?.querySelectorAll(".op2-laboratorio__posicao").length === 4);
+    ok("primeiro dado da escada é d4", app.resultados.length === 4 && app.sequenciaAlvo[0] === "d4");
+
+    const mensagensAntes = game.messages.size;
+    app.element.querySelector('[data-action="finalizar"]')?.click();
+    await esperar(600);
+    ok("encerrar publica um card no chat", game.messages.size > mensagensAntes);
+    ok("botão some depois de encerrar", !app.element.querySelector('[data-action="finalizar"]'));
+    await app.close();
+  }
+
   /* ------------------------------------------------------------ ficha do POI -- */
 
   await poi.sheet.render(true);

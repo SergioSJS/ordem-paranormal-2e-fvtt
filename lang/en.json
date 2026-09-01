@@ -444,7 +444,14 @@
       "SemReacao": "No reaction — normal reading.",
       "LaserMarcou": "The Scanning Laser found a reaction at:",
       "LaserNada": "No new point of interest reacted to other tools.",
-      "LaserDica": "The Scanning Laser detected a reaction to some tool here."
+      "LaserDica": "The Scanning Laser detected a reaction to some tool here.",
+      "LaboratorioAjuda": "{ator} rolls the ladder: each die must be equal to or higher than the last. Aptitude (Exact Sciences) {aptidao} is the ceiling.",
+      "LaboratorioValido": "Valid sequence — the Lab delivers the reading.",
+      "LaboratorioQuebrou": "The sequence broke somewhere along the way.",
+      "Rerrolagens": "Rerolls left",
+      "Rerrolar": "Reroll selected",
+      "Finalizar": "Finish",
+      "QtdDados": "How many dice the POI requires (4 to 6)"
     }
   }
 }

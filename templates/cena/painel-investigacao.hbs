@@ -141,7 +141,8 @@
               {{#if ferramentasDisponiveis.length}}
                 <div class="op2-poi-card__ferramentas">
                   {{#each ferramentasDisponiveis}}
-                    <button type="button" class="op2-botao op2-botao--pequeno" data-action="usarFerramenta"
+                    <button type="button" class="op2-botao op2-botao--pequeno"
+                      data-action="{{#if (op2Eq chave 'laboratorio')}}usarLaboratorio{{else}}usarFerramenta{{/if}}"
                       data-poi-uuid="{{../uuid}}" data-ferramenta="{{chave}}">
                       {{rotulo}}
                     </button>

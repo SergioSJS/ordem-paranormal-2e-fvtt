@@ -444,7 +444,14 @@
       "SemReacao": "Nenhuma reação — leitura normal.",
       "LaserMarcou": "O Laser de Varredura encontrou reação em:",
       "LaserNada": "Nenhum ponto de interesse novo reagiu a outras ferramentas.",
-      "LaserDica": "O Laser de Varredura detectou reação a alguma ferramenta aqui."
+      "LaserDica": "O Laser de Varredura detectou reação a alguma ferramenta aqui.",
+      "LaboratorioAjuda": "{ator} rola a escada: cada dado precisa ser maior ou igual ao anterior. Aptidão (Exatas) {aptidao} é o teto.",
+      "LaboratorioValido": "Sequência válida — o Laboratório entrega a leitura.",
+      "LaboratorioQuebrou": "A sequência quebrou em algum ponto.",
+      "Rerrolagens": "Rerrolagens restantes",
+      "Rerrolar": "Rerrolar selecionados",
+      "Finalizar": "Encerrar",
+      "QtdDados": "Quantos dados o POI exige (4 a 6)"
     }
   }
 }

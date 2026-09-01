@@ -33,6 +33,7 @@ import {
 } from "./cena/acoes-desafio.mjs";
 import { usarFerramenta, usarLaser } from "./cena/acoes-ferramenta.mjs";
 import { abrirDestrancar } from "./cena/destrancar-app.mjs";
+import { abrirLaboratorio } from "./cena/laboratorio-app.mjs";
 
 Hooks.once("init", () => {
   console.log(`${SYSTEM_ID} | inicializando`);
@@ -66,7 +67,7 @@ Hooks.once("init", () => {
     painelInvestigacao: abrirPainelInvestigacao, avancarRodada,
     arrombar, alcancar, sustentar, pararDeSustentar,
     gerarSenhaDestrancar, tentarDestrancar, abrirDestrancar,
-    usarFerramenta, usarLaser,
+    usarFerramenta, usarLaser, abrirLaboratorio,
   };
 });
 

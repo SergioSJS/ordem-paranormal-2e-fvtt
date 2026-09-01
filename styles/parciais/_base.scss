@@ -200,6 +200,8 @@
   color: var(--op2-texto-fraco);
   font-size: 0.75rem;
   line-height: 1.4;
+
+  &--sucesso { color: var(--op2-sucesso); }
 }
 
 .op2-vazio {

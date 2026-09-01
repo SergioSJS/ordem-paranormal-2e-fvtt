@@ -1,0 +1,38 @@
+<div class="op2-laboratorio-corpo">
+  <p class="op2-ajuda">
+    {{localize "OP2.Ferramenta.LaboratorioAjuda" ator=atorNome aptidao=aptidaoExatas}}
+  </p>
+
+  <div class="op2-laboratorio__sequencia">
+    {{#each posicoes}}
+      <label class="op2-laboratorio__posicao{{#if quebrou}} op2-laboratorio__posicao--quebrou{{/if}}">
+        {{#if @root.podeRerrolar}}
+          <input type="checkbox" data-action="alternarSelecao" data-indice="{{indice}}"
+            {{#if selecionado}}checked{{/if}}>
+        {{/if}}
+        {{op2DadoResultado this}}
+      </label>
+    {{/each}}
+  </div>
+
+  {{#if valido}}
+    <p class="op2-ajuda op2-ajuda--sucesso">{{localize "OP2.Ferramenta.LaboratorioValido"}}</p>
+  {{else}}
+    <p class="op2-ajuda">{{localize "OP2.Ferramenta.LaboratorioQuebrou"}}</p>
+  {{/if}}
+
+  {{#unless finalizado}}
+    <div class="op2-destrancar__mestre">
+      <p class="op2-ajuda">
+        {{localize "OP2.Ferramenta.Rerrolagens"}}: {{rerrolagensRestantes}}
+      </p>
+      {{#if podeRerrolar}}
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="rerrolar" {{#unless temSelecao}}disabled{{/unless}}>
+          {{localize "OP2.Ferramenta.Rerrolar"}}
+        </button>
+      {{/if}}
+    </div>
+
+    <button type="button" class="op2-botao" data-action="finalizar">{{localize "OP2.Ferramenta.Finalizar"}}</button>
+  {{/unless}}
+</div>

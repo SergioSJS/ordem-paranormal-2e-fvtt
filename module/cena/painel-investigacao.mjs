@@ -14,6 +14,7 @@ import { SYSTEM_ID, FERRAMENTAS_POI } from "../config.mjs";
 import { periciasDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs";
 import { temFerramenta } from "./ferramentas.mjs";
 import { usarFerramenta, usarLaser } from "./acoes-ferramenta.mjs";
+import { abrirLaboratorio } from "./laboratorio-app.mjs";
 import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerrar-cena.mjs";
 import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada } from "./rodada.mjs";
 import {
@@ -52,6 +53,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       pararDeSustentar: PainelInvestigacao.#pararDeSustentar,
       usarFerramenta: PainelInvestigacao.#usarFerramenta,
       usarLaser: PainelInvestigacao.#usarLaser,
+      usarLaboratorio: PainelInvestigacao.#usarLaboratorio,
       novaRodada: PainelInvestigacao.#novaRodada,
       encerrarCena: PainelInvestigacao.#encerrarCena,
       alternarSobrecarga: PainelInvestigacao.#alternarSobrecarga,
@@ -359,6 +361,30 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
   static async #usarLaser() {
     const ator = this.#atorOuAviso();
     if (ator) await usarLaser(ator);
+  }
+
+  /**
+   * Laboratório Portátil é um minigame, não uma revelação de texto — pede quantos
+   * dados o POI exige (spec §9.1: 4 a 6, decidido pelo mestre para aquele POI) e
+   * abre o app dedicado em vez do card genérico de ferramenta.
+   */
+  static async #usarLaboratorio(_evento, alvo) {
+    const ator = this.#atorOuAviso();
+    if (!ator) return;
+
+    const qtdDados = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("OP2.Ferramenta.Subtipo.laboratorio") },
+      content: `
+        <div class="form-group">
+          <label>${game.i18n.localize("OP2.Ferramenta.QtdDados")}</label>
+          <input type="number" name="qtd" value="4" min="4" max="6">
+        </div>`,
+      ok: { callback: (_ev, botao) => Number(botao.form.elements.qtd.value) },
+      rejectClose: false,
+    });
+    if (!qtdDados) return;
+
+    await abrirLaboratorio(ator, qtdDados, alvo.dataset.poiUuid);
   }
 
   static async #novaRodada() {

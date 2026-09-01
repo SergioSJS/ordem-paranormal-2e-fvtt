@@ -291,4 +291,29 @@
   }
 }
 
+// Laboratório Portátil (spec §9.1): a escada aparece como uma fileira de dados
+// já rolados, na ordem da rolagem — quem quebrou o crescimento salta aos olhos
+// pelo mesmo estilo "descartado" que os dados extras do teste comum usam.
+.op2-laboratorio-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--op2-e2);
+  padding: var(--op2-e3);
+}
+
+.op2-laboratorio {
+  &__sequencia {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--op2-e2);
+  }
+
+  &__posicao {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+  }
+}
+
 }
