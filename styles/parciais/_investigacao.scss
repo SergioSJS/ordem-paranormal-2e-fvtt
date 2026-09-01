@@ -117,6 +117,10 @@
   text-transform: uppercase;
 }
 
+// Participantes repete a mesma lista de "Ordem das Rodadas" logo abaixo — deixar
+// recolhível evita rolar a janela duas vezes pelo mesmo roster (achado em uso real).
+summary.op2-painel-titulo { cursor: pointer; }
+
 .op2-painel-acoes-grupo { display: flex; flex-wrap: wrap; gap: var(--op2-e2); }
 
 // Qual investigação o painel mostra agora — uma mesa pode ter mais de uma salva
@@ -161,6 +165,10 @@
   }
 
   &__acoes-gm { display: flex; gap: var(--op2-e1); }
+
+  // Oculto = preparado com antecedência, ainda não revelado (só o mestre vê isto,
+  // já filtrado do lado do jogador na própria leitura de contexto).
+  &--oculto { opacity: 0.55; }
 
   &__basica { margin: var(--op2-e2) 0; font-size: 0.85rem; }
 
@@ -232,11 +240,32 @@
     // nome, sem escondê-lo — ainda precisa aparecer pra reordenar/desmarcar.
     &--agiu span { color: var(--op2-texto-fraco); text-decoration: line-through; }
 
+    // Oculto: mesmo tratamento visual dos cards de POI/desafio — só o mestre vê a
+    // linha, os jogadores nunca recebem esses dados (filtrado na leitura de contexto).
+    &--oculto { opacity: 0.55; }
+
     // Um grupo de botões (editar + desvincular) fica sempre na ponta direita. O
     // `margin-left: auto` precisa estar só no primeiro — com dois irmãos com auto
     // margin, o espaço livre se divide entre os dois e eles saem afastados um do
-    // outro em vez de colados na borda (achado em uso real).
-    .op2-botao-icone:first-of-type { margin-left: auto; }
+    // outro em vez de colados na borda (achado em uso real). Seletor de filho
+    // direto: sem isso, `:first-of-type` também casa com a primeira seta dentro
+    // de `&__setas`, puxando-a pra longe da segunda e quebrando a pilha vertical.
+    > .op2-botao-icone:first-of-type { margin-left: auto; }
+  }
+
+  // Alternativa ao drag-and-drop (spec: nem todo mestre acerta o alvo do drop numa
+  // lista curta) — duas setinhas pequenas, uma em cima da outra.
+  &__setas {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+
+    button {
+      padding: 0;
+      width: 1.2rem;
+      height: 0.9rem;
+      font-size: 0.65rem;
+    }
   }
 
   &__npc-tag {

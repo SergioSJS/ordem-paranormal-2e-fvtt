@@ -7,6 +7,7 @@
  */
 import {
   adicionarParticipante, removerParticipante, vincularPoi, removerPoi, vincularDesafio, removerDesafio,
+  alternarOculto,
 } from "../cena/investigacao-ativa.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -23,6 +24,7 @@ export class InvestigacaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
       abrirDocumento: InvestigacaoSheet.#abrirDocumento,
       removerPoi: InvestigacaoSheet.#removerPoi,
       removerDesafio: InvestigacaoSheet.#removerDesafio,
+      alternarOculto: InvestigacaoSheet.#alternarOculto,
       adicionarLinhaSobrecarga: InvestigacaoSheet.#adicionarLinhaSobrecarga,
       removerLinhaSobrecarga: InvestigacaoSheet.#removerLinhaSobrecarga,
     },
@@ -38,9 +40,14 @@ export class InvestigacaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
     const sistema = this.actor.system;
     const editor = foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
 
-    const resolverDocs = (uuids, tipo) => uuids.map((uuid) => fromUuidSync(uuid))
+    // `campo` identifica a lista de ocultos correspondente (`<campo>Ocultos`) — o
+    // mestre pode vincular com antecedência e só revelar aos jogadores depois.
+    const resolverDocs = (uuids, campo, tipo) => uuids.map((uuid) => fromUuidSync(uuid))
       .filter((doc) => doc && (tipo ? doc.type === tipo : true))
-      .map((doc) => ({ uuid: doc.uuid, nome: doc.name, img: doc.img, tipo: doc.type }));
+      .map((doc) => ({
+        uuid: doc.uuid, nome: doc.name, img: doc.img, tipo: doc.type, campo,
+        oculto: sistema[`${campo}Ocultos`].includes(doc.uuid),
+      }));
 
     return {
       ...contexto,
@@ -49,9 +56,9 @@ export class InvestigacaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
       fields: sistema.schema.fields,
       editavel: this.isEditable,
       descricao: await editor.enrichHTML(sistema.descricao ?? "", { relativeTo: this.actor }),
-      participantes: resolverDocs(sistema.participantes),
-      pois: resolverDocs(sistema.pois, "ponto-interesse"),
-      desafios: resolverDocs(sistema.desafios, "desafio-acesso"),
+      participantes: resolverDocs(sistema.participantes, "participantes"),
+      pois: resolverDocs(sistema.pois, "pois", "ponto-interesse"),
+      desafios: resolverDocs(sistema.desafios, "desafios", "desafio-acesso"),
       sobrecarga: {
         ...sistema.sobrecarga,
         tabela: sistema.sobrecarga.tabela.map((linha, indice) => ({ ...linha, indice })),
@@ -109,6 +116,10 @@ export class InvestigacaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
 
   static async #removerDesafio(_evento, alvo) {
     await removerDesafio(this.actor, alvo.dataset.uuid);
+  }
+
+  static async #alternarOculto(_evento, alvo) {
+    await alternarOculto(this.actor, alvo.dataset.campo, alvo.dataset.uuid);
   }
 
   static async #adicionarLinhaSobrecarga() {

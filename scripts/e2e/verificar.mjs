@@ -223,6 +223,88 @@ const relato = await page.evaluate(async () => {
   ok("painel lista a investigação ativa", Boolean(painelEl?.textContent.includes("Mansão de Teste")));
   ok("participante do roster aparece na seção de Participantes", Boolean(painelEl?.textContent.includes("Alan")));
   ok("tracker de rodadas também lista o participante", Boolean(painelEl?.querySelector(".op2-painel-ordem")?.textContent.includes("Alan")));
+
+  // Participantes repete o mesmo roster da Ordem das Rodadas logo abaixo — vira
+  // <details> recolhível pra não rolar a janela duas vezes pela mesma lista.
+  ok("seção Participantes é um <details> recolhível",
+    painelEl?.querySelector(".op2-painel-secao[data-sync='participantes']")?.tagName === "DETAILS");
+
+  // NPC extra só pra Ordem das Rodadas deixar de ter a seção de NPCs vazia neste
+  // roteiro — sem ele não dá pra testar o checkbox de já agiu na linha de NPC.
+  const npcInvestigacao = await Actor.create({ name: "Zelador", type: "npc" });
+  await game.op2.adicionarParticipante(investigacao, npcInvestigacao.uuid);
+  const beto = await Actor.create({ name: "Beto", type: "personagem" });
+  await game.op2.adicionarParticipante(investigacao, beto.uuid);
+  await painel.render();
+  await esperar(400);
+
+  ok("NPC participante aparece na Ordem das Rodadas",
+    Boolean(painelEl?.querySelector(".op2-painel-ordem__linha--npc")?.textContent.includes("Zelador")));
+  ok("NPC também tem checkbox de já agiu (antes só personagem tinha)",
+    [...painelEl.querySelectorAll(".op2-painel-ordem__linha--npc input[data-action='alternarJaAgiu']")].length > 0);
+
+  // Setinhas de subir/descer — alternativa ao drag-and-drop, mais fácil de acertar
+  // numa lista curta (achado em uso real: mestre errando o alvo do drop).
+  {
+    const ordemAntes = [...painelEl.querySelectorAll("[data-ator-ordem]")].map((li) => li.dataset.atorOrdem);
+    ok("Ordem das Rodadas lista os dois personagens", ordemAntes.length === 2);
+    ok("primeira linha não tem seta para cima (já é a primeira)",
+      painelEl.querySelector('[data-ator-ordem] [data-action="moverParticipante"][data-direcao="-1"]')?.disabled === true);
+
+    painelEl.querySelector('[data-ator-ordem] [data-action="moverParticipante"][data-direcao="1"]')?.click();
+    await esperar(500);
+    ok("seta para baixo troca a ordem gravada na investigação",
+      investigacao.system.ordemParticipantes[0] === ordemAntes[1]
+      && investigacao.system.ordemParticipantes[1] === ordemAntes[0]);
+  }
+
+  await game.op2.removerParticipante(investigacao, beto.uuid);
+  await beto.delete();
+  await painel.render();
+  await esperar(400);
+
+  // Mostrar/ocultar: o mestre prepara POI/desafio/participante com antecedência sem
+  // revelar na hora aos jogadores (achado em uso real).
+  await game.op2.alternarOculto(investigacao, "pois", poi.uuid);
+  await game.op2.alternarOculto(investigacao, "participantes", npcInvestigacao.uuid);
+  await painel.render();
+  await esperar(400);
+  ok("mestre ainda vê o POI oculto, só marcado", Boolean(painelEl?.querySelector(".op2-poi-card--oculto")));
+  ok("mestre ainda vê o NPC oculto na Ordem das Rodadas", painelEl?.textContent.includes("Zelador"));
+
+  {
+    // Sem segundo usuário disponível neste roteiro headless: simula a visão do
+    // jogador virando `game.user.isGM` por um render e desfazendo depois — o
+    // `_prepareContext()` só lê esse valor na hora de renderizar.
+    Object.defineProperty(game.user, "isGM", { value: false, configurable: true });
+    await painel.render();
+    await esperar(400);
+
+    ok("POI oculto some da tela do jogador", !painelEl?.textContent.includes("Quadro na Parede"));
+    ok("NPC oculto some da tela do jogador", !painelEl?.textContent.includes("Zelador"));
+    // Marcar "já agiu" grava na Investigação, e o jogador não é dono desse Actor —
+    // o clique gerava um erro de permissão visível no core (achado em uso real).
+    // O checkbox vem desabilitado pro jogador pra nem parecer clicável.
+    const checkboxesJaAgiu = [...painelEl.querySelectorAll("input[data-action='alternarJaAgiu']")];
+    ok("checkbox de já agiu vem desabilitado para o jogador", checkboxesJaAgiu.length > 0 && checkboxesJaAgiu.every((cb) => cb.disabled));
+    // O nome da investigação aparecia duas vezes na tela do jogador: uma no
+    // seletor (que devia mostrar isso só pro mestre) e outra no cabeçalho.
+    const ocorrenciasNome = [...painelEl.querySelectorAll(".op2-tag--pequena")]
+      .filter((tag) => tag.textContent.trim() === investigacao.name).length;
+    ok("nome da investigação não repete na tela do jogador", ocorrenciasNome === 1);
+
+    delete game.user.isGM;
+    await painel.render();
+    await esperar(400);
+  }
+
+  // Desfaz a ocultação: os testes de ficha/painel logo abaixo esperam o POI
+  // "Quadro na Parede" visível de novo.
+  await game.op2.alternarOculto(investigacao, "pois", poi.uuid);
+  await game.op2.alternarOculto(investigacao, "participantes", npcInvestigacao.uuid);
+  await painel.render();
+  await esperar(400);
+
   dados.controles = Object.keys(ui.controls?.controls ?? {});
   // O framework de scene controls do core nunca redispara o clique de uma tool já
   // ativa (`if (tool === this.tool) return` em #onChangeTool) — um botão flutuante
@@ -256,9 +338,16 @@ const relato = await page.evaluate(async () => {
 
     const linhaPoi = [...investigacao.sheet.element.querySelectorAll(".op2-painel-ordem__linha")]
       .find((li) => li.textContent.includes("Quadro na Parede"));
+    // 3 ícones agora: ocultar/mostrar, editar, desvincular.
     const botoes = [...(linhaPoi?.querySelectorAll(".op2-botao-icone") ?? [])].map((b) => b.getBoundingClientRect());
-    ok("botões de editar/desvincular do POI ficam colados, não afastados",
-      botoes.length === 2 && (botoes[1].left - botoes[0].right) < 12);
+    ok("botões de ocultar/editar/desvincular do POI ficam colados, não afastados",
+      botoes.length === 3
+      && (botoes[1].left - botoes[0].right) < 12
+      && (botoes[2].left - botoes[1].right) < 12);
+
+    const botaoOcultar = linhaPoi?.querySelector('[data-action="alternarOculto"]');
+    ok("ficha da investigação tem botão de ocultar/mostrar por POI, com o campo certo",
+      botaoOcultar?.dataset.campo === "pois" && botaoOcultar?.dataset.uuid === poi.uuid);
   }
 
   await investigacao.sheet.close();
@@ -360,6 +449,17 @@ const relato = await page.evaluate(async () => {
       ok("botão desabilitado parece desabilitado (opacidade reduzida)",
         parseFloat(getComputedStyle(botaoArrombarCofre).opacity) < 1);
     }
+
+    // Mostrar/ocultar também vale para desafios de acesso, não só POI.
+    await game.op2.alternarOculto(investigacao, "desafios", fechadura.uuid);
+    await painel.render();
+    await esperar(400);
+    ok("desafio oculto ganha a marcação visual para o mestre",
+      Boolean([...painel.element.querySelectorAll(".op2-poi-card--oculto")]
+        .find((card) => card.textContent.includes("Fechadura Emperrada"))));
+    await game.op2.alternarOculto(investigacao, "desafios", fechadura.uuid);
+    await painel.render();
+    await esperar(400);
 
     // Ficha do desafio: campos + barra de progresso visual.
     await fechadura.sheet.render(true);

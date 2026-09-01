@@ -346,7 +346,10 @@
       "ParticipantesAjuda": "Quem participa da investigação, não quem tem token na Scene — arraste personagens e NPCs de qualquer lugar.",
       "RemoverParticipante": "Remover da investigação",
       "JaAgiu": "Já agiu nesta rodada",
-      "JaAgiuAjuda": "Marque quem já agiu nesta rodada — controle manual, o sistema não passa turno sozinho. Zera ao avançar rodada."
+      "JaAgiuAjuda": "O mestre marca quem já agiu nesta rodada — controle manual, o sistema não passa turno sozinho. Zera ao avançar rodada.",
+      "AlternarOculto": "Mostrar ou esconder dos jogadores",
+      "MoverParaCima": "Subir na ordem",
+      "MoverParaBaixo": "Descer na ordem"
     },
     "Rodada": {
       "Titulo": "Rodada {rodada}",

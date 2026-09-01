@@ -51,6 +51,14 @@ export class InvestigacaoData extends foundry.abstract.TypeDataModel {
       pois: new ArrayField(new StringField(), { initial: [] }),
       desafios: new ArrayField(new StringField(), { initial: [] }),
 
+      // Preparar com antecedência não deveria revelar na hora — o mestre pode
+      // vincular um POI/desafio/participante e só torná-lo visível aos
+      // jogadores quando a cena pedir (achado em uso real). Listas separadas de
+      // UUIDs ocultos, não um campo por item: nada muda no vínculo em si.
+      poisOcultos: new ArrayField(new StringField(), { initial: [] }),
+      desafiosOcultos: new ArrayField(new StringField(), { initial: [] }),
+      participantesOcultos: new ArrayField(new StringField(), { initial: [] }),
+
       // Travas de 1×-por-investigação (spec §6.4/§6.5).
       recapitularUsado: trava(),
       compartilharUsado: trava(),

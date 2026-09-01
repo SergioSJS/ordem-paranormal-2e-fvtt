@@ -346,7 +346,10 @@
       "ParticipantesAjuda": "Who's part of the investigation, not who has a token on the Scene — drag characters and NPCs from anywhere.",
       "RemoverParticipante": "Remove from investigation",
       "JaAgiu": "Already acted this round",
-      "JaAgiuAjuda": "Check off who has already acted this round — manual tracking, the system doesn't pass turns on its own. Clears when the round advances."
+      "JaAgiuAjuda": "The GM checks off who has already acted this round — manual tracking, the system doesn't pass turns on its own. Clears when the round advances.",
+      "AlternarOculto": "Show or hide from players",
+      "MoverParaCima": "Move up in order",
+      "MoverParaBaixo": "Move down in order"
     },
     "Rodada": {
       "Titulo": "Round {rodada}",

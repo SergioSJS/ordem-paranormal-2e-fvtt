@@ -23,7 +23,7 @@ import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerra
 import {
   investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,
   adicionarParticipante, removerParticipante, definirOrdemParticipantes, alternarJaAgiu,
-  vincularPoi, removerPoi, vincularDesafio, removerDesafio,
+  vincularPoi, removerPoi, vincularDesafio, removerDesafio, alternarOculto, moverParticipante,
 } from "./investigacao-ativa.mjs";
 import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada } from "./rodada.mjs";
 import {
@@ -76,6 +76,8 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       abrirInvestigacao: PainelInvestigacao.#abrirInvestigacao,
       removerParticipante: PainelInvestigacao.#removerParticipante,
       alternarJaAgiu: PainelInvestigacao.#alternarJaAgiu,
+      alternarOculto: PainelInvestigacao.#alternarOculto,
+      moverParticipante: PainelInvestigacao.#moverParticipante,
     },
     dragDrop: [{ dragSelector: "[data-ator-ordem]", dropSelector: ".op2-painel-corpo" }],
   };
@@ -108,10 +110,10 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       sustentando: ator?.system.estado.sustentando?.ativo ?? false,
       temLaser: ator ? temFerramenta(ator.items, "laser") : false,
       pois: investigacao ? await this.#contextoPois(investigacao, ator, ehGM) : [],
-      desafios: investigacao ? this.#contextoDesafios(investigacao) : [],
-      ordem: this.#contextoOrdem(investigacao),
-      npcs: npcsDaCenaAtiva().map((a) => ({ id: a.id, nome: a.name, img: a.img })),
-      participantes: this.#contextoParticipantes(investigacao),
+      desafios: investigacao ? this.#contextoDesafios(investigacao, ehGM) : [],
+      ordem: this.#contextoOrdem(investigacao, ehGM),
+      npcs: this.#contextoNpcs(investigacao, ehGM),
+      participantes: this.#contextoParticipantes(investigacao, ehGM),
       recapitularUsado: investigacao?.system.recapitularUsado ?? null,
       compartilharUsado: investigacao?.system.compartilharUsado ?? null,
       sobrecarga: {
@@ -123,16 +125,32 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     };
   }
 
+  /**
+   * Preparo antecipado (mestre vincula antes da mesa) não deveria aparecer para os
+   * jogadores na hora — oculto some da visão deles em toda seção, não só marca um
+   * badge (achado em uso real).
+   */
+  #linhaParticipante(ator, investigacao) {
+    const oculto = (investigacao?.system.participantesOcultos ?? []).includes(ator.uuid);
+    const jaAgiu = (investigacao?.system.jaAgiram ?? []).includes(ator.uuid);
+    return { id: ator.id, uuid: ator.uuid, nome: ator.name, img: ator.img, tipo: ator.type, jaAgiu, oculto };
+  }
+
   /** Roster da investigação (spec §5.1) — não depende de token em Scene nenhuma. */
-  #contextoParticipantes(investigacao) {
+  #contextoParticipantes(investigacao, ehGM) {
+    const ocultos = investigacao?.system.participantesOcultos ?? [];
     return (investigacao?.system.participantes ?? []).map((uuid) => fromUuidSync(uuid)).filter(Boolean)
-      .map((a) => ({ uuid: a.uuid, nome: a.name, img: a.img, tipo: a.type }));
+      .filter((a) => ehGM || !ocultos.includes(a.uuid))
+      .map((a) => this.#linhaParticipante(a, investigacao));
   }
 
   async #contextoPois(investigacao, ator, ehGM) {
     const editor = foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
     const pois = [];
     for (const uuid of investigacao.system.pois) {
+      const oculto = investigacao.system.poisOcultos.includes(uuid);
+      if (oculto && !ehGM) continue;
+
       const poi = await fromUuid(uuid);
       if (poi?.type !== "ponto-interesse") continue;
 
@@ -151,6 +169,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
         uuid,
         nome: poi.name,
         img: poi.img,
+        oculto,
         verQuadro,
         reveladoPorLaser: poi.system.reveladoPorLaser,
         ferramentasDisponiveis,
@@ -179,13 +198,16 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     return pois;
   }
 
-  #contextoDesafios(investigacao) {
+  #contextoDesafios(investigacao, ehGM) {
+    const ocultos = investigacao.system.desafiosOcultos;
     return investigacao.system.desafios.map((uuid) => fromUuidSync(uuid))
       .filter((desafio) => desafio?.type === "desafio-acesso")
+      .filter((desafio) => ehGM || !ocultos.includes(desafio.uuid))
       .map((desafio) => ({
         uuid: desafio.uuid,
         nome: desafio.name,
         img: desafio.img,
+        oculto: ocultos.includes(desafio.uuid),
         pontuacaoAtual: desafio.system.pontuacaoAtual,
         pontuacaoAlvo: desafio.system.pontuacaoAlvo,
         quebrado: desafio.system.quebrado,
@@ -198,15 +220,24 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
    * quem saiu do roster some, quem entrou aparece no fim. NPCs nunca entram: agem
    * por último (spec §5.2).
    */
-  #contextoOrdem(investigacao) {
+  #contextoOrdem(investigacao, ehGM) {
     const participantes = personagensDaCenaAtiva();
     const ids = new Set(participantes.map((a) => a.id));
     const gravada = (investigacao?.system.ordemParticipantes ?? [])
       .map((uuid) => fromUuidSync(uuid)?.id).filter((id) => id && ids.has(id));
     const final = [...gravada, ...participantes.map((a) => a.id).filter((id) => !gravada.includes(id))];
-    const jaAgiram = investigacao?.system.jaAgiram ?? [];
+    const ocultos = investigacao?.system.participantesOcultos ?? [];
     return final.map((id) => game.actors.get(id)).filter(Boolean)
-      .map((a) => ({ id: a.id, uuid: a.uuid, nome: a.name, img: a.img, jaAgiu: jaAgiram.includes(a.uuid) }));
+      .filter((a) => ehGM || !ocultos.includes(a.uuid))
+      .map((a) => this.#linhaParticipante(a, investigacao));
+  }
+
+  /** NPCs agem por último (spec §5.2) — fora da ordem arrastável dos personagens. */
+  #contextoNpcs(investigacao, ehGM) {
+    const ocultos = investigacao?.system.participantesOcultos ?? [];
+    return npcsDaCenaAtiva()
+      .filter((a) => ehGM || !ocultos.includes(a.uuid))
+      .map((a) => this.#linhaParticipante(a, investigacao));
   }
 
   _onRender(contexto, opcoes) {
@@ -278,7 +309,9 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     const investigacao = investigacaoAtiva();
     if (!investigacao) return;
 
-    const ordem = this.#contextoOrdem(investigacao).map((a) => a.uuid).filter((uuid) => uuid !== atorUuid);
+    // `ehGM: true` — arrastar já exige ser mestre, e a ordem gravada não pode perder
+    // quem está oculto só porque a leitura de contexto filtraria a linha dele.
+    const ordem = this.#contextoOrdem(investigacao, true).map((a) => a.uuid).filter((uuid) => uuid !== atorUuid);
     const alvo = evento.target.closest("[data-ator-ordem]");
     if (alvo && alvo.dataset.atorOrdem !== atorUuid) {
       const indice = ordem.indexOf(alvo.dataset.atorOrdem);
@@ -462,8 +495,29 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   static async #alternarJaAgiu(_evento, alvo) {
+    // Grava na Investigação, não no personagem — jogador não é dono desse Actor
+    // (achado em uso real: clique de jogador batia em `Actor#update` sem permissão
+    // e gerava erro visível). Mesmo dono das outras ações de bastidor do painel
+    // (mover na ordem, ocultar) — marcar "já agiu" é bookkeeping do mestre.
+    if (!game.user.isGM) return;
     const investigacao = investigacaoAtiva();
     if (investigacao) await alternarJaAgiu(investigacao, alvo.dataset.atorUuid);
+  }
+
+  static async #alternarOculto(_evento, alvo) {
+    if (!game.user.isGM) return;
+    const investigacao = investigacaoAtiva();
+    if (investigacao) await alternarOculto(investigacao, alvo.dataset.campo, alvo.dataset.uuid);
+  }
+
+  static async #moverParticipante(_evento, alvo) {
+    if (!game.user.isGM) return;
+    const investigacao = investigacaoAtiva();
+    if (!investigacao) return;
+    // A ordem exibida (roster + gravada, com quem entrou de novo no fim) — não o
+    // campo cru, que começa vazio até o primeiro drag-and-drop.
+    const ordemAtual = this.#contextoOrdem(investigacao, true).map((a) => a.uuid);
+    await moverParticipante(investigacao, ordemAtual, alvo.dataset.atorUuid, Number(alvo.dataset.direcao));
   }
 }
 

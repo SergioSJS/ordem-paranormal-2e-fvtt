@@ -20,7 +20,9 @@
         </button>
       {{/if}}
     {{else}}
-      <span class="op2-tag op2-tag--pequena">{{#if temInvestigacao}}{{nomeInvestigacao}}{{else}}{{localize "OP2.Painel.SemInvestigacao"}}{{/if}}</span>
+      {{#unless temInvestigacao}}
+        <span class="op2-tag op2-tag--pequena">{{localize "OP2.Painel.SemInvestigacao"}}</span>
+      {{/unless}}
     {{/if}}
   </section>
 
@@ -83,17 +85,21 @@
       {{/if}}
     </section>
 
-    <section class="op2-painel-secao">
-      <h3 class="op2-painel-titulo">{{localize "OP2.Painel.Participantes"}}</h3>
+    <details class="op2-painel-secao" data-sync="participantes" open>
+      <summary class="op2-painel-titulo">{{localize "OP2.Painel.Participantes"}}</summary>
       {{#unless participantes.length}}
         <p class="op2-ajuda">{{localize "OP2.Painel.SemParticipantes"}}</p>
       {{/unless}}
       <ol class="op2-painel-ordem">
         {{#each participantes}}
-          <li class="op2-painel-ordem__linha{{#if (op2Eq tipo "npc")}} op2-painel-ordem__linha--npc{{/if}}">
+          <li class="op2-painel-ordem__linha{{#if (op2Eq tipo "npc")}} op2-painel-ordem__linha--npc{{/if}}{{#if oculto}} op2-painel-ordem__linha--oculto{{/if}}">
             <img src="{{img}}" alt=""> <span>{{nome}}</span>
             {{#if (op2Eq tipo "npc")}}<span class="op2-painel-ordem__npc-tag">NPC</span>{{/if}}
             {{#if @root.ehGM}}
+              <button type="button" class="op2-botao-icone" data-action="alternarOculto" data-campo="participantes"
+                data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.AlternarOculto'}}" data-tooltip="{{localize 'OP2.Painel.AlternarOculto'}}">
+                <i class="fa-solid {{#if oculto}}fa-eye-slash{{else}}fa-eye{{/if}}" aria-hidden="true"></i>
+              </button>
               <button type="button" class="op2-botao-icone" data-action="removerParticipante"
                 data-participante-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.RemoverParticipante'}}">
                 <i class="fa-solid fa-link-slash" aria-hidden="true"></i>
@@ -103,7 +109,7 @@
         {{/each}}
       </ol>
       <p class="op2-ajuda">{{localize "OP2.Painel.ParticipantesAjuda"}}</p>
-    </section>
+    </details>
   {{/if}}
 
   {{#if temInvestigacao}}
@@ -115,7 +121,7 @@
 
       <ol class="op2-painel-pois">
         {{#each pois}}
-          <li class="op2-poi-card">
+          <li class="op2-poi-card{{#if oculto}} op2-poi-card--oculto{{/if}}">
             <header class="op2-poi-card__topo">
               <img src="{{img}}" alt="">
               <strong>{{nome}}</strong>
@@ -126,6 +132,11 @@
               {{/if}}
               {{#if @root.ehGM}}
                 <span class="op2-poi-card__acoes-gm">
+                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="alternarOculto"
+                    data-campo="pois" data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.AlternarOculto'}}"
+                    data-tooltip="{{localize 'OP2.Painel.AlternarOculto'}}">
+                    <i class="fa-solid {{#if oculto}}fa-eye-slash{{else}}fa-eye{{/if}}" aria-hidden="true"></i>
+                  </button>
                   <button type="button" class="op2-botao op2-botao--pequeno" data-action="abrirPoi"
                     data-poi-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.AbrirPOI'}}">
                     <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
@@ -219,12 +230,17 @@
 
       <ol class="op2-painel-pois">
         {{#each desafios}}
-          <li class="op2-poi-card">
+          <li class="op2-poi-card{{#if oculto}} op2-poi-card--oculto{{/if}}">
             <header class="op2-poi-card__topo">
               <img src="{{img}}" alt="">
               <strong>{{nome}}</strong>
               {{#if @root.ehGM}}
                 <span class="op2-poi-card__acoes-gm">
+                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="alternarOculto"
+                    data-campo="desafios" data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.AlternarOculto'}}"
+                    data-tooltip="{{localize 'OP2.Painel.AlternarOculto'}}">
+                    <i class="fa-solid {{#if oculto}}fa-eye-slash{{else}}fa-eye{{/if}}" aria-hidden="true"></i>
+                  </button>
                   <button type="button" class="op2-botao op2-botao--pequeno" data-action="abrirDesafio"
                     data-desafio-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.AbrirDesafio'}}">
                     <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
@@ -271,16 +287,35 @@
       </div>
       <ol class="op2-painel-ordem">
         {{#each ordem}}
-          <li class="op2-painel-ordem__linha{{#if jaAgiu}} op2-painel-ordem__linha--agiu{{/if}}"
+          <li class="op2-painel-ordem__linha{{#if jaAgiu}} op2-painel-ordem__linha--agiu{{/if}}{{#if oculto}} op2-painel-ordem__linha--oculto{{/if}}"
             data-ator-ordem="{{uuid}}" {{#if @root.ehGM}}draggable="true"{{/if}}>
             <label class="op2-campo op2-campo--inline" data-tooltip="{{localize 'OP2.Painel.JaAgiu'}}">
-              <input type="checkbox" data-action="alternarJaAgiu" data-ator-uuid="{{uuid}}" {{#if jaAgiu}}checked{{/if}}>
+              <input type="checkbox" data-action="alternarJaAgiu" data-ator-uuid="{{uuid}}" {{#if jaAgiu}}checked{{/if}}
+                {{#unless @root.ehGM}}disabled{{/unless}}>
             </label>
             <img src="{{img}}" alt=""> <span>{{nome}}</span>
+            {{#if @root.ehGM}}
+              <span class="op2-painel-ordem__setas">
+                <button type="button" class="op2-botao-icone" data-action="moverParticipante"
+                  data-ator-uuid="{{uuid}}" data-direcao="-1" {{#if @first}}disabled{{/if}}
+                  aria-label="{{localize 'OP2.Painel.MoverParaCima'}}">
+                  <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="op2-botao-icone" data-action="moverParticipante"
+                  data-ator-uuid="{{uuid}}" data-direcao="1" {{#if @last}}disabled{{/if}}
+                  aria-label="{{localize 'OP2.Painel.MoverParaBaixo'}}">
+                  <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </button>
+              </span>
+            {{/if}}
           </li>
         {{/each}}
         {{#each npcs}}
-          <li class="op2-painel-ordem__linha op2-painel-ordem__linha--npc">
+          <li class="op2-painel-ordem__linha op2-painel-ordem__linha--npc{{#if jaAgiu}} op2-painel-ordem__linha--agiu{{/if}}{{#if oculto}} op2-painel-ordem__linha--oculto{{/if}}">
+            <label class="op2-campo op2-campo--inline" data-tooltip="{{localize 'OP2.Painel.JaAgiu'}}">
+              <input type="checkbox" data-action="alternarJaAgiu" data-ator-uuid="{{uuid}}" {{#if jaAgiu}}checked{{/if}}
+                {{#unless @root.ehGM}}disabled{{/unless}}>
+            </label>
             <img src="{{img}}" alt=""> <span>{{nome}}</span>
             <span class="op2-painel-ordem__npc-tag">NPC</span>
           </li>

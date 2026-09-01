@@ -13,10 +13,14 @@
     {{/unless}}
     <ol class="op2-painel-ordem">
       {{#each participantes}}
-        <li class="op2-painel-ordem__linha{{#if (op2Eq tipo "npc")}} op2-painel-ordem__linha--npc{{/if}}">
+        <li class="op2-painel-ordem__linha{{#if (op2Eq tipo "npc")}} op2-painel-ordem__linha--npc{{/if}}{{#if oculto}} op2-painel-ordem__linha--oculto{{/if}}">
           <img src="{{img}}" alt=""> <span>{{nome}}</span>
           {{#if (op2Eq tipo "npc")}}<span class="op2-painel-ordem__npc-tag">NPC</span>{{/if}}
           {{#if @root.editavel}}
+            <button type="button" class="op2-botao-icone" data-action="alternarOculto" data-campo="participantes" data-uuid="{{uuid}}"
+              aria-label="{{localize 'OP2.Painel.AlternarOculto'}}" data-tooltip="{{localize 'OP2.Painel.AlternarOculto'}}">
+              <i class="fa-solid {{#if oculto}}fa-eye-slash{{else}}fa-eye{{/if}}" aria-hidden="true"></i>
+            </button>
             <button type="button" class="op2-botao-icone" data-action="removerParticipante" data-uuid="{{uuid}}"
               aria-label="{{localize 'OP2.Painel.RemoverParticipante'}}">
               <i class="fa-solid fa-link-slash" aria-hidden="true"></i>
@@ -35,9 +39,13 @@
     {{/unless}}
     <ol class="op2-painel-ordem">
       {{#each pois}}
-        <li class="op2-painel-ordem__linha">
+        <li class="op2-painel-ordem__linha{{#if oculto}} op2-painel-ordem__linha--oculto{{/if}}">
           <img src="{{img}}" alt=""> <span>{{nome}}</span>
           {{#if @root.editavel}}
+            <button type="button" class="op2-botao-icone" data-action="alternarOculto" data-campo="pois" data-uuid="{{uuid}}"
+              aria-label="{{localize 'OP2.Painel.AlternarOculto'}}" data-tooltip="{{localize 'OP2.Painel.AlternarOculto'}}">
+              <i class="fa-solid {{#if oculto}}fa-eye-slash{{else}}fa-eye{{/if}}" aria-hidden="true"></i>
+            </button>
             <button type="button" class="op2-botao-icone" data-action="abrirDocumento" data-uuid="{{uuid}}"
               aria-label="{{localize 'OP2.Painel.AbrirPOI'}}">
               <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
@@ -59,9 +67,13 @@
     {{/unless}}
     <ol class="op2-painel-ordem">
       {{#each desafios}}
-        <li class="op2-painel-ordem__linha">
+        <li class="op2-painel-ordem__linha{{#if oculto}} op2-painel-ordem__linha--oculto{{/if}}">
           <img src="{{img}}" alt=""> <span>{{nome}}</span>
           {{#if @root.editavel}}
+            <button type="button" class="op2-botao-icone" data-action="alternarOculto" data-campo="desafios" data-uuid="{{uuid}}"
+              aria-label="{{localize 'OP2.Painel.AlternarOculto'}}" data-tooltip="{{localize 'OP2.Painel.AlternarOculto'}}">
+              <i class="fa-solid {{#if oculto}}fa-eye-slash{{else}}fa-eye{{/if}}" aria-hidden="true"></i>
+            </button>
             <button type="button" class="op2-botao-icone" data-action="abrirDocumento" data-uuid="{{uuid}}"
               aria-label="{{localize 'OP2.Painel.AbrirDesafio'}}">
               <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
