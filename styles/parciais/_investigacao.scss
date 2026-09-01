@@ -20,6 +20,25 @@
   font-size: 0.75rem;
 }
 
+// Stepper de +/- inline: ajuste fino de um número sem abrir teclado (pontuação
+// e tentativas do desafio de acesso, no painel e na ficha do item). Mesmo visual
+// do controle de cargas do inventário — botões-ícone colados no valor.
+.op2-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+
+  &__valor {
+    min-width: 2.6rem;
+    color: var(--op2-texto-fraco);
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.72rem;
+    text-align: center;
+  }
+
+  input[type="number"] { width: 3.5rem; text-align: center; }
+}
+
 // Ficha do Ponto de Interesse.
 .op2-poi {
   textarea { width: 100%; }

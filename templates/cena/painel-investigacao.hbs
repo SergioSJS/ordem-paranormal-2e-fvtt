@@ -272,7 +272,22 @@
             </header>
 
             <p class="op2-ajuda">
-              {{localize "OP2.Desafio.Progresso"}}: {{pontuacaoAtual}} / {{pontuacaoAlvo}}
+              {{localize "OP2.Desafio.Progresso"}}:
+              {{#if @root.ehGM}}
+                <span class="op2-stepper" role="group" aria-label="{{localize 'OP2.Desafio.Progresso'}}">
+                  <button type="button" class="op2-botao-icone" data-action="ajustarPontuacaoDesafio"
+                    data-desafio-uuid="{{uuid}}" data-delta="-1" aria-label="{{localize 'OP2.Desafio.DiminuirPontuacao'}}">
+                    <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                  </button>
+                  <span class="op2-stepper__valor">{{pontuacaoAtual}} / {{pontuacaoAlvo}}</span>
+                  <button type="button" class="op2-botao-icone" data-action="ajustarPontuacaoDesafio"
+                    data-desafio-uuid="{{uuid}}" data-delta="1" aria-label="{{localize 'OP2.Desafio.AumentarPontuacao'}}">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                  </button>
+                </span>
+              {{else}}
+                {{pontuacaoAtual}} / {{pontuacaoAlvo}}
+              {{/if}}
               {{#if quebrado}} — {{localize "OP2.Desafio.Quebrado"}}{{/if}}
               {{#if destrancado}} — {{localize "OP2.Desafio.Destrancou"}}{{/if}}
             </p>

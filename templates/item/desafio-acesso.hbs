@@ -31,13 +31,33 @@
     <div class="op2-grade-campos">
       <label class="op2-campo">
         <span>{{localize "OP2.Desafio.PontuacaoAtual"}}</span>
-        <input type="number" name="system.pontuacaoAtual" value="{{sistema.pontuacaoAtual}}" min="0"
-          {{#unless editavel}}disabled{{/unless}}>
+        <span class="op2-stepper">
+          <button type="button" class="op2-botao-icone" data-action="ajustarPontuacao" data-delta="-1"
+            aria-label="{{localize 'OP2.Desafio.DiminuirPontuacao'}}" {{#unless editavel}}disabled{{/unless}}>
+            <i class="fa-solid fa-minus" aria-hidden="true"></i>
+          </button>
+          <input type="number" name="system.pontuacaoAtual" value="{{sistema.pontuacaoAtual}}" min="0"
+            {{#unless editavel}}disabled{{/unless}}>
+          <button type="button" class="op2-botao-icone" data-action="ajustarPontuacao" data-delta="1"
+            aria-label="{{localize 'OP2.Desafio.AumentarPontuacao'}}" {{#unless editavel}}disabled{{/unless}}>
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          </button>
+        </span>
       </label>
       <label class="op2-campo">
         <span>{{localize "OP2.Desafio.TentativasUsadas"}}</span>
-        <input type="number" name="system.tentativasUsadas" value="{{sistema.tentativasUsadas}}" min="0"
-          {{#unless editavel}}disabled{{/unless}}>
+        <span class="op2-stepper">
+          <button type="button" class="op2-botao-icone" data-action="ajustarTentativas" data-delta="-1"
+            aria-label="{{localize 'OP2.Desafio.DiminuirTentativas'}}" {{#unless editavel}}disabled{{/unless}}>
+            <i class="fa-solid fa-minus" aria-hidden="true"></i>
+          </button>
+          <input type="number" name="system.tentativasUsadas" value="{{sistema.tentativasUsadas}}" min="0"
+            {{#unless editavel}}disabled{{/unless}}>
+          <button type="button" class="op2-botao-icone" data-action="ajustarTentativas" data-delta="1"
+            aria-label="{{localize 'OP2.Desafio.AumentarTentativas'}}" {{#unless editavel}}disabled{{/unless}}>
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          </button>
+        </span>
       </label>
     </div>
 

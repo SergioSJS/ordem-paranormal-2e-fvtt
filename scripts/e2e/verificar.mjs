@@ -521,6 +521,43 @@ const relato = await page.evaluate(async () => {
       Boolean(painel.element?.textContent.includes("Fechadura Emperrada"))
       && Boolean(painel.element?.textContent.includes("Cofre Blindado")));
     ok("painel mostra o progresso do desafio (1 / 1)", Boolean(painel.element?.textContent.includes("1 / 1")));
+
+    // Ajuste fino da pontuação pelo painel, sem abrir a ficha nem rolar Arrombar
+    // (bookkeeping do mestre — pedido de uso real). Trava em [0, pontuacaoAlvo].
+    {
+      // Cada update re-renderiza o painel e troca os nós — consultar de novo a
+      // cada clique, não guardar o botão de um render anterior.
+      const botao = (delta) => [...painel.element.querySelectorAll('[data-action="ajustarPontuacaoDesafio"]')]
+        .find((b) => b.dataset.desafioUuid === fechadura.uuid && b.dataset.delta === String(delta));
+      ok("painel tem os botões +/- de pontuação por desafio", Boolean(botao(-1) && botao(1)));
+
+      botao(1).click();
+      await esperar(400);
+      ok("botão + não passa da pontuação alvo (trava em 1/1)", fechadura.system.pontuacaoAtual === 1);
+      botao(-1).click();
+      await esperar(400);
+      ok("botão − diminui a pontuação (1 → 0)", fechadura.system.pontuacaoAtual === 0);
+      botao(-1).click();
+      await esperar(400);
+      ok("botão − não desce de zero", fechadura.system.pontuacaoAtual === 0);
+      botao(1).click();
+      await esperar(400);
+      ok("botão + aumenta a pontuação (0 → 1)", fechadura.system.pontuacaoAtual === 1);
+    }
+
+    // Ajuste é bastidor do mestre: para o jogador os botões nem renderizam — só
+    // o texto do progresso, como antes.
+    {
+      Object.defineProperty(game.user, "isGM", { value: false, configurable: true });
+      await painel.render();
+      await esperar(400);
+      ok("botões +/- de pontuação não aparecem para o jogador",
+        !painel.element.querySelector('[data-action="ajustarPontuacaoDesafio"]'));
+      ok("jogador ainda vê o progresso como texto", Boolean(painel.element?.textContent.includes("1 / 1")));
+      delete game.user.isGM;
+      await painel.render();
+      await esperar(400);
+    }
     {
       const botaoArrombarCofre = [...painel.element.querySelectorAll('[data-action="arrombar"]')]
         .find((b) => b.dataset.desafioUuid === cofre.uuid);
@@ -548,6 +585,40 @@ const relato = await page.evaluate(async () => {
     ok("ficha do desafio renderizou", Boolean(desafioEl));
     ok("barra de progresso reflete pontuacaoAtual/pontuacaoAlvo (100%)",
       desafioEl?.querySelector(".op2-progresso__preenchido")?.style.width === "100%");
+
+    // Steppers de +/- ao lado dos campos numéricos (pedido de uso real: ajustar
+    // pela ficha tinha que ser tão simples quanto pelo painel). O input continua
+    // editável à mão — o botão é atalho, não substituto.
+    {
+      const passo = (acao, delta) => desafioEl.querySelector(`[data-action="${acao}"][data-delta="${delta}"]`);
+      ok("ficha tem stepper de pontuação ao lado do input editável",
+        Boolean(passo("ajustarPontuacao", -1) && passo("ajustarPontuacao", 1)
+          && desafioEl.querySelector("input[name='system.pontuacaoAtual']")));
+
+      passo("ajustarPontuacao", 1).click();
+      await esperar(400);
+      ok("stepper da ficha não passa da alvo (trava em 1)", fechadura.system.pontuacaoAtual === 1);
+      passo("ajustarPontuacao", -1).click();
+      await esperar(400);
+      ok("stepper da ficha diminui (1 → 0) e a barra acompanha",
+        fechadura.system.pontuacaoAtual === 0
+        && desafioEl.querySelector(".op2-progresso__preenchido")?.style.width === "0%");
+      passo("ajustarPontuacao", 1).click();
+      await esperar(400);
+      ok("stepper da ficha aumenta (0 → 1)", fechadura.system.pontuacaoAtual === 1);
+
+      // tentativasUsadas: maxTentativas 0 = sem limite — só trava no zero.
+      const tentAntes = fechadura.system.tentativasUsadas;
+      passo("ajustarTentativas", 1).click();
+      await esperar(400);
+      passo("ajustarTentativas", 1).click();
+      await esperar(400);
+      ok("stepper de tentativas sobe sem teto quando maxTentativas = 0",
+        fechadura.system.tentativasUsadas === tentAntes + 2);
+      passo("ajustarTentativas", -1).click();
+      await esperar(400);
+      ok("stepper de tentativas desce", fechadura.system.tentativasUsadas === tentAntes + 1);
+    }
     await fechadura.sheet.close();
 
     await fechadura.delete();
