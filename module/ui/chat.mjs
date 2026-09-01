@@ -86,6 +86,18 @@ function ligar(elemento) {
   }
 }
 
+/**
+ * O core pinta toda mensagem de chat com `--chat-message-background`, uma textura de
+ * pergaminho fixa, e `--color-dark-4` no cabeçalho — pensados para um fundo claro,
+ * ilegível contra o card escuro do sistema. Marcar o `<li>` com `.op2` dá a ele acesso
+ * às mesmas variáveis `--op2-*` do card, e a CSS (`_chat.scss`) assume dali.
+ * @param {HTMLElement} html
+ */
+function teatralizarEnvelope(html) {
+  const li = html.classList?.contains("chat-message") ? html : html.closest?.(".chat-message");
+  if (li?.querySelector(".op2-card")) li.classList.add("op2");
+}
+
 export function registrarChat() {
   // Só `renderChatMessageHTML`: o `renderChatMessage` está depreciado desde o v13 e
   // registrá-lo faz o core avisar a cada mensagem. O sistema exige v13 no mínimo.
@@ -94,6 +106,7 @@ export function registrarChat() {
     if (msg.getFlag(SYSTEM_ID, "tipo") && !game.user.isGM) {
       for (const botao of html.querySelectorAll("[data-op2-gm]")) botao.remove();
     }
+    teatralizarEnvelope(html);
     ligar(html);
   });
 }

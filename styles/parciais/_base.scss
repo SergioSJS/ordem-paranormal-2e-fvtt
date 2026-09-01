@@ -28,6 +28,19 @@
     box-shadow: none;
   }
 
+  // Todo `<select>` visível segue o mesmo tratamento — altura e respiro iguais aos
+  // campos de texto, cursor de ponteiro e destaque vermelho ao passar/focar, em vez
+  // do combo cinza padrão do navegador. A caixa nativa escondida do seletor de dado
+  // (`__nativo`) fica de fora de propósito: ela nunca aparece na tela.
+  select:not(.op2-controle-dado__nativo) {
+    height: 1.9rem;
+    padding: 0 0.4rem;
+    cursor: pointer;
+
+    &:hover:not([disabled]) { border-color: var(--op2-vermelho-claro); }
+  }
+
+
   :focus-visible {
     outline: 2px solid var(--op2-vermelho-claro);
     outline-offset: 2px;
@@ -66,6 +79,7 @@
   &--perfil {
     padding: 0;
     select {
+      height: auto;
       padding: 0.2em 0.6em;
       border: 0;
       background: transparent;
@@ -73,6 +87,9 @@
       font-family: var(--op2-fonte-display);
       font-weight: 700;
       text-transform: uppercase;
+
+      // Sem sobrepor a borda vermelha do hover geral — a tag inteira já é vermelha.
+      &:hover:not([disabled]) { border-color: transparent; }
     }
   }
 }

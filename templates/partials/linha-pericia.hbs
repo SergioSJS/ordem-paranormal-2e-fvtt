@@ -1,4 +1,7 @@
-{{!-- A linha da ficha oficial: nome, dado da perícia, dado do atributo pareado. --}}
+{{!-- A linha da ficha oficial: nome, dado da perícia, dado do atributo pareado.
+      Colunas de largura fixa (não "auto") — cada linha é um grid independente, e
+      "auto" deixaria a largura variar por linha conforme o texto ("FÍSICO" x
+      "EMOÇÃO"), desalinhando os ícones entre as linhas (achado em uso real). --}}
 <div class="op2-pericia" data-chave="{{chave}}">
   <button type="button" class="op2-pericia__nome" data-action="rolar" data-chave="{{chave}}"
     data-tooltip="{{localize 'OP2.Pericia.Rolar'}}">{{rotulo}}</button>
@@ -7,10 +10,8 @@
 
   <span class="op2-pericia__mais" aria-hidden="true">+</span>
 
-  <span class="op2-pericia__atributo" data-tooltip="{{atributo.rotulo}}">
-    {{{atributo.icone}}}
-    <span class="op2-pericia__atributo-nome">{{atributo.rotulo}}</span>
-  </span>
+  <span class="op2-pericia__atributo-icone" data-tooltip="{{atributo.rotulo}}">{{{atributo.icone}}}</span>
+  <span class="op2-pericia__atributo-nome">{{atributo.rotulo}}</span>
 
   {{> (op2Caminho "partials/abrir-dialogo") chave=chave}}
 </div>

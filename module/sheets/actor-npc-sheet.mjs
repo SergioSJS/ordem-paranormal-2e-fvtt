@@ -1,8 +1,10 @@
 /** Ficha reduzida de NPC: só os atributos e as perícias que o mestre declarou. */
-import { ATRIBUTOS, ESCADA } from "../config.mjs";
+import { ATRIBUTOS } from "../config.mjs";
 import { stepDie } from "../dice/escada.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
 import { ligarRodaDoMouse } from "../ui/controle-dado.mjs";
+import { rolarTeste } from "../dice/teste.mjs";
+import { lerConfig } from "../settings/register.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -10,10 +12,11 @@ const { ActorSheetV2 } = foundry.applications.sheets;
 export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["op2", "op2-ficha", "op2-ficha--npc"],
-    position: { width: 480, height: 620 },
+    position: { width: 480, height: 640 },
     window: { resizable: true, icon: "fa-solid fa-ghost" },
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
+      rolar: NpcSheet.#rolar,
       escolherDado: NpcSheet.#escolherDado,
       abrirSeletor: NpcSheet.#abrirSeletor,
       adicionarPericia: NpcSheet.#adicionarPericia,
@@ -36,7 +39,10 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       // `fields` alimenta o {{formInput}}; sem ele o editor de texto rico não sobe.
       fields: this.actor.system.schema.fields,
       editavel: this.isEditable,
-      escada: ESCADA.map((dado) => ({ dado, icone: iconeDado(dado) })),
+      recursos: {
+        pv: this.#recurso(sistema.recursos.pv),
+        pd: this.#recurso(sistema.recursos.pd),
+      },
       atributos: Object.keys(ATRIBUTOS).map((chave) => ({
         chave,
         rotulo: game.i18n.localize(`OP2.Atributo.${chave}`),
@@ -50,6 +56,24 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         caminho: `system.pericias.${sub}.die`,
       })),
     };
+  }
+
+  /** Mesmo critério de recurso crítico da ficha de personagem, para o mesmo pulso de aviso. */
+  #recurso(recurso) {
+    const max = Math.max(recurso.max, recurso.value, 0);
+    const critico = recurso.max > 0 && recurso.value / recurso.max <= 0.3;
+    return {
+      critico,
+      tracos: max > 0
+        ? Array.from({ length: max }, (_, i) => ({ n: i + 1, cheio: i < recurso.value }))
+        : null,
+    };
+  }
+
+  static async #rolar(evento, alvo) {
+    const chave = alvo.dataset.chave;
+    const abrirDialogo = evento.shiftKey !== lerConfig("cliqueAbreDialogo");
+    await rolarTeste(this.actor, { chavePericia: chave, rapido: !abrirDialogo });
   }
 
   static async #abrirSeletor(_evento, alvo) {

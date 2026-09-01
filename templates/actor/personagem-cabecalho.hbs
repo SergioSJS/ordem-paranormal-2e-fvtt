@@ -1,42 +1,44 @@
+{{!-- Nome no topo, ocupando a largura toda; abaixo, retrato à esquerda e duas colunas
+      empilhadas (identidade / atributos) à direita; PV e PD por último, ocupando a
+      largura toda. O layout de 3 atributos lado a lado cortava "EMOÇÃO" em janelas
+      estreitas — cada atributo com a própria linha resolve isso de vez, e ainda sobra
+      espaço para o nome completo do atributo em qualquer largura (achado em uso real). --}}
 <header class="op2-cabecalho op2-moldura">
+  <input type="text" class="op2-nome op2-cabecalho__nome" name="name" value="{{actor.name}}"
+    placeholder="{{localize 'OP2.Ficha.SemNome'}}" {{#unless editavel}}disabled{{/unless}}>
+
   <div class="op2-cabecalho__retrato">
     <img src="{{actor.img}}" alt="{{actor.name}}" data-action="editImage" data-edit="img"
       {{#unless editavel}}class="somente-leitura"{{/unless}}>
   </div>
 
   <div class="op2-cabecalho__identidade">
-    <input type="text" class="op2-nome" name="name" value="{{actor.name}}"
-      placeholder="{{localize 'OP2.Ficha.SemNome'}}" {{#unless editavel}}disabled{{/unless}}>
+    <label class="op2-tag op2-tag--perfil op2-tag--bloco">
+      <select name="system.perfil" {{#unless editavel}}disabled{{/unless}} aria-label="{{localize 'OP2.Campo.Perfil'}}">
+        {{#each perfis}}
+          <option value="{{chave}}" {{#if (op2Eq chave @root.sistema.perfil)}}selected{{/if}}>{{rotulo}}</option>
+        {{/each}}
+      </select>
+    </label>
 
-    <div class="op2-identidade">
-      <label class="op2-tag op2-tag--perfil">
-        <select name="system.perfil" {{#unless editavel}}disabled{{/unless}} aria-label="{{localize 'OP2.Campo.Perfil'}}">
-          {{#each perfis}}
-            <option value="{{chave}}" {{#if (op2Eq chave @root.sistema.perfil)}}selected{{/if}}>{{rotulo}}</option>
-          {{/each}}
-        </select>
-      </label>
+    <input type="text" class="op2-ocupacao" name="system.ocupacao" value="{{sistema.ocupacao}}"
+      placeholder="{{localize 'OP2.Campo.Ocupacao'}}" {{#unless editavel}}disabled{{/unless}}
+      aria-label="{{localize 'OP2.Campo.Ocupacao'}}">
 
-      <span class="op2-identidade__ponto" aria-hidden="true">·</span>
-
-      <input type="text" class="op2-ocupacao" name="system.ocupacao" value="{{sistema.ocupacao}}"
-        placeholder="{{localize 'OP2.Campo.Ocupacao'}}" {{#unless editavel}}disabled{{/unless}}
-        aria-label="{{localize 'OP2.Campo.Ocupacao'}}">
-
-      <span class="op2-identidade__ponto" aria-hidden="true">·</span>
-
+    <div class="op2-identidade__linha">
       <label class="op2-nivel">
         <span>{{localize "OP2.Campo.Nivel"}}</span>
         <input type="number" name="system.nivel" value="{{sistema.nivel}}" min="1" max="10"
           {{#unless editavel}}disabled{{/unless}}>
       </label>
-    </div>
 
-    <div class="op2-recursos">
-      {{> (op2Caminho "partials/trilha-recurso") chave="pv" rotulo="OP2.Recurso.pv"
-          value=recursos.pv.value max=recursos.pv.max tracos=recursos.pv.tracos critico=recursos.pv.critico}}
-      {{> (op2Caminho "partials/trilha-recurso") chave="pd" rotulo="OP2.Recurso.pd"
-          value=recursos.pd.value max=recursos.pd.max tracos=recursos.pd.tracos critico=recursos.pd.critico}}
+      {{!-- NEX é a progressão paranormal (spec §1); o playtest não publica a mecânica
+            ainda, mas o campo existe na ficha desde já (spec §11). --}}
+      <label class="op2-nivel" data-tooltip="{{localize 'OP2.Campo.NexAjuda'}}">
+        <span>{{localize "OP2.Campo.Nex"}}</span>
+        <input type="number" name="system.nex" value="{{sistema.nex}}" min="0" max="100"
+          {{#unless editavel}}disabled{{/unless}}>
+      </label>
     </div>
   </div>
 
@@ -51,12 +53,18 @@
         {{> (op2Caminho "partials/abrir-dialogo") chave=chave}}
       </div>
     {{/each}}
+  </div>
 
+  <div class="op2-recursos op2-cabecalho__recursos">
+    {{> (op2Caminho "partials/trilha-recurso") chave="pv" rotulo="OP2.Recurso.pv"
+        value=recursos.pv.value max=recursos.pv.max tracos=recursos.pv.tracos critico=recursos.pv.critico}}
+    {{> (op2Caminho "partials/trilha-recurso") chave="pd" rotulo="OP2.Recurso.pd"
+        value=recursos.pd.value max=recursos.pd.max tracos=recursos.pd.tracos critico=recursos.pd.critico}}
   </div>
 
   {{!-- Aparece só quando há redução ativa: explica o estado e oferece a saída dele. --}}
   {{#if temReducao}}
-    <div class="op2-estado">
+    <div class="op2-estado op2-cabecalho__estado">
       <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
       <span class="op2-estado__texto">{{localize "OP2.Atributo.Reduzido"}}</span>
       <button type="button" class="op2-botao op2-botao--pequeno" data-action="encerrarCena">

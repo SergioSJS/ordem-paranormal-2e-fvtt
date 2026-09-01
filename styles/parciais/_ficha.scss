@@ -21,31 +21,47 @@
   overflow: hidden;
 }
 
+// Nome em cima, ocupando a largura toda; retrato à esquerda; identidade e atributos
+// em duas colunas empilhadas à direita; PV/PD por último, largura toda. O layout
+// antigo espremia FÍSICO, MENTE e EMOÇÃO lado a lado numa faixa — "EMOÇÃO" cortava
+// contra o número do dado em qualquer janela que não fosse bem larga (achado em uso
+// real). Cada atributo com a própria linha nunca fica sem espaço para o nome.
 .op2-cabecalho {
   display: grid;
   padding: var(--op2-e3);
-  gap: var(--op2-e3);
   grid-area: cabecalho;
-  grid-template-columns: 116px minmax(0, 1fr);
-  grid-template-rows: auto auto;
+  align-items: start;
+  gap: var(--op2-e2) var(--op2-e3);
+  grid-template-columns: 116px minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    "nome       nome        nome"
+    "retrato    identidade  atributos"
+    "recursos   recursos    recursos"
+    "estado     estado      estado";
+
+  &__nome { grid-area: nome; }
 
   &__retrato {
     position: relative;
     overflow: hidden;
+    align-self: stretch;
     border: 1px solid var(--op2-linha-forte);
     border-radius: var(--op2-raio);
     background: color-mix(in srgb, var(--op2-preto) 60%, transparent);
-    grid-row: span 2;
+    grid-area: retrato;
 
     img {
       display: block;
       width: 100%;
       height: 100%;
+      // Baixo o bastante para acompanhar a coluna de atributos quando ela encolhe —
+      // um chão alto aqui brigava com o pedido de deixar o retrato mais quadrado.
+      min-height: 5rem;
       cursor: pointer;
       object-fit: cover;
     }
 
-    &--pequeno { grid-row: auto; height: 96px; }
+    &--pequeno { height: 96px; }
   }
 
   &__identidade {
@@ -53,7 +69,22 @@
     min-width: 0;
     flex-direction: column;
     gap: var(--op2-e2);
+    grid-area: identidade;
   }
+
+  &__recursos { grid-area: recursos; }
+  &__estado { grid-area: estado; }
+}
+
+// Perfil sozinho na própria linha, largura natural — não precisa mais dividir espaço
+// com Ocupação e Nível na mesma faixa horizontal.
+.op2-tag--bloco {
+  align-self: flex-start;
+}
+
+.op2-identidade__linha {
+  display: flex;
+  gap: var(--op2-e3);
 }
 
 .op2-nome {
@@ -71,14 +102,25 @@
 
 // Cabeçalho das fichas de item: o ícone é um thumbnail, nunca a imagem inteira —
 // o ícone padrão do core (o saco) cresce sem limite se não for contido.
+// A ficha de item (habilidade, equipamento, POI) usava só o header estilizado — o
+// resto (fieldset, labels, espaçamento entre blocos) ficava no visual cru do
+// navegador: caixa preta sem padding, texto colado na linha de cima, sem o mesmo
+// peso tipográfico da ficha de personagem (achado em uso real).
+.op2-item-ficha {
+  display: flex;
+  flex-direction: column;
+  gap: var(--op2-e4);
+  font-size: 0.92rem;
+}
+
 .op2-item-ficha__topo {
   display: flex;
   align-items: center;
-  gap: var(--op2-e2);
+  gap: var(--op2-e3);
 
   img {
-    width: 3rem;
-    height: 3rem;
+    width: 3.5rem;
+    height: 3.5rem;
     flex: 0 0 auto;
     margin: 0;
     border: 1px solid var(--op2-linha);
@@ -87,7 +129,12 @@
     cursor: pointer;
   }
 
-  .op2-nome { flex: 1 1 auto; min-width: 0; }
+  .op2-nome {
+    height: 2.2rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 1.4rem;
+  }
 }
 
 .op2-identidade {
@@ -99,8 +146,13 @@
   &__ponto { color: var(--op2-vermelho); }
 }
 
+// `flex: 0 0 auto` importa de verdade aqui: a coluna de identidade agora é vertical
+// (antes era uma linha horizontal), e um `flex-grow` nesse eixo faz o campo esticar a
+// altura toda da coluna em vez de ficar do tamanho de uma linha de texto (achado em
+// uso real — a Ocupação virava uma caixa preta gigante).
 .op2-ocupacao {
-  flex: 1 1 8rem;
+  flex: 0 0 auto;
+  width: 100%;
   height: 1.9rem;
   padding: 0 0.5rem;
   font-family: var(--op2-fonte-mono);
@@ -174,7 +226,7 @@
   // duas laterais inclinadas ficam sem traço. Inclinando a caixa inteira, a borda
   // acompanha e sai fechada nos quatro lados.
   width: 0.5rem;
-  height: 0.85rem;
+  height: 0.42rem;
   padding: 0;
   border: 1px solid var(--op2-linha-forte);
   background: transparent;
@@ -219,15 +271,19 @@
 }
 
 // Os três atributos dividem a linha, como na ficha do livro.
+// Empilhados — cada atributo com a própria linha, largura toda. É o que dá espaço
+// de sobra para "EMOÇÃO" (o nome mais longo dos três) sem cortar contra o dado.
 .op2-atributos {
-  display: grid;
-  align-items: center;
-  gap: var(--op2-e2);
-  grid-column: span 2;
-  grid-template-columns: auto repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
+  gap: var(--op2-e1);
+  grid-area: atributos;
 
+  // A ficha de NPC não faz parte do grid do cabeçalho de personagem; ali os três
+  // ainda cabem lado a lado com folga, sem o dado extra do diálogo/redução.
   &--npc {
-    grid-column: auto;
+    display: grid;
+    gap: var(--op2-e2);
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
@@ -238,7 +294,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--op2-e1);
-  padding: 0.35rem 0.45rem;
+  padding: 0.15rem 0.45rem;
   border: 1px solid var(--op2-linha);
   border-radius: var(--op2-raio);
 
@@ -279,7 +335,6 @@
   background: color-mix(in srgb, var(--op2-vermelho) 12%, transparent);
   color: var(--op2-vermelho-claro);
   gap: var(--op2-e2);
-  grid-column: span 2;
 
   &__texto {
     flex: 1 1 auto;
@@ -378,6 +433,113 @@
     font-family: var(--op2-fonte-mono);
     font-size: 0.7rem;
   }
+}
+
+// A ficha de NPC não usa o grid de abas da ficha de personagem — é uma coluna simples
+// que precisa rolar sozinha, com espaço de verdade entre as seções.
+.op2-ficha--npc .window-content {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+// Seção sempre visível — ao contrário de `.op2-painel`, que só aparece com `.active`
+// (a classe das abas da ficha de personagem). Usar `.op2-painel` aqui deixava
+// Atributos, Perícias e Notas completamente invisíveis (achado em uso real).
+.op2-npc-secao {
+  display: flex;
+  flex-direction: column;
+  padding: var(--op2-e3);
+  gap: var(--op2-e2);
+
+  &--notas {
+    flex: 1 1 auto;
+    min-height: 8rem;
+  }
+}
+
+// Linha de perícia do NPC: sem par de atributo (a ficha reduzida não tem essa
+// distinção, spec §10.1), mas com o mesmo cuidado de coluna de largura fixa da
+// lista principal — nome à direita, dado sempre na mesma posição.
+.op2-pericia-npc {
+  display: grid;
+  align-items: center;
+  min-height: 1.9rem;
+  padding: 0.1rem 0.25rem;
+  border-radius: var(--op2-raio);
+  column-gap: 0.4rem;
+  grid-template-columns: minmax(0, 1fr) 1.6rem 1.6rem;
+
+  &:hover { background: var(--op2-superficie-alta); }
+
+  &__nome {
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--op2-texto);
+    cursor: pointer;
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+    text-align: right;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    &:hover { color: var(--op2-vermelho-claro); }
+  }
+}
+
+.op2-lista-pericias--npc {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+// Fieldset das habilidades: sem isso é a caixa preta crua do navegador — sem
+// padding, sem cor de borda do tema, texto colado na legenda (achado em uso real).
+.op2-efeito {
+  display: flex;
+  flex-direction: column;
+  padding: var(--op2-e3);
+  border: 1px solid var(--op2-linha);
+  border-radius: var(--op2-raio);
+  gap: var(--op2-e2);
+
+  legend {
+    padding: 0 0.4rem;
+    color: var(--op2-vermelho-claro);
+    font-family: var(--op2-fonte-display);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+}
+
+// `.op2-campo` já existe na base, mas dentro de uma ficha de item os rótulos
+// ("ORIGEM", "CUSTO"...) ficavam colados no controle logo abaixo por falta de
+// respiro — a base só tem `gap` entre o `<span>` e o campo, não entre campos.
+.op2-item-ficha .op2-campo,
+.op2-item-ficha .op2-grade-campos {
+  margin-top: var(--op2-e1);
+}
+
+.op2-item-ficha .op2-campo > span {
+  margin-bottom: 0.1rem;
+  font-size: 0.78rem;
+}
+
+// O editor de texto rico (ProseMirror) vem com uma altura mínima grande por padrão
+// do core — sobrava bastante caixa vazia em descrições curtas de habilidade. E sem
+// fundo/borda própria ele se mistura com o preto da janela: a caixa de 6rem vira
+// espaço morto em vez de se ler como um campo de texto (achado em uso real).
+.op2-item-ficha prose-mirror {
+  min-height: 6rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--op2-linha);
+  border-radius: var(--op2-raio);
+  background: color-mix(in srgb, var(--op2-fundo) 70%, transparent);
 }
 
 }

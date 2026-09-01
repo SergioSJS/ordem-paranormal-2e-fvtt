@@ -74,7 +74,8 @@
       "Perfil": "Perfil",
       "Ocupacao": "Ocupação",
       "Nivel": "Nível",
-      "Nex": "NEX"
+      "Nex": "NEX",
+      "NexAjuda": "NEX é a progressão paranormal. Sem mecânica publicada no playtest ainda; o campo já existe para quando sair."
     },
     "Recurso": {
       "pv": "PV",
@@ -148,7 +149,8 @@
       "Categoria": "Categoria",
       "AdicionarPericia": "Nova perícia",
       "RemoverPericia": "Remover perícia",
-      "PericiasAjuda": "NPCs não usam a lista completa: declare só as perícias que este NPC realmente usa."
+      "PericiasAjuda": "NPCs não usam a lista completa: declare só as perícias que este NPC realmente usa.",
+      "SemPericias": "Nenhuma perícia declarada. Adicione só as que este NPC usa."
     },
     "POI": {
       "Aba": {

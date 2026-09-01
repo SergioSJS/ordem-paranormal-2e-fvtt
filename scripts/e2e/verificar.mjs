@@ -132,6 +132,18 @@ const relato = await page.evaluate(async () => {
   ok("card carrega a classe op2 (tokens de cor)", Boolean(dados.card?.temClasseOp2));
   ok("card mostra a Rolagem Alta", Boolean(dados.card?.temRA));
 
+  // O <ol> do log de chat do próprio Foundry carrega `.theme-light` sempre, mesmo
+  // com a UI em modo escuro — sem forçar os tokens escuros, o card herdava (ou
+  // casava direto com) o tema claro e o pergaminho padrão do core aparecia por trás.
+  {
+    const envelope = document.querySelector(".chat-message.op2");
+    const corEnvelope = envelope && getComputedStyle(envelope).backgroundColor;
+    const corCard = getComputedStyle(card).backgroundColor;
+    ok("envelope da mensagem ganha a classe op2", Boolean(envelope));
+    ok("card do chat fica escuro mesmo dentro do log (tema claro)", corCard === "rgb(22, 16, 14)");
+    ok("envelope da mensagem também fica escuro", corEnvelope === "rgb(22, 16, 14)");
+  }
+
   /* ---------------------------------------------------------- investigação -- */
 
   const cena = await Scene.create({ name: "Porão", active: true });
@@ -348,8 +360,57 @@ const relato = await page.evaluate(async () => {
     ok("PD (4) quebra para a própria linha mesmo sendo curto", topoTracos("pd") > topoRotulo("pd") + 5);
     ok("nenhum teto esconde o traço em valor alto", el.querySelectorAll(".op2-recurso--pv .op2-traco").length === 34);
   }
+  // 10) Cabeçalho reorganizado: nome em cima, retrato + identidade + atributos
+  //     empilhados abaixo, PV/PD por último. Antes os três atributos dividiam uma
+  //     única faixa horizontal e "EMOÇÃO" cortava contra o número do dado.
+  {
+    await ator.update({ "system.nex": 5 });
+    await esperar(150);
+    ok("campo de NEX existe no cabeçalho", Boolean(el.querySelector("input[name='system.nex']")));
+
+    const ocupacao = el.querySelector(".op2-ocupacao");
+    ok("Ocupação não estica a altura da coluna", ocupacao.getBoundingClientRect().height < 40);
+
+    const emocao = [...el.querySelectorAll(".op2-atributo__nome")].find((b) => b.dataset.chave === "emocao");
+    ok("EMOÇÃO não corta mesmo com o dado ao lado", emocao.scrollWidth <= emocao.getBoundingClientRect().width + 1);
+
+    ok("nome ocupa a própria linha, acima do retrato", el.querySelector(".op2-cabecalho__nome").getBoundingClientRect().top
+      < el.querySelector(".op2-cabecalho__retrato").getBoundingClientRect().top);
+  }
 
 
+
+
+
+  /* -------------------------------------------------------------------- npc -- */
+  // As seções de Atributos/Perícias/Notas usavam a mesma classe das abas da ficha
+  // de personagem (`.op2-painel`, que é `display:none` sem `.active`) — a ficha de
+  // NPC inteira ficava invisível abaixo do cabeçalho. Regressão permanente.
+  {
+    const npc = await Actor.create({ name: "npc-regressao", type: "npc" });
+    await npc.update({ "system.atributos.fisico.die": "d8", "system.pericias.luta": { rotulo: "Luta", die: "d8" } });
+    await npc.sheet.render(true);
+    await esperar(900);
+    const elNpc = npc.sheet.element;
+
+    const alturaVisivel = (sel) => elNpc.querySelector(sel)?.getBoundingClientRect().height ?? 0;
+    ok("seção de atributos do NPC é visível", alturaVisivel(".op2-npc-secao") > 0);
+    ok("NPC lista a perícia declarada", elNpc.querySelectorAll(".op2-pericia-npc").length === 1);
+
+    let formula = null;
+    Hooks.once("createChatMessage", (msg) => { formula = msg.rolls?.[0]?.formula ?? null; });
+    elNpc.querySelector(".op2-atributo__nome")?.click();
+    await esperar(700);
+    ok("atributo do NPC rola sozinho, sem par", formula === "1d8");
+
+    formula = null;
+    Hooks.once("createChatMessage", (msg) => { formula = msg.rolls?.[0]?.formula ?? null; });
+    elNpc.querySelector(".op2-pericia-npc__nome")?.click();
+    await esperar(700);
+    ok("perícia do NPC rola", formula === "1d8");
+
+    await npc.delete();
+  }
 
   await ator.delete();
   return { passos, dados };

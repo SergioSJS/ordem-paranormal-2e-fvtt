@@ -74,7 +74,8 @@
       "Perfil": "Profile",
       "Ocupacao": "Occupation",
       "Nivel": "Level",
-      "Nex": "NEX"
+      "Nex": "NEX",
+      "NexAjuda": "NEX is the paranormal progression track. No published mechanic yet in the playtest; the field is here for when it ships."
     },
     "Recurso": {
       "pv": "HP",
@@ -148,7 +149,8 @@
       "Categoria": "Category",
       "AdicionarPericia": "New skill",
       "RemoverPericia": "Remove skill",
-      "PericiasAjuda": "NPCs don't use the full list: declare only the skills this NPC actually uses."
+      "PericiasAjuda": "NPCs don't use the full list: declare only the skills this NPC actually uses.",
+      "SemPericias": "No skills declared. Add only the ones this NPC actually uses."
     },
     "POI": {
       "Aba": {
@@ -165,9 +167,9 @@
       "DescricaoContextualAjuda": "The full explanation. It resolves the players' freeform interactions.",
       "Ferramentas": "Tool section",
       "FerramentasAjuda": "Empty = normal reading, no reaction. A normal reading is also information — only reveal it after they investigate.",
-      "FerramentasVazio": "No reactions registered — all readings are normal.",
-      "AdicionarFerramenta": "Add tool reaction…",
-      "RemoverFerramenta": "Remove reaction",
+      "FerramentasVazio": "No tools configured on this POI.",
+      "AdicionarFerramenta": "Add tool…",
+      "RemoverFerramenta": "Remove tool",
       "FerramentaSemReacao": "No reaction",
       "ReveladoPorLaser": "Reacts to the Sweep Laser",
       "SomenteMestre": "The information board and the contextual description are GM-only.",
@@ -181,10 +183,7 @@
         "poRevelador": "Revealing Dust",
         "radio": "Modified Radio",
         "termometro": "Differential Thermometer"
-      },
-      "RemoverFerramenta": "Remove tool",
-      "FerramentasVazio": "No tools configured on this POI.",
-      "AdicionarFerramenta": "Add tool…"
+      }
     },
     "Investigacao": {
       "Investigar": "Investigate",

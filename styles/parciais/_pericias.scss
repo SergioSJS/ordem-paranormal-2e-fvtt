@@ -43,6 +43,11 @@
   padding-right: 2px;
 }
 
+// Colunas de largura fixa, nunca "auto": cada `.op2-pericia` é um grid próprio, e com
+// "auto" a largura de cada coluna variava por linha conforme o texto ("FÍSICO" x
+// "EMOÇÃO"), desalinhando os ícones entre as linhas de cima a baixo (achado em uso
+// real). Largura fixa garante a mesma posição em toda linha — desta lista, da lista
+// de Aptidão e da ficha de NPC, que reaproveita este mesmo parcial.
 .op2-pericia {
   display: grid;
   align-items: center;
@@ -50,7 +55,7 @@
   padding: 0.1rem 0.25rem;
   border-radius: var(--op2-raio);
   column-gap: 0.3rem;
-  grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+  grid-template-columns: minmax(0, 1fr) 1.6rem 0.7rem 1.6rem 3.4rem 1.4rem;
 
   &:hover,
   &:focus-within { background: var(--op2-superficie-alta); }
@@ -78,22 +83,24 @@
   }
 
   &__mais {
+    justify-self: center;
     color: var(--op2-texto-fraco);
     font-family: var(--op2-fonte-display);
     font-size: 0.85rem;
   }
 
-  &__atributo {
+  &__atributo-icone {
     display: flex;
-    align-items: center;
-    gap: 0.25rem;
+    justify-content: center;
   }
 
   &__atributo-nome {
+    overflow: hidden;
     color: var(--op2-vermelho-claro);
     font-family: var(--op2-fonte-mono);
     font-size: 0.68rem;
     letter-spacing: 0.02em;
+    text-overflow: ellipsis;
     text-transform: uppercase;
     white-space: nowrap;
   }
@@ -151,8 +158,12 @@
     letter-spacing: 0.04em;
   }
 
+  // Sem padding lateral: a lista principal também não tem, e as colunas de largura
+  // fixa da linha de perícia só alinham entre as duas se a largura disponível for
+  // idêntica nos dois contêineres (achado em uso real — 8px de diferença bastavam
+  // para os ícones saírem do lugar entre a lista plana e este bloco).
   &__campos {
-    padding: 0.15rem 0.5rem 0.4rem;
+    padding: 0.15rem 0 0.4rem;
     border-top: 1px solid var(--op2-linha);
   }
 

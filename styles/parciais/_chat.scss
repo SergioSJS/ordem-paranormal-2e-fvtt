@@ -1,4 +1,54 @@
 @layer system {
+
+// O core pinta TODA mensagem de chat com uma textura de pergaminho fixa
+// (`--chat-message-background: url(parchment.jpg)`) e texto escuro pensado para
+// aquele fundo claro — nosso card escuro ficava embutido dentro de um envelope
+// claro e "padrão" (achado em uso real). `.op2` chega no `<li>` via
+// `teatralizarEnvelope()` em `module/ui/chat.mjs`, só quando a mensagem carrega
+// um `.op2-card` — mensagens de outros sistemas ou do próprio core não mudam.
+//
+// O log de chat do próprio Foundry carrega `.theme-light` de forma fixa
+// (`<ol class="chat-log ... theme-light">`), não importa o tema geral da UI — é
+// assim mesmo com a interface em modo escuro. Sem redeclarar os tokens aqui, nosso
+// card herdaria o claro só por estar dentro do log, ficando diferente da ficha.
+// Redeclarar na frente do valor herdado é o que faz o chat seguir sempre o visual
+// escuro da ficha, do jeito que a mesa pediu.
+// Os valores aparecem duas vezes de propósito. `.op2-card`, lá dentro, TAMBÉM
+// carrega a classe `.op2` — e por isso ele TAMBÉM casa direto com a regra ambiente
+// `.theme-light .op2` de `_tokens.scss`. Um match direto sempre vence herança do
+// pai, não importa a ordem: herdar do `.chat-message.op2` (declarado abaixo) não
+// seria suficiente para o card em si, só para quem não tem `.op2` próprio. Redeclarar
+// aqui, com um seletor mais específico (`.op2` a mais no encadeamento), é o que
+// garante que o card também fique escuro.
+@mixin op2-tokens-escuros {
+  --op2-fundo: var(--op2-preto);
+  --op2-superficie: var(--op2-painel);
+  --op2-superficie-alta: var(--op2-painel-alto);
+  --op2-texto: var(--op2-tinta);
+  --op2-texto-fraco: var(--op2-tinta-fraca);
+  --op2-linha: #{rgba(#f2ede6, 0.12)};
+  --op2-linha-forte: #{rgba(#f2ede6, 0.22)};
+}
+
+.chat-message.op2 {
+  @include op2-tokens-escuros;
+
+  background: var(--op2-superficie);
+  border-color: var(--op2-linha-forte);
+  color: var(--op2-texto);
+
+  .message-header,
+  .message-sender,
+  .message-metadata,
+  .flavor-text {
+    color: var(--op2-texto-fraco);
+  }
+
+  .op2-card {
+    @include op2-tokens-escuros;
+  }
+}
+
 .op2-card {
   padding: var(--op2-e2);
   border: 1px solid var(--op2-linha);
