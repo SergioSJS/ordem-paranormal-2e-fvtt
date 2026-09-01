@@ -225,7 +225,14 @@ const relato = await page.evaluate(async () => {
   ok("tracker de rodadas também lista o participante", Boolean(painelEl?.querySelector(".op2-painel-ordem")?.textContent.includes("Alan")));
   dados.controles = Object.keys(ui.controls?.controls ?? {});
   ok("controle de cena do painel registrado", Boolean(ui.controls?.controls?.["op2-investigacao"]));
-  ok("seletor de investigação lista a criada", Boolean(painelEl?.querySelector('select[data-action="selecionarInvestigacao"] option[value]:not([value=""])')));
+  ok("seletor de investigação lista a criada", Boolean(painelEl?.querySelector('[data-seletor-investigacao] option[value]:not([value=""])')));
+  // O select usava data-action, que liga no framework de ações e reage ao clique
+  // de abrir o dropdown — o próprio ato de abrir já disparava um re-render que
+  // fechava o menu nativo no meio, "piscando" as opções sem deixar escolher
+  // (achado em uso real). Trocado por listener manual de change, como os outros
+  // <select> do sistema.
+  ok("select de investigação não usa data-action (evita o re-render no clique de abrir)",
+    !painelEl?.querySelector('[data-seletor-investigacao]')?.dataset.action);
   ok("botão de nova investigação existe", Boolean(painelEl?.querySelector('[data-action="criarInvestigacao"]')));
 
   await investigacao.sheet.render(true);

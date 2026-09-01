@@ -68,7 +68,6 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       alternarSobrecarga: PainelInvestigacao.#alternarSobrecarga,
       adicionarLinhaSobrecarga: PainelInvestigacao.#adicionarLinhaSobrecarga,
       removerLinhaSobrecarga: PainelInvestigacao.#removerLinhaSobrecarga,
-      selecionarInvestigacao: PainelInvestigacao.#selecionarInvestigacao,
       criarInvestigacao: PainelInvestigacao.#criarInvestigacao,
       abrirInvestigacao: PainelInvestigacao.#abrirInvestigacao,
       removerParticipante: PainelInvestigacao.#removerParticipante,
@@ -206,6 +205,19 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
 
   _onRender(contexto, opcoes) {
     super._onRender(contexto, opcoes);
+
+    // `data-action` liga no framework de ações do ApplicationV2, que reage ao
+    // próprio clique de abrir o <select> — o dropdown nativo se fecha sozinho no
+    // meio, "piscando" as opções sem deixar escolher (achado em uso real). Todo
+    // outro <select> do sistema evita isso com listener manual de `change`; este
+    // segue o mesmo caminho.
+    const seletor = this.element.querySelector("[data-seletor-investigacao]");
+    seletor?.addEventListener("change", async () => {
+      if (!game.user.isGM) return;
+      await definirInvestigacaoAtiva(seletor.value);
+      this.render();
+    });
+
     if (!game.user.isGM) return;
     // O editor da tabela de sobrecarga grava na investigação a cada campo editado.
     for (const campo of this.element.querySelectorAll("[data-sobrecarga-campo]")) {
@@ -415,12 +427,6 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     const sobrecarga = sobrecargaDaCena();
     const tabela = sobrecarga.tabela.filter((_linha, indice) => indice !== Number(alvo.dataset.indice));
     await definirSobrecarga({ ...sobrecarga, tabela });
-  }
-
-  static async #selecionarInvestigacao(_evento, alvo) {
-    if (!game.user.isGM) return;
-    await definirInvestigacaoAtiva(alvo.value);
-    this.render();
   }
 
   static async #criarInvestigacao() {

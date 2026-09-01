@@ -3,7 +3,7 @@
     {{#if ehGM}}
       <label class="op2-campo op2-campo--inline">
         <span>{{localize "OP2.Investigacao.Ativa"}}</span>
-        <select data-action="selecionarInvestigacao">
+        <select data-seletor-investigacao>
           <option value=""></option>
           {{#each investigacoes}}
             <option value="{{uuid}}" {{#if (op2Eq uuid @root.investigacaoAtivaUuid)}}selected{{/if}}>{{nome}}</option>
