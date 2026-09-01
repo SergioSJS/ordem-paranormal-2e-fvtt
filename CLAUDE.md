@@ -89,7 +89,7 @@ O servidor do Foundry v14 exige **Node 24**. O `npm test` do projeto roda em Nod
 - `escada.test.mjs` — piso, teto, d20, passos compostos.
 - `analise.test.mjs` — RA/RB, crítico, falha crítica, precedência sobre a DT.
 - `investigacao.test.mjs` — as duas leituras da coluna DT, custo de PD, sobrecarga.
-- `desafios.test.mjs` — Arrombar (pontuação/teto de tentativas), dano de Alcançar.
+- `desafios.test.mjs` — Arrombar, dano de Alcançar, Destrancar (avaliação de palpite).
 - `ferramentas.test.mjs` — escada do Laboratório Portátil, tabela do Rádio Modificado.
 - `i18n.test.mjs` — paridade pt-BR/en e chave inexistente usada no código.
 - `carga.test.mjs` — todo módulo importa, todo template compila, manifesto consistente.

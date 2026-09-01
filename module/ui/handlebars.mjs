@@ -14,6 +14,8 @@ const TEMPLATES = [
   `${RAIZ}/item/habilidade.hbs`,
   `${RAIZ}/item/equipamento.hbs`,
   `${RAIZ}/item/ponto-interesse.hbs`,
+  `${RAIZ}/item/desafio-acesso.hbs`,
+  `${RAIZ}/item/ferramenta.hbs`,
   `${RAIZ}/partials/controle-dado.hbs`,
   `${RAIZ}/partials/linha-pericia.hbs`,
   `${RAIZ}/partials/trilha-recurso.hbs`,
@@ -27,7 +29,12 @@ const TEMPLATES = [
   `${RAIZ}/chat/acao-cena.hbs`,
   `${RAIZ}/chat/interagir.hbs`,
   `${RAIZ}/chat/rodada.hbs`,
+  `${RAIZ}/chat/arrombar.hbs`,
+  `${RAIZ}/chat/alcancar.hbs`,
+  `${RAIZ}/chat/ferramenta.hbs`,
+  `${RAIZ}/chat/destrancar.hbs`,
   `${RAIZ}/cena/painel-investigacao.hbs`,
+  `${RAIZ}/cena/destrancar.hbs`,
 ];
 
 export function precarregarTemplates() {

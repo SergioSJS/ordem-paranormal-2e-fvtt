@@ -36,3 +36,22 @@ export function excedeuTentativas(desafio) {
 export function danoDeAlcancar(modo, resultado) {
   return modo === "arriscado" ? resultado.ra : resultado.rb;
 }
+
+/**
+ * DESTRANCAR (spec §7.1): Mastermind numérico — cada posição do palpite é
+ * comparada contra a mesma posição da senha, não contra o conjunto inteiro.
+ * @param {number[]} senha oculta, gerada pelo mestre
+ * @param {number[]} palpite mesmo tamanho da senha
+ * @returns {("exato"|"alto"|"baixo")[]}
+ */
+export function avaliarPalpite(senha, palpite) {
+  return senha.map((valor, i) => {
+    if (palpite[i] === valor) return "exato";
+    return palpite[i] > valor ? "alto" : "baixo";
+  });
+}
+
+/** @param {("exato"|"alto"|"baixo")[]} resultado */
+export function venceuDestrancar(resultado) {
+  return resultado.length > 0 && resultado.every((r) => r === "exato");
+}

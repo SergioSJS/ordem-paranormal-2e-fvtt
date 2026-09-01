@@ -410,7 +410,18 @@
       "Fadiga": "Fadiga",
       "SustentarFalhouInicio": "{ator} não conseguiu sustentar.",
       "SustentarSucesso": "{ator} está sustentando.",
-      "SustentarSoltou": "{ator} não aguentou mais e soltou o que sustentava."
+      "SustentarSoltou": "{ator} não aguentou mais e soltou o que sustentava.",
+      "Destrancar": "Destrancar",
+      "Destrancou": "Destrancou!",
+      "DestrancarTentativa": "Tentativa registrada — veja o histórico.",
+      "JaDestrancado": "Esta fechadura já foi destrancada.",
+      "SenhaAusente": "O mestre ainda não gerou a senha desta fechadura.",
+      "GerarSenha": "Gerar senha",
+      "TamanhoSenha": "Tamanho da senha (dados)",
+      "FacesSenha": "Faces por posição",
+      "SenhaMestre": "Senha",
+      "Tentativas": "Tentativas",
+      "Tentar": "Tentar"
     },
     "Ferramenta": {
       "Rotulo": "Ferramenta",

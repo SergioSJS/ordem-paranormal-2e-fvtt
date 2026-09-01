@@ -190,12 +190,17 @@
             <p class="op2-ajuda">
               {{localize "OP2.Desafio.Progresso"}}: {{pontuacaoAtual}} / {{pontuacaoAlvo}}
               {{#if quebrado}} — {{localize "OP2.Desafio.Quebrado"}}{{/if}}
+              {{#if destrancado}} — {{localize "OP2.Desafio.Destrancou"}}{{/if}}
             </p>
 
             {{#if @root.temPersonagem}}
               <button type="button" class="op2-botao op2-botao--pequeno" data-action="arrombar"
-                data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}}>
+                data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}>
                 {{localize "OP2.Desafio.Arrombar"}}
+              </button>
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="destrancar"
+                data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}>
+                {{localize "OP2.Desafio.Destrancar"}}
               </button>
             {{/if}}
           </li>

@@ -8,7 +8,9 @@
  * é aplicado por `avancarRodada()` (module/cena/rodada.mjs).
  */
 import { SYSTEM_ID, CUSTO_PV_ARROMBAR, CUSTO_PV_SUSTENTAR, BONUS_DT_ALCANCAR_ARRISCADO } from "../config.mjs";
-import { acumularArrombar, arrombou, excedeuTentativas, danoDeAlcancar } from "./desafios.mjs";
+import {
+  acumularArrombar, arrombou, excedeuTentativas, danoDeAlcancar, avaliarPalpite, venceuDestrancar,
+} from "./desafios.mjs";
 import { rolarTeste, renderizar, enviarParaChat, rotuloDePericia } from "../dice/teste.mjs";
 import { aplicarDano } from "../dice/falha-critica.mjs";
 import { stepDie } from "../dice/escada.mjs";
@@ -18,7 +20,7 @@ import { lerConfig } from "../settings/register.mjs";
 const CHAT = "systems/ordem-paranormal-2e/templates/chat";
 
 /** @returns {Promise<Item|null>} */
-async function carregarDesafio(desafioUuid) {
+export async function carregarDesafio(desafioUuid) {
   const desafio = await fromUuid(desafioUuid);
   if (desafio?.type !== "desafio-acesso") {
     ui.notifications.warn(game.i18n.localize("OP2.Aviso.DesafioAusente"));
@@ -240,4 +242,79 @@ export async function testarFadigaDeSustentar(ator) {
 
   await ator.update({ "system.estado.sustentando.fadiga": fadiga });
   return { roll, continua: true };
+}
+
+/**
+ * DESTRANCAR — gerar senha (spec §7.1): o mestre rola a senha e mantém oculta.
+ * Zera tentativas e histórico anteriores — é uma fechadura nova.
+ * @returns {Promise<number[]>} a senha, só para quem gerou (o mestre) ver na hora
+ */
+export async function gerarSenhaDestrancar(desafioUuid, { tamanho, facesSenha } = {}) {
+  const desafio = await carregarDesafio(desafioUuid);
+  if (!desafio) return null;
+
+  const tam = tamanho ?? desafio.system.tamanhoSenha;
+  const faces = facesSenha ?? desafio.system.facesSenha;
+  const roll = await new Roll(`${tam}d${faces}`).evaluate();
+  const senha = roll.dice[0].results.map((r) => r.result);
+
+  await desafio.update({
+    "system.tamanhoSenha": tam,
+    "system.facesSenha": faces,
+    "system.senha": senha,
+    "system.destrancarTentativas": 0,
+    "system.destrancado": false,
+    "system.quebrado": false,
+    "system.historicoDestrancar": [],
+  });
+
+  return senha;
+}
+
+/**
+ * DESTRANCAR — tentar (spec §7.1): um palpite por chamada. Resposta posição a
+ * posição (exato/alto/baixo), nunca a contagem agregada — o jogador deduz sozinho.
+ * Exceder o teto de tentativas quebra a fechadura (mesmo campo `quebrado` de
+ * Arrombar: as duas abordagens levam ao mesmo "só resta achar a chave").
+ * @returns {Promise<{resultado: string[], venceu: boolean, quebrado: boolean}|null>}
+ */
+export async function tentarDestrancar(ator, desafioUuid, palpite) {
+  const desafio = await carregarDesafio(desafioUuid);
+  if (!desafio) return null;
+  if (desafio.system.quebrado) {
+    ui.notifications.warn(game.i18n.localize("OP2.Desafio.JaQuebrado"));
+    return null;
+  }
+  if (desafio.system.destrancado) {
+    ui.notifications.warn(game.i18n.localize("OP2.Desafio.JaDestrancado"));
+    return null;
+  }
+  if (!desafio.system.senha.length) {
+    ui.notifications.warn(game.i18n.localize("OP2.Desafio.SenhaAusente"));
+    return null;
+  }
+
+  const resultado = avaliarPalpite(desafio.system.senha, palpite);
+  const venceu = venceuDestrancar(resultado);
+  const destrancarTentativas = desafio.system.destrancarTentativas + 1;
+  const quebrado = !venceu && excedeuTentativas({
+    maxTentativas: desafio.system.maxTentativas, tentativasUsadas: destrancarTentativas,
+  });
+  const historicoDestrancar = [...desafio.system.historicoDestrancar, { palpite, resultado }];
+
+  await desafio.update({
+    "system.destrancarTentativas": destrancarTentativas,
+    "system.destrancado": venceu,
+    "system.quebrado": quebrado,
+    "system.historicoDestrancar": historicoDestrancar,
+  });
+
+  await enviarCard(ator, "destrancar", {
+    titulo: game.i18n.localize("OP2.Desafio.Destrancar"),
+    desafioNome: desafio.name,
+    venceu,
+    quebrado,
+  }, { whisper: sussurroPara(ator) });
+
+  return { resultado, venceu, quebrado };
 }

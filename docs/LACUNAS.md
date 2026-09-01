@@ -154,6 +154,25 @@ funciona como qualquer outra ferramenta (lê o texto daquele campo, se o mestre
 preencheu); `usarLaser(ator)` é a ação de cena da spec. Não são contraditórios —
 o segundo não substitui o primeiro, só soma.
 
+### Tamanho do dado da senha de Destrancar não publicado (spec §7.1)
+
+O texto fala em "N dados" sem dizer quantas faces. Mastermind clássico usa uma
+faixa pequena e fixa de valores.
+
+**Default:** d6 por posição (`facesSenha`, configurável por desafio no Item — o
+mestre pode subir para d8/d10/d12 numa fechadura mais complexa).
+
+### Teto de tentativas por rodada de Destrancar não implementado (spec §7.1)
+
+A spec liga tentativas-por-rodada ao valor de Crime (d4=1 … d12=5). Isso exige
+saber, por ator, quantas tentativas já gastou *nesta rodada específica* — um
+contador a mais, cruzando ator × desafio × rodada, que o tracker de rodadas atual
+não modela em lugar nenhum.
+
+**Decisão M3:** só o teto global (`maxTentativas`/`quebrado`, o mesmo de Arrombar)
+é aplicado. O teto por rodada fica de fora até haver necessidade real de jogo —
+registrar aqui se algum playtest sentir falta.
+
 ## Como adicionar uma lacuna nova
 
 1. Documente aqui: o que a fonte diz, onde é ambígua, e o default escolhido com o motivo.

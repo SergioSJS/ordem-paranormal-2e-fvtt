@@ -1,0 +1,71 @@
+<div class="op2-destrancar-corpo">
+  {{#unless existe}}
+    <p class="op2-ajuda">{{localize "OP2.Aviso.DesafioAusente"}}</p>
+  {{/unless}}
+
+  {{#if existe}}
+    <header class="op2-destrancar__topo">
+      <strong>{{nome}}</strong>
+      <span class="op2-ajuda">
+        {{localize "OP2.Desafio.Tentativas"}}: {{tentativas}} / {{#if maxTentativas}}{{maxTentativas}}{{else}}∞{{/if}}
+      </span>
+    </header>
+
+    {{#if ehGM}}
+      <div class="op2-destrancar__mestre">
+        {{#if senha.length}}
+          <p class="op2-ajuda">{{localize "OP2.Desafio.SenhaMestre"}}: <strong>{{#each senha}}{{this}} {{/each}}</strong></p>
+        {{/if}}
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="gerarSenha">
+          {{localize "OP2.Desafio.GerarSenha"}}
+        </button>
+      </div>
+    {{/if}}
+
+    {{#if historico.length}}
+      <table class="op2-destrancar__historico">
+        <tbody>
+          {{#each historico}}
+            <tr>
+              <td>{{#each palpite}}{{this}} {{/each}}</td>
+              <td>
+                {{#each resultado}}
+                  <i class="fa-solid {{icone}}" data-tooltip="{{valor}}" aria-hidden="true"></i>
+                {{/each}}
+              </td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    {{/if}}
+
+    {{#if destrancado}}
+      <p class="op2-card__desfecho op2-card__desfecho--sucesso">
+        <i class="fa-solid fa-lock-open" aria-hidden="true"></i> {{localize "OP2.Desafio.Destrancou"}}
+      </p>
+    {{else if quebrado}}
+      <p class="op2-card__desfecho op2-card__desfecho--falha">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{localize "OP2.Desafio.Quebrou"}}
+      </p>
+    {{else if temSenha}}
+      <div class="op2-destrancar__palpite">
+        {{#each palpite}}
+          <div class="op2-destrancar__posicao">
+            <button type="button" class="op2-botao-icone" data-action="decrementar" data-indice="{{@index}}">
+              <i class="fa-solid fa-minus" aria-hidden="true"></i>
+            </button>
+            <span class="op2-destrancar__valor">{{this}}</span>
+            <button type="button" class="op2-botao-icone" data-action="incrementar" data-indice="{{@index}}"
+              data-faces="{{../facesSenha}}">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            </button>
+          </div>
+        {{/each}}
+      </div>
+
+      <button type="button" class="op2-botao" data-action="tentar">{{localize "OP2.Desafio.Tentar"}}</button>
+    {{else}}
+      <p class="op2-ajuda">{{localize "OP2.Desafio.SenhaAusente"}}</p>
+    {{/if}}
+  {{/if}}
+</div>

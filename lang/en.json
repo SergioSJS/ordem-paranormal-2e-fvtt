@@ -410,7 +410,18 @@
       "Fadiga": "Fatigue",
       "SustentarFalhouInicio": "{ator} couldn't hold on.",
       "SustentarSucesso": "{ator} is holding on.",
-      "SustentarSoltou": "{ator} couldn't take it anymore and let go."
+      "SustentarSoltou": "{ator} couldn't take it anymore and let go.",
+      "Destrancar": "Pick Lock",
+      "Destrancou": "Unlocked!",
+      "DestrancarTentativa": "Attempt logged — check the history.",
+      "JaDestrancado": "This lock has already been picked.",
+      "SenhaAusente": "The GM hasn't generated this lock's code yet.",
+      "GerarSenha": "Generate code",
+      "TamanhoSenha": "Code length (dice)",
+      "FacesSenha": "Faces per position",
+      "SenhaMestre": "Code",
+      "Tentativas": "Attempts",
+      "Tentar": "Try"
     },
     "Ferramenta": {
       "Rotulo": "Tool",

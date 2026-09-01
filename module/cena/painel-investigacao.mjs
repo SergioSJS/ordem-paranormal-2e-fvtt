@@ -20,6 +20,7 @@ import {
   dialogoInvestigar, investigar, examinar, interagir, recapitular, compartilhar, idsRevelados,
 } from "./acoes-investigacao.mjs";
 import { arrombar, alcancar, sustentar, pararDeSustentar } from "./acoes-desafio.mjs";
+import { abrirDestrancar } from "./destrancar-app.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -43,6 +44,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       abrirPoi: PainelInvestigacao.#abrirPoi,
       removerPoi: PainelInvestigacao.#removerPoi,
       arrombar: PainelInvestigacao.#arrombar,
+      destrancar: PainelInvestigacao.#destrancar,
       abrirDesafio: PainelInvestigacao.#abrirDesafio,
       removerDesafio: PainelInvestigacao.#removerDesafio,
       alcancar: PainelInvestigacao.#alcancar,
@@ -161,6 +163,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
         pontuacaoAtual: desafio.system.pontuacaoAtual,
         pontuacaoAlvo: desafio.system.pontuacaoAlvo,
         quebrado: desafio.system.quebrado,
+        destrancado: desafio.system.destrancado,
       });
     }
     return desafios;
@@ -313,6 +316,11 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
   static async #arrombar(_evento, alvo) {
     const ator = this.#atorOuAviso();
     if (ator) await arrombar(ator, alvo.dataset.desafioUuid);
+  }
+
+  static async #destrancar(_evento, alvo) {
+    if (!this.#atorOuAviso()) return;
+    abrirDestrancar(alvo.dataset.desafioUuid);
   }
 
   static async #abrirDesafio(_evento, alvo) {

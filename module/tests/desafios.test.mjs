@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { acumularArrombar, arrombou, excedeuTentativas, danoDeAlcancar } from "../cena/desafios.mjs";
+import {
+  acumularArrombar, arrombou, excedeuTentativas, danoDeAlcancar, avaliarPalpite, venceuDestrancar,
+} from "../cena/desafios.mjs";
 
 test("arrombar acumula RA na pontuação, sem passar da PA (spec §7.2)", () => {
   const desafio = { pontuacaoAtual: 5, pontuacaoAlvo: 10 };
@@ -24,4 +26,14 @@ test("alcançar seguro falha com dano = RB, arriscado falha com dano = RA (spec 
   const resultado = { ra: 6, rb: 2 };
   assert.equal(danoDeAlcancar("seguro", resultado), 2);
   assert.equal(danoDeAlcancar("arriscado", resultado), 6);
+});
+
+test("avaliarPalpite compara posição a posição, não o conjunto (spec §7.1)", () => {
+  assert.deepEqual(avaliarPalpite([3, 5, 1, 6], [3, 2, 4, 6]), ["exato", "baixo", "alto", "exato"]);
+});
+
+test("venceuDestrancar exige exato em toda posição", () => {
+  assert.equal(venceuDestrancar(["exato", "exato", "exato"]), true);
+  assert.equal(venceuDestrancar(["exato", "alto", "exato"]), false);
+  assert.equal(venceuDestrancar([]), false);
 });

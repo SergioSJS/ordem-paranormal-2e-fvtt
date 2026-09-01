@@ -404,6 +404,68 @@ const relato = await page.evaluate(async () => {
     ok("card do POI mostra o selo do laser", Boolean(painel.element?.querySelector(".op2-poi-card .fa-satellite-dish")));
   }
 
+  /* -------------------------------------------------- destrancar (Mastermind) -- */
+  // Fase 3 M3 (spec §7.1). A senha é lida direto do Item para montar palpites
+  // certos/errados sob controle — o teste não pode depender de adivinhar sorte.
+  {
+    const fechadura = await Item.create({
+      name: "Fechadura Numérica", type: "desafio-acesso", system: { maxTentativas: 0 },
+    });
+
+    ok("sem senha, tentar recusa (mestre precisa gerar antes)",
+      await game.op2.tentarDestrancar(ator, fechadura.uuid, [1, 1, 1]) === null);
+
+    const senha = await game.op2.gerarSenhaDestrancar(fechadura.uuid, { tamanho: 3, facesSenha: 6 });
+    ok("gerar senha grava 3 posições de 1 a 6", senha.length === 3 && senha.every((v) => v >= 1 && v <= 6));
+    ok("a senha gerada é a mesma gravada no Item", fechadura.system.senha.join(",") === senha.join(","));
+
+    // Palpite garantidamente errado em toda posição: desvia +1 (ou -1 no teto).
+    const palpiteErrado = senha.map((v) => (v >= 6 ? v - 1 : v + 1));
+    const tentativaErrada = await game.op2.tentarDestrancar(ator, fechadura.uuid, palpiteErrado);
+    await esperar(300);
+    ok("palpite errado não vence", tentativaErrada?.venceu === false);
+    ok("nenhuma posição sai exata quando todas desviam", !tentativaErrada.resultado.includes("exato"));
+    ok("tentativa incrementa o contador do Destrancar", fechadura.system.destrancarTentativas === 1);
+
+    const tentativaCerta = await game.op2.tentarDestrancar(ator, fechadura.uuid, senha);
+    await esperar(300);
+    ok("palpite igual à senha vence", tentativaCerta?.venceu === true);
+    ok("Item marcado como destrancado", fechadura.system.destrancado === true);
+    ok("tentar de novo depois de destrancado é recusado",
+      await game.op2.tentarDestrancar(ator, fechadura.uuid, senha) === null);
+
+    // Quebra por exceder tentativas: mesmo campo `quebrado` de Arrombar.
+    const cofreDigital = await Item.create({
+      name: "Cofre Digital", type: "desafio-acesso", system: { maxTentativas: 1 },
+    });
+    const senhaCofre = await game.op2.gerarSenhaDestrancar(cofreDigital.uuid, { tamanho: 2, facesSenha: 6 });
+    const erradoCofre = senhaCofre.map((v) => (v >= 6 ? v - 1 : v + 1));
+    await game.op2.tentarDestrancar(ator, cofreDigital.uuid, erradoCofre);
+    await esperar(300);
+    ok("excedeu a única tentativa de Destrancar: quebra", cofreDigital.system.quebrado === true);
+
+    // App do Mastermind: histórico visível, senha só para o mestre, palpite editável.
+    const appDestrancar = game.op2.abrirDestrancar(fechadura.uuid);
+    await esperar(800);
+    const appEl = appDestrancar.element;
+    ok("app do Destrancar renderizou", Boolean(appEl));
+    ok("histórico mostra as 2 tentativas", appEl?.querySelectorAll(".op2-destrancar__historico tr").length === 2);
+    ok("mestre vê a senha na tela do app", Boolean(appEl?.textContent.includes(senha.join(" "))));
+    ok("já destrancado não mostra mais o botão Tentar", !appEl?.querySelector('[data-action="tentar"]'));
+    await appDestrancar.close();
+
+    await fechadura.delete();
+    await cofreDigital.delete();
+
+    // Painel: botão Destrancar aparece junto do Arrombar em cada desafio da cena.
+    const desafioVitrine = await Item.create({ name: "Porta do Fundo", type: "desafio-acesso" });
+    await canvas.scene.setFlag("ordem-paranormal-2e", "desafios", [desafioVitrine.uuid]);
+    await painel.render();
+    await esperar(800);
+    ok("painel oferece o botão Destrancar por desafio", Boolean(painel.element?.querySelector('[data-action="destrancar"]')));
+    await desafioVitrine.delete();
+  }
+
   /* ------------------------------------------------------------ ficha do POI -- */
 
   await poi.sheet.render(true);

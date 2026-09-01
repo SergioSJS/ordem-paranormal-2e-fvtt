@@ -79,11 +79,14 @@ de pagamento no chat.
   Modificado (tabela de conjuntos falsos) — prontas para o app de M3
 - [ ] Validação em Foundry v13 (mesmo bloqueio das fases anteriores)
 
-### M3 — ainda não iniciado
+### M3 — minigames dedicados (em andamento)
 
-- Destrancar: minigame Mastermind, senha em flag do mestre
-- App do Laboratório Portátil (rolagem sequencial revelada uma a uma)
-- App do Rádio Modificado (ordenação de palavras)
+- [x] Destrancar: app de Mastermind numérico, senha oculta no Item, resposta
+  posição a posição (exato/alto/baixo), teto de tentativas reaproveita `quebrado`
+- [ ] App do Laboratório Portátil (rolagem sequencial revelada uma a uma) — regra
+  pura já pronta em `module/cena/ferramentas.mjs`
+- [ ] App do Rádio Modificado (ordenação de palavras) — regra pura já pronta
+- [ ] Validação em Foundry v13 (mesmo bloqueio das fases anteriores)
 
 ## Fase 4 — Combate simplificado → `0.4.0`
 

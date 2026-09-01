@@ -231,4 +231,64 @@
   input[type="text"] { width: 100%; }
 }
 
+// Destrancar (spec §7.1): Mastermind numérico. O palpite é uma fileira de
+// contadores, um por posição da senha — sem grade de cores, porque a resposta
+// já é posicional (exato/alto/baixo), não teria o que colorir por valor.
+.op2-destrancar-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--op2-e2);
+  padding: var(--op2-e3);
+}
+
+.op2-destrancar {
+  &__topo {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--op2-e2);
+    font-family: var(--op2-fonte-display);
+  }
+
+  &__mestre {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--op2-e1);
+    padding: var(--op2-e2);
+    border: 1px dashed var(--op2-linha);
+    border-radius: var(--op2-raio);
+  }
+
+  &__historico {
+    width: 100%;
+    border-collapse: collapse;
+
+    td { padding: var(--op2-e1) var(--op2-e2) var(--op2-e1) 0; font-family: var(--op2-fonte-mono); }
+
+    .fa-check { color: var(--op2-sucesso); }
+    .fa-arrow-up, .fa-arrow-down { color: var(--op2-texto-fraco); margin-right: 0.2rem; }
+  }
+
+  &__palpite {
+    display: flex;
+    gap: var(--op2-e2);
+    justify-content: center;
+  }
+
+  &__posicao {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  &__valor {
+    min-width: 1.6rem;
+    font-family: var(--op2-fonte-mono);
+    font-size: 1.2rem;
+    text-align: center;
+  }
+}
+
 }

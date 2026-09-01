@@ -28,8 +28,11 @@ import { avancarRodada } from "./cena/rodada.mjs";
 import {
   investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar,
 } from "./cena/acoes-investigacao.mjs";
-import { arrombar, alcancar, sustentar, pararDeSustentar } from "./cena/acoes-desafio.mjs";
+import {
+  arrombar, alcancar, sustentar, pararDeSustentar, gerarSenhaDestrancar, tentarDestrancar,
+} from "./cena/acoes-desafio.mjs";
 import { usarFerramenta, usarLaser } from "./cena/acoes-ferramenta.mjs";
+import { abrirDestrancar } from "./cena/destrancar-app.mjs";
 
 Hooks.once("init", () => {
   console.log(`${SYSTEM_ID} | inicializando`);
@@ -62,6 +65,7 @@ Hooks.once("init", () => {
     investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar,
     painelInvestigacao: abrirPainelInvestigacao, avancarRodada,
     arrombar, alcancar, sustentar, pararDeSustentar,
+    gerarSenhaDestrancar, tentarDestrancar, abrirDestrancar,
     usarFerramenta, usarLaser,
   };
 });
