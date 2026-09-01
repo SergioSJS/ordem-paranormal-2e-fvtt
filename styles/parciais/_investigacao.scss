@@ -72,7 +72,16 @@
   prose-mirror { min-height: 5rem; }
 }
 
-// Painel de investigação da cena.
+// Painel de investigação da cena. `position: { height: "auto" }` cresce sem teto —
+// o core só clampa/rola sozinho quando a altura pedida é um número. Com uma cena
+// cheia (vários POIs, desafios, sobrecarga com várias linhas), a janela crescia
+// além da tela e o conteúdo de baixo ficava cortado, sem barra de rolagem — e por
+// consequência inalcançável para arrastar um item ali (achado em uso real).
+.op2-painel-investigacao .window-content {
+  max-height: min(85vh, 720px);
+  overflow-y: auto;
+}
+
 .op2-painel-corpo {
   display: flex;
   flex-direction: column;

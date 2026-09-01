@@ -220,6 +220,14 @@ const relato = await page.evaluate(async () => {
   dados.controles = Object.keys(ui.controls?.controls ?? {});
   ok("controle de cena do painel registrado", Boolean(ui.controls?.controls?.["op2-investigacao"]));
 
+  // `position: { height: "auto" }` cresce sem teto — numa cena cheia a janela
+  // passava da tela e o conteúdo de baixo ficava cortado, sem como rolar até ele
+  // nem arrastar um item ali (achado em uso real).
+  {
+    const wc = painelEl.querySelector(".window-content");
+    ok("painel tem rolagem interna, não cresce sem teto", getComputedStyle(wc).overflowY === "auto");
+  }
+
   await canvas.scene.setFlag("ordem-paranormal-2e", "sobrecarga", { ativa: true, tabela: [{ rodada: 1, dano: "1" }] });
   await game.op2.avancarRodada();
   await game.op2.avancarRodada(); // encerra a rodada 1 → dano "1"
