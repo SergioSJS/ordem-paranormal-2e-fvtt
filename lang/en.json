@@ -93,7 +93,8 @@
       "Habilidades": "Abilities",
       "Inventario": "Inventory",
       "Notas": "Notes",
-      "Conteudo": "Sheet content"
+      "Conteudo": "Sheet content",
+      "Ferramentas": "Ordo Realitas Tools"
     },
     "Aba": {
       "habilidades": "Abilities",
@@ -451,7 +452,9 @@
       "Rerrolagens": "Rerolls left",
       "Rerrolar": "Reroll selected",
       "Finalizar": "Finish",
-      "QtdDados": "How many dice the POI requires (4 to 6)"
+      "QtdDados": "How many dice the POI requires (4 to 6)",
+      "Adicionar": "New tool",
+      "Vazio": "No Ordo Realitas tools."
     }
   }
 }

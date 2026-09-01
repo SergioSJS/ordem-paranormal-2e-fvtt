@@ -93,7 +93,8 @@
       "Habilidades": "Habilidades",
       "Inventario": "Inventário",
       "Notas": "Notas",
-      "Conteudo": "Conteúdo da ficha"
+      "Conteudo": "Conteúdo da ficha",
+      "Ferramentas": "Ferramentas da Ordo Realitas"
     },
     "Aba": {
       "habilidades": "Habilidades",
@@ -451,7 +452,9 @@
       "Rerrolagens": "Rerrolagens restantes",
       "Rerrolar": "Rerrolar selecionados",
       "Finalizar": "Encerrar",
-      "QtdDados": "Quantos dados o POI exige (4 a 6)"
+      "QtdDados": "Quantos dados o POI exige (4 a 6)",
+      "Adicionar": "Nova ferramenta",
+      "Vazio": "Nenhuma ferramenta da Ordo Realitas."
     }
   }
 }

@@ -81,6 +81,7 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       escada: ESCADA.map((dado) => ({ dado, icone: iconeDado(dado) })),
       habilidades: this.actor.items.filter((i) => i.type === "habilidade"),
       equipamentos: this.actor.items.filter((i) => i.type === "equipamento"),
+      ferramentas: this.actor.items.filter((i) => i.type === "ferramenta"),
       temReducao: Object.values(sistema.estado.reducoesTemporarias).some((n) => n > 0),
       biografia: await enriquecer(sistema.biografia, this.actor),
     };

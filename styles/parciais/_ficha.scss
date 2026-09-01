@@ -117,13 +117,15 @@
   display: flex;
   align-items: center;
   gap: var(--op2-e3);
+  padding-bottom: var(--op2-e3);
+  border-bottom: 1px solid var(--op2-linha);
 
   img {
     width: 3.5rem;
     height: 3.5rem;
     flex: 0 0 auto;
     margin: 0;
-    border: 1px solid var(--op2-linha);
+    border: 1px solid var(--op2-vermelho);
     border-radius: var(--op2-raio);
     object-fit: cover;
     cursor: pointer;
@@ -502,6 +504,14 @@
   grid-template-columns: 2rem 1.5rem minmax(0, 1fr) auto 1.6rem;
 }
 
+// Ferramenta não tem estado de "equipado" — só ícone · nome/meta · cargas
+// (opcional) · apagar. Reaproveitar o grid de 5 colunas do inventário deixaria a
+// coluna 2 (1.5rem, pensada para o botão de equipado) vazia e o nome espremido
+// nela de novo, o mesmo bug já corrigido para Habilidades.
+.op2-lista-itens--ferramentas .op2-item {
+  grid-template-columns: 2rem minmax(0, 1fr) auto 1.6rem;
+}
+
 // A ficha de NPC não usa o grid de abas da ficha de personagem — é uma coluna simples
 // que precisa rolar sozinha, com espaço de verdade entre as seções.
 .op2-ficha--npc .window-content {
@@ -564,9 +574,14 @@
   gap: 1px;
 }
 
-// Fieldset das habilidades: sem isso é a caixa preta crua do navegador — sem
-// padding, sem cor de borda do tema, texto colado na legenda (achado em uso real).
-.op2-efeito {
+// Todo fieldset de ficha de item — Efeito da habilidade, Cargas do equipamento e
+// da ferramenta, Progresso do desafio de acesso. Sem isso é a caixa cinza crua do
+// navegador: borda inset de 2px, sem cor do tema, texto colado na legenda (achado
+// em uso real — só `.op2-efeito` tinha ganhado esse tratamento, os outros dois
+// fieldsets ficaram esquecidos e destoavam do resto da ficha).
+.op2-efeito,
+.op2-cargas,
+.op2-desafio-progresso {
   display: flex;
   flex-direction: column;
   padding: var(--op2-e3);

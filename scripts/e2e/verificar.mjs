@@ -564,6 +564,28 @@ const relato = await page.evaluate(async () => {
     ok("nome da habilidade não fica espremido na coluna de equipado", larguraNome > 100);
   }
 
+  // Ferramenta é item do personagem: precisa aparecer no Inventário, não só no
+  // painel de investigação (achado em uso real — a lista nunca filtrava por tipo).
+  {
+    el.querySelector("button.op2-aba[data-tab='inventario']")?.click();
+    await esperar(300);
+    // Cria com a aba já ativa: criar antes e trocar de aba depois corre risco de o
+    // re-render disparado pela criação do item e o clique na aba colidirem (achado
+    // em uso real, escrevendo este mesmo teste).
+    await ator.createEmbeddedDocuments("Item", [
+      { name: "Termômetro de Vitrine", type: "ferramenta",
+        system: { subtipo: "termometro", cargas: { usa: true, value: 1, max: 3 } } },
+    ]);
+    await esperar(400);
+    const linhaFerramenta = () => [...el.querySelectorAll(".op2-lista-itens--ferramentas .op2-item")]
+      .find((li) => li.dataset.itemId === ator.items.getName("Termômetro de Vitrine").id);
+    ok("ferramenta aparece na aba Inventário", Boolean(linhaFerramenta()));
+    const larguraNomeFerramenta = linhaFerramenta()?.querySelector(".op2-item__nome")?.getBoundingClientRect().width ?? 0;
+    ok("nome da ferramenta não fica espremido (grid sem coluna de equipado)", larguraNomeFerramenta > 100);
+    ok("cargas da ferramenta aparecem no inventário",
+      linhaFerramenta()?.querySelector(".op2-item__cargas-valor")?.textContent.trim() === "1/3");
+  }
+
   // 3) Clicar num atributo puro (Físico/Mente/Emoção) pareava com ele mesmo
   //    (atributoDe() não encontra perícia e caía no fallback "fisico"), rolando o
   //    mesmo dado duas vezes. Um atributo não tem par: a regra é sempre perícia +
