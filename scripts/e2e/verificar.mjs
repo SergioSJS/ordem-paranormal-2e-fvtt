@@ -224,7 +224,10 @@ const relato = await page.evaluate(async () => {
   ok("participante do roster aparece na seção de Participantes", Boolean(painelEl?.textContent.includes("Alan")));
   ok("tracker de rodadas também lista o participante", Boolean(painelEl?.querySelector(".op2-painel-ordem")?.textContent.includes("Alan")));
   dados.controles = Object.keys(ui.controls?.controls ?? {});
-  ok("controle de cena do painel registrado", Boolean(ui.controls?.controls?.["op2-investigacao"]));
+  // O framework de scene controls do core nunca redispara o clique de uma tool já
+  // ativa (`if (tool === this.tool) return` em #onChangeTool) — um botão flutuante
+  // fora desse ciclo abre o painel de verdade, toda vez (achado em uso real).
+  ok("botão flutuante do painel existe fora do controle de cena", Boolean(document.getElementById("op2-botao-painel")));
   ok("seletor de investigação lista a criada", Boolean(painelEl?.querySelector('[data-seletor-investigacao] option[value]:not([value=""])')));
   // O select usava data-action, que liga no framework de ações e reage ao clique
   // de abrir o dropdown — o próprio ato de abrir já disparava um re-render que
@@ -791,6 +794,29 @@ const relato = await page.evaluate(async () => {
   await ator.delete();
   return { passos, dados };
 });
+
+// Clique de verdade do Playwright, fora do page.evaluate: o framework de scene
+// controls do core nunca redispara o clique numa tool já ativa, então esse
+// achado só aparece com uma interação real de mouse, não uma chamada de função
+// simulada dentro da página.
+{
+  // `ui.windows` não rastreia este tipo de app (achado em uso real, depurando
+  // este mesmo teste) — checar pela existência no DOM é o jeito certo.
+  const existeNoDOM = () => page.evaluate(() => Boolean(document.getElementById("op2-painel-investigacao")));
+
+  const botao = "#op2-botao-painel";
+  await page.click(botao);
+  await page.waitForTimeout(800);
+  relato.passos.push([await existeNoDOM(), "botão flutuante abre o painel no primeiro clique"]);
+
+  await page.evaluate(async () => { await game.op2.painelInvestigacao().close(); });
+  await page.waitForTimeout(500);
+  relato.passos.push([!(await existeNoDOM()), "painel fecha de fato (some do DOM)"]);
+
+  await page.click(botao);
+  await page.waitForTimeout(800);
+  relato.passos.push([await existeNoDOM(), "botão flutuante reabre o painel depois de fechado (não some após o 1º clique)"]);
+}
 
 const falhas = relato.passos.filter(([ok]) => !ok);
 for (const [ok, titulo] of relato.passos) console.log(`${ok ? "ok   " : "FALHA"} ${titulo}`);

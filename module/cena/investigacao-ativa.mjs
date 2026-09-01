@@ -53,6 +53,18 @@ export async function definirOrdemParticipantes(investigacao, ordem) {
   await investigacao.update({ "system.ordemParticipantes": ordem });
 }
 
+/**
+ * Controle manual de quem já agiu na rodada corrente (spec §5.2 não automatiza
+ * turnos). `avancarRodada()` zera a lista a cada rodada nova.
+ */
+export async function alternarJaAgiu(investigacao, atorUuid) {
+  const jaAgiram = investigacao.system.jaAgiram;
+  const novo = jaAgiram.includes(atorUuid)
+    ? jaAgiram.filter((uuid) => uuid !== atorUuid)
+    : [...jaAgiram, atorUuid];
+  await investigacao.update({ "system.jaAgiram": novo });
+}
+
 export async function vincularPoi(investigacao, poiUuid) {
   const pois = investigacao.system.pois;
   if (pois.includes(poiUuid)) return;

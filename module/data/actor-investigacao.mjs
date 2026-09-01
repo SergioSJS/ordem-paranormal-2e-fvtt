@@ -43,6 +43,9 @@ export class InvestigacaoData extends foundry.abstract.TypeDataModel {
       // Quem participa — não quem tem token numa Scene específica.
       participantes: new ArrayField(new StringField(), { initial: [] }),
       ordemParticipantes: new ArrayField(new StringField(), { initial: [] }),
+      // Quem já agiu na rodada corrente — controle manual (spec não automatiza
+      // turnos, §5.2), zerado a cada `avancarRodada()`.
+      jaAgiram: new ArrayField(new StringField(), { initial: [] }),
 
       // POIs e desafios de acesso vinculados a esta investigação (spec §6.2/§7).
       pois: new ArrayField(new StringField(), { initial: [] }),

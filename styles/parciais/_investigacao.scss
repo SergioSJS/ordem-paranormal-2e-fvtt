@@ -77,8 +77,11 @@
 // cheia (vários POIs, desafios, sobrecarga com várias linhas), a janela crescia
 // além da tela e o conteúdo de baixo ficava cortado, sem barra de rolagem — e por
 // consequência inalcançável para arrastar um item ali (achado em uso real).
+// `max-height` fixo em px não acompanha o redimensionamento: encolher a janela
+// deixava a barra de rolagem com a conta errada (achado em uso real). O core já
+// dá ao `.window-content` a altura restante do frame via flex — só falta avisar
+// que ele pode rolar, sem impor um teto próprio que brigue com o resize.
 .op2-painel-investigacao .window-content {
-  max-height: min(85vh, 720px);
   overflow-y: auto;
 }
 
@@ -225,6 +228,10 @@
 
     &--npc { color: var(--op2-texto-fraco); }
 
+    // Controle manual de turno (spec §5.2 não automatiza quem já agiu): risca o
+    // nome, sem escondê-lo — ainda precisa aparecer pra reordenar/desmarcar.
+    &--agiu span { color: var(--op2-texto-fraco); text-decoration: line-through; }
+
     // Um grupo de botões (editar + desvincular) fica sempre na ponta direita. O
     // `margin-left: auto` precisa estar só no primeiro — com dois irmãos com auto
     // margin, o espaço livre se divide entre os dois e eles saem afastados um do
@@ -342,6 +349,27 @@
     align-items: center;
     gap: 0.2rem;
   }
+}
+
+// Botão flutuante do painel — não é controle de cena de propósito (veja o
+// comentário em criarBotaoFlutuante()). Fica acima da coluna de controles do
+// core, sempre clicável, independente de qual camada/tool está ativa.
+.op2-botao-flutuante {
+  position: fixed;
+  left: 12px;
+  bottom: 190px;
+  z-index: 20;
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0;
+  border: 1px solid var(--op2-vermelho);
+  border-radius: 50%;
+  background: var(--op2-superficie-alta);
+  color: var(--op2-vermelho-claro);
+  font-size: 1.1rem;
+  cursor: pointer;
+
+  &:hover { background: var(--op2-vermelho); color: #fff; }
 }
 
 }

@@ -22,7 +22,7 @@ import { abrirLaboratorio } from "./laboratorio-app.mjs";
 import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerrar-investigacao.mjs";
 import {
   investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,
-  adicionarParticipante, removerParticipante, definirOrdemParticipantes,
+  adicionarParticipante, removerParticipante, definirOrdemParticipantes, alternarJaAgiu,
   vincularPoi, removerPoi, vincularDesafio, removerDesafio,
 } from "./investigacao-ativa.mjs";
 import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada } from "./rodada.mjs";
@@ -44,7 +44,11 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       icon: "fa-solid fa-magnifying-glass",
       resizable: true,
     },
-    position: { width: 640, height: "auto" },
+    // `height: "auto"` deixa o core esticar a janela pelo conteúdo sem limite —
+    // com uma investigação cheia a janela passava da tela e nada rolava. Um
+    // número, como as fichas de ator já usam, dá ao core uma altura de verdade
+    // pra clampar/redimensionar em vez de brigar com CSS por cima.
+    position: { width: 640, height: 720 },
     actions: {
       investigar: PainelInvestigacao.#investigar,
       examinar: PainelInvestigacao.#examinar,
@@ -71,6 +75,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       criarInvestigacao: PainelInvestigacao.#criarInvestigacao,
       abrirInvestigacao: PainelInvestigacao.#abrirInvestigacao,
       removerParticipante: PainelInvestigacao.#removerParticipante,
+      alternarJaAgiu: PainelInvestigacao.#alternarJaAgiu,
     },
     dragDrop: [{ dragSelector: "[data-ator-ordem]", dropSelector: ".op2-painel-corpo" }],
   };
@@ -199,8 +204,9 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     const gravada = (investigacao?.system.ordemParticipantes ?? [])
       .map((uuid) => fromUuidSync(uuid)?.id).filter((id) => id && ids.has(id));
     const final = [...gravada, ...participantes.map((a) => a.id).filter((id) => !gravada.includes(id))];
+    const jaAgiram = investigacao?.system.jaAgiram ?? [];
     return final.map((id) => game.actors.get(id)).filter(Boolean)
-      .map((a) => ({ id: a.id, uuid: a.uuid, nome: a.name, img: a.img }));
+      .map((a) => ({ id: a.id, uuid: a.uuid, nome: a.name, img: a.img, jaAgiu: jaAgiram.includes(a.uuid) }));
   }
 
   _onRender(contexto, opcoes) {
@@ -454,6 +460,11 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     const investigacao = investigacaoAtiva();
     if (investigacao) await removerParticipante(investigacao, alvo.dataset.participanteUuid);
   }
+
+  static async #alternarJaAgiu(_evento, alvo) {
+    const investigacao = investigacaoAtiva();
+    if (investigacao) await alternarJaAgiu(investigacao, alvo.dataset.atorUuid);
+  }
 }
 
 /* -- registro --------------------------------------------------------------- */
@@ -466,27 +477,34 @@ export function abrirPainelInvestigacao() {
   return instancia;
 }
 
+/**
+ * Botão flutuante que abre o painel — não um controle de cena.
+ *
+ * O core do v13 nunca dispara o clique de uma tool já ativa: `#onChangeTool`
+ * tem `if (tool === this.tool) return` antes de chamar `onChange`/`onClick`
+ * (achado em uso real, lendo o fonte do core) — um grupo de controle com uma
+ * tool só, marcada como `activeTool`, só dispara na primeiríssima troca de
+ * camada e nunca mais, nem trocando `onClick` por `onChange`. Não é bug deste
+ * sistema, é como o framework de scene controls é desenhado: pensado pra
+ * ferramentas que ficam selecionadas, não pra um botão de ação clicável toda
+ * hora. Um elemento próprio, fora do ciclo de controles de cena, não tem esse
+ * problema.
+ */
+function criarBotaoFlutuante() {
+  if (document.getElementById("op2-botao-painel")) return;
+  const botao = document.createElement("button");
+  botao.id = "op2-botao-painel";
+  botao.type = "button";
+  botao.className = "op2 op2-botao-flutuante";
+  botao.dataset.tooltip = game.i18n.localize("OP2.Painel.Controle");
+  botao.dataset.tooltipDirection = "RIGHT";
+  botao.innerHTML = `<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>`;
+  botao.addEventListener("click", () => abrirPainelInvestigacao());
+  document.body.appendChild(botao);
+}
+
 export function registrarPainelInvestigacao() {
-  Hooks.on("getSceneControlButtons", (controles) => {
-    if (Array.isArray(controles)) return; // v13+ entrega um objeto, não um array
-    controles["op2-investigacao"] = {
-      name: "op2-investigacao",
-      title: "OP2.Painel.Controle",
-      icon: "fa-solid fa-magnifying-glass",
-      order: 99,
-      activeTool: "painel",
-      tools: {
-        painel: {
-          name: "painel",
-          title: "OP2.Painel.Controle",
-          icon: "fa-solid fa-magnifying-glass",
-          button: true,
-          visible: true,
-          onClick: () => abrirPainelInvestigacao(),
-        },
-      },
-    };
-  });
+  Hooks.once("ready", criarBotaoFlutuante);
 
   const atualizar = () => { if (instancia?.rendered) instancia.render(); };
   // Tokens não importam mais para o roster, mas atores mudam as revelações.

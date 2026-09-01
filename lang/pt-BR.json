@@ -344,7 +344,9 @@
       "Participantes": "Participantes",
       "SemParticipantes": "Ninguém na investigação ainda. Arraste um Actor para cá.",
       "ParticipantesAjuda": "Quem participa da investigação, não quem tem token na Scene — arraste personagens e NPCs de qualquer lugar.",
-      "RemoverParticipante": "Remover da investigação"
+      "RemoverParticipante": "Remover da investigação",
+      "JaAgiu": "Já agiu nesta rodada",
+      "JaAgiuAjuda": "Marque quem já agiu nesta rodada — controle manual, o sistema não passa turno sozinho. Zera ao avançar rodada."
     },
     "Rodada": {
       "Titulo": "Rodada {rodada}",

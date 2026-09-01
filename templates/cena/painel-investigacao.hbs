@@ -261,10 +261,21 @@
 
   {{#if temInvestigacao}}
     <section class="op2-painel-secao">
-      <h3 class="op2-painel-titulo">{{localize "OP2.Painel.OrdemRodadas"}}</h3>
+      <div class="op2-painel-topo__info">
+        <h3 class="op2-painel-titulo">{{localize "OP2.Painel.OrdemRodadas"}}</h3>
+        {{#if ehGM}}
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="novaRodada">
+            <i class="fa-solid fa-forward-step" aria-hidden="true"></i> {{localize "OP2.Painel.NovaRodada"}}
+          </button>
+        {{/if}}
+      </div>
       <ol class="op2-painel-ordem">
         {{#each ordem}}
-          <li class="op2-painel-ordem__linha" data-ator-ordem="{{uuid}}" {{#if @root.ehGM}}draggable="true"{{/if}}>
+          <li class="op2-painel-ordem__linha{{#if jaAgiu}} op2-painel-ordem__linha--agiu{{/if}}"
+            data-ator-ordem="{{uuid}}" {{#if @root.ehGM}}draggable="true"{{/if}}>
+            <label class="op2-campo op2-campo--inline" data-tooltip="{{localize 'OP2.Painel.JaAgiu'}}">
+              <input type="checkbox" data-action="alternarJaAgiu" data-ator-uuid="{{uuid}}" {{#if jaAgiu}}checked{{/if}}>
+            </label>
             <img src="{{img}}" alt=""> <span>{{nome}}</span>
           </li>
         {{/each}}
@@ -276,6 +287,7 @@
         {{/each}}
       </ol>
       <p class="op2-ajuda">{{localize "OP2.Painel.OrdemAjuda"}}</p>
+      <p class="op2-ajuda">{{localize "OP2.Painel.JaAgiuAjuda"}}</p>
     </section>
 
     {{#if ehGM}}

@@ -30,6 +30,7 @@ import { avancarRodada } from "./cena/rodada.mjs";
 import {
   investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,
   adicionarParticipante, removerParticipante, vincularPoi, removerPoi, vincularDesafio, removerDesafio,
+  alternarJaAgiu,
 } from "./cena/investigacao-ativa.mjs";
 import {
   investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar,
@@ -77,6 +78,7 @@ Hooks.once("init", () => {
     usarFerramenta, usarLaser, abrirLaboratorio,
     investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,
     adicionarParticipante, removerParticipante, vincularPoi, removerPoi, vincularDesafio, removerDesafio,
+    alternarJaAgiu,
   };
 });
 

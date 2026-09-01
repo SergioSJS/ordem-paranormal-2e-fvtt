@@ -43,7 +43,9 @@ export async function avancarRodada() {
 
   const encerrada = rodadaAtual(investigacao);
   const nova = encerrada + 1;
-  await investigacao.update({ "system.rodada": nova });
+  // "Já agiu" é controle manual por rodada (spec §5.2 não automatiza turnos) —
+  // zera a cada rodada nova.
+  await investigacao.update({ "system.rodada": nova, "system.jaAgiram": [] });
 
   const sobrecarga = sobrecargaDaCena(investigacao);
   const dano = sobrecarga.ativa && encerrada >= 1 ? danoSobrecarga(sobrecarga.tabela, encerrada) : "0";
