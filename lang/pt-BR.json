@@ -1,9 +1,14 @@
 {
   "TYPES": {
-    "Actor": { "personagem": "Personagem", "npc": "NPC" },
-    "Item": { "habilidade": "Habilidade", "equipamento": "Equipamento" }
+    "Actor": {
+      "personagem": "Personagem",
+      "npc": "NPC"
+    },
+    "Item": {
+      "habilidade": "Habilidade",
+      "equipamento": "Equipamento"
+    }
   },
-
   "OP2": {
     "Ficha": {
       "Personagem": "Ficha de Personagem",
@@ -11,14 +16,12 @@
       "Item": "Ficha de Item",
       "SemNome": "Sem nome"
     },
-
     "Atributo": {
       "fisico": "Físico",
       "mente": "Mente",
       "emocao": "Emoção",
       "Reduzido": "Atributo reduzido até o fim da cena"
     },
-
     "Pericia": {
       "acrobacia": "Acrobacia",
       "aptidao": "Aptidão",
@@ -44,7 +47,6 @@
       "Buscar": "Buscar",
       "Dica": "O atributo pareado é sugestão — troque no diálogo de teste."
     },
-
     "Aptidao": {
       "artes": "Artes",
       "atualidades": "Atualidades",
@@ -56,19 +58,27 @@
       "Remover": "Remover campo",
       "Exemplo": "Ex.: Culinária, Náutica, Zoologia"
     },
-
-    "Perfil": { "executor": "Executor", "analista": "Analista", "vigilante": "Vigilante" },
-    "Tipo": { "agente": "Agente", "sobrevivente": "Sobrevivente" },
-
-    "Campo": { "Perfil": "Perfil", "Ocupacao": "Ocupação", "Nivel": "Nível", "Nex": "NEX" },
-
+    "Perfil": {
+      "executor": "Executor",
+      "analista": "Analista",
+      "vigilante": "Vigilante"
+    },
+    "Tipo": {
+      "agente": "Agente",
+      "sobrevivente": "Sobrevivente"
+    },
+    "Campo": {
+      "Perfil": "Perfil",
+      "Ocupacao": "Ocupação",
+      "Nivel": "Nível",
+      "Nex": "NEX"
+    },
     "Recurso": {
       "pv": "PV",
       "pd": "PD",
       "Atual": "Atual",
       "Maximo": "Máximo"
     },
-
     "Secao": {
       "Atributos": "Atributos",
       "Pericias": "Perícias",
@@ -77,11 +87,14 @@
       "Notas": "Notas",
       "Conteudo": "Conteúdo da ficha"
     },
-
-    "Aba": { "habilidades": "Habilidades", "inventario": "Inventário", "notas": "Notas" },
-
-    "Dado": { "Alterar": "Alterar o dado" },
-
+    "Aba": {
+      "habilidades": "Habilidades",
+      "inventario": "Inventário",
+      "notas": "Notas"
+    },
+    "Dado": {
+      "Alterar": "Alterar o dado"
+    },
     "Habilidade": {
       "Adicionar": "Nova habilidade",
       "Vazio": "Nenhuma habilidade. O personagem começa com duas: uma do perfil, uma da ocupação.",
@@ -112,7 +125,6 @@
         "dado-extra": "Dado adicional"
       }
     },
-
     "Equipamento": {
       "Adicionar": "Novo item",
       "Vazio": "Inventário vazio.",
@@ -124,20 +136,17 @@
       "UsaCargas": "Tem cargas limitadas",
       "Descricao": "Descrição"
     },
-
     "Item": {
       "Novo": "Novo {tipo}",
       "Apagar": "Apagar item",
       "ApagarConfirma": "Apagar <strong>{nome}</strong> desta ficha?"
     },
-
     "Npc": {
       "Categoria": "Categoria",
       "AdicionarPericia": "Nova perícia",
       "RemoverPericia": "Remover perícia",
       "PericiasAjuda": "NPCs não usam a lista completa: declare só as perícias que este NPC realmente usa."
     },
-
     "Dialog": {
       "Teste": {
         "Titulo": "Teste",
@@ -158,11 +167,9 @@
         "Dica": "A soma máxima nem sempre é a melhor escolha: RA e RB alimentam dano, arrombamento e alcance."
       }
     },
-
     "Passo": "passo",
     "StepUp": "Aumentar um passo",
     "StepDown": "Reduzir um passo",
-
     "DT": "DT",
     "RA": "RA",
     "RB": "RB",
@@ -172,20 +179,42 @@
     "Critico": "Sucesso crítico",
     "CriticoExplica": "passa automaticamente e rende informação extra em investigação",
     "FalhaCriticaTitulo": "Falha crítica",
-
     "FalhaCritica": {
       "DecisaoDoMestre": "Se o efeito não fizer sentido na situação, o mestre escolhe outro.",
       "Aplicada": "{efeito} aplicado a {ator}.",
-      "vexame": { "nome": "Vexame", "texto": "Narre a ação de forma vergonhosa. Sem efeito mecânico." },
-      "machucado": { "nome": "Machucado", "texto": "Físico reduzido em um passo até o fim da cena." },
-      "desatencao": { "nome": "Desatenção", "texto": "Mente reduzida em um passo até o fim da cena." },
-      "irritacao": { "nome": "Irritação", "texto": "Emoção reduzida em um passo até o fim da cena." },
-      "acidente": { "nome": "Acidente", "texto": "Perde 1d4 PV." },
-      "frustracao": { "nome": "Frustração", "texto": "Perde 1d4 PD." },
-      "perda": { "nome": "Perda", "texto": "Perde um item carregado ou um espaço de compra. O mestre decide qual." },
-      "nenhum": { "nome": "Sem efeito adicional", "texto": "A falha já basta." }
+      "vexame": {
+        "nome": "Vexame",
+        "texto": "Narre a ação de forma vergonhosa. Sem efeito mecânico."
+      },
+      "machucado": {
+        "nome": "Machucado",
+        "texto": "Físico reduzido em um passo até o fim da cena."
+      },
+      "desatencao": {
+        "nome": "Desatenção",
+        "texto": "Mente reduzida em um passo até o fim da cena."
+      },
+      "irritacao": {
+        "nome": "Irritação",
+        "texto": "Emoção reduzida em um passo até o fim da cena."
+      },
+      "acidente": {
+        "nome": "Acidente",
+        "texto": "Perde 1d4 PV."
+      },
+      "frustracao": {
+        "nome": "Frustração",
+        "texto": "Perde 1d4 PD."
+      },
+      "perda": {
+        "nome": "Perda",
+        "texto": "Perde um item carregado ou um espaço de compra. O mestre decide qual."
+      },
+      "nenhum": {
+        "nome": "Sem efeito adicional",
+        "texto": "A falha já basta."
+      }
     },
-
     "Chat": {
       "DanoRA": "Dano RA",
       "DanoRB": "Dano RB",
@@ -193,13 +222,11 @@
       "AplicarEfeito": "Aplicar efeito",
       "DanoAplicado": "{quantidade} de dano em {alvos}."
     },
-
     "Cena": {
       "Encerrar": "Encerrar cena",
       "Encerrada": "Cena encerrada. {total} personagem(ns) tiveram as reduções temporárias zeradas.",
       "SemPersonagens": "Nenhum personagem na cena ativa."
     },
-
     "Aviso": {
       "TetoDeDados": "Máximo de {max} dados rolados por teste.",
       "TetoDeContados": "Só {max} dados entram no resultado.",
@@ -207,9 +234,11 @@
       "AptidaoDuplicada": "Já existe um campo de Aptidão chamado \"{rotulo}\".",
       "AtorAusente": "O personagem deste card não existe mais."
     },
-
     "Config": {
-      "dtPadrao": { "name": "DT padrão", "hint": "Dificuldade sugerida pelo playtest quando nada é indicado." },
+      "dtPadrao": {
+        "name": "DT padrão",
+        "hint": "Dificuldade sugerida pelo playtest quando nada é indicado."
+      },
       "escopoCritico": {
         "name": "Crítico considera",
         "hint": "O playtest não diz se os dados descartados contam para o crítico. O padrão varre todos os rolados.",
@@ -231,6 +260,10 @@
         "hint": "O playtest avisa que na versão final não será tão fácil morrer por perda de PD.",
         "morte": "Colapso mental e morte",
         "colapso": "Colapso, sem morte"
+      },
+      "idiomaPadraoPtBR": {
+        "name": "Padronizar o idioma em português",
+        "hint": "Jogadores que ainda não escolheram um idioma entram em pt-BR. Quem já escolheu mantém o seu."
       },
       "cliqueAbreDialogo": {
         "name": "Clique abre o diálogo de teste",

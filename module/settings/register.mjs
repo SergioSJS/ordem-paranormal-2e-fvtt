@@ -32,6 +32,10 @@ const SETTINGS = {
     scope: "world", config: true, type: String, default: "morte",
     choices: { morte: "OP2.Config.falhaTrauma.morte", colapso: "OP2.Config.falhaTrauma.colapso" },
   },
+  // Ordem Paranormal é um jogo brasileiro; o Foundry nasce em inglês.
+  idiomaPadraoPtBR: {
+    scope: "world", config: true, type: Boolean, default: true, requiresReload: true,
+  },
   // Clique simples rola direto; Shift abre o diálogo. Invertível por preferência.
   cliqueAbreDialogo: {
     scope: "client", config: true, type: Boolean, default: false,

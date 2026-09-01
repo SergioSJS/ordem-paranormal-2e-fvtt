@@ -41,6 +41,20 @@ role a roda do mouse sobre ele. PV e PD são trilhas de pips clicáveis.
 **Aptidão é coleção aberta.** Os seis campos padrão vêm prontos, e você adiciona
 quantos quiser.
 
+## Em português
+
+O sistema é escrito em pt-BR primeiro, e um jogador que ainda não escolheu idioma entra
+em português automaticamente — mesmo que o servidor esteja configurado em inglês. Quem já
+escolheu um idioma mantém o seu, e o mestre desliga esse comportamento em
+**Configurações → Padronizar o idioma em português**.
+
+Isso traduz o sistema. A interface do **próprio Foundry** continua em inglês até você
+instalar a tradução da comunidade — o manifesto já a recomenda:
+
+```
+https://github.com/mclemente/fvtt-ptbr-core-translation/releases/latest/download/module.json
+```
+
 ## Compatível com v13 e v14
 
 A maior quebra entre as versões é o formato dos Active Effects. Este sistema não usa

@@ -31,6 +31,11 @@ da spec e das amostras visuais; extraia dele em vez de adivinhar.
 - Prefixo CSS `.op2-*`, variáveis `--op2-*`, tudo dentro de `@layer system`.
 - i18n namespace `OP2.*`. `lang/pt-BR.json` é primário, `lang/en.json` espelha — o teste
   `module/tests/i18n.test.mjs` falha se divergirem.
+- **O jogo é em pt-BR.** `aplicarIdiomaPadrao()` em `module/op2.mjs` põe pt-BR para quem
+  nunca escolheu idioma. Ele grava a chave `core.language` no `localStorage` em vez de
+  mexer no default do setting: o core só registra `core.language` *depois* do hook
+  `init` e resolve o idioma logo em seguida, sem hook no meio. A interface do próprio
+  Foundry só fica em português com o módulo `pt-BR`, que o manifesto recomenda.
 - Commits: Conventional Commits, em português.
 - Nunca commitar direto na `main` — sempre feature branch.
 

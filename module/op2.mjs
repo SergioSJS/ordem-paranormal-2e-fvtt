@@ -13,7 +13,7 @@ import { OP2ItemSheet } from "./sheets/item-sheet.mjs";
 import { OP2Roll } from "./dice/op2-roll.mjs";
 import { rolarTeste } from "./dice/teste.mjs";
 import { stepDie, faces } from "./dice/escada.mjs";
-import { registrarSettings } from "./settings/register.mjs";
+import { registrarSettings, lerConfig } from "./settings/register.mjs";
 import { registrarHelpersDeDado } from "./ui/dice-icons.mjs";
 import { registrarHelpers, precarregarTemplates } from "./ui/handlebars.mjs";
 import { registrarChat } from "./ui/chat.mjs";
@@ -32,6 +32,7 @@ Hooks.once("init", () => {
   CONFIG.Dice.rolls.unshift(OP2Roll);
 
   registrarSettings();
+  aplicarIdiomaPadrao();
   registrarHelpersDeDado();
   registrarHelpers();
   registrarSheets();
@@ -44,6 +45,32 @@ Hooks.once("init", () => {
 });
 
 Hooks.once("ready", () => precarregarTemplates());
+
+/**
+ * Faz o pt-BR ser o idioma de quem ainda não escolheu nenhum.
+ *
+ * Ordem Paranormal é um jogo brasileiro e o sistema é escrito em pt-BR primeiro, mas o
+ * Foundry nasce em inglês — sem isto cada jogador precisaria trocar o idioma na mão
+ * antes de a ficha aparecer traduzida.
+ *
+ * O caminho é a chave do próprio setting no `localStorage`, não o `default` do setting:
+ * o core só registra `core.language` *depois* do hook `init`, e resolve o idioma logo
+ * em seguida, sem hook no meio. Escrever a chave equivale a o jogador ter escolhido
+ * pt-BR uma vez — e é o mesmo lugar que o menu de configurações usa, então trocar o
+ * idioma por lá continua funcionando normalmente.
+ *
+ * Quem já escolheu um idioma mantém o seu. O mestre desliga em `idiomaPadraoPtBR`.
+ */
+function aplicarIdiomaPadrao() {
+  if (!lerConfig("idiomaPadraoPtBR")) return;
+  try {
+    if (window.localStorage.getItem("core.language") === null) {
+      window.localStorage.setItem("core.language", "pt-BR");
+    }
+  } catch (erro) {
+    console.warn(`${SYSTEM_ID} | não foi possível definir o idioma padrão`, erro);
+  }
+}
 
 /**
  * Registro de fichas. `foundry.documents.collections` e

@@ -40,6 +40,15 @@
       "equipamento": {}
     }
   },
+  "relationships": {
+    "recommends": [
+      {
+        "id": "pt-BR",
+        "type": "module",
+        "reason": "Traduz a interface do próprio Foundry para português. O sistema já vem em pt-BR; o core, não."
+      }
+    ]
+  },
   "authors": [
     {
       "name": "Sérgio Sousa",

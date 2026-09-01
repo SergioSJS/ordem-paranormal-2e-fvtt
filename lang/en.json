@@ -1,9 +1,14 @@
 {
   "TYPES": {
-    "Actor": { "personagem": "Character", "npc": "NPC" },
-    "Item": { "habilidade": "Ability", "equipamento": "Equipment" }
+    "Actor": {
+      "personagem": "Character",
+      "npc": "NPC"
+    },
+    "Item": {
+      "habilidade": "Ability",
+      "equipamento": "Equipment"
+    }
   },
-
   "OP2": {
     "Ficha": {
       "Personagem": "Character Sheet",
@@ -11,14 +16,12 @@
       "Item": "Item Sheet",
       "SemNome": "Unnamed"
     },
-
     "Atributo": {
       "fisico": "Physical",
       "mente": "Mind",
       "emocao": "Emotion",
       "Reduzido": "Attribute reduced until the end of the scene"
     },
-
     "Pericia": {
       "acrobacia": "Acrobatics",
       "aptidao": "Aptitude",
@@ -44,7 +47,6 @@
       "Buscar": "Search",
       "Dica": "The paired attribute is a suggestion — swap it in the check dialog."
     },
-
     "Aptidao": {
       "artes": "Arts",
       "atualidades": "Current Affairs",
@@ -56,14 +58,27 @@
       "Remover": "Remove field",
       "Exemplo": "e.g. Cooking, Sailing, Zoology"
     },
-
-    "Perfil": { "executor": "Enforcer", "analista": "Analyst", "vigilante": "Sentinel" },
-    "Tipo": { "agente": "Agent", "sobrevivente": "Survivor" },
-
-    "Campo": { "Perfil": "Profile", "Ocupacao": "Occupation", "Nivel": "Level", "Nex": "NEX" },
-
-    "Recurso": { "pv": "HP", "pd": "DP", "Atual": "Current", "Maximo": "Maximum" },
-
+    "Perfil": {
+      "executor": "Enforcer",
+      "analista": "Analyst",
+      "vigilante": "Sentinel"
+    },
+    "Tipo": {
+      "agente": "Agent",
+      "sobrevivente": "Survivor"
+    },
+    "Campo": {
+      "Perfil": "Profile",
+      "Ocupacao": "Occupation",
+      "Nivel": "Level",
+      "Nex": "NEX"
+    },
+    "Recurso": {
+      "pv": "HP",
+      "pd": "DP",
+      "Atual": "Current",
+      "Maximo": "Maximum"
+    },
     "Secao": {
       "Atributos": "Attributes",
       "Pericias": "Skills",
@@ -72,11 +87,14 @@
       "Notas": "Notes",
       "Conteudo": "Sheet content"
     },
-
-    "Aba": { "habilidades": "Abilities", "inventario": "Inventory", "notas": "Notes" },
-
-    "Dado": { "Alterar": "Change the die" },
-
+    "Aba": {
+      "habilidades": "Abilities",
+      "inventario": "Inventory",
+      "notas": "Notes"
+    },
+    "Dado": {
+      "Alterar": "Change the die"
+    },
     "Habilidade": {
       "Adicionar": "New ability",
       "Vazio": "No abilities yet. A character starts with two: one from the profile, one from the occupation.",
@@ -101,9 +119,12 @@
         "treino": "Training",
         "outra": "Other"
       },
-      "Efeito": { "nenhum": "None", "passo": "Step up", "dado-extra": "Extra die" }
+      "Efeito": {
+        "nenhum": "None",
+        "passo": "Step up",
+        "dado-extra": "Extra die"
+      }
     },
-
     "Equipamento": {
       "Adicionar": "New item",
       "Vazio": "Inventory is empty.",
@@ -115,20 +136,17 @@
       "UsaCargas": "Has limited charges",
       "Descricao": "Description"
     },
-
     "Item": {
       "Novo": "New {tipo}",
       "Apagar": "Delete item",
       "ApagarConfirma": "Delete <strong>{nome}</strong> from this sheet?"
     },
-
     "Npc": {
       "Categoria": "Category",
       "AdicionarPericia": "New skill",
       "RemoverPericia": "Remove skill",
       "PericiasAjuda": "NPCs don't use the full list: declare only the skills this NPC actually uses."
     },
-
     "Dialog": {
       "Teste": {
         "Titulo": "Check",
@@ -149,11 +167,9 @@
         "Dica": "The highest sum isn't always best: the High and Low Rolls drive damage, forcing and climbing."
       }
     },
-
     "Passo": "step",
     "StepUp": "Step up",
     "StepDown": "Step down",
-
     "DT": "DT",
     "RA": "HR",
     "RB": "LR",
@@ -163,20 +179,42 @@
     "Critico": "Critical success",
     "CriticoExplica": "succeeds automatically and yields extra information while investigating",
     "FalhaCriticaTitulo": "Critical failure",
-
     "FalhaCritica": {
       "DecisaoDoMestre": "If the effect doesn't fit the situation, the GM picks another.",
       "Aplicada": "{efeito} applied to {ator}.",
-      "vexame": { "nome": "Embarrassment", "texto": "Narrate the action in a humiliating way. No mechanical effect." },
-      "machucado": { "nome": "Hurt", "texto": "Physical steps down until the end of the scene." },
-      "desatencao": { "nome": "Distraction", "texto": "Mind steps down until the end of the scene." },
-      "irritacao": { "nome": "Irritation", "texto": "Emotion steps down until the end of the scene." },
-      "acidente": { "nome": "Accident", "texto": "Lose 1d4 HP." },
-      "frustracao": { "nome": "Frustration", "texto": "Lose 1d4 DP." },
-      "perda": { "nome": "Loss", "texto": "Lose a carried item or a purchase slot. The GM decides which." },
-      "nenhum": { "nome": "No further effect", "texto": "The failure is enough." }
+      "vexame": {
+        "nome": "Embarrassment",
+        "texto": "Narrate the action in a humiliating way. No mechanical effect."
+      },
+      "machucado": {
+        "nome": "Hurt",
+        "texto": "Physical steps down until the end of the scene."
+      },
+      "desatencao": {
+        "nome": "Distraction",
+        "texto": "Mind steps down until the end of the scene."
+      },
+      "irritacao": {
+        "nome": "Irritation",
+        "texto": "Emotion steps down until the end of the scene."
+      },
+      "acidente": {
+        "nome": "Accident",
+        "texto": "Lose 1d4 HP."
+      },
+      "frustracao": {
+        "nome": "Frustration",
+        "texto": "Lose 1d4 DP."
+      },
+      "perda": {
+        "nome": "Loss",
+        "texto": "Lose a carried item or a purchase slot. The GM decides which."
+      },
+      "nenhum": {
+        "nome": "No further effect",
+        "texto": "The failure is enough."
+      }
     },
-
     "Chat": {
       "DanoRA": "HR damage",
       "DanoRB": "LR damage",
@@ -184,13 +222,11 @@
       "AplicarEfeito": "Apply effect",
       "DanoAplicado": "{quantidade} damage to {alvos}."
     },
-
     "Cena": {
       "Encerrar": "End scene",
       "Encerrada": "Scene ended. Temporary reductions cleared for {total} character(s).",
       "SemPersonagens": "No characters in the active scene."
     },
-
     "Aviso": {
       "TetoDeDados": "At most {max} dice rolled per check.",
       "TetoDeContados": "Only {max} dice make the result.",
@@ -198,9 +234,11 @@
       "AptidaoDuplicada": "An Aptitude field named \"{rotulo}\" already exists.",
       "AtorAusente": "The character for this card no longer exists."
     },
-
     "Config": {
-      "dtPadrao": { "name": "Default DT", "hint": "The difficulty the playtest suggests when none is given." },
+      "dtPadrao": {
+        "name": "Default DT",
+        "hint": "The difficulty the playtest suggests when none is given."
+      },
       "escopoCritico": {
         "name": "Critical looks at",
         "hint": "The playtest doesn't say whether discarded dice count toward a critical. The default scans every rolled die.",
@@ -222,6 +260,10 @@
         "hint": "The playtest warns that dying from DP loss won't be this easy in the final version.",
         "morte": "Mental collapse and death",
         "colapso": "Collapse, no death"
+      },
+      "idiomaPadraoPtBR": {
+        "name": "Default the interface to Portuguese",
+        "hint": "Players who have not picked a language yet start in pt-BR. An explicit choice is always respected."
       },
       "cliqueAbreDialogo": {
         "name": "Click opens the check dialog",

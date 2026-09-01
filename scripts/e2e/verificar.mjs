@@ -47,8 +47,12 @@ const relato = await page.evaluate(async () => {
   ok("data models registrados", CONFIG.Actor.dataModels.personagem && CONFIG.Item.dataModels.habilidade);
   ok("OP2Roll em CONFIG.Dice.rolls", CONFIG.Dice.rolls.some((c) => c.name === "OP2Roll"));
 
-  const rotulo = game.i18n.localize("OP2.Pericia.percepcao");
-  ok("i18n resolve as chaves", rotulo !== "OP2.Pericia.percepcao");
+  // O sistema é pt-BR primeiro: um cliente novo, que nunca escolheu idioma, entra em
+  // português mesmo com o servidor configurado em inglês.
+  dados.idioma = { lang: game.i18n.lang, servidor: game.data.options?.language };
+  ok("cliente novo entra em pt-BR", game.i18n.lang === "pt-BR");
+  ok("perícias traduzidas", game.i18n.localize("OP2.Pericia.percepcao") === "Percepção");
+  ok("tipos de documento traduzidos", game.i18n.localize("TYPES.Actor.personagem") === "Personagem");
 
   /* ------------------------------------------------------------ data model -- */
 
