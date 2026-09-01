@@ -231,6 +231,10 @@ const relato = await page.evaluate(async () => {
   await investigacao.sheet.render(true);
   await esperar(600);
   ok("ficha da investigação renderizou", Boolean(investigacao.sheet.element));
+  // Achado em uso real: TYPES.Actor.investigacao só existia como TYPES.Item — o
+  // título da janela mostrava a chave crua em vez do nome traduzido.
+  ok("título da janela não vaza a chave de tradução crua",
+    !investigacao.sheet.element?.closest(".application")?.querySelector(".window-title")?.textContent.includes("TYPES."));
   await investigacao.sheet.close();
 
   // `position: { height: "auto" }` cresce sem teto — numa cena cheia a janela

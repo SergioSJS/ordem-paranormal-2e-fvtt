@@ -14,7 +14,7 @@
  * quem revelou o quê. Nenhum dado de regra (DT, reação de ferramenta) vaza para o
  * lado do jogador.
  */
-import { SYSTEM_ID, FERRAMENTAS_POI } from "../config.mjs";
+import { FERRAMENTAS_POI } from "../config.mjs";
 import { periciasDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs";
 import { temFerramenta } from "./ferramentas.mjs";
 import { usarFerramenta, usarLaser } from "./acoes-ferramenta.mjs";

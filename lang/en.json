@@ -2,15 +2,15 @@
   "TYPES": {
     "Actor": {
       "personagem": "Character",
-      "npc": "NPC"
+      "npc": "NPC",
+      "investigacao": "Investigation"
     },
     "Item": {
       "habilidade": "Ability",
       "equipamento": "Equipment",
       "ponto-interesse": "Point of Interest",
       "desafio-acesso": "Access Challenge",
-      "ferramenta": "Tool",
-      "investigacao": "Investigation"
+      "ferramenta": "Tool"
     }
   },
   "OP2": {
