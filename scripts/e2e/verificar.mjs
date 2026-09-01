@@ -336,6 +336,19 @@ const relato = await page.evaluate(async () => {
     const tracosDepois = el.querySelector(".op2-recurso--pv .op2-tracos");
     ok("PV acima de 30% não pulsa", !tracosDepois.classList.contains("op2-tracos--critico"));
   }
+  // 9) PV e PD com valores muito diferentes (personagens do Ato II chegam a 32-34)
+  //    ficavam desalinhados: um recurso quebrava linha, o outro não. Os traços agora
+  //    sempre ficam na própria linha, os dois, para nunca desalinhar entre si.
+  {
+    await ator.update({ "system.recursos.pv": { value: 20, max: 34 }, "system.recursos.pd": { value: 2, max: 4 } });
+    await esperar(200);
+    const topoRotulo = (chave) => el.querySelector(`.op2-recurso--${chave} .op2-tag`).getBoundingClientRect().top;
+    const topoTracos = (chave) => el.querySelector(`.op2-recurso--${chave} .op2-tracos`).getBoundingClientRect().top;
+    ok("PV (34) quebra para a própria linha", topoTracos("pv") > topoRotulo("pv") + 5);
+    ok("PD (4) quebra para a própria linha mesmo sendo curto", topoTracos("pd") > topoRotulo("pd") + 5);
+    ok("nenhum teto esconde o traço em valor alto", el.querySelectorAll(".op2-recurso--pv .op2-traco").length === 34);
+  }
+
 
 
   await ator.delete();

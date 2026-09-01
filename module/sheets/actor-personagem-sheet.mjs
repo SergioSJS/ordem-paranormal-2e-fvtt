@@ -165,8 +165,11 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       value: recurso.value,
       max: recurso.max,
       critico,
-      // Acima disso o tally de traços vira ilegível; o número ao lado basta.
-      tracos: max > 0 && max <= 30
+      // Sem teto: os personagens do Ato II chegam a 32-34 de PV/PD, e um limite
+      // baixo faria só esse recurso cair pra número puro enquanto o outro mantém
+      // os traços — mais inconsistente do que o problema que o teto tentava evitar.
+      // O traço quebra em várias linhas sozinho; não fica ilegível, só mais alto.
+      tracos: max > 0
         ? Array.from({ length: max }, (_, i) => ({ n: i + 1, cheio: i < recurso.value }))
         : null,
     };

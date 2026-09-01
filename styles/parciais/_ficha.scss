@@ -157,8 +157,14 @@
 .op2-tracos {
   display: flex;
   flex-wrap: wrap;
+  // Sempre na própria linha, nunca ao lado do valor — com `flex-wrap` sozinho, PV com
+  // poucos traços cabia inline e PD com muitos quebrava, e a ficha de personagens do
+  // Ato II tem PV e PD na casa dos 30+: as duas linhas ficavam desalinhadas entre si.
+  // Forçando as duas a sempre quebrar, PV e PD sempre têm a mesma forma.
+  flex-basis: 100%;
+  width: 100%;
   // `gap` do flex pai (.op2-recurso) é pensado para os campos numéricos lado a lado;
-  // os traços, ao quebrar pra linha de baixo, ficavam colados no número acima.
+  // os traços, na linha de baixo, ficavam colados no número acima.
   margin-top: 0.3rem;
   gap: 3px;
 }
