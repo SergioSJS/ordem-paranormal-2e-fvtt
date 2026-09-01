@@ -6,6 +6,7 @@
  */
 import { SYSTEM_ID } from "../config.mjs";
 import { podeUsarCarga } from "./ferramentas.mjs";
+import { investigacaoAtiva } from "./investigacao-ativa.mjs";
 import { renderizar } from "../dice/teste.mjs";
 
 const CHAT = "systems/ordem-paranormal-2e/templates/chat";
@@ -80,12 +81,12 @@ export async function usarFerramenta(ator, poiUuid, subtipo) {
 
 /**
  * LASER DE VARREDURA (spec §9): ativado no ambiente, não num POI específico — marca
- * quais POIs da cena reagem a alguma ferramenta, para economizar tentativas.
+ * quais POIs da investigação reagem a alguma ferramenta, para economizar tentativas.
  */
 export async function usarLaser(ator) {
-  const cena = canvas.scene;
-  if (!cena) {
-    ui.notifications.warn(game.i18n.localize("OP2.Painel.SemCena"));
+  const investigacao = investigacaoAtiva();
+  if (!investigacao) {
+    ui.notifications.warn(game.i18n.localize("OP2.Painel.SemInvestigacao"));
     return null;
   }
 
@@ -97,7 +98,7 @@ export async function usarLaser(ator) {
   }
 
   const marcados = [];
-  for (const uuid of cena.getFlag(SYSTEM_ID, "pois") ?? []) {
+  for (const uuid of investigacao.system.pois) {
     const poi = await fromUuid(uuid);
     if (poi?.type !== "ponto-interesse" || poi.system.reveladoPorLaser) continue;
     const reage = Object.values(poi.system.ferramentas).some((texto) => Boolean(texto?.trim()));

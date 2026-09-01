@@ -114,7 +114,20 @@
   text-transform: uppercase;
 }
 
-.op2-painel-acoes-grupo { display: flex; gap: var(--op2-e2); }
+.op2-painel-acoes-grupo { display: flex; flex-wrap: wrap; gap: var(--op2-e2); }
+
+// Qual investigação o painel mostra agora — uma mesa pode ter mais de uma salva
+// (spec §5.1: uma investigação pode atravessar várias Scenes, e o mestre pode
+// arquivar sessões antigas em vez de perdê-las).
+.op2-painel-investigacao-seletor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--op2-e2);
+
+  .op2-campo--inline { gap: var(--op2-e1); }
+  select { min-width: 10rem; }
+}
 
 .op2-painel-trava { color: var(--op2-texto-fraco); }
 
@@ -211,6 +224,10 @@
     img { width: 1.6rem; height: 1.6rem; object-fit: cover; border-radius: var(--op2-raio); }
 
     &--npc { color: var(--op2-texto-fraco); }
+
+    // O botão de remover participante fica sempre na ponta direita, com ou sem a
+    // tag de NPC antes dele.
+    .op2-botao-icone { margin-left: auto; }
   }
 
   &__npc-tag {

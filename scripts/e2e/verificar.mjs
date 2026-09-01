@@ -164,9 +164,16 @@ const relato = await page.evaluate(async () => {
 
 
   /* ---------------------------------------------------------- investigação -- */
+  // Fase 3: investigação é Actor, com ficha própria — nada aqui depende de Scene,
+  // token ou canvas. Uma investigação pode atravessar vários mapas ao mesmo tempo
+  // (achado em uso real: o time se move entre cômodos, mas continua na mesma
+  // investigação), e POI/Desafio se vinculam a ela, não a uma Scene.
 
-  const cena = await Scene.create({ name: "Porão", active: true });
-  await esperar(2000); // o canvas reinicia ao ativar a cena
+  const investigacao = await game.op2.criarInvestigacao("Mansão de Teste");
+  ok("investigação criada com data model próprio", investigacao?.system.constructor.name === "InvestigacaoData");
+  ok("investigação é Actor, não Item", investigacao instanceof Actor);
+  ok("investigação recém-criada já fica ativa", game.op2.investigacaoAtiva()?.uuid === investigacao.uuid);
+  await game.op2.adicionarParticipante(investigacao, ator.uuid);
 
   const poi = await Item.create({
     name: "Quadro na Parede", type: "ponto-interesse",
@@ -181,11 +188,8 @@ const relato = await page.evaluate(async () => {
   });
   ok("POI criado com data model próprio", poi?.system.constructor.name === "PontoInteresseData");
 
-  await canvas.scene.setFlag("ordem-paranormal-2e", "pois", [poi.uuid]);
-  await canvas.scene.createEmbeddedDocuments("Token", [
-    { actorId: ator.id, actorLink: true, x: 200, y: 200 },
-  ]);
-  await esperar(1000);
+  await game.op2.vincularPoi(investigacao, poi.uuid);
+  ok("vincular POI grava o UUID no schema da investigação", investigacao.system.pois.includes(poi.uuid));
 
   // Investigar: Percepção d8 entrega a DT 6 de graça, mas não a DT 10 — sem rolar.
   const reveladas = await game.op2.investigar(ator, poi.uuid, "percepcao");
@@ -216,9 +220,18 @@ const relato = await page.evaluate(async () => {
   ok("painel renderizou", Boolean(painelEl));
   ok("painel lista o POI", Boolean(painelEl?.textContent.includes("Quadro na Parede")));
   ok("mestre vê as DTs no quadro", Boolean(painelEl?.textContent.includes("DT 10")));
-  ok("tracker lista o personagem", Boolean(painelEl?.textContent.includes("Alan")));
+  ok("painel lista a investigação ativa", Boolean(painelEl?.textContent.includes("Mansão de Teste")));
+  ok("participante do roster aparece na seção de Participantes", Boolean(painelEl?.textContent.includes("Alan")));
+  ok("tracker de rodadas também lista o participante", Boolean(painelEl?.querySelector(".op2-painel-ordem")?.textContent.includes("Alan")));
   dados.controles = Object.keys(ui.controls?.controls ?? {});
   ok("controle de cena do painel registrado", Boolean(ui.controls?.controls?.["op2-investigacao"]));
+  ok("seletor de investigação lista a criada", Boolean(painelEl?.querySelector('select[data-action="selecionarInvestigacao"] option[value]:not([value=""])')));
+  ok("botão de nova investigação existe", Boolean(painelEl?.querySelector('[data-action="criarInvestigacao"]')));
+
+  await investigacao.sheet.render(true);
+  await esperar(600);
+  ok("ficha da investigação renderizou", Boolean(investigacao.sheet.element));
+  await investigacao.sheet.close();
 
   // `position: { height: "auto" }` cresce sem teto — numa cena cheia a janela
   // passava da tela e o conteúdo de baixo ficava cortado, sem como rolar até ele
@@ -228,11 +241,11 @@ const relato = await page.evaluate(async () => {
     ok("painel tem rolagem interna, não cresce sem teto", getComputedStyle(wc).overflowY === "auto");
   }
 
-  await canvas.scene.setFlag("ordem-paranormal-2e", "sobrecarga", { ativa: true, tabela: [{ rodada: 1, dano: "1" }] });
+  await investigacao.update({ "system.sobrecarga": { ativa: true, tabela: [{ rodada: 1, dano: "1" }] } });
   await game.op2.avancarRodada();
   await game.op2.avancarRodada(); // encerra a rodada 1 → dano "1"
   await esperar(1000);
-  ok("rodada avançou", canvas.scene.getFlag("ordem-paranormal-2e", "rodada") === 2);
+  ok("rodada avançou", investigacao.system.rodada === 2);
   const botaoSobrecarga = document.querySelector('[data-op2-acao="rolar-sobrecarga"]');
   ok("card de sobrecarga tem botão por personagem", Boolean(botaoSobrecarga));
 
@@ -242,23 +255,35 @@ const relato = await page.evaluate(async () => {
   dados.sobrecarga = { pdAntes, pdDepois: ator.system.recursos.pd.value };
   ok("sobrecarga aplicou 1 de dano emocional", ator.system.recursos.pd.value === pdAntes - 1);
 
-  // Trava de 1×-por-cena: o botão some desabilitado para o grupo.
-  await canvas.scene.setFlag("ordem-paranormal-2e", "recapitularUsado", { ator: ator.id, nome: ator.name });
+  // Trava de 1×-por-investigação: o botão some desabilitado para o grupo.
+  await investigacao.update({ "system.recapitularUsado": { usado: true, atorId: ator.id, nome: ator.name } });
   await painel.render();
   await esperar(800);
   const botaoRecapitular = painel.element?.querySelector('[data-action="recapitular"]');
   ok("trava desabilita Recapitular no painel", Boolean(botaoRecapitular?.disabled));
 
-  // Encerrar a cena limpa revelações, travas e o contador de rodadas.
+  // Encerrar a investigação limpa revelações, travas e o contador de rodadas —
+  // mas não o roster de participantes, nem os POIs/desafios vinculados, nem a
+  // investigação em si (ela continua existindo, só "zerada" para a próxima sessão).
   await game.op2.encerrarCena({ avisar: false });
   await esperar(500);
   dados.encerrar = {
     infos: ator.system.estado.infosReveladas.size,
-    rodada: canvas.scene.getFlag("ordem-paranormal-2e", "rodada"),
-    trava: canvas.scene.getFlag("ordem-paranormal-2e", "recapitularUsado"),
+    rodada: investigacao.system.rodada,
+    trava: investigacao.system.recapitularUsado.usado,
   };
-  ok("encerrar cena limpa revelações do actor", ator.system.estado.infosReveladas.size === 0);
-  ok("encerrar cena limpa rodada e travas", dados.encerrar.rodada === undefined && dados.encerrar.trava === undefined);
+  ok("encerrar investigação limpa revelações do actor", ator.system.estado.infosReveladas.size === 0);
+  ok("encerrar investigação limpa rodada e travas", dados.encerrar.rodada === 0 && dados.encerrar.trava === false);
+  ok("encerrar investigação não desvincula POI nem tira participante",
+    investigacao.system.pois.includes(poi.uuid) && investigacao.system.participantes.includes(ator.uuid));
+
+  // Trocar de Scene não deveria afetar nada da investigação (motivo da mudança:
+  // uma investigação pode atravessar vários mapas ao mesmo tempo).
+  await Scene.create({ name: "Sala 2", active: true });
+  await esperar(1500);
+  ok("trocar de Scene mantém a investigação ativa", game.op2.investigacaoAtiva()?.uuid === investigacao.uuid);
+  ok("participantes sobrevivem à troca de Scene", investigacao.system.participantes.includes(ator.uuid));
+  ok("POIs vinculados sobrevivem à troca de Scene", investigacao.system.pois.includes(poi.uuid));
 
   /* ---------------------------------------------------- desafios de acesso -- */
   // Fase 3 M1 (spec §7.2/§7.4/§7.5). DT 0 e DT 999 forçam sucesso/falha
@@ -287,12 +312,13 @@ const relato = await page.evaluate(async () => {
     ok("excedeu a única tentativa sem arrombar: quebra", arrombou2?.quebrado === true && cofre.system.quebrado === true);
     ok("desafio quebrado recusa nova tentativa", await game.op2.arrombar(ator, cofre.uuid, { rapido: true }) === null);
 
-    // Painel: seção "Desafios" lista os itens vinculados à cena (mesmo padrão de
-    // arrastar POI já testado acima), com progresso e botão de Arrombar.
-    await canvas.scene.setFlag("ordem-paranormal-2e", "desafios", [fechadura.uuid, cofre.uuid]);
+    // Painel: seção "Desafios" lista os itens vinculados à investigação (mesmo
+    // padrão de vincular POI já testado acima), com progresso e botão de Arrombar.
+    await game.op2.vincularDesafio(investigacao, fechadura.uuid);
+    await game.op2.vincularDesafio(investigacao, cofre.uuid);
     await painel.render();
     await esperar(800);
-    ok("painel lista os desafios vinculados à cena",
+    ok("painel lista os desafios vinculados à investigação",
       Boolean(painel.element?.textContent.includes("Fechadura Emperrada"))
       && Boolean(painel.element?.textContent.includes("Cofre Blindado")));
     ok("painel mostra o progresso do desafio (1 / 1)", Boolean(painel.element?.textContent.includes("1 / 1")));
@@ -465,9 +491,9 @@ const relato = await page.evaluate(async () => {
     await fechadura.delete();
     await cofreDigital.delete();
 
-    // Painel: botão Destrancar aparece junto do Arrombar em cada desafio da cena.
+    // Painel: botão Destrancar aparece junto do Arrombar em cada desafio vinculado.
     const desafioVitrine = await Item.create({ name: "Porta do Fundo", type: "desafio-acesso" });
-    await canvas.scene.setFlag("ordem-paranormal-2e", "desafios", [desafioVitrine.uuid]);
+    await game.op2.vincularDesafio(investigacao, desafioVitrine.uuid);
     await painel.render();
     await esperar(800);
     ok("painel oferece o botão Destrancar por desafio", Boolean(painel.element?.querySelector('[data-action="destrancar"]')));

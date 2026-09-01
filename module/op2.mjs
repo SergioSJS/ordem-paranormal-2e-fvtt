@@ -10,8 +10,10 @@ import { EquipamentoData } from "./data/item-equipamento.mjs";
 import { FerramentaData } from "./data/item-ferramenta.mjs";
 import { PontoInteresseData } from "./data/item-ponto-interesse.mjs";
 import { DesafioAcessoData } from "./data/item-desafio-acesso.mjs";
+import { InvestigacaoData } from "./data/actor-investigacao.mjs";
 import { PersonagemSheet } from "./sheets/actor-personagem-sheet.mjs";
 import { NpcSheet } from "./sheets/actor-npc-sheet.mjs";
+import { InvestigacaoSheet } from "./sheets/actor-investigacao-sheet.mjs";
 import { OP2ItemSheet } from "./sheets/item-sheet.mjs";
 import { PontoInteresseSheet } from "./sheets/item-ponto-interesse-sheet.mjs";
 import { DesafioAcessoSheet } from "./sheets/item-desafio-acesso-sheet.mjs";
@@ -22,9 +24,13 @@ import { registrarSettings, lerConfig } from "./settings/register.mjs";
 import { registrarHelpersDeDado } from "./ui/dice-icons.mjs";
 import { registrarHelpers, precarregarTemplates } from "./ui/handlebars.mjs";
 import { registrarChat } from "./ui/chat.mjs";
-import { encerrarCena } from "./cena/encerrar-cena.mjs";
+import { encerrarCena } from "./cena/encerrar-investigacao.mjs";
 import { registrarPainelInvestigacao, abrirPainelInvestigacao } from "./cena/painel-investigacao.mjs";
 import { avancarRodada } from "./cena/rodada.mjs";
+import {
+  investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,
+  adicionarParticipante, removerParticipante, vincularPoi, removerPoi, vincularDesafio, removerDesafio,
+} from "./cena/investigacao-ativa.mjs";
 import {
   investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar,
 } from "./cena/acoes-investigacao.mjs";
@@ -42,6 +48,7 @@ Hooks.once("init", () => {
 
   CONFIG.Actor.dataModels.personagem = PersonagemData;
   CONFIG.Actor.dataModels.npc = NpcData;
+  CONFIG.Actor.dataModels.investigacao = InvestigacaoData;
   CONFIG.Item.dataModels.habilidade = HabilidadeData;
   CONFIG.Item.dataModels.equipamento = EquipamentoData;
   CONFIG.Item.dataModels.ferramenta = FerramentaData;
@@ -68,6 +75,8 @@ Hooks.once("init", () => {
     arrombar, alcancar, sustentar, pararDeSustentar,
     gerarSenhaDestrancar, tentarDestrancar, abrirDestrancar,
     usarFerramenta, usarLaser, abrirLaboratorio,
+    investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,
+    adicionarParticipante, removerParticipante, vincularPoi, removerPoi, vincularDesafio, removerDesafio,
   };
 });
 
@@ -113,6 +122,9 @@ function registrarSheets() {
   });
   Actors.registerSheet(SYSTEM_ID, NpcSheet, {
     types: ["npc"], makeDefault: true, label: "OP2.Ficha.Npc",
+  });
+  Actors.registerSheet(SYSTEM_ID, InvestigacaoSheet, {
+    types: ["investigacao"], makeDefault: true, label: "OP2.Ficha.Investigacao",
   });
 
   Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);

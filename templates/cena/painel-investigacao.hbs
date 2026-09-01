@@ -1,12 +1,37 @@
 <div class="op2-painel-corpo">
-  {{#unless temCena}}
-    <p class="op2-ajuda">{{localize "OP2.Painel.SemCena"}}</p>
+  <section class="op2-painel-secao op2-painel-investigacao-seletor">
+    {{#if ehGM}}
+      <label class="op2-campo op2-campo--inline">
+        <span>{{localize "OP2.Investigacao.Ativa"}}</span>
+        <select data-action="selecionarInvestigacao">
+          <option value=""></option>
+          {{#each investigacoes}}
+            <option value="{{uuid}}" {{#if (op2Eq uuid @root.investigacaoAtivaUuid)}}selected{{/if}}>{{nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <button type="button" class="op2-botao op2-botao--pequeno" data-action="criarInvestigacao">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "OP2.Investigacao.Nova"}}
+      </button>
+      {{#if temInvestigacao}}
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="abrirInvestigacao"
+          aria-label="{{localize 'OP2.Investigacao.AbrirFicha'}}">
+          <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+        </button>
+      {{/if}}
+    {{else}}
+      <span class="op2-tag op2-tag--pequena">{{#if temInvestigacao}}{{nomeInvestigacao}}{{else}}{{localize "OP2.Painel.SemInvestigacao"}}{{/if}}</span>
+    {{/if}}
+  </section>
+
+  {{#unless temInvestigacao}}
+    <p class="op2-ajuda">{{localize "OP2.Painel.SemInvestigacaoAjuda"}}</p>
   {{/unless}}
 
-  {{#if temCena}}
+  {{#if temInvestigacao}}
     <header class="op2-painel-topo">
       <div class="op2-painel-topo__info">
-        <span class="op2-tag op2-tag--pequena">{{nomeCena}}</span>
+        <span class="op2-tag op2-tag--pequena">{{nomeInvestigacao}}</span>
         <span class="op2-painel-rodada">{{localize "OP2.Painel.Rodada"}} {{rodada}}</span>
       </div>
       {{#if ehGM}}
@@ -24,14 +49,14 @@
     <section class="op2-painel-secao op2-painel-acoes-grupo">
       {{#if temPersonagem}}
         <button type="button" class="op2-botao op2-botao--pequeno" data-action="recapitular"
-          {{#if recapitularUsado}}disabled{{/if}}>
+          {{#if recapitularUsado.usado}}disabled{{/if}}>
           {{localize "OP2.Investigacao.Recapitular"}}
-          {{#if recapitularUsado}}<span class="op2-painel-trava">· {{recapitularUsado.nome}}</span>{{/if}}
+          {{#if recapitularUsado.usado}}<span class="op2-painel-trava">· {{recapitularUsado.nome}}</span>{{/if}}
         </button>
         <button type="button" class="op2-botao op2-botao--pequeno" data-action="compartilhar"
-          {{#if compartilharUsado}}disabled{{/if}}>
+          {{#if compartilharUsado.usado}}disabled{{/if}}>
           {{localize "OP2.Investigacao.Compartilhar"}}
-          {{#if compartilharUsado}}<span class="op2-painel-trava">· {{compartilharUsado.nome}}</span>{{/if}}
+          {{#if compartilharUsado.usado}}<span class="op2-painel-trava">· {{compartilharUsado.nome}}</span>{{/if}}
         </button>
         <button type="button" class="op2-botao op2-botao--pequeno" data-action="alcancar" data-modo="seguro">
           {{localize "OP2.Desafio.AlcancarSeguro"}}
@@ -59,7 +84,31 @@
     </section>
 
     <section class="op2-painel-secao">
-      <h3 class="op2-painel-titulo">{{localize "OP2.Painel.POIs"}}</h3>
+      <h3 class="op2-painel-titulo">{{localize "OP2.Painel.Participantes"}}</h3>
+      {{#unless participantes.length}}
+        <p class="op2-ajuda">{{localize "OP2.Painel.SemParticipantes"}}</p>
+      {{/unless}}
+      <ol class="op2-painel-ordem">
+        {{#each participantes}}
+          <li class="op2-painel-ordem__linha{{#if (op2Eq tipo "npc")}} op2-painel-ordem__linha--npc{{/if}}">
+            <img src="{{img}}" alt=""> <span>{{nome}}</span>
+            {{#if (op2Eq tipo "npc")}}<span class="op2-painel-ordem__npc-tag">NPC</span>{{/if}}
+            {{#if @root.ehGM}}
+              <button type="button" class="op2-botao-icone" data-action="removerParticipante"
+                data-participante-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.RemoverParticipante'}}">
+                <i class="fa-solid fa-link-slash" aria-hidden="true"></i>
+              </button>
+            {{/if}}
+          </li>
+        {{/each}}
+      </ol>
+      <p class="op2-ajuda">{{localize "OP2.Painel.ParticipantesAjuda"}}</p>
+    </section>
+  {{/if}}
+
+  {{#if temInvestigacao}}
+  <section class="op2-painel-secao">
+    <h3 class="op2-painel-titulo">{{localize "OP2.Painel.POIs"}}</h3>
       {{#unless pois.length}}
         <p class="op2-ajuda">{{localize "OP2.Painel.SemPOIs"}}</p>
       {{/unless}}
@@ -160,7 +209,7 @@
           </li>
         {{/each}}
       </ol>
-    </section>
+  </section>
 
     <section class="op2-painel-secao">
       <h3 class="op2-painel-titulo">{{localize "OP2.Painel.Desafios"}}</h3>
@@ -208,12 +257,14 @@
         {{/each}}
       </ol>
     </section>
+  {{/if}}
 
+  {{#if temInvestigacao}}
     <section class="op2-painel-secao">
       <h3 class="op2-painel-titulo">{{localize "OP2.Painel.OrdemRodadas"}}</h3>
       <ol class="op2-painel-ordem">
         {{#each ordem}}
-          <li class="op2-painel-ordem__linha" data-ator-ordem="{{id}}" {{#if @root.ehGM}}draggable="true"{{/if}}>
+          <li class="op2-painel-ordem__linha" data-ator-ordem="{{uuid}}" {{#if @root.ehGM}}draggable="true"{{/if}}>
             <img src="{{img}}" alt=""> <span>{{nome}}</span>
           </li>
         {{/each}}

@@ -9,7 +9,8 @@
       "equipamento": "Equipamento",
       "ponto-interesse": "Ponto de Interesse",
       "desafio-acesso": "Desafio de Acesso",
-      "ferramenta": "Ferramenta"
+      "ferramenta": "Ferramenta",
+      "investigacao": "Investigação"
     }
   },
   "OP2": {
@@ -20,7 +21,8 @@
       "PontoInteresse": "Ponto de Interesse",
       "SemNome": "Sem nome",
       "DesafioAcesso": "Desafio de Acesso",
-      "Ferramenta": "Ferramenta da Ordo Realitas"
+      "Ferramenta": "Ferramenta da Ordo Realitas",
+      "Investigacao": "Investigação"
     },
     "Atributo": {
       "fisico": "Físico",
@@ -219,7 +221,16 @@
       "TravaRegistrada": "{acao} fica bloqueada para o grupo até o fim da cena.",
       "AcaoTravada": "Esta ação já foi usada com sucesso nesta cena.",
       "SemAliados": "Nenhum outro personagem na cena para receber a pista.",
-      "POIVazio": "Este ponto de interesse não tem informações no quadro."
+      "POIVazio": "Este ponto de interesse não tem informações no quadro.",
+      "Ativa": "Investigação ativa",
+      "Nova": "Nova investigação",
+      "Nome": "Nome",
+      "AbrirFicha": "Abrir ficha da investigação",
+      "NovaPadrao": "Nova investigação",
+      "FichaAjuda": "Rodada, sobrecarga, participantes e travas de Recapitular/Compartilhar ficam em flags desta investigação, geridos pelo Painel de investigação. Este campo é só para notas do mestre.",
+      "Notas": "Notas",
+      "SemPoisAjuda": "Nenhum ponto de interesse. Arraste um Item de Ponto de Interesse para cá.",
+      "SemDesafiosAjuda": "Nenhum desafio de acesso. Arraste um Item de Desafio de Acesso para cá."
     },
     "Dialog": {
       "Teste": {
@@ -327,7 +338,13 @@
       "Desafios": "Desafios de acesso",
       "SemDesafios": "Nenhum desafio de acesso nesta cena. O mestre pode arrastar um Desafio de Acesso para cá.",
       "AbrirDesafio": "Abrir a ficha do desafio",
-      "RemoverDesafio": "Desvincular da cena"
+      "RemoverDesafio": "Desvincular da cena",
+      "SemInvestigacao": "Nenhuma investigação selecionada",
+      "SemInvestigacaoAjuda": "Escolha uma investigação existente ou crie uma nova. Rodada, sobrecarga, participantes e as travas de Recapitular/Compartilhar pertencem à investigação, não à Scene — uma investigação pode atravessar vários mapas.",
+      "Participantes": "Participantes",
+      "SemParticipantes": "Ninguém na investigação ainda. Arraste um Actor para cá.",
+      "ParticipantesAjuda": "Quem participa da investigação, não quem tem token na Scene — arraste personagens e NPCs de qualquer lugar.",
+      "RemoverParticipante": "Remover da investigação"
     },
     "Rodada": {
       "Titulo": "Rodada {rodada}",

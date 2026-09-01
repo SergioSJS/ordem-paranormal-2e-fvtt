@@ -40,6 +40,11 @@ const SETTINGS = {
   cliqueAbreDialogo: {
     scope: "client", config: true, type: Boolean, default: false,
   },
+  // Qual Item `investigacao` o painel mostra agora. Não é uma escolha de regra —
+  // é ponteiro de sessão, por isso `config: false` (não aparece no menu de settings).
+  investigacaoAtivaUuid: {
+    scope: "world", config: false, type: String, default: "",
+  },
 };
 
 export function registrarSettings() {

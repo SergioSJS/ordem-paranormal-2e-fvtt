@@ -1,10 +1,14 @@
 /**
- * Painel de investigação da cena (spec §6).
+ * Painel de investigação (spec §6) — atalho de ação rápida para a investigação
+ * ativa: as ações de investigação com suas travas de 1×-por-investigação, a ordem
+ * das rodadas — sem iniciativa rolada, os jogadores decidem e o mestre arrasta;
+ * NPCs por último (spec §5.2) — e o disparo de nova rodada/sobrecarga mental
+ * (spec §7.6).
  *
- * Uma janela por mesa: lista os pontos de interesse vinculados à cena, as ações de
- * investigação com suas travas de 1×-por-cena, a ordem das rodadas — sem iniciativa
- * rolada, os jogadores decidem e o mestre arrasta; NPCs por último (spec §5.2) — e
- * o controle da sobrecarga mental (spec §7.6).
+ * Nada aqui depende de Scene, token ou canvas: uma investigação pode atravessar
+ * vários mapas (achado em uso real). A ficha da Investigação (Actor) é a
+ * superfície de montagem — vincular POIs, desafios e participantes; este painel é
+ * a superfície de jogo — testar, arrombar, destrancar, avançar rodada.
  *
  * O jogador vê o que o personagem dele já revelou; o mestre vê tudo, com as DTs e
  * quem revelou o quê. Nenhum dado de regra (DT, reação de ferramenta) vaza para o
@@ -15,7 +19,12 @@ import { periciasDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs"
 import { temFerramenta } from "./ferramentas.mjs";
 import { usarFerramenta, usarLaser } from "./acoes-ferramenta.mjs";
 import { abrirLaboratorio } from "./laboratorio-app.mjs";
-import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerrar-cena.mjs";
+import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerrar-investigacao.mjs";
+import {
+  investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,
+  adicionarParticipante, removerParticipante, definirOrdemParticipantes,
+  vincularPoi, removerPoi, vincularDesafio, removerDesafio,
+} from "./investigacao-ativa.mjs";
 import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada } from "./rodada.mjs";
 import {
   dialogoInvestigar, investigar, examinar, interagir, recapitular, compartilhar, idsRevelados,
@@ -59,6 +68,10 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       alternarSobrecarga: PainelInvestigacao.#alternarSobrecarga,
       adicionarLinhaSobrecarga: PainelInvestigacao.#adicionarLinhaSobrecarga,
       removerLinhaSobrecarga: PainelInvestigacao.#removerLinhaSobrecarga,
+      selecionarInvestigacao: PainelInvestigacao.#selecionarInvestigacao,
+      criarInvestigacao: PainelInvestigacao.#criarInvestigacao,
+      abrirInvestigacao: PainelInvestigacao.#abrirInvestigacao,
+      removerParticipante: PainelInvestigacao.#removerParticipante,
     },
     dragDrop: [{ dragSelector: "[data-ator-ordem]", dropSelector: ".op2-painel-corpo" }],
   };
@@ -73,27 +86,30 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   async _prepareContext() {
-    const cena = canvas.scene;
+    const investigacao = investigacaoAtiva();
     const ehGM = game.user.isGM;
     const ator = this.atorDaVisao;
-    const sobrecarga = sobrecargaDaCena(cena);
-    const rodada = rodadaAtual(cena);
+    const sobrecarga = sobrecargaDaCena(investigacao);
+    const rodada = rodadaAtual(investigacao);
 
     return {
-      temCena: Boolean(cena),
-      nomeCena: cena?.name ?? "",
+      temInvestigacao: Boolean(investigacao),
+      nomeInvestigacao: investigacao?.name ?? "",
+      investigacoes: todasInvestigacoes().map((i) => ({ uuid: i.uuid, nome: i.name })),
+      investigacaoAtivaUuid: investigacao?.uuid ?? "",
       rodada,
       ehGM,
       temPersonagem: Boolean(ator),
       atorNome: ator?.name ?? null,
       sustentando: ator?.system.estado.sustentando?.ativo ?? false,
       temLaser: ator ? temFerramenta(ator.items, "laser") : false,
-      pois: cena ? await this.#contextoPois(cena, ator, ehGM) : [],
-      desafios: cena ? await this.#contextoDesafios(cena) : [],
-      ordem: this.#contextoOrdem(cena),
+      pois: investigacao ? await this.#contextoPois(investigacao, ator, ehGM) : [],
+      desafios: investigacao ? this.#contextoDesafios(investigacao) : [],
+      ordem: this.#contextoOrdem(investigacao),
       npcs: npcsDaCenaAtiva().map((a) => ({ id: a.id, nome: a.name, img: a.img })),
-      recapitularUsado: cena?.getFlag(SYSTEM_ID, "recapitularUsado") ?? null,
-      compartilharUsado: cena?.getFlag(SYSTEM_ID, "compartilharUsado") ?? null,
+      participantes: this.#contextoParticipantes(investigacao),
+      recapitularUsado: investigacao?.system.recapitularUsado ?? null,
+      compartilharUsado: investigacao?.system.compartilharUsado ?? null,
       sobrecarga: {
         ...sobrecarga,
         // O dano que aplica ao encerrar a rodada atual.
@@ -103,10 +119,16 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     };
   }
 
-  async #contextoPois(cena, ator, ehGM) {
+  /** Roster da investigação (spec §5.1) — não depende de token em Scene nenhuma. */
+  #contextoParticipantes(investigacao) {
+    return (investigacao?.system.participantes ?? []).map((uuid) => fromUuidSync(uuid)).filter(Boolean)
+      .map((a) => ({ uuid: a.uuid, nome: a.name, img: a.img, tipo: a.type }));
+  }
+
+  async #contextoPois(investigacao, ator, ehGM) {
     const editor = foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
     const pois = [];
-    for (const uuid of cena.getFlag(SYSTEM_ID, "pois") ?? []) {
+    for (const uuid of investigacao.system.pois) {
       const poi = await fromUuid(uuid);
       if (poi?.type !== "ponto-interesse") continue;
 
@@ -153,41 +175,39 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     return pois;
   }
 
-  async #contextoDesafios(cena) {
-    const desafios = [];
-    for (const uuid of cena.getFlag(SYSTEM_ID, "desafios") ?? []) {
-      const desafio = await fromUuid(uuid);
-      if (desafio?.type !== "desafio-acesso") continue;
-      desafios.push({
-        uuid,
+  #contextoDesafios(investigacao) {
+    return investigacao.system.desafios.map((uuid) => fromUuidSync(uuid))
+      .filter((desafio) => desafio?.type === "desafio-acesso")
+      .map((desafio) => ({
+        uuid: desafio.uuid,
         nome: desafio.name,
         img: desafio.img,
         pontuacaoAtual: desafio.system.pontuacaoAtual,
         pontuacaoAlvo: desafio.system.pontuacaoAlvo,
         quebrado: desafio.system.quebrado,
         destrancado: desafio.system.destrancado,
-      });
-    }
-    return desafios;
+      }));
   }
 
   /**
-   * Ordem das rodadas: a gravada na cena, saneada contra quem tem token agora —
-   * quem saiu some, quem chegou entra no fim. NPCs nunca entram: agem por último.
+   * Ordem das rodadas: a gravada na investigação, saneada contra o roster atual —
+   * quem saiu do roster some, quem entrou aparece no fim. NPCs nunca entram: agem
+   * por último (spec §5.2).
    */
-  #contextoOrdem(cena) {
-    const naCena = personagensDaCenaAtiva();
-    const ids = new Set(naCena.map((a) => a.id));
-    const gravada = (cena?.getFlag(SYSTEM_ID, "ordemRodada") ?? []).filter((id) => ids.has(id));
-    const final = [...gravada, ...naCena.map((a) => a.id).filter((id) => !gravada.includes(id))];
+  #contextoOrdem(investigacao) {
+    const participantes = personagensDaCenaAtiva();
+    const ids = new Set(participantes.map((a) => a.id));
+    const gravada = (investigacao?.system.ordemParticipantes ?? [])
+      .map((uuid) => fromUuidSync(uuid)?.id).filter((id) => id && ids.has(id));
+    const final = [...gravada, ...participantes.map((a) => a.id).filter((id) => !gravada.includes(id))];
     return final.map((id) => game.actors.get(id)).filter(Boolean)
-      .map((a) => ({ id: a.id, nome: a.name, img: a.img }));
+      .map((a) => ({ id: a.id, uuid: a.uuid, nome: a.name, img: a.img }));
   }
 
   _onRender(contexto, opcoes) {
     super._onRender(contexto, opcoes);
     if (!game.user.isGM) return;
-    // O editor da tabela de sobrecarga grava na cena a cada campo editado.
+    // O editor da tabela de sobrecarga grava na investigação a cada campo editado.
     for (const campo of this.element.querySelectorAll("[data-sobrecarga-campo]")) {
       campo.addEventListener("change", () => this.#gravarTabela());
     }
@@ -208,7 +228,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
   _onDragStart(evento) {
     const linha = evento.target.closest("[data-ator-ordem]");
     if (!linha) return;
-    evento.dataTransfer.setData("text/plain", JSON.stringify({ tipo: "ordem", atorId: linha.dataset.atorOrdem }));
+    evento.dataTransfer.setData("text/plain", JSON.stringify({ tipo: "ordem", atorUuid: linha.dataset.atorOrdem }));
   }
 
   async _onDrop(evento) {
@@ -216,53 +236,41 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     try {
       dados = JSON.parse(evento.dataTransfer.getData("text/plain"));
     } catch { return; }
-    if (dados?.tipo === "ordem") return this.#reordenar(dados.atorId, evento);
+    if (dados?.tipo === "ordem") return this.#reordenar(dados.atorUuid, evento);
+
+    const investigacao = investigacaoAtiva();
+    if (!investigacao) {
+      ui.notifications.warn(game.i18n.localize("OP2.Painel.SemInvestigacao"));
+      return;
+    }
+    if (dados?.type === "Actor") {
+      const ator = await fromUuid(dados.uuid);
+      if (["personagem", "npc"].includes(ator?.type)) await adicionarParticipante(investigacao, ator.uuid);
+      return;
+    }
     if (dados?.type === "Item") {
       const item = await fromUuid(dados.uuid);
-      if (item?.type === "desafio-acesso") return this.#vincularDesafio(item.uuid);
-      return this.#vincularPoi(dados.uuid);
+      if (item?.type === "desafio-acesso") return vincularDesafio(investigacao, item.uuid);
+      if (item?.type === "ponto-interesse") return vincularPoi(investigacao, item.uuid);
     }
   }
 
-  async #reordenar(atorId, evento) {
+  async #reordenar(atorUuid, evento) {
     if (!game.user.isGM) return;
-    const cena = canvas.scene;
-    if (!cena) return;
+    const investigacao = investigacaoAtiva();
+    if (!investigacao) return;
 
-    const ordem = this.#contextoOrdem(cena).map((a) => a.id).filter((id) => id !== atorId);
+    const ordem = this.#contextoOrdem(investigacao).map((a) => a.uuid).filter((uuid) => uuid !== atorUuid);
     const alvo = evento.target.closest("[data-ator-ordem]");
-    if (alvo && alvo.dataset.atorOrdem !== atorId) {
+    if (alvo && alvo.dataset.atorOrdem !== atorUuid) {
       const indice = ordem.indexOf(alvo.dataset.atorOrdem);
       const { top, height } = alvo.getBoundingClientRect();
       const depois = evento.clientY > top + height / 2;
-      ordem.splice(indice + (depois ? 1 : 0), 0, atorId);
+      ordem.splice(indice + (depois ? 1 : 0), 0, atorUuid);
     } else {
-      ordem.push(atorId);
+      ordem.push(atorUuid);
     }
-    await cena.setFlag(SYSTEM_ID, "ordemRodada", ordem);
-  }
-
-  async #vincularPoi(uuid) {
-    if (!game.user.isGM) return;
-    const poi = await fromUuid(uuid);
-    if (poi?.type !== "ponto-interesse") {
-      ui.notifications.warn(game.i18n.localize("OP2.Aviso.POIAusente"));
-      return;
-    }
-    const cena = canvas.scene;
-    if (!cena) return;
-    const pois = cena.getFlag(SYSTEM_ID, "pois") ?? [];
-    if (pois.includes(poi.uuid)) return;
-    await cena.setFlag(SYSTEM_ID, "pois", [...pois, poi.uuid]);
-  }
-
-  async #vincularDesafio(uuid) {
-    if (!game.user.isGM) return;
-    const cena = canvas.scene;
-    if (!cena) return;
-    const desafios = cena.getFlag(SYSTEM_ID, "desafios") ?? [];
-    if (desafios.includes(uuid)) return;
-    await cena.setFlag(SYSTEM_ID, "desafios", [...desafios, uuid]);
+    await definirOrdemParticipantes(investigacao, ordem);
   }
 
   /* -- ações --------------------------------------------------------------- */
@@ -309,10 +317,8 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   static async #removerPoi(_evento, alvo) {
-    const cena = canvas.scene;
-    if (!cena) return;
-    const pois = (cena.getFlag(SYSTEM_ID, "pois") ?? []).filter((uuid) => uuid !== alvo.dataset.poiUuid);
-    await cena.setFlag(SYSTEM_ID, "pois", pois);
+    const investigacao = investigacaoAtiva();
+    if (investigacao) await removerPoi(investigacao, alvo.dataset.poiUuid);
   }
 
   static async #arrombar(_evento, alvo) {
@@ -331,11 +337,8 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   static async #removerDesafio(_evento, alvo) {
-    const cena = canvas.scene;
-    if (!cena) return;
-    const desafios = (cena.getFlag(SYSTEM_ID, "desafios") ?? [])
-      .filter((uuid) => uuid !== alvo.dataset.desafioUuid);
-    await cena.setFlag(SYSTEM_ID, "desafios", desafios);
+    const investigacao = investigacaoAtiva();
+    if (investigacao) await removerDesafio(investigacao, alvo.dataset.desafioUuid);
   }
 
   static async #alcancar(_evento, alvo) {
@@ -413,6 +416,38 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     const tabela = sobrecarga.tabela.filter((_linha, indice) => indice !== Number(alvo.dataset.indice));
     await definirSobrecarga({ ...sobrecarga, tabela });
   }
+
+  static async #selecionarInvestigacao(_evento, alvo) {
+    if (!game.user.isGM) return;
+    await definirInvestigacaoAtiva(alvo.value);
+    this.render();
+  }
+
+  static async #criarInvestigacao() {
+    if (!game.user.isGM) return;
+    const nome = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("OP2.Investigacao.Nova") },
+      content: `
+        <div class="form-group">
+          <label>${game.i18n.localize("OP2.Investigacao.Nome")}</label>
+          <input type="text" name="nome" value="">
+        </div>`,
+      ok: { callback: (_ev, botao) => botao.form.elements.nome.value },
+      rejectClose: false,
+    });
+    if (nome === null) return;
+    await criarInvestigacao(nome);
+    this.render();
+  }
+
+  static async #abrirInvestigacao() {
+    investigacaoAtiva()?.sheet?.render(true);
+  }
+
+  static async #removerParticipante(_evento, alvo) {
+    const investigacao = investigacaoAtiva();
+    if (investigacao) await removerParticipante(investigacao, alvo.dataset.participanteUuid);
+  }
 }
 
 /* -- registro --------------------------------------------------------------- */
@@ -448,9 +483,8 @@ export function registrarPainelInvestigacao() {
   });
 
   const atualizar = () => { if (instancia?.rendered) instancia.render(); };
-  Hooks.on("updateScene", (cena) => { if (cena === canvas.scene) atualizar(); });
-  // Tokens e atores mudam o tracker; atores mudam também as revelações.
-  for (const gatilho of ["updateActor", "createActor", "deleteActor", "createToken", "deleteToken"]) {
+  // Tokens não importam mais para o roster, mas atores mudam as revelações.
+  for (const gatilho of ["updateActor", "createActor", "deleteActor"]) {
     Hooks.on(gatilho, atualizar);
   }
   for (const gatilho of ["createItem", "updateItem", "deleteItem"]) {
@@ -458,5 +492,4 @@ export function registrarPainelInvestigacao() {
       if (["ponto-interesse", "desafio-acesso", "ferramenta"].includes(item.type)) atualizar();
     });
   }
-  Hooks.on("canvasReady", atualizar);
 }

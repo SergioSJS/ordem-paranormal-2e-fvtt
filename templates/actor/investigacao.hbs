@@ -1,0 +1,125 @@
+<div class="op2-investigacao-corpo">
+  <header class="op2-item-ficha__topo">
+    <img src="{{actor.img}}" alt="" data-action="editImage" data-edit="img">
+    <input type="text" class="op2-nome" name="name" value="{{actor.name}}" {{#unless editavel}}disabled{{/unless}}>
+  </header>
+
+  <p class="op2-ajuda">{{localize "OP2.Investigacao.FichaAjuda"}}</p>
+
+  <section class="op2-painel-secao">
+    <h3 class="op2-painel-titulo">{{localize "OP2.Painel.Participantes"}}</h3>
+    {{#unless participantes.length}}
+      <p class="op2-ajuda">{{localize "OP2.Painel.SemParticipantes"}}</p>
+    {{/unless}}
+    <ol class="op2-painel-ordem">
+      {{#each participantes}}
+        <li class="op2-painel-ordem__linha{{#if (op2Eq tipo "npc")}} op2-painel-ordem__linha--npc{{/if}}">
+          <img src="{{img}}" alt=""> <span>{{nome}}</span>
+          {{#if (op2Eq tipo "npc")}}<span class="op2-painel-ordem__npc-tag">NPC</span>{{/if}}
+          {{#if @root.editavel}}
+            <button type="button" class="op2-botao-icone" data-action="removerParticipante" data-uuid="{{uuid}}"
+              aria-label="{{localize 'OP2.Painel.RemoverParticipante'}}">
+              <i class="fa-solid fa-link-slash" aria-hidden="true"></i>
+            </button>
+          {{/if}}
+        </li>
+      {{/each}}
+    </ol>
+    <p class="op2-ajuda">{{localize "OP2.Painel.ParticipantesAjuda"}}</p>
+  </section>
+
+  <section class="op2-painel-secao">
+    <h3 class="op2-painel-titulo">{{localize "OP2.Painel.POIs"}}</h3>
+    {{#unless pois.length}}
+      <p class="op2-ajuda">{{localize "OP2.Investigacao.SemPoisAjuda"}}</p>
+    {{/unless}}
+    <ol class="op2-painel-ordem">
+      {{#each pois}}
+        <li class="op2-painel-ordem__linha">
+          <img src="{{img}}" alt=""> <span>{{nome}}</span>
+          {{#if @root.editavel}}
+            <button type="button" class="op2-botao-icone" data-action="abrirDocumento" data-uuid="{{uuid}}"
+              aria-label="{{localize 'OP2.Painel.AbrirPOI'}}">
+              <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="op2-botao-icone" data-action="removerPoi" data-uuid="{{uuid}}"
+              aria-label="{{localize 'OP2.Painel.RemoverPOI'}}">
+              <i class="fa-solid fa-link-slash" aria-hidden="true"></i>
+            </button>
+          {{/if}}
+        </li>
+      {{/each}}
+    </ol>
+  </section>
+
+  <section class="op2-painel-secao">
+    <h3 class="op2-painel-titulo">{{localize "OP2.Painel.Desafios"}}</h3>
+    {{#unless desafios.length}}
+      <p class="op2-ajuda">{{localize "OP2.Investigacao.SemDesafiosAjuda"}}</p>
+    {{/unless}}
+    <ol class="op2-painel-ordem">
+      {{#each desafios}}
+        <li class="op2-painel-ordem__linha">
+          <img src="{{img}}" alt=""> <span>{{nome}}</span>
+          {{#if @root.editavel}}
+            <button type="button" class="op2-botao-icone" data-action="abrirDocumento" data-uuid="{{uuid}}"
+              aria-label="{{localize 'OP2.Painel.AbrirDesafio'}}">
+              <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="op2-botao-icone" data-action="removerDesafio" data-uuid="{{uuid}}"
+              aria-label="{{localize 'OP2.Painel.RemoverDesafio'}}">
+              <i class="fa-solid fa-link-slash" aria-hidden="true"></i>
+            </button>
+          {{/if}}
+        </li>
+      {{/each}}
+    </ol>
+  </section>
+
+  {{#if editavel}}
+    <section class="op2-painel-secao op2-painel-sobrecarga">
+      <h3 class="op2-painel-titulo">{{localize "OP2.Painel.Sobrecarga"}}</h3>
+      <label class="op2-campo op2-campo--inline">
+        <input type="checkbox" name="system.sobrecarga.ativa" {{#if sobrecarga.ativa}}checked{{/if}}>
+        <span>{{localize "OP2.Painel.SobrecargaAtiva"}}</span>
+      </label>
+
+      {{#if sobrecarga.ativa}}
+        <table class="op2-painel-tabela">
+          <thead>
+            <tr>
+              <th>{{localize "OP2.Painel.SobrecargaRodada"}}</th>
+              <th>{{localize "OP2.Painel.SobrecargaDano"}}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each sobrecarga.tabela}}
+              <tr data-sobrecarga-linha>
+                <td><input type="number" data-sobrecarga-campo="rodada" value="{{rodada}}" min="1" step="1"></td>
+                <td><input type="text" data-sobrecarga-campo="dano" value="{{dano}}"></td>
+                <td>
+                  <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo"
+                    data-action="removerLinhaSobrecarga" data-indice="{{indice}}"
+                    aria-label="{{localize 'OP2.Painel.RemoverLinha'}}">
+                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                  </button>
+                </td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="adicionarLinhaSobrecarga">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "OP2.Painel.AdicionarLinha"}}
+        </button>
+        <p class="op2-ajuda">{{localize "OP2.Painel.SobrecargaAjuda"}}</p>
+      {{/if}}
+    </section>
+  {{/if}}
+
+  <label class="op2-campo">
+    <span>{{localize "OP2.Investigacao.Notas"}}</span>
+    {{formInput fields.descricao value=sistema.descricao enriched=descricao toggled=true
+      editable=editavel name="system.descricao"}}
+  </label>
+</div>

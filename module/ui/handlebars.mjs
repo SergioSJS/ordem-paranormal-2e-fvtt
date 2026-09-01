@@ -11,6 +11,7 @@ const TEMPLATES = [
   `${RAIZ}/actor/personagem-notas.hbs`,
   `${RAIZ}/actor/personagem-pericias.hbs`,
   `${RAIZ}/actor/npc.hbs`,
+  `${RAIZ}/actor/investigacao.hbs`,
   `${RAIZ}/item/habilidade.hbs`,
   `${RAIZ}/item/equipamento.hbs`,
   `${RAIZ}/item/ponto-interesse.hbs`,

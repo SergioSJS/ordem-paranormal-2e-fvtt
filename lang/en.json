@@ -9,7 +9,8 @@
       "equipamento": "Equipment",
       "ponto-interesse": "Point of Interest",
       "desafio-acesso": "Access Challenge",
-      "ferramenta": "Tool"
+      "ferramenta": "Tool",
+      "investigacao": "Investigation"
     }
   },
   "OP2": {
@@ -20,7 +21,8 @@
       "PontoInteresse": "Point of Interest",
       "SemNome": "Unnamed",
       "DesafioAcesso": "Access Challenge",
-      "Ferramenta": "Ordo Realitas Tool"
+      "Ferramenta": "Ordo Realitas Tool",
+      "Investigacao": "Investigation"
     },
     "Atributo": {
       "fisico": "Physical",
@@ -219,7 +221,16 @@
       "TravaRegistrada": "{acao} is locked for the group until the end of the scene.",
       "AcaoTravada": "This action already succeeded in this scene.",
       "SemAliados": "No other character in the scene to receive the clue.",
-      "POIVazio": "This point of interest has no information on its board."
+      "POIVazio": "This point of interest has no information on its board.",
+      "Ativa": "Active investigation",
+      "Nova": "New investigation",
+      "Nome": "Name",
+      "AbrirFicha": "Open investigation sheet",
+      "NovaPadrao": "New investigation",
+      "FichaAjuda": "Round, mental strain, participants and the Recap/Share locks live in this investigation's flags, managed by the Investigation Panel. This field is just for GM notes.",
+      "Notas": "Notes",
+      "SemPoisAjuda": "No points of interest. Drag a Point of Interest item here.",
+      "SemDesafiosAjuda": "No access challenges. Drag an Access Challenge item here."
     },
     "Dialog": {
       "Teste": {
@@ -327,7 +338,13 @@
       "Desafios": "Access challenges",
       "SemDesafios": "No access challenge in this scene. The GM can drag an Access Challenge item here.",
       "AbrirDesafio": "Open the challenge sheet",
-      "RemoverDesafio": "Unlink from scene"
+      "RemoverDesafio": "Unlink from scene",
+      "SemInvestigacao": "No investigation selected",
+      "SemInvestigacaoAjuda": "Pick an existing investigation or create a new one. Round, mental strain, participants and the Recap/Share locks belong to the investigation, not the Scene — an investigation can span several maps.",
+      "Participantes": "Participants",
+      "SemParticipantes": "No one in the investigation yet. Drag an Actor here.",
+      "ParticipantesAjuda": "Who's part of the investigation, not who has a token on the Scene — drag characters and NPCs from anywhere.",
+      "RemoverParticipante": "Remove from investigation"
     },
     "Rodada": {
       "Titulo": "Round {rodada}",

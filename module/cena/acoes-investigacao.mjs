@@ -9,7 +9,8 @@
  */
 import { SYSTEM_ID, DT_RECAPITULAR, DT_COMPARTILHAR, CUSTO_PD_EXAMINAR } from "../config.mjs";
 import { resolverInvestigacao, resolverExaminar, periciasDoQuadro, chaveInfo } from "./investigacao.mjs";
-import { personagensDaCenaAtiva } from "./encerrar-cena.mjs";
+import { personagensDaCenaAtiva } from "./encerrar-investigacao.mjs";
+import { investigacaoAtiva } from "./investigacao-ativa.mjs";
 import { rolarTeste, rotuloDePericia, renderizar } from "../dice/teste.mjs";
 import { lerConfig } from "../settings/register.mjs";
 
@@ -178,7 +179,7 @@ export async function interagir(ator, poiUuid) {
  * coerente, teste de Intuição DT 10. Sucesso trava a ação para o grupo na cena.
  */
 export async function recapitular(ator, { confirmar = true, rapido = false } = {}) {
-  if (canvas.scene?.getFlag(SYSTEM_ID, "recapitularUsado")) {
+  if (investigacaoAtiva()?.system.recapitularUsado.usado) {
     ui.notifications.warn(game.i18n.localize("OP2.Investigacao.AcaoTravada"));
     return null;
   }
@@ -215,7 +216,7 @@ export async function recapitular(ator, { confirmar = true, rapido = false } = {
  * livre. Sucesso trava a ação para o grupo na cena.
  */
 export async function compartilhar(ator, { aliadoId = null } = {}) {
-  if (canvas.scene?.getFlag(SYSTEM_ID, "compartilharUsado")) {
+  if (investigacaoAtiva()?.system.compartilharUsado.usado) {
     ui.notifications.warn(game.i18n.localize("OP2.Investigacao.AcaoTravada"));
     return null;
   }
@@ -291,9 +292,9 @@ export async function testarCompartilhamento(aliado, compartilhadorId) {
  * ele quem julga se a interpretação valeu a pista (spec §6.4/§6.5).
  */
 export async function registrarTravaDeCena(trava, ator) {
-  const cena = canvas.scene;
-  if (!cena) return;
-  await cena.setFlag(SYSTEM_ID, trava, { ator: ator.id, nome: ator.name });
+  const investigacao = investigacaoAtiva();
+  if (!investigacao) return;
+  await investigacao.update({ [`system.${trava}`]: { usado: true, atorId: ator.id, nome: ator.name } });
   ui.notifications.info(game.i18n.format("OP2.Investigacao.TravaRegistrada", {
     acao: game.i18n.localize(trava === "recapitularUsado"
       ? "OP2.Investigacao.Recapitular" : "OP2.Investigacao.Compartilhar"),

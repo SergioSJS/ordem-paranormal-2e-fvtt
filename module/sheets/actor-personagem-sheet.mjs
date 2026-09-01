@@ -10,7 +10,7 @@ import { stepDie } from "../dice/escada.mjs";
 import { rolarTeste } from "../dice/teste.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
 import { lerConfig } from "../settings/register.mjs";
-import { encerrarCena } from "../cena/encerrar-cena.mjs";
+import { encerrarCena } from "../cena/encerrar-investigacao.mjs";
 import { ligarRodaDoMouse } from "../ui/controle-dado.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;

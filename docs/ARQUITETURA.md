@@ -74,6 +74,19 @@ cena, escritas só pelo GM.
 o painel de investigação implementa a ordem arrastável com NPCs ao fim (spec §5.2) e o
 avanço de rodada que dispara a sobrecarga mental (spec §7.6).
 
+**Investigação é Actor, não flag de Scene.** A primeira versão (Fase 2) guardava rodada,
+sobrecarga, POIs vinculados e as travas de Recapitular/Compartilhar em flags da Scene
+ativa — e quebrava assim que uma investigação de verdade atravessava mais de um mapa
+(achado em uso real: o time se move entre cômodos, mas continua na mesma investigação).
+`investigacao` é um tipo de Actor com ficha própria (`InvestigacaoData`,
+`module/data/actor-investigacao.mjs`), sem nenhuma referência a `canvas.scene` em
+código nenhum do sistema. POI e Desafio de Acesso continuam Item — são conteúdo
+autoral, reutilizável — mas o vínculo "este POI está nesta investigação" é um campo de
+schema na investigação (`system.pois`), não uma flag de Scene. Só existe uma
+investigação "ativa" por vez (setting de mundo `investigacaoAtivaUuid`, não uma
+escolha de regra — por isso `config: false`); o mestre troca pelo seletor do painel ou
+abrindo a ficha da investigação direto pela sidebar de Actors.
+
 ## Compatibilidade v13 + v14
 
 Caminhos de API usados, válidos nas duas versões:
