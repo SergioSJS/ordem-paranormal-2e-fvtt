@@ -305,6 +305,86 @@ const relato = await page.evaluate(async () => {
   await painel.render();
   await esperar(400);
 
+  /* ------------------------------------- investigações múltiplas em jogo ----- */
+  // O grupo pode se dividir em mais de uma investigação "em jogo" ao mesmo tempo
+  // (achado em uso real). "Em jogo" é ponteiro de MUNDO (só o mestre marca); "vendo
+  // agora" é ponteiro de CLIENTE (cada um navega entre as suas).
+  {
+    // Quem só usa uma investigação não pode precisar entender o checkbox: criar já
+    // marca "em jogo" e já seleciona para quem criou — o fluxo de antes não muda.
+    ok("investigação recém-criada já está em jogo",
+      game.settings.get("ordem-paranormal-2e", "investigacoesAtivasUuids").includes(investigacao.uuid));
+    ok("checkbox Em jogo já vem marcado para o mestre",
+      painelEl.querySelector('[data-action="alternarAtiva"]')?.checked === true);
+
+    const delegacia = await game.op2.criarInvestigacao("Delegacia de Teste");
+    await game.op2.adicionarParticipante(delegacia, ator.uuid);
+    // criarInvestigacao aponta o mestre para a nova; este roteiro segue na Mansão.
+    await game.op2.definirInvestigacaoAtiva(investigacao.uuid);
+    await painel.render();
+    await esperar(400);
+    ok("seletor do mestre lista as duas investigações",
+      painelEl.querySelectorAll("[data-seletor-investigacao] option[value]:not([value=''])").length === 2);
+
+    // Jogador com personagem participante das duas navega sozinho entre elas.
+    Object.defineProperty(game.user, "isGM", { value: false, configurable: true });
+    await painel.render();
+    await esperar(400);
+    const seletorJogador = painelEl.querySelector("[data-seletor-investigacao]");
+    ok("jogador participante também tem seletor", Boolean(seletorJogador));
+    ok("jogador vê as duas investigações em jogo em que participa",
+      seletorJogador?.querySelectorAll("option").length === 2);
+    // Marcar "em jogo" grava num setting de mundo — bastidor do mestre, como todo
+    // o resto do painel; o checkbox nem renderiza para o jogador.
+    ok("checkbox Em jogo não aparece para o jogador (mestre-only)",
+      !painelEl.querySelector('[data-action="alternarAtiva"]'));
+
+    seletorJogador.value = delegacia.uuid;
+    seletorJogador.dispatchEvent(new Event("change"));
+    await esperar(600);
+    ok("jogador troca a investigação que está vendo (ponteiro de cliente)",
+      game.settings.get("ordem-paranormal-2e", "investigacaoVisualizandoUuid") === delegacia.uuid);
+    ok("painel do jogador passa a mostrar a investigação escolhida",
+      Boolean(painelEl.textContent.includes("Delegacia de Teste")));
+    ok("conteúdo da outra investigação não vaza na visão trocada",
+      !painelEl.textContent.includes("Quadro na Parede"));
+
+    // Sem personagem atribuído: nada visível — aviso amigável, painel íntegro.
+    // `character` é propriedade PRÓPRIA da instância de User, não um getter no
+    // protótipo — `delete` a removeria de vez; guarda o descritor e restaura.
+    const descCharacter = Object.getOwnPropertyDescriptor(game.user, "character");
+    Object.defineProperty(game.user, "character", { value: null, configurable: true });
+    await painel.render();
+    await esperar(400);
+    ok("jogador sem personagem vê o aviso de nenhuma investigação",
+      Boolean(painelEl.textContent.includes(game.i18n.localize("OP2.Painel.SemInvestigacao"))));
+    ok("sem investigação visível o painel não renderiza seções de jogo",
+      !painelEl.querySelector("[data-seletor-investigacao]") && !painelEl.querySelector(".op2-painel-ordem"));
+    Object.defineProperty(game.user, "character", descCharacter);
+
+    // O mestre tirando de jogo é o que tira a investigação do seletor do jogador.
+    delete game.user.isGM;
+    await game.op2.definirInvestigacaoAtiva(delegacia.uuid);
+    await painel.render();
+    await esperar(400);
+    painelEl.querySelector('[data-action="alternarAtiva"]')?.click();
+    await esperar(400);
+    ok("desmarcar Em jogo tira a investigação do setting de mundo",
+      !game.settings.get("ordem-paranormal-2e", "investigacoesAtivasUuids").includes(delegacia.uuid));
+
+    Object.defineProperty(game.user, "isGM", { value: false, configurable: true });
+    await painel.render();
+    await esperar(400);
+    ok("investigação fora de jogo some do seletor do jogador",
+      painelEl.querySelectorAll("[data-seletor-investigacao] option").length === 1);
+    delete game.user.isGM;
+
+    await delegacia.delete();
+    await game.op2.definirInvestigacaoAtiva(investigacao.uuid);
+    await painel.render();
+    await esperar(400);
+  }
+
   dados.controles = Object.keys(ui.controls?.controls ?? {});
   // O framework de scene controls do core nunca redispara o clique de uma tool já
   // ativa (`if (tool === this.tool) return` em #onChangeTool) — um botão flutuante
@@ -900,6 +980,11 @@ const relato = await page.evaluate(async () => {
 // achado só aparece com uma interação real de mouse, não uma chamada de função
 // simulada dentro da página.
 {
+  // Num mundo descartável recém-criado o tour de boas-vindas do core abre sozinho
+  // e o overlay cobre a tela inteira, interceptando o clique real abaixo.
+  await page.evaluate(async () => { await globalThis.Tour?.activeTour?.exit(); });
+  await page.waitForTimeout(300);
+
   // `ui.windows` não rastreia este tipo de app (achado em uso real, depurando
   // este mesmo teste) — checar pela existência no DOM é o jeito certo.
   const existeNoDOM = () => page.evaluate(() => Boolean(document.getElementById("op2-painel-investigacao")));
