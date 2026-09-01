@@ -13,6 +13,9 @@ styles/*.css.map
 # Preview gerado por scripts/preview.mjs
 preview.html
 
+# Screenshot do e2e quando rodado sem pasta de saída (npm run e2e)
+e2e-foundry.png
+
 # Packs compilados (fonte fica em packs/sources/)
 packs/habilidades/
 packs/perfis/

@@ -33,6 +33,21 @@
           {{localize "OP2.Investigacao.Compartilhar"}}
           {{#if compartilharUsado}}<span class="op2-painel-trava">· {{compartilharUsado.nome}}</span>{{/if}}
         </button>
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="alcancar" data-modo="seguro">
+          {{localize "OP2.Desafio.AlcancarSeguro"}}
+        </button>
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="alcancar" data-modo="arriscado">
+          {{localize "OP2.Desafio.AlcancarArriscado"}}
+        </button>
+        {{#if sustentando}}
+          <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="pararDeSustentar">
+            {{localize "OP2.Desafio.PararDeSustentar"}}
+          </button>
+        {{else}}
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="sustentar">
+            {{localize "OP2.Desafio.Sustentar"}}
+          </button>
+        {{/if}}
       {{else}}
         <p class="op2-ajuda">{{localize "OP2.Painel.SemPersonagem"}}</p>
       {{/if}}
@@ -120,6 +135,48 @@
                   {{localize "OP2.Investigacao.Investigar"}}
                 </button>
               {{/if}}
+            {{/if}}
+          </li>
+        {{/each}}
+      </ol>
+    </section>
+
+    <section class="op2-painel-secao">
+      <h3 class="op2-painel-titulo">{{localize "OP2.Painel.Desafios"}}</h3>
+      {{#unless desafios.length}}
+        <p class="op2-ajuda">{{localize "OP2.Painel.SemDesafios"}}</p>
+      {{/unless}}
+
+      <ol class="op2-painel-pois">
+        {{#each desafios}}
+          <li class="op2-poi-card">
+            <header class="op2-poi-card__topo">
+              <img src="{{img}}" alt="">
+              <strong>{{nome}}</strong>
+              {{#if @root.ehGM}}
+                <span class="op2-poi-card__acoes-gm">
+                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="abrirDesafio"
+                    data-desafio-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.AbrirDesafio'}}">
+                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="removerDesafio"
+                    data-desafio-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.RemoverDesafio'}}">
+                    <i class="fa-solid fa-link-slash" aria-hidden="true"></i>
+                  </button>
+                </span>
+              {{/if}}
+            </header>
+
+            <p class="op2-ajuda">
+              {{localize "OP2.Desafio.Progresso"}}: {{pontuacaoAtual}} / {{pontuacaoAlvo}}
+              {{#if quebrado}} — {{localize "OP2.Desafio.Quebrado"}}{{/if}}
+            </p>
+
+            {{#if @root.temPersonagem}}
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="arrombar"
+                data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}}>
+                {{localize "OP2.Desafio.Arrombar"}}
+              </button>
             {{/if}}
           </li>
         {{/each}}

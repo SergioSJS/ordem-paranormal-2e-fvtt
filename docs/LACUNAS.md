@@ -106,6 +106,23 @@ O texto só dá a direção: quanto maior o resultado, mais fácil o problema.
 **Decisão:** fica como ferramenta de mestre (timer + banco de perguntas) na fase 3, sem
 curva automática.
 
+### Alcançar seguro: o que acontece entre as duas ações? (spec §7.4)
+
+O texto pede "duas ações em sequência", sem dizer o que pode interromper a segunda —
+outro personagem agir no meio, o cenário mudar, etc.
+
+**Decisão M1:** as duas ações resolvem em sequência imediata na mesma chamada
+(`alcancar()`, `module/cena/acoes-desafio.mjs`); a segunda só roda se a primeira passar.
+Sem gancho para intercalar outra coisa entre elas.
+
+### Sustentar: o que é sustentado e o que acontece ao soltar? (spec §7.5)
+
+O texto não modela o objeto sustentado nem a consequência de soltar — só a fadiga
+cumulativa do teste.
+
+**Decisão:** `estado.sustentando` guarda só `ativo` e `fadiga` no ator. O card de chat
+avisa quando alguém solta; o que isso significa na cena é narrativo, decidido pela mesa.
+
 ## Como adicionar uma lacuna nova
 
 1. Documente aqui: o que a fonte diz, onde é ambígua, e o default escolhido com o motivo.

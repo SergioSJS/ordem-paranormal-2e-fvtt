@@ -146,6 +146,14 @@
     color: var(--op2-vermelho-claro);
   }
 
+  // Sem isto, um botão desabilitado (trava de cena, desafio quebrado) fica
+  // idêntico a um clicável — só o clique não funciona, mas nada avisa o olho
+  // (achado em uso real, verificando a seção de Desafios do painel).
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+
   &--fantasma {
     background: transparent;
   }

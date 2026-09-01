@@ -1,0 +1,55 @@
+<div class="op2-item-ficha">
+  <header class="op2-item-ficha__topo">
+    <img src="{{item.img}}" alt="" data-action="editImage" data-edit="img">
+    <input type="text" class="op2-nome" name="name" value="{{item.name}}" {{#unless editavel}}disabled{{/unless}}>
+  </header>
+
+  <div class="op2-grade-campos">
+    <label class="op2-campo">
+      <span>{{localize "OP2.Desafio.DtObjeto"}}</span>
+      <input type="number" name="system.dtObjeto" value="{{sistema.dtObjeto}}" min="0"
+        {{#unless editavel}}disabled{{/unless}}>
+    </label>
+
+    <label class="op2-campo">
+      <span>{{localize "OP2.Desafio.PontuacaoAlvo"}}</span>
+      <input type="number" name="system.pontuacaoAlvo" value="{{sistema.pontuacaoAlvo}}" min="1"
+        {{#unless editavel}}disabled{{/unless}}>
+    </label>
+
+    <label class="op2-campo">
+      <span>{{localize "OP2.Desafio.MaxTentativas"}}</span>
+      <input type="number" name="system.maxTentativas" value="{{sistema.maxTentativas}}" min="0"
+        {{#unless editavel}}disabled{{/unless}}>
+    </label>
+  </div>
+  <p class="op2-ajuda">{{localize "OP2.Desafio.MaxTentativasAjuda"}}</p>
+
+  <fieldset class="op2-desafio-progresso">
+    <legend>{{localize "OP2.Desafio.Progresso"}}</legend>
+
+    <div class="op2-grade-campos">
+      <label class="op2-campo">
+        <span>{{localize "OP2.Desafio.PontuacaoAtual"}}</span>
+        <input type="number" name="system.pontuacaoAtual" value="{{sistema.pontuacaoAtual}}" min="0"
+          {{#unless editavel}}disabled{{/unless}}>
+      </label>
+      <label class="op2-campo">
+        <span>{{localize "OP2.Desafio.TentativasUsadas"}}</span>
+        <input type="number" name="system.tentativasUsadas" value="{{sistema.tentativasUsadas}}" min="0"
+          {{#unless editavel}}disabled{{/unless}}>
+      </label>
+    </div>
+
+    <div class="op2-progresso" role="progressbar"
+      aria-valuenow="{{sistema.pontuacaoAtual}}" aria-valuemin="0" aria-valuemax="{{sistema.pontuacaoAlvo}}">
+      <div class="op2-progresso__preenchido" style="width: {{percentualProgresso}}%"></div>
+    </div>
+
+    <label class="op2-campo op2-campo--inline">
+      <input type="checkbox" name="system.quebrado" {{#if sistema.quebrado}}checked{{/if}}
+        {{#unless editavel}}disabled{{/unless}}>
+      <span>{{localize "OP2.Desafio.Quebrado"}}</span>
+    </label>
+  </fieldset>
+</div>

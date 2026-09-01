@@ -252,6 +252,106 @@ const relato = await page.evaluate(async () => {
   ok("encerrar cena limpa revelações do actor", ator.system.estado.infosReveladas.size === 0);
   ok("encerrar cena limpa rodada e travas", dados.encerrar.rodada === undefined && dados.encerrar.trava === undefined);
 
+  /* ---------------------------------------------------- desafios de acesso -- */
+  // Fase 3 M1 (spec §7.2/§7.4/§7.5). DT 0 e DT 999 forçam sucesso/falha
+  // determinísticos — o teste não pode depender do valor exato rolado.
+  {
+    const fechadura = await Item.create({
+      name: "Fechadura Emperrada", type: "desafio-acesso",
+      system: { dtObjeto: 0, pontuacaoAlvo: 1, maxTentativas: 0 },
+    });
+    ok("desafio criado com data model próprio", fechadura?.system.constructor.name === "DesafioAcessoData");
+
+    const pvAntes = ator.system.recursos.pv.value;
+    const arrombou1 = await game.op2.arrombar(ator, fechadura.uuid, { rapido: true });
+    await esperar(500);
+    ok("arrombar cobra 1 PV por tentativa", ator.system.recursos.pv.value === pvAntes - 1);
+    ok("DT 0 e PA 1 arrombam na primeira tentativa", arrombou1?.arrombou === true);
+    ok("card de Arrombar mostra o resultado",
+      Boolean([...document.querySelectorAll(".op2-card")].at(-1)?.textContent.includes(game.i18n.localize("OP2.Desafio.Arrombou"))));
+
+    const cofre = await Item.create({
+      name: "Cofre Blindado", type: "desafio-acesso",
+      system: { dtObjeto: 999, pontuacaoAlvo: 999, maxTentativas: 1 },
+    });
+    const arrombou2 = await game.op2.arrombar(ator, cofre.uuid, { rapido: true });
+    await esperar(500);
+    ok("excedeu a única tentativa sem arrombar: quebra", arrombou2?.quebrado === true && cofre.system.quebrado === true);
+    ok("desafio quebrado recusa nova tentativa", await game.op2.arrombar(ator, cofre.uuid, { rapido: true }) === null);
+
+    // Painel: seção "Desafios" lista os itens vinculados à cena (mesmo padrão de
+    // arrastar POI já testado acima), com progresso e botão de Arrombar.
+    await canvas.scene.setFlag("ordem-paranormal-2e", "desafios", [fechadura.uuid, cofre.uuid]);
+    await painel.render();
+    await esperar(800);
+    ok("painel lista os desafios vinculados à cena",
+      Boolean(painel.element?.textContent.includes("Fechadura Emperrada"))
+      && Boolean(painel.element?.textContent.includes("Cofre Blindado")));
+    ok("painel mostra o progresso do desafio (1 / 1)", Boolean(painel.element?.textContent.includes("1 / 1")));
+    {
+      const botaoArrombarCofre = [...painel.element.querySelectorAll('[data-action="arrombar"]')]
+        .find((b) => b.dataset.desafioUuid === cofre.uuid);
+      ok("desafio quebrado desabilita o botão Arrombar no painel", botaoArrombarCofre?.disabled === true);
+      // Achado junto: um botão desabilitado era visualmente idêntico a um clicável.
+      ok("botão desabilitado parece desabilitado (opacidade reduzida)",
+        parseFloat(getComputedStyle(botaoArrombarCofre).opacity) < 1);
+    }
+
+    // Ficha do desafio: campos + barra de progresso visual.
+    await fechadura.sheet.render(true);
+    await esperar(800);
+    const desafioEl = fechadura.sheet.element;
+    ok("ficha do desafio renderizou", Boolean(desafioEl));
+    ok("barra de progresso reflete pontuacaoAtual/pontuacaoAlvo (100%)",
+      desafioEl?.querySelector(".op2-progresso__preenchido")?.style.width === "100%");
+    await fechadura.sheet.close();
+
+    await fechadura.delete();
+    await cofre.delete();
+
+    // ALCANÇAR: DT 0 sempre passa nas duas ações do modo seguro; DT 999 nunca
+    // alcança no arriscado e nunca aplica dano sozinho — só oferece o botão.
+    const seguroOk = await game.op2.alcancar(ator, { modo: "seguro", dt: 0, rapido: true });
+    ok("alcançar seguro com DT 0 passa nas duas ações em sequência", seguroOk?.sucesso === true);
+
+    const arriscadoFalha = await game.op2.alcancar(ator, { modo: "arriscado", dt: 999, rapido: true });
+    ok("alcançar arriscado com DT alta falha", arriscadoFalha?.sucesso === false);
+    ok("falha no arriscado aponta dano = RA (spec §7.4)", Number.isInteger(arriscadoFalha?.dano));
+
+    await esperar(500);
+    const cardAlcancar = [...document.querySelectorAll(".op2-card")].at(-1);
+    const botaoDanoAlcancar = cardAlcancar?.querySelector('[data-op2-acao="aplicar-dano"]');
+    ok("card de Alcançar oferece botão de dano em vez de aplicar sozinho",
+      Boolean(botaoDanoAlcancar) && Number(botaoDanoAlcancar.dataset.quantidade) === arriscadoFalha.dano);
+
+    // SUSTENTAR: DT 0 garante início e a 1ª fadiga; sobe a DT e a 2ª fadiga solta.
+    const dtOriginal = game.settings.get("ordem-paranormal-2e", "dtPadrao");
+    await game.settings.set("ordem-paranormal-2e", "dtPadrao", 0);
+
+    const iniciou = await game.op2.sustentar(ator, { rapido: true });
+    ok("sustentar com DT 0 sempre começa", iniciou?.sustentando === true);
+    ok("sustentar liga a flag no ator", ator.system.estado.sustentando.ativo === true);
+
+    // A 1ª `avancarRodada()` só liga a rodada 1 (mesma guarda `encerrada >= 1` da
+    // sobrecarga) — a fadiga só entra a partir da rodada seguinte, quando uma
+    // rodada de verdade se encerra.
+    await game.op2.avancarRodada();
+    await esperar(500);
+    ok("1ª chamada só liga a rodada, sem testar fadiga ainda", ator.system.estado.sustentando.fadiga === 0);
+
+    await game.op2.avancarRodada();
+    await esperar(500);
+    ok("fadiga com DT 0 continua sustentando", ator.system.estado.sustentando.ativo === true);
+    ok("fadiga acumula a cada rodada", ator.system.estado.sustentando.fadiga === 1);
+
+    await game.settings.set("ordem-paranormal-2e", "dtPadrao", 999);
+    await game.op2.avancarRodada();
+    await esperar(500);
+    ok("fadiga com DT alta solta o que era sustentado", ator.system.estado.sustentando.ativo === false);
+
+    await game.settings.set("ordem-paranormal-2e", "dtPadrao", dtOriginal);
+  }
+
   /* ------------------------------------------------------------ ficha do POI -- */
 
   await poi.sheet.render(true);

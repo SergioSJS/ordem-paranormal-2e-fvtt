@@ -11,7 +11,7 @@ import { campoAtributos, campoPericias, campoAptidoes, campoRecurso, campoContad
 
 export class PersonagemData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
-    const { SchemaField, StringField, NumberField, HTMLField } = foundry.data.fields;
+    const { SchemaField, StringField, NumberField, BooleanField, HTMLField } = foundry.data.fields;
 
     return {
       tipo: new StringField({ required: true, initial: "agente", choices: TIPOS_PERSONAGEM, blank: false }),
@@ -46,6 +46,14 @@ export class PersonagemData extends foundry.abstract.TypeDataModel {
         // Zerada ao encerrar a cena.
         poisInvestigados: new foundry.data.fields.SetField(new StringField(), { initial: [] }),
         infosReveladas: new foundry.data.fields.SetField(new StringField(), { initial: [] }),
+
+        // Sustentar (spec §7.5): fadiga cumulativa própria, distinta de
+        // `reducoesTemporarias` (aquela é o efeito "até o fim da cena" da falha
+        // crítica; esta é o desgaste de segurar algo, rodada a rodada).
+        sustentando: new SchemaField({
+          ativo: new BooleanField({ required: true, initial: false }),
+          fadiga: new NumberField({ required: true, initial: 0, min: 0, integer: true, nullable: false }),
+        }),
       }),
 
       biografia: new HTMLField({ required: true, initial: "", blank: true }),

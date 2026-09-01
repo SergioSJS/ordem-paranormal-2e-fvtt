@@ -11,6 +11,7 @@ import { danoSobrecarga } from "./investigacao.mjs";
 import { personagensDaCenaAtiva } from "./encerrar-cena.mjs";
 import { renderizar } from "../dice/teste.mjs";
 import { aplicarDano } from "../dice/falha-critica.mjs";
+import { testarFadigaDeSustentar } from "./acoes-desafio.mjs";
 
 export function rodadaAtual(cena = canvas.scene) {
   return cena?.getFlag(SYSTEM_ID, "rodada") ?? 0;
@@ -47,6 +48,14 @@ export async function avancarRodada() {
 
   const sobrecarga = sobrecargaDaCena(cena);
   const dano = sobrecarga.ativa && encerrada >= 1 ? danoSobrecarga(sobrecarga.tabela, encerrada) : "0";
+
+  // Fim de rodada também é quando quem está Sustentando (spec §7.5) testa de novo,
+  // com a fadiga acumulada. Roda para todo mundo na cena, não só o dono do painel.
+  if (encerrada >= 1) {
+    for (const personagem of personagensDaCenaAtiva()) {
+      if (personagem.system.estado.sustentando?.ativo) await testarFadigaDeSustentar(personagem);
+    }
+  }
 
   const conteudo = await renderizar("systems/ordem-paranormal-2e/templates/chat/rodada.hbs", {
     nova,

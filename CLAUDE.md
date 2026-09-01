@@ -16,9 +16,10 @@ da spec e das amostras visuais; extraia dele em vez de adivinhar.
 
 ## Estado
 
-**Fase:** 2 — Investigação
+**Fase:** 3 — Desafios e ferramentas (M1 pronto: desafios de acesso físico)
 **Versão:** 0.0.1
-**Próxima milestone:** 0.2.0 — investigação jogável em v13 e v14 (falta validar o v13)
+**Próxima milestone:** 0.3.0 — M2/M3 (Destrancar, ferramenta, Laboratório Portátil,
+Rádio Modificado). Validação em v13 segue bloqueada em todas as fases (falta instalação).
 
 ## Convenções
 
@@ -88,6 +89,7 @@ O servidor do Foundry v14 exige **Node 24**. O `npm test` do projeto roda em Nod
 - `escada.test.mjs` — piso, teto, d20, passos compostos.
 - `analise.test.mjs` — RA/RB, crítico, falha crítica, precedência sobre a DT.
 - `investigacao.test.mjs` — as duas leituras da coluna DT, custo de PD, sobrecarga.
+- `desafios.test.mjs` — Arrombar (pontuação/teto de tentativas), dano de Alcançar.
 - `i18n.test.mjs` — paridade pt-BR/en e chave inexistente usada no código.
 - `carga.test.mjs` — todo módulo importa, todo template compila, manifesto consistente.
 

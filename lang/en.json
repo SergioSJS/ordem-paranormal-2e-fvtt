@@ -7,7 +7,8 @@
     "Item": {
       "habilidade": "Ability",
       "equipamento": "Equipment",
-      "ponto-interesse": "Point of Interest"
+      "ponto-interesse": "Point of Interest",
+      "desafio-acesso": "Access Challenge"
     }
   },
   "OP2": {
@@ -16,7 +17,8 @@
       "Npc": "NPC Sheet",
       "Item": "Item Sheet",
       "PontoInteresse": "Point of Interest",
-      "SemNome": "Unnamed"
+      "SemNome": "Unnamed",
+      "DesafioAcesso": "Access Challenge"
     },
     "Atributo": {
       "fisico": "Physical",
@@ -289,7 +291,8 @@
       "DanoRB": "LR damage",
       "RolarFalhaCritica": "Roll effect (1d8)",
       "AplicarEfeito": "Apply effect",
-      "DanoAplicado": "{quantidade} damage to {alvos}."
+      "DanoAplicado": "{quantidade} damage to {alvos}.",
+      "AplicarDano": "Apply damage"
     },
     "Cena": {
       "Encerrar": "End scene",
@@ -317,7 +320,11 @@
       "SobrecargaDano": "Damage",
       "AdicionarLinha": "New row",
       "RemoverLinha": "Remove row",
-      "ProximoDano": "When round {rodada} ends: {dano} emotional damage."
+      "ProximoDano": "When round {rodada} ends: {dano} emotional damage.",
+      "Desafios": "Access challenges",
+      "SemDesafios": "No access challenge in this scene. The GM can drag an Access Challenge item here.",
+      "AbrirDesafio": "Open the challenge sheet",
+      "RemoverDesafio": "Unlink from scene"
     },
     "Rodada": {
       "Titulo": "Round {rodada}",
@@ -332,7 +339,8 @@
       "AptidaoDuplicada": "An Aptitude field named \"{rotulo}\" already exists.",
       "AtorAusente": "The character for this card no longer exists.",
       "POIAusente": "Point of interest not found.",
-      "SemPermissao": "This button belongs to another player or to the GM."
+      "SemPermissao": "This button belongs to another player or to the GM.",
+      "DesafioAusente": "Access challenge not found."
     },
     "Config": {
       "dtPadrao": {
@@ -369,6 +377,37 @@
         "name": "Click opens the check dialog",
         "hint": "By default a click rolls directly and Shift opens the dialog. Enable to swap them."
       }
+    },
+    "Desafio": {
+      "DtObjeto": "Object DC",
+      "PontuacaoAlvo": "Target Score",
+      "PontuacaoAtual": "Current Score",
+      "MaxTentativas": "Max attempts",
+      "MaxTentativasAjuda": "0 = no limit. Only locks tend to have a cap in the playtest.",
+      "TentativasUsadas": "Attempts used",
+      "Progresso": "Progress",
+      "Quebrado": "Broken (only a key will do now)",
+      "JaQuebrado": "This challenge is already broken — it can't be forced open anymore.",
+      "Arrombar": "Force Open",
+      "Arrombou": "Forced open!",
+      "Quebrou": "Ran out of attempts and broke. Only a key will do now.",
+      "Alcancar": "Reach",
+      "AlcancarSeguro": "Reach (safe)",
+      "AlcancarArriscado": "Reach (risky)",
+      "Alcancou": "Made it!",
+      "AlcancarFalhou": "Didn't make it.",
+      "DtAmbiente": "Environment DC",
+      "Modo": {
+        "seguro": "safe",
+        "arriscado": "risky"
+      },
+      "Sustentar": "Hold",
+      "PararDeSustentar": "Stop holding",
+      "JaSustentando": "You are already holding something.",
+      "Fadiga": "Fatigue",
+      "SustentarFalhouInicio": "{ator} couldn't hold on.",
+      "SustentarSucesso": "{ator} is holding on.",
+      "SustentarSoltou": "{ator} couldn't take it anymore and let go."
     }
   }
 }

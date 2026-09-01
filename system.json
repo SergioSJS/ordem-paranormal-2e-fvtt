@@ -38,7 +38,8 @@
     "Item": {
       "habilidade": {},
       "equipamento": {},
-      "ponto-interesse": {}
+      "ponto-interesse": {},
+      "desafio-acesso": {}
     }
   },
   "relationships": {

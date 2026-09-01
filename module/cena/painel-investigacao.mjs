@@ -17,6 +17,7 @@ import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada } from 
 import {
   dialogoInvestigar, investigar, examinar, interagir, recapitular, compartilhar, idsRevelados,
 } from "./acoes-investigacao.mjs";
+import { arrombar, alcancar, sustentar, pararDeSustentar } from "./acoes-desafio.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -39,6 +40,12 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       compartilhar: PainelInvestigacao.#compartilhar,
       abrirPoi: PainelInvestigacao.#abrirPoi,
       removerPoi: PainelInvestigacao.#removerPoi,
+      arrombar: PainelInvestigacao.#arrombar,
+      abrirDesafio: PainelInvestigacao.#abrirDesafio,
+      removerDesafio: PainelInvestigacao.#removerDesafio,
+      alcancar: PainelInvestigacao.#alcancar,
+      sustentar: PainelInvestigacao.#sustentar,
+      pararDeSustentar: PainelInvestigacao.#pararDeSustentar,
       novaRodada: PainelInvestigacao.#novaRodada,
       encerrarCena: PainelInvestigacao.#encerrarCena,
       alternarSobrecarga: PainelInvestigacao.#alternarSobrecarga,
@@ -71,7 +78,9 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       ehGM,
       temPersonagem: Boolean(ator),
       atorNome: ator?.name ?? null,
+      sustentando: ator?.system.estado.sustentando?.ativo ?? false,
       pois: cena ? await this.#contextoPois(cena, ator, ehGM) : [],
+      desafios: cena ? await this.#contextoDesafios(cena) : [],
       ordem: this.#contextoOrdem(cena),
       npcs: npcsDaCenaAtiva().map((a) => ({ id: a.id, nome: a.name, img: a.img })),
       recapitularUsado: cena?.getFlag(SYSTEM_ID, "recapitularUsado") ?? null,
@@ -126,6 +135,23 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     return pois;
   }
 
+  async #contextoDesafios(cena) {
+    const desafios = [];
+    for (const uuid of cena.getFlag(SYSTEM_ID, "desafios") ?? []) {
+      const desafio = await fromUuid(uuid);
+      if (desafio?.type !== "desafio-acesso") continue;
+      desafios.push({
+        uuid,
+        nome: desafio.name,
+        img: desafio.img,
+        pontuacaoAtual: desafio.system.pontuacaoAtual,
+        pontuacaoAlvo: desafio.system.pontuacaoAlvo,
+        quebrado: desafio.system.quebrado,
+      });
+    }
+    return desafios;
+  }
+
   /**
    * Ordem das rodadas: a gravada na cena, saneada contra quem tem token agora —
    * quem saiu some, quem chegou entra no fim. NPCs nunca entram: agem por último.
@@ -172,7 +198,11 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       dados = JSON.parse(evento.dataTransfer.getData("text/plain"));
     } catch { return; }
     if (dados?.tipo === "ordem") return this.#reordenar(dados.atorId, evento);
-    if (dados?.type === "Item") return this.#vincularPoi(dados.uuid);
+    if (dados?.type === "Item") {
+      const item = await fromUuid(dados.uuid);
+      if (item?.type === "desafio-acesso") return this.#vincularDesafio(item.uuid);
+      return this.#vincularPoi(dados.uuid);
+    }
   }
 
   async #reordenar(atorId, evento) {
@@ -205,6 +235,15 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     const pois = cena.getFlag(SYSTEM_ID, "pois") ?? [];
     if (pois.includes(poi.uuid)) return;
     await cena.setFlag(SYSTEM_ID, "pois", [...pois, poi.uuid]);
+  }
+
+  async #vincularDesafio(uuid) {
+    if (!game.user.isGM) return;
+    const cena = canvas.scene;
+    if (!cena) return;
+    const desafios = cena.getFlag(SYSTEM_ID, "desafios") ?? [];
+    if (desafios.includes(uuid)) return;
+    await cena.setFlag(SYSTEM_ID, "desafios", [...desafios, uuid]);
   }
 
   /* -- ações --------------------------------------------------------------- */
@@ -255,6 +294,39 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     if (!cena) return;
     const pois = (cena.getFlag(SYSTEM_ID, "pois") ?? []).filter((uuid) => uuid !== alvo.dataset.poiUuid);
     await cena.setFlag(SYSTEM_ID, "pois", pois);
+  }
+
+  static async #arrombar(_evento, alvo) {
+    const ator = this.#atorOuAviso();
+    if (ator) await arrombar(ator, alvo.dataset.desafioUuid);
+  }
+
+  static async #abrirDesafio(_evento, alvo) {
+    const desafio = await fromUuid(alvo.dataset.desafioUuid);
+    desafio?.sheet?.render(true);
+  }
+
+  static async #removerDesafio(_evento, alvo) {
+    const cena = canvas.scene;
+    if (!cena) return;
+    const desafios = (cena.getFlag(SYSTEM_ID, "desafios") ?? [])
+      .filter((uuid) => uuid !== alvo.dataset.desafioUuid);
+    await cena.setFlag(SYSTEM_ID, "desafios", desafios);
+  }
+
+  static async #alcancar(_evento, alvo) {
+    const ator = this.#atorOuAviso();
+    if (ator) await alcancar(ator, { modo: alvo.dataset.modo });
+  }
+
+  static async #sustentar() {
+    const ator = this.#atorOuAviso();
+    if (ator) await sustentar(ator);
+  }
+
+  static async #pararDeSustentar() {
+    const ator = this.#atorOuAviso();
+    if (ator) await pararDeSustentar(ator);
   }
 
   static async #novaRodada() {
@@ -324,7 +396,9 @@ export function registrarPainelInvestigacao() {
     Hooks.on(gatilho, atualizar);
   }
   for (const gatilho of ["createItem", "updateItem", "deleteItem"]) {
-    Hooks.on(gatilho, (item) => { if (item.type === "ponto-interesse") atualizar(); });
+    Hooks.on(gatilho, (item) => {
+      if (item.type === "ponto-interesse" || item.type === "desafio-acesso") atualizar();
+    });
   }
   Hooks.on("canvasReady", atualizar);
 }

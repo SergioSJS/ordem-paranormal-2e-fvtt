@@ -8,10 +8,12 @@ import { NpcData } from "./data/actor-npc.mjs";
 import { HabilidadeData } from "./data/item-habilidade.mjs";
 import { EquipamentoData } from "./data/item-equipamento.mjs";
 import { PontoInteresseData } from "./data/item-ponto-interesse.mjs";
+import { DesafioAcessoData } from "./data/item-desafio-acesso.mjs";
 import { PersonagemSheet } from "./sheets/actor-personagem-sheet.mjs";
 import { NpcSheet } from "./sheets/actor-npc-sheet.mjs";
 import { OP2ItemSheet } from "./sheets/item-sheet.mjs";
 import { PontoInteresseSheet } from "./sheets/item-ponto-interesse-sheet.mjs";
+import { DesafioAcessoSheet } from "./sheets/item-desafio-acesso-sheet.mjs";
 import { OP2Roll } from "./dice/op2-roll.mjs";
 import { rolarTeste } from "./dice/teste.mjs";
 import { stepDie, faces } from "./dice/escada.mjs";
@@ -25,6 +27,7 @@ import { avancarRodada } from "./cena/rodada.mjs";
 import {
   investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar,
 } from "./cena/acoes-investigacao.mjs";
+import { arrombar, alcancar, sustentar, pararDeSustentar } from "./cena/acoes-desafio.mjs";
 
 Hooks.once("init", () => {
   console.log(`${SYSTEM_ID} | inicializando`);
@@ -36,6 +39,7 @@ Hooks.once("init", () => {
   CONFIG.Item.dataModels.habilidade = HabilidadeData;
   CONFIG.Item.dataModels.equipamento = EquipamentoData;
   CONFIG.Item.dataModels["ponto-interesse"] = PontoInteresseData;
+  CONFIG.Item.dataModels["desafio-acesso"] = DesafioAcessoData;
 
   CONFIG.Dice.rolls.unshift(OP2Roll);
 
@@ -54,6 +58,7 @@ Hooks.once("init", () => {
     rolarTeste, encerrarCena, stepDie, faces, OP2Roll,
     investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar,
     painelInvestigacao: abrirPainelInvestigacao, avancarRodada,
+    arrombar, alcancar, sustentar, pararDeSustentar,
   };
 });
 
@@ -107,5 +112,8 @@ function registrarSheets() {
   });
   Items.registerSheet(SYSTEM_ID, PontoInteresseSheet, {
     types: ["ponto-interesse"], makeDefault: true, label: "OP2.Ficha.PontoInteresse",
+  });
+  Items.registerSheet(SYSTEM_ID, DesafioAcessoSheet, {
+    types: ["desafio-acesso"], makeDefault: true, label: "OP2.Ficha.DesafioAcesso",
   });
 }

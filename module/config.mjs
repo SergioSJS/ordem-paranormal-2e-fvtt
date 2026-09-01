@@ -92,6 +92,12 @@ export const DT_COMPARTILHAR = 10;
 /** Examinar é uma aposta: não revelar nada novo custa 1 PD (spec §6.3.1). */
 export const CUSTO_PD_EXAMINAR = 1;
 
+/** Desafios de acesso físico (spec §7.2/§7.4/§7.5). */
+export const CUSTO_PV_ARROMBAR = 1;
+export const CUSTO_PV_SUSTENTAR = 1;
+/** Alcançar arriscado: uma ação, DT do ambiente +3 (spec §7.4). */
+export const BONUS_DT_ALCANCAR_ARRISCADO = 3;
+
 /**
  * Setor de ferramentas de um POI (spec §6.2/§9.3). `null` = leitura normal, sem reação
  * — que também é informação, e por isso só se revela depois da investigação.

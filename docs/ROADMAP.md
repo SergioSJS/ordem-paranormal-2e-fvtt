@@ -55,8 +55,20 @@ de pagamento no chat.
 
 ## Fase 3 — Desafios e ferramentas → `0.3.0`
 
+### M1 — Desafios de acesso físico ✅
+
+- [x] `desafio-acesso` como Item, com pontuação acumulada e teto de tentativas opcional
+- [x] Arrombar: 1 PV/tentativa, Atletismo vs DT do objeto, acumula RA até a PA
+- [x] Alcançar: seguro (duas ações, dano = RB na falha) e arriscado (uma ação, DT+3,
+  dano = RA na falha) — nunca aplica dano sozinho, botão no card
+- [x] Sustentar: custo inicial + teste, fadiga cumulativa a cada rodada
+  (`estado.sustentando`, hook em `avancarRodada()`)
+- [x] Seção "Desafios" no painel de investigação, com Arrombar por item
+- [ ] Validação em Foundry v13 (mesmo bloqueio das fases anteriores)
+
+### M2/M3 — ainda não iniciado
+
 - Destrancar: minigame Mastermind, senha em flag do mestre
-- Arrombar, Alcançar, Sustentar
 - `ferramenta` com handler por subtipo
 - Laboratório Portátil (escada crescente) e Rádio Modificado (ordenação de frases)
 - Cargas da Lanterna UV e do Pó Revelador
