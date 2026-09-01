@@ -82,10 +82,20 @@ ativa — e quebrava assim que uma investigação de verdade atravessava mais de
 `module/data/actor-investigacao.mjs`), sem nenhuma referência a `canvas.scene` em
 código nenhum do sistema. POI e Desafio de Acesso continuam Item — são conteúdo
 autoral, reutilizável — mas o vínculo "este POI está nesta investigação" é um campo de
-schema na investigação (`system.pois`), não uma flag de Scene. Só existe uma
-investigação "ativa" por vez (setting de mundo `investigacaoAtivaUuid`, não uma
-escolha de regra — por isso `config: false`); o mestre troca pelo seletor do painel ou
-abrindo a ficha da investigação direto pela sidebar de Actors.
+schema na investigação (`system.pois`), não uma flag de Scene. O mestre troca pelo
+seletor do painel ou abrindo a ficha da investigação direto pela sidebar de Actors.
+
+**"Em jogo" (mundo) é diferente de "vendo agora" (cliente).** O grupo pode se dividir
+em mais de uma investigação ao mesmo tempo (achado em uso real) — por isso não existe
+mais um único ponteiro de investigação ativa. `investigacoesAtivasUuids` é setting de
+**mundo** (`config: false`, não é escolha de regra): quais investigações o mestre
+marcou como em jogo, controlando o que aparece pro navegador dos jogadores.
+`investigacaoVisualizandoUuid` é setting de **cliente**: qual delas *este usuário*
+está vendo agora no painel — cada jogador navega só entre as em-jogo onde o
+personagem dele participa (`investigacoesVisiveis()`), o mestre entre todas
+(`todasInvestigacoes()`, sem precisar que já estejam em jogo — é como ele prepara
+antes de revelar). `criarInvestigacao()` já marca a nova como em jogo e já seleciona
+para quem criou, então quem só usa uma investigação não percebe diferença nenhuma.
 
 ## Compatibilidade v13 + v14
 
