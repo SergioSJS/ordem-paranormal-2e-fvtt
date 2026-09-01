@@ -17,8 +17,9 @@
 import { FERRAMENTAS_POI } from "../config.mjs";
 import { periciasDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs";
 import { temFerramenta } from "./ferramentas.mjs";
-import { usarFerramenta, usarLaser } from "./acoes-ferramenta.mjs";
+import { usarFerramenta, usarLaser, usarRadio } from "./acoes-ferramenta.mjs";
 import { abrirLaboratorio } from "./laboratorio-app.mjs";
+import { abrirRadio } from "./radio-app.mjs";
 import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerrar-investigacao.mjs";
 import {
   investigacaoAtiva, todasInvestigacoes, investigacoesVisiveis, estaAtiva, alternarAtiva,
@@ -69,6 +70,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       usarFerramenta: PainelInvestigacao.#usarFerramenta,
       usarLaser: PainelInvestigacao.#usarLaser,
       usarLaboratorio: PainelInvestigacao.#usarLaboratorio,
+      usarRadio: PainelInvestigacao.#usarRadio,
       novaRodada: PainelInvestigacao.#novaRodada,
       encerrarCena: PainelInvestigacao.#encerrarCena,
       alternarSobrecarga: PainelInvestigacao.#alternarSobrecarga,
@@ -464,6 +466,18 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     if (!qtdDados) return;
 
     await abrirLaboratorio(ator, qtdDados, alvo.dataset.poiUuid);
+  }
+
+  /**
+   * Rádio Modificado (spec §9.2) também é minigame, não card de texto — rola
+   * Tecnologia (diálogo padrão de teste, não `rapido`: o jogador pode querer
+   * escolher dados extra/ajuda antes) e só então abre o app de ordenação.
+   */
+  static async #usarRadio(_evento, alvo) {
+    const ator = this.#atorOuAviso();
+    if (!ator) return;
+    const resultado = await usarRadio(ator, alvo.dataset.poiUuid);
+    if (resultado) abrirRadio(resultado);
   }
 
   static async #novaRodada() {

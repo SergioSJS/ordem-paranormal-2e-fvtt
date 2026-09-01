@@ -1,0 +1,19 @@
+<div class="op2 op2-card op2-card--{{#if todasResolvidas}}sucesso{{else}}falha{{/if}}">
+  <header class="op2-card__topo">
+    <span class="op2-tag op2-tag--pequena">{{titulo}}</span>
+    <span class="op2-card__info-pericia">{{poiNome}}</span>
+  </header>
+
+  <p class="op2-card__texto">
+    {{localize "OP2.Ferramenta.RadioResultadoResumo" removidos=removidos totalFalsos=totalFalsos}}
+  </p>
+
+  <ul class="op2-card__infos">
+    {{#each resultados}}
+      <li>
+        {{#if resolvido}}<i class="fa-solid fa-check" aria-hidden="true"></i>{{else}}<i class="fa-solid fa-xmark" aria-hidden="true"></i>{{/if}}
+        {{frase}}
+      </li>
+    {{/each}}
+  </ul>
+</div>

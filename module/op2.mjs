@@ -38,9 +38,10 @@ import {
 import {
   arrombar, alcancar, sustentar, pararDeSustentar, gerarSenhaDestrancar, tentarDestrancar,
 } from "./cena/acoes-desafio.mjs";
-import { usarFerramenta, usarLaser } from "./cena/acoes-ferramenta.mjs";
+import { usarFerramenta, usarLaser, usarRadio } from "./cena/acoes-ferramenta.mjs";
 import { abrirDestrancar } from "./cena/destrancar-app.mjs";
 import { abrirLaboratorio } from "./cena/laboratorio-app.mjs";
+import { abrirRadio } from "./cena/radio-app.mjs";
 
 Hooks.once("init", () => {
   console.log(`${SYSTEM_ID} | inicializando`);
@@ -85,7 +86,7 @@ Hooks.once("init", () => {
     painelInvestigacao: abrirPainelInvestigacao, avancarRodada,
     arrombar, alcancar, sustentar, pararDeSustentar,
     gerarSenhaDestrancar, tentarDestrancar, abrirDestrancar,
-    usarFerramenta, usarLaser, abrirLaboratorio,
+    usarFerramenta, usarLaser, abrirLaboratorio, usarRadio, abrirRadio,
     investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,
     adicionarParticipante, removerParticipante, vincularPoi, removerPoi, vincularDesafio, removerDesafio,
     alternarJaAgiu, alternarOculto, moverParticipante,

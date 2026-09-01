@@ -827,6 +827,88 @@ const relato = await page.evaluate(async () => {
     await app.close();
   }
 
+  /* --------------------------------------------------------- rádio modificado -- */
+  // Fase 3 M3, parte 3 (spec §9.2). A tabela de remoção já é regra pura testada em
+  // ferramentas.test.mjs; aqui confere a ponte com o app de verdade. O teste de
+  // Tecnologia é `rapido` (dado real, aleatório) — as asserções checam invariantes
+  // (nunca remove um verdadeiro, nunca remove mais falsos do que existem), não um
+  // total exato.
+  {
+    const poiRadio = await Item.create({
+      name: "Rádio Enigmático", type: "ponto-interesse",
+      system: {
+        ferramentas: {
+          radio: {
+            conjuntos: [
+              { verdadeiro: true, frase: "so" },
+              { verdadeiro: true, frase: "duas palavras" },
+              { verdadeiro: false, frase: "falso um" },
+              { verdadeiro: false, frase: "falso dois" },
+            ],
+          },
+        },
+      },
+    });
+    await ator.createEmbeddedDocuments("Item", [
+      { name: "Rádio do Alan", type: "ferramenta", system: { subtipo: "radio" } },
+    ]);
+
+    ok("usarFerramenta genérico recusa o subtipo radio (tem app e ação próprios)",
+      await game.op2.usarFerramenta(ator, poiRadio.uuid, "radio") === null);
+
+    // Regressão: o Laser varria `Object.values(ferramentas).some(t => t.trim())` —
+    // quebraria ao encontrar o campo estruturado do Rádio Modificado no meio da
+    // varredura (achado ao escrever este mesmo lote, antes de existir o app).
+    await game.op2.vincularPoi(investigacao, poiRadio.uuid);
+    let laserQuebrou = false;
+    try { await game.op2.usarLaser(ator); } catch { laserQuebrou = true; }
+    ok("laser não quebra ao varrer um POI com Rádio Modificado configurado", !laserQuebrou);
+    await game.op2.removerPoi(investigacao, poiRadio.uuid);
+
+    const resultado = await game.op2.usarRadio(ator, poiRadio.uuid, { rapido: true });
+    ok("usarRadio rola Tecnologia e devolve os conjuntos que sobram", Boolean(resultado));
+    ok("nunca remove um conjunto verdadeiro", resultado.conjuntos.filter((c) => c.verdadeiro).length === 2);
+    ok("nunca remove mais falsos do que existiam", resultado.removidos <= 2);
+
+    const appRadio = game.op2.abrirRadio(resultado);
+    await esperar(600);
+    const elRadio = appRadio.element;
+    ok("app do Rádio renderizou", Boolean(elRadio));
+
+    // O conjunto de 1 palavra nunca embaralha pra outra coisa — já nasce "resolvido",
+    // sem precisar simular arrastar/clicar em nada.
+    const conjuntoUnico = appRadio.conjuntos.find((c) => c.frase === "so");
+    ok("conjunto de 1 palavra só tem 1 ficha", conjuntoUnico?.palavras.length === 1);
+
+    // Força uma ordem errada conhecida no conjunto de 2 palavras pra testar a seta
+    // com uma interação real de clique, não só a lógica pura já coberta em
+    // moverEmLista().
+    const conjuntoDuplo = appRadio.conjuntos.find((c) => c.frase === "duas palavras");
+    if (conjuntoDuplo) {
+      conjuntoDuplo.palavras = ["palavras", "duas"];
+      await appRadio.render();
+      await esperar(400);
+      const seta = elRadio.querySelector(
+        `[data-action="moverPalavra"][data-conjunto="${conjuntoDuplo.indice}"][data-indice="0"][data-direcao="1"]`,
+      );
+      seta?.click();
+      await esperar(400);
+      ok("seta reordena as palavras (bate com a frase certa depois de mover)",
+        conjuntoDuplo.palavras.join(" ") === "duas palavras");
+    }
+
+    const mensagensAntesRadio = game.messages.size;
+    elRadio.querySelector('[data-action="finalizar"]')?.click();
+    await esperar(600);
+    ok("finalizar publica um card no chat", game.messages.size > mensagensAntesRadio);
+    ok("conjunto acertado aparece marcado como resolvido", Boolean(elRadio.querySelector(".op2-radio__conjunto--resolvido")));
+    ok("botão finalizar some depois de encerrar", !elRadio.querySelector('[data-action="finalizar"]'));
+    await appRadio.close();
+
+    await ator.items.getName("Rádio do Alan")?.delete();
+    await poiRadio.delete();
+  }
+
   /* ------------------------------------------------------------ ficha do POI -- */
 
   await poi.sheet.render(true);
@@ -835,6 +917,26 @@ const relato = await page.evaluate(async () => {
   ok("ficha do POI renderizou", Boolean(poiEl));
   ok("quadro tem as 2 informações", (poiEl?.querySelectorAll(".op2-poi__info").length ?? 0) === 2);
   ok("descrição contextual visível para o mestre", Boolean(poiEl?.textContent.includes("cofre")));
+
+  // Editor do Rádio Modificado na ficha do POI: campo estruturado (conjuntos), não
+  // o textarea de texto livre das outras ferramentas (docs/LACUNAS.md).
+  {
+    const seletorFerramenta = poiEl.querySelector("[data-seletor-ferramenta]");
+    seletorFerramenta.value = "radio";
+    seletorFerramenta.dispatchEvent(new Event("change"));
+    await esperar(500);
+    ok("selecionar Rádio Modificado cria o campo estruturado (não null)", poi.system.ferramentas.radio !== null);
+
+    poiEl.querySelector('[data-action="adicionarConjuntoRadio"]')?.click();
+    await esperar(500);
+    ok("novo conjunto do Rádio tem checkbox de verdadeiro e campo de frase",
+      Boolean(poiEl.querySelector('input[name="system.ferramentas.radio.conjuntos.0.verdadeiro"]'))
+      && Boolean(poiEl.querySelector('input[name="system.ferramentas.radio.conjuntos.0.frase"]')));
+
+    poiEl.querySelector('[data-action="removerConjuntoRadio"][data-indice="0"]')?.click();
+    await esperar(500);
+    ok("remover conjunto tira a linha do Rádio", poi.system.ferramentas.radio.conjuntos.length === 0);
+  }
 
   await game.user.update({ character: null });
   await poi.sheet.close();

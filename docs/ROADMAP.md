@@ -83,9 +83,15 @@ de pagamento no chat.
 
 - [x] Destrancar: app de Mastermind numérico, senha oculta no Item, resposta
   posição a posição (exato/alto/baixo), teto de tentativas reaproveita `quebrado`
-- [ ] App do Laboratório Portátil (rolagem sequencial revelada uma a uma) — regra
-  pura já pronta em `module/cena/ferramentas.mjs`
-- [ ] App do Rádio Modificado (ordenação de palavras) — regra pura já pronta
+- [x] App do Laboratório Portátil (`module/cena/laboratorio-app.mjs`) — a checkbox
+  estava desatualizada, o app já existia e tem cobertura em `scripts/e2e/verificar.mjs`
+- [ ] App do Rádio Modificado (`module/cena/radio-app.mjs`) — código pronto (schema,
+  regra pura, app, ficha do POI, chat, i18n, testes offline todos verdes), **mas
+  ainda sem a verificação ao vivo** (`npm run e2e`): o Foundry descartável desta
+  máquina está com a licença presa a um hostname de VPN corporativa que não bate
+  com o hostname atual, e não fecha sozinho enquanto o Foundry "de verdade" do
+  usuário está aberto. Rodar `npm run e2e` (ou testar manualmente com F5, já que o
+  sistema está symlinkado no Foundry real) antes de considerar fechado.
 - [ ] Validação em Foundry v13 (mesmo bloqueio das fases anteriores)
 
 ## Fase 4 — Combate simplificado → `0.4.0`

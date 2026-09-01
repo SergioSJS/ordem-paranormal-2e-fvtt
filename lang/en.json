@@ -183,6 +183,11 @@
       "FerramentasVazio": "No tools configured on this POI.",
       "AdicionarFerramenta": "Add tool…",
       "RemoverFerramenta": "Remove tool",
+      "RadioVerdadeiro": "True",
+      "RadioFrasePlaceholder": "Correct words, in order, separated by spaces",
+      "RadioRemoverConjunto": "Remove set",
+      "RadioAdicionarConjunto": "New set",
+      "RadioAjudaAutor": "Mark the false ones. The Technology test removes some of them before the player orders the rest.",
       "FerramentaSemReacao": "No reaction",
       "ReveladoPorLaser": "Reacts to the Sweep Laser",
       "SomenteMestre": "The information board and the contextual description are GM-only.",
@@ -484,7 +489,15 @@
       "Finalizar": "Finish",
       "QtdDados": "How many dice the POI requires (4 to 6)",
       "Adicionar": "New tool",
-      "Vazio": "No Ordo Realitas tools."
+      "Vazio": "No Ordo Realitas tools.",
+      "RadioSemConjuntos": "This point of interest has no sets configured for the Modified Radio.",
+      "RadioAjuda": "Technology test: {total}. Removed {removidos} of {totalFalsos} false set(s). Reorder the remaining words to form the right phrase.",
+      "RadioTudoRemovido": "The test removed every false set and none of the true ones are left to order.",
+      "RadioResolvido": "Correct phrase.",
+      "RadioNaoResolvido": "The order doesn't match the right phrase.",
+      "RadioMoverEsquerda": "Move word left",
+      "RadioMoverDireita": "Move word right",
+      "RadioResultadoResumo": "Removed {removidos} of {totalFalsos} false set(s)."
     }
   }
 }

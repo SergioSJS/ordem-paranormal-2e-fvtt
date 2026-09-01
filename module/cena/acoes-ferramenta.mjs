@@ -5,9 +5,9 @@
  * código, e a mesa pode ter exceções narrativas).
  */
 import { SYSTEM_ID } from "../config.mjs";
-import { podeUsarCarga } from "./ferramentas.mjs";
+import { podeUsarCarga, temReacaoFerramenta, conjuntosFalsosRemovidos, conjuntosRestantes } from "./ferramentas.mjs";
 import { investigacaoAtiva } from "./investigacao-ativa.mjs";
-import { renderizar } from "../dice/teste.mjs";
+import { rolarTeste, renderizar } from "../dice/teste.mjs";
 
 const CHAT = "systems/ordem-paranormal-2e/templates/chat";
 
@@ -49,6 +49,10 @@ async function enviarCard(ator, contexto, whisper) {
  * @returns {Promise<{temReacao: boolean}|null>}
  */
 export async function usarFerramenta(ator, poiUuid, subtipo) {
+  // Rádio Modificado guarda conjuntos estruturados, não texto — tem app e ação
+  // próprios (`usarRadio`/`radio-app.mjs`), não o card genérico de texto revelado.
+  if (subtipo === "radio") return null;
+
   const poi = await carregarPoi(poiUuid);
   if (!poi) return null;
 
@@ -101,7 +105,7 @@ export async function usarLaser(ator) {
   for (const uuid of investigacao.system.pois) {
     const poi = await fromUuid(uuid);
     if (poi?.type !== "ponto-interesse" || poi.system.reveladoPorLaser) continue;
-    const reage = Object.values(poi.system.ferramentas).some((texto) => Boolean(texto?.trim()));
+    const reage = Object.values(poi.system.ferramentas).some(temReacaoFerramenta);
     if (!reage) continue;
     await poi.update({ "system.reveladoPorLaser": true });
     marcados.push(poi.name);
@@ -115,4 +119,43 @@ export async function usarLaser(ator) {
   }, sussurroPara(ator));
 
   return marcados;
+}
+
+/**
+ * RÁDIO MODIFICADO (spec §9.2): rola Tecnologia (sem DT — o resultado é lido pela
+ * tabela de faixas, não passa/falha) e decide quantos conjuntos falsos saem de jogo
+ * antes de abrir o app de ordenação (`radio-app.mjs`). Uso ilimitado — não está em
+ * `FERRAMENTAS_COM_CARGA`, então não consome nada.
+ * @returns {Promise<{ator: Actor, poi: Item, roll: object, conjuntos: object[],
+ *   removidos: number, totalFalsos: number}|null>}
+ */
+export async function usarRadio(ator, poiUuid, { rapido = false } = {}) {
+  const poi = await carregarPoi(poiUuid);
+  if (!poi) return null;
+
+  const rotulo = game.i18n.localize("OP2.Ferramenta.Subtipo.radio");
+  const temRadio = ator.items.some((i) => i.type === "ferramenta" && i.system.subtipo === "radio");
+  if (!temRadio) {
+    ui.notifications.warn(game.i18n.format("OP2.Aviso.SemFerramenta", { ferramenta: rotulo }));
+    return null;
+  }
+
+  const conjuntos = poi.system.ferramentas.radio?.conjuntos ?? [];
+  if (!conjuntos.length) {
+    ui.notifications.warn(game.i18n.localize("OP2.Ferramenta.RadioSemConjuntos"));
+    return null;
+  }
+
+  const roll = await rolarTeste(ator, {
+    chavePericia: "tecnologia",
+    semDT: true,
+    rapido,
+    contexto: `${rotulo} — ${poi.name}`,
+  });
+  if (!roll) return null;
+
+  const totalFalsos = conjuntos.filter((conjunto) => !conjunto.verdadeiro).length;
+  const removidos = conjuntosFalsosRemovidos(roll.total, totalFalsos);
+
+  return { ator, poi, roll, conjuntos: conjuntosRestantes(conjuntos, removidos), removidos, totalFalsos };
 }

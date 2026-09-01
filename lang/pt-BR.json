@@ -183,6 +183,11 @@
       "FerramentasVazio": "Nenhuma ferramenta configurada neste POI.",
       "AdicionarFerramenta": "Adicionar ferramenta…",
       "RemoverFerramenta": "Remover ferramenta",
+      "RadioVerdadeiro": "Verdadeiro",
+      "RadioFrasePlaceholder": "Palavras corretas, em ordem, separadas por espaço",
+      "RadioRemoverConjunto": "Remover conjunto",
+      "RadioAdicionarConjunto": "Novo conjunto",
+      "RadioAjudaAutor": "Marque os falsos. O teste de Tecnologia remove alguns deles antes do jogador ordenar o resto.",
       "FerramentaSemReacao": "Sem reação",
       "ReveladoPorLaser": "Reage ao Laser de Varredura",
       "SomenteMestre": "O quadro de informações e a descrição contextual são só do mestre.",
@@ -484,7 +489,15 @@
       "Finalizar": "Encerrar",
       "QtdDados": "Quantos dados o POI exige (4 a 6)",
       "Adicionar": "Nova ferramenta",
-      "Vazio": "Nenhuma ferramenta da Ordo Realitas."
+      "Vazio": "Nenhuma ferramenta da Ordo Realitas.",
+      "RadioSemConjuntos": "Este ponto de interesse não tem conjuntos cadastrados para o Rádio Modificado.",
+      "RadioAjuda": "Teste de Tecnologia: {total}. Removeu {removidos} de {totalFalsos} conjunto(s) falso(s). Reordene as palavras dos que sobraram para formar a frase certa.",
+      "RadioTudoRemovido": "O teste removeu todos os conjuntos falsos e não sobrou nenhum verdadeiro para ordenar.",
+      "RadioResolvido": "Frase correta.",
+      "RadioNaoResolvido": "A ordem não bate com a frase certa.",
+      "RadioMoverEsquerda": "Mover palavra para a esquerda",
+      "RadioMoverDireita": "Mover palavra para a direita",
+      "RadioResultadoResumo": "Removeu {removidos} de {totalFalsos} conjunto(s) falso(s)."
     }
   }
 }

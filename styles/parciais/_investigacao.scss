@@ -403,6 +403,75 @@ summary.op2-painel-titulo { cursor: pointer; }
   }
 }
 
+// Rádio Modificado (spec §9.2): as palavras de cada conjunto viram uma fileira de
+// fichas embaralhadas; reordenar é a mesma ideia das setinhas de subir/descer da
+// Ordem das Rodadas, só que na horizontal — daí o mesmo par de botões-ícone, com
+// setas pra esquerda/direita em vez de cima/baixo.
+.op2-radio-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--op2-e2);
+  padding: var(--op2-e3);
+}
+
+.op2-radio {
+  &__conjunto {
+    padding: var(--op2-e2);
+    border: 1px dashed var(--op2-linha);
+    border-radius: var(--op2-raio);
+
+    &--resolvido { border-color: var(--op2-sucesso); border-style: solid; }
+    &--errado { border-color: var(--op2-vermelho); }
+  }
+
+  &__palavras {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--op2-e2);
+  }
+
+  &__palavra {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--op2-linha);
+    border-radius: var(--op2-raio);
+    background: var(--op2-superficie-alta);
+  }
+
+  &__palavra-texto {
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.85rem;
+  }
+
+  &__setas {
+    display: flex;
+    gap: 1px;
+
+    button {
+      padding: 0;
+      width: 0.9rem;
+      height: 1.2rem;
+      font-size: 0.65rem;
+    }
+  }
+}
+
+// Editor do Rádio na ficha do POI: um conjunto por linha, checkbox de verdadeiro +
+// a frase certa — bem mais simples que a lista de perguntas do quadro, porque não
+// tem DT nem perícia envolvida (spec §9.2).
+.op2-poi__radio-conjunto {
+  display: flex;
+  align-items: center;
+  gap: var(--op2-e2);
+
+  & + & { margin-top: var(--op2-e1); }
+
+  .op2-campo--inline { flex: 0 0 auto; }
+  input[type="text"] { flex: 1; }
+}
+
 // Botão flutuante do painel — não é controle de cena de propósito (veja o
 // comentário em criarBotaoFlutuante()). Fica acima da coluna de controles do
 // core, sempre clicável, independente de qual camada/tool está ativa.

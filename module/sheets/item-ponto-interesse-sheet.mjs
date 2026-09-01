@@ -17,6 +17,8 @@ export class PontoInteresseSheet extends OP2ItemSheet {
       adicionarInformacao: PontoInteresseSheet.#adicionarInformacao,
       removerInformacao: PontoInteresseSheet.#removerInformacao,
       removerFerramenta: PontoInteresseSheet.#removerFerramenta,
+      adicionarConjuntoRadio: PontoInteresseSheet.#adicionarConjuntoRadio,
+      removerConjuntoRadio: PontoInteresseSheet.#removerConjuntoRadio,
     },
   };
 
@@ -61,10 +63,19 @@ export class PontoInteresseSheet extends OP2ItemSheet {
         ...APTIDOES_PADRAO.map((sub) => `aptidao.${sub}`),
       ].map((c) => ({ chave: c, rotulo: rotuloDePericia(c) })),
       // Só as ferramentas com reação (ou recém-adicionadas) aparecem; as demais
-      // ficam no seletor. Vazio (null ou "") = leitura normal (spec §9.3).
+      // ficam no seletor. Vazio (null ou "") = leitura normal (spec §9.3). Rádio
+      // Modificado tem editor próprio (conjuntos), não texto livre (docs/LACUNAS.md).
       ferramentasConfiguradas: FERRAMENTAS_POI
         .filter((chave) => ferramentas[chave] || this.#ferramentasNovas.has(chave))
-        .map((chave) => ({ chave, rotulo: rotuloFerramenta(chave), valor: ferramentas[chave] || "" })),
+        .map((chave) => ({
+          chave,
+          rotulo: rotuloFerramenta(chave),
+          ehRadio: chave === "radio",
+          valor: chave === "radio" ? "" : (ferramentas[chave] || ""),
+          conjuntos: chave === "radio"
+            ? (ferramentas.radio?.conjuntos ?? []).map((conjunto, indice) => ({ ...conjunto, indice }))
+            : [],
+        })),
       ferramentasDisponiveis: FERRAMENTAS_POI
         .filter((chave) => !ferramentas[chave] && !this.#ferramentasNovas.has(chave))
         .map((chave) => ({ chave, rotulo: rotuloFerramenta(chave) })),
@@ -76,8 +87,14 @@ export class PontoInteresseSheet extends OP2ItemSheet {
     if (!game.user.isGM || !this.isEditable) return;
     // Adicionar uma ferramenta abre a linha vazia; o texto salva sozinho na edição.
     const seletor = this.element.querySelector("[data-seletor-ferramenta]");
-    seletor?.addEventListener("change", () => {
+    seletor?.addEventListener("change", async () => {
       if (!seletor.value) return;
+      // Rádio Modificado não tem texto pra digitar — sem isto, a linha "nova"
+      // nunca vira "configurada" (o filtro olha `ferramentas.radio` truthy).
+      if (seletor.value === "radio") {
+        await this.item.update({ "system.ferramentas.radio": { conjuntos: [] } });
+        return;
+      }
       this.#ferramentasNovas.add(seletor.value);
       this.render();
     });
@@ -99,5 +116,16 @@ export class PontoInteresseSheet extends OP2ItemSheet {
   static async #removerFerramenta(_evento, alvo) {
     this.#ferramentasNovas.delete(alvo.dataset.ferramenta);
     await this.item.update({ [`system.ferramentas.${alvo.dataset.ferramenta}`]: null });
+  }
+
+  static async #adicionarConjuntoRadio() {
+    const conjuntos = [...(this.item.system.ferramentas.radio?.conjuntos ?? []), { verdadeiro: true, frase: "" }];
+    await this.item.update({ "system.ferramentas.radio.conjuntos": conjuntos });
+  }
+
+  static async #removerConjuntoRadio(_evento, alvo) {
+    const conjuntos = (this.item.system.ferramentas.radio?.conjuntos ?? [])
+      .filter((_conjunto, indice) => indice !== Number(alvo.dataset.indice));
+    await this.item.update({ "system.ferramentas.radio.conjuntos": conjuntos });
   }
 }

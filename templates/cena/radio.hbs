@@ -1,0 +1,45 @@
+<div class="op2-radio-corpo">
+  <p class="op2-ajuda">
+    {{localize "OP2.Ferramenta.RadioAjuda" total=totalRolado removidos=removidos totalFalsos=totalFalsos}}
+  </p>
+
+  {{#unless conjuntos.length}}
+    <p class="op2-ajuda">{{localize "OP2.Ferramenta.RadioTudoRemovido"}}</p>
+  {{/unless}}
+
+  {{#each conjuntos}}
+    <fieldset class="op2-radio__conjunto{{#if (op2Eq resolvido true)}} op2-radio__conjunto--resolvido{{/if}}{{#if (op2Eq resolvido false)}} op2-radio__conjunto--errado{{/if}}">
+      <div class="op2-radio__palavras">
+        {{#each palavras}}
+          <span class="op2-radio__palavra">
+            <span class="op2-radio__palavra-texto">{{palavra}}</span>
+            {{#unless @root.finalizado}}
+              <span class="op2-radio__setas">
+                <button type="button" class="op2-botao-icone" data-action="moverPalavra"
+                  data-conjunto="{{../indice}}" data-indice="{{i}}" data-direcao="-1" {{#if @first}}disabled{{/if}}
+                  aria-label="{{localize 'OP2.Ferramenta.RadioMoverEsquerda'}}">
+                  <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="op2-botao-icone" data-action="moverPalavra"
+                  data-conjunto="{{../indice}}" data-indice="{{i}}" data-direcao="1" {{#if @last}}disabled{{/if}}
+                  aria-label="{{localize 'OP2.Ferramenta.RadioMoverDireita'}}">
+                  <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                </button>
+              </span>
+            {{/unless}}
+          </span>
+        {{/each}}
+      </div>
+      {{#if (op2Eq resolvido true)}}
+        <p class="op2-ajuda op2-ajuda--sucesso"><i class="fa-solid fa-check" aria-hidden="true"></i> {{localize "OP2.Ferramenta.RadioResolvido"}}</p>
+      {{/if}}
+      {{#if (op2Eq resolvido false)}}
+        <p class="op2-ajuda"><i class="fa-solid fa-xmark" aria-hidden="true"></i> {{localize "OP2.Ferramenta.RadioNaoResolvido"}}</p>
+      {{/if}}
+    </fieldset>
+  {{/each}}
+
+  {{#unless finalizado}}
+    <button type="button" class="op2-botao" data-action="finalizar">{{localize "OP2.Ferramenta.Finalizar"}}</button>
+  {{/unless}}
+</div>

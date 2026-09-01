@@ -20,8 +20,19 @@ export class PontoInteresseData extends foundry.abstract.TypeDataModel {
     // `null` = leitura normal, sem reação; texto = o que a ferramenta revela (spec §9.3).
     const ferramentas = {};
     for (const chave of FERRAMENTAS_POI) {
+      // Rádio Modificado tem estrutura própria — minigame de ordenação de palavras
+      // (spec §9.2), não cabe no texto livre das outras (docs/LACUNAS.md).
+      if (chave === "radio") continue;
       ferramentas[chave] = new HTMLField({ nullable: true, initial: null });
     }
+    ferramentas.radio = new SchemaField({
+      conjuntos: new ArrayField(new SchemaField({
+        verdadeiro: new BooleanField({ required: true, initial: true }),
+        // Palavras corretas, em ordem, separadas por espaço (docs/LACUNAS.md) — o
+        // app embaralha na hora de jogar; conferir a resposta é comparar de novo.
+        frase: new StringField({ required: true, initial: "", blank: true }),
+      }), { initial: [] }),
+    }, { nullable: true, initial: null });
 
     return {
       /** Narrada ao Investigar. */

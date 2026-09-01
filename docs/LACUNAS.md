@@ -173,6 +173,27 @@ não modela em lugar nenhum.
 é aplicado. O teto por rodada fica de fora até haver necessidade real de jogo —
 registrar aqui se algum playtest sentir falta.
 
+### Modelo de conteúdo do Rádio Modificado não publicado (spec §9.2)
+
+A spec descreve o resultado (teste de Tecnologia remove N conjuntos falsos, tabela
+de faixas) mas não como o mestre cadastra os "conjuntos de palavras" nem como o
+sistema sabe qual é a ordem certa de cada um.
+
+**Decisão:** cada conjunto guarda `verdadeiro` (bool) e `frase` (string — as palavras
+corretas, em ordem, separadas por espaço). O app embaralha as palavras de cada
+conjunto que sobrar depois do teste e o jogador reordena; comparar a resposta é só
+comparar contra `frase.split(/\s+/)` de novo — não precisa de estrutura mais rica.
+
+**Quais falsos saem no teste:** a spec não diz *quais* dentre os falsos são
+removidos quando o total não cobre todos. Sem critério narrativo para escolher um em
+vez de outro, a decisão foi remover sempre os primeiros falsos na ordem em que o
+mestre cadastrou — determinístico e testável, sem overhead de mesa.
+
+**Fora de escopo:** a spec não descreve o sistema "julgando" se o jogador identificou
+os falsos restantes (os que o teste não removeu) — isso é interpretação de mesa, como
+o resto do jogo. O app só cuida da parte objetiva: quantos somem e se a ordem das
+palavras dos que sobraram bate com a frase certa.
+
 ## Como adicionar uma lacuna nova
 
 1. Documente aqui: o que a fonte diz, onde é ambígua, e o default escolhido com o motivo.

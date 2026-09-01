@@ -81,11 +81,41 @@
 
         {{#each ferramentasConfiguradas}}
           <div class="op2-poi__ferramenta">
-            <label class="op2-campo">
-              <span>{{rotulo}}</span>
-              <textarea name="system.ferramentas.{{chave}}" rows="2"
-                {{#unless @root.editavel}}disabled{{/unless}}>{{valor}}</textarea>
-            </label>
+            {{#if ehRadio}}
+              <fieldset class="op2-poi__radio">
+                <legend>{{rotulo}}</legend>
+                {{#each conjuntos}}
+                  <div class="op2-poi__radio-conjunto">
+                    <label class="op2-campo op2-campo--inline">
+                      <input type="checkbox" name="system.ferramentas.radio.conjuntos.{{indice}}.verdadeiro"
+                        {{#if verdadeiro}}checked{{/if}} {{#unless @root.editavel}}disabled{{/unless}}>
+                      <span>{{localize "OP2.POI.RadioVerdadeiro"}}</span>
+                    </label>
+                    <input type="text" name="system.ferramentas.radio.conjuntos.{{indice}}.frase" value="{{frase}}"
+                      placeholder="{{localize 'OP2.POI.RadioFrasePlaceholder'}}"
+                      {{#unless @root.editavel}}disabled{{/unless}}>
+                    {{#if @root.editavel}}
+                      <button type="button" class="op2-botao-icone" data-action="removerConjuntoRadio" data-indice="{{indice}}"
+                        aria-label="{{localize 'OP2.POI.RadioRemoverConjunto'}}">
+                        <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                      </button>
+                    {{/if}}
+                  </div>
+                {{/each}}
+                {{#if @root.editavel}}
+                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="adicionarConjuntoRadio">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "OP2.POI.RadioAdicionarConjunto"}}
+                  </button>
+                {{/if}}
+                <p class="op2-ajuda">{{localize "OP2.POI.RadioAjudaAutor"}}</p>
+              </fieldset>
+            {{else}}
+              <label class="op2-campo">
+                <span>{{rotulo}}</span>
+                <textarea name="system.ferramentas.{{chave}}" rows="2"
+                  {{#unless @root.editavel}}disabled{{/unless}}>{{valor}}</textarea>
+              </label>
+            {{/if}}
             {{#if @root.editavel}}
               <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo"
                 data-action="removerFerramenta" data-ferramenta="{{chave}}"

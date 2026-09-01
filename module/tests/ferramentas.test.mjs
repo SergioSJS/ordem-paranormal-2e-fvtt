@@ -2,7 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   temFerramenta, podeUsarCarga, sequenciaLaboratorio, rerrolagensLaboratorio,
-  sequenciaValida, conjuntosFalsosRemovidos,
+  sequenciaValida, conjuntosFalsosRemovidos, conjuntosRestantes, moverEmLista,
+  ordemCorreta, embaralhar, temReacaoFerramenta,
 } from "../cena/ferramentas.mjs";
 import { ESCADA } from "../config.mjs";
 
@@ -53,4 +54,49 @@ test("conjuntosFalsosRemovidos: tabela do Rádio Modificado (spec §9.2)", () =>
 test("conjuntosFalsosRemovidos nunca passa do total de falsos existentes", () => {
   assert.equal(conjuntosFalsosRemovidos(10, 1), 1);
   assert.equal(conjuntosFalsosRemovidos(7, 1), 1);
+});
+
+test("conjuntosRestantes: remove os falsos na ordem cadastrada, nunca um verdadeiro", () => {
+  const conjuntos = [
+    { verdadeiro: false, frase: "falso 1" },
+    { verdadeiro: true, frase: "verdadeiro 1" },
+    { verdadeiro: false, frase: "falso 2" },
+    { verdadeiro: false, frase: "falso 3" },
+  ];
+  assert.deepEqual(conjuntosRestantes(conjuntos, 0), conjuntos);
+  assert.deepEqual(conjuntosRestantes(conjuntos, 2), [
+    { verdadeiro: true, frase: "verdadeiro 1" },
+    { verdadeiro: false, frase: "falso 3" },
+  ]);
+  // Removendo mais falsos do que existem: sobra só quem é verdadeiro.
+  assert.deepEqual(conjuntosRestantes(conjuntos, 10), [{ verdadeiro: true, frase: "verdadeiro 1" }]);
+});
+
+test("moverEmLista: sobe/desce um índice, sem sair dos limites", () => {
+  assert.deepEqual(moverEmLista(["a", "b", "c"], 1, -1), ["b", "a", "c"]);
+  assert.deepEqual(moverEmLista(["a", "b", "c"], 1, 1), ["a", "c", "b"]);
+  assert.deepEqual(moverEmLista(["a", "b", "c"], 0, -1), ["a", "b", "c"]);
+  assert.deepEqual(moverEmLista(["a", "b", "c"], 2, 1), ["a", "b", "c"]);
+});
+
+test("ordemCorreta: compara a lista de palavras contra a frase, palavra a palavra", () => {
+  assert.equal(ordemCorreta(["o", "gato", "subiu"], "o gato subiu"), true);
+  assert.equal(ordemCorreta(["gato", "o", "subiu"], "o gato subiu"), false);
+  assert.equal(ordemCorreta(["o", "gato"], "o gato subiu"), false);
+});
+
+test("embaralhar: mesmas palavras, ordem decidida pelo gerador injetado", () => {
+  const lista = ["um", "dois", "tres"];
+  // `aleatorio` fixo em 0 nunca troca nada (Fisher-Yates com j sempre 0 vs 0).
+  assert.deepEqual(embaralhar(lista, () => 0).sort(), [...lista].sort());
+  assert.notStrictEqual(embaralhar(lista), lista, "sempre retorna uma cópia nova");
+});
+
+test("temReacaoFerramenta: texto vazio/null é sem reação; conjuntos do Rádio contam à parte", () => {
+  assert.equal(temReacaoFerramenta(null), false);
+  assert.equal(temReacaoFerramenta(""), false);
+  assert.equal(temReacaoFerramenta("  "), false);
+  assert.equal(temReacaoFerramenta("tem texto"), true);
+  assert.equal(temReacaoFerramenta({ conjuntos: [] }), false);
+  assert.equal(temReacaoFerramenta({ conjuntos: [{ verdadeiro: true, frase: "a" }] }), true);
 });

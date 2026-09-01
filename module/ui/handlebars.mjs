@@ -35,9 +35,11 @@ const TEMPLATES = [
   `${RAIZ}/chat/ferramenta.hbs`,
   `${RAIZ}/chat/destrancar.hbs`,
   `${RAIZ}/chat/laboratorio.hbs`,
+  `${RAIZ}/chat/radio.hbs`,
   `${RAIZ}/cena/painel-investigacao.hbs`,
   `${RAIZ}/cena/destrancar.hbs`,
   `${RAIZ}/cena/laboratorio.hbs`,
+  `${RAIZ}/cena/radio.hbs`,
 ];
 
 export function precarregarTemplates() {
