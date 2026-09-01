@@ -29,7 +29,7 @@ import {
 } from "./investigacao-ativa.mjs";
 import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada } from "./rodada.mjs";
 import {
-  dialogoInvestigar, investigar, examinar, interagir, recapitular, compartilhar, idsRevelados,
+  dialogoInvestigar, investigar, examinar, interagir, recapitular, compartilhar, idsRevelados, alternarInfoOculta,
 } from "./acoes-investigacao.mjs";
 import { arrombar, alcancar, sustentar, pararDeSustentar } from "./acoes-desafio.mjs";
 import { abrirDestrancar } from "./destrancar-app.mjs";
@@ -82,6 +82,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       removerParticipante: PainelInvestigacao.#removerParticipante,
       alternarJaAgiu: PainelInvestigacao.#alternarJaAgiu,
       alternarOculto: PainelInvestigacao.#alternarOculto,
+      alternarInfoOculta: PainelInvestigacao.#alternarInfoOculta,
       moverParticipante: PainelInvestigacao.#moverParticipante,
     },
     dragDrop: [{ dragSelector: "[data-ator-ordem]", dropSelector: ".op2-painel-corpo" }],
@@ -554,6 +555,15 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     if (!game.user.isGM) return;
     const investigacao = investigacaoAtiva();
     if (investigacao) await alternarOculto(investigacao, alvo.dataset.campo, alvo.dataset.uuid);
+  }
+
+  /**
+   * Rascunho de uma linha do quadro de informações — direto do painel, sem abrir
+   * a ficha do POI (achado em uso real: mestre preparando tudo numa tela só).
+   */
+  static async #alternarInfoOculta(_evento, alvo) {
+    if (!game.user.isGM) return;
+    await alternarInfoOculta(alvo.dataset.poiUuid, alvo.dataset.infoId);
   }
 
   static async #moverParticipante(_evento, alvo) {

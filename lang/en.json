@@ -174,7 +174,6 @@
       "QuadroAjuda": "Investigate compares the die size against the DT, without rolling. Examine rolls and compares the sum.",
       "AdicionarInformacao": "New information",
       "RemoverInformacao": "Remove information",
-      "InfoOculta": "Hidden",
       "InfoOcultaAjuda": "GM draft — never revealable to players while hidden, even if the DT is met.",
       "DescricaoContextual": "Contextual description (GM only)",
       "DescricaoContextualAjuda": "The full explanation. It resolves the players' freeform interactions.",

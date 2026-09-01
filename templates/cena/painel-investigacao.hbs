@@ -191,14 +191,16 @@
                       <ul class="op2-poi-card__infos">
                         {{#each infos}}
                           <li{{#if oculta}} class="op2-poi-card__info--oculta"{{/if}}>
+                            {{#if @root.ehGM}}
+                              <button type="button" class="op2-botao-icone" data-action="alternarInfoOculta"
+                                data-poi-uuid="{{../../uuid}}" data-info-id="{{id}}"
+                                aria-label="{{localize 'OP2.POI.InfoOcultaAjuda'}}" data-tooltip="{{localize 'OP2.POI.InfoOcultaAjuda'}}">
+                                <i class="fa-solid {{#if oculta}}fa-eye-slash{{else}}fa-eye{{/if}}" aria-hidden="true"></i>
+                              </button>
+                            {{/if}}
                             {{{texto}}}
                             {{#if @root.ehGM}}
                               <span class="op2-poi-card__dt">DT {{dt}}</span>
-                              {{#if oculta}}
-                                <span class="op2-poi-card__revelado-por" data-tooltip="{{localize 'OP2.POI.InfoOcultaAjuda'}}">
-                                  <i class="fa-solid fa-eye-slash" aria-hidden="true"></i> {{localize "OP2.POI.InfoOculta"}}
-                                </span>
-                              {{/if}}
                               {{#if reveladoPor.length}}
                                 <span class="op2-poi-card__revelado-por">— {{reveladoPor}}</span>
                               {{/if}}

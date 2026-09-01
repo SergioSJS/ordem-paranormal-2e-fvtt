@@ -79,20 +79,19 @@ de pagamento no chat.
   Modificado (tabela de conjuntos falsos) — prontas para o app de M3
 - [ ] Validação em Foundry v13 (mesmo bloqueio das fases anteriores)
 
-### M3 — minigames dedicados (em andamento)
+### M3 — minigames dedicados ✅
 
 - [x] Destrancar: app de Mastermind numérico, senha oculta no Item, resposta
   posição a posição (exato/alto/baixo), teto de tentativas reaproveita `quebrado`
 - [x] App do Laboratório Portátil (`module/cena/laboratorio-app.mjs`) — a checkbox
   estava desatualizada, o app já existia e tem cobertura em `scripts/e2e/verificar.mjs`
-- [ ] App do Rádio Modificado (`module/cena/radio-app.mjs`) — código pronto (schema,
-  regra pura, app, ficha do POI, chat, i18n, testes offline todos verdes), **mas
-  ainda sem a verificação ao vivo** (`npm run e2e`): o Foundry descartável desta
-  máquina está com a licença presa a um hostname de VPN corporativa que não bate
-  com o hostname atual, e não fecha sozinho enquanto o Foundry "de verdade" do
-  usuário está aberto. Rodar `npm run e2e` (ou testar manualmente com F5, já que o
-  sistema está symlinkado no Foundry real) antes de considerar fechado.
+- [x] App do Rádio Modificado (`module/cena/radio-app.mjs`) — schema próprio pro POI
+  (`conjuntos` verdadeiro/falso + frase, docs/LACUNAS.md), teto de falsos removidos
+  pelo teste de Tecnologia, ordenação por setinhas. Verificado ao vivo: 220
+  checks, 0 erros de console, screenshot real do app rodando.
 - [ ] Validação em Foundry v13 (mesmo bloqueio das fases anteriores)
+
+Fase 3 fecha em `0.3.0` assim que a validação v13 destravar (falta instalação).
 
 ## Fase 4 — Combate simplificado → `0.4.0`
 

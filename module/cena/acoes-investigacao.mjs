@@ -26,6 +26,21 @@ async function carregarPoi(poiUuid) {
   return poi;
 }
 
+/**
+ * Liga/desliga o rascunho de uma linha do quadro de informações (spec: preparar
+ * com antecedência sem comprometer a mesa com algo que ainda pode mudar). Grava no
+ * Item do POI, não na investigação — o painel só é o atalho pra não precisar abrir
+ * a ficha do POI pra isso (achado em uso real).
+ */
+export async function alternarInfoOculta(poiUuid, infoId) {
+  const poi = await carregarPoi(poiUuid);
+  if (!poi) return;
+  const informacoes = poi.system.informacoes.map((info) => (
+    info.id === infoId ? { ...info, oculta: !info.oculta } : info
+  ));
+  await poi.update({ "system.informacoes": informacoes });
+}
+
 /** Ids das infos deste POI que este personagem já revelou. */
 export function idsRevelados(ator, poiUuid) {
   const prefixo = `${poiUuid}:`;

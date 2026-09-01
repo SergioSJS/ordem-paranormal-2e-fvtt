@@ -248,6 +248,25 @@ const relato = await page.evaluate(async () => {
   ok("painel renderizou", Boolean(painelEl));
   ok("painel lista o POI", Boolean(painelEl?.textContent.includes("Quadro na Parede")));
   ok("mestre vê as DTs no quadro", Boolean(painelEl?.textContent.includes("DT 10")));
+
+  // Ocultar uma linha do quadro direto do painel — sem abrir a ficha do POI
+  // (achado em uso real: mestre preparando tudo numa tela só).
+  {
+    const botaoOcultarInfo = painelEl?.querySelector('[data-action="alternarInfoOculta"][data-info-id="i1"]');
+    ok("painel tem o botão de ocultar por informação do quadro", Boolean(botaoOcultarInfo));
+    botaoOcultarInfo?.click();
+    await esperar(500);
+    ok("ocultar pelo painel grava no Item do POI, sem precisar abrir a ficha dele",
+      poi.system.informacoes.find((info) => info.id === "i1")?.oculta === true);
+    await painel.render();
+    await esperar(400);
+    ok("linha oculta ganha a marcação visual no painel",
+      Boolean(painelEl?.querySelector(".op2-poi-card__info--oculta")));
+    // Desfaz, pra não deixar o POI sujo pro resto do roteiro.
+    painelEl?.querySelector('[data-action="alternarInfoOculta"][data-info-id="i1"]')?.click();
+    await esperar(500);
+    ok("alternar de novo desfaz a ocultação", poi.system.informacoes.find((info) => info.id === "i1")?.oculta === false);
+  }
   ok("painel lista a investigação ativa", Boolean(painelEl?.textContent.includes("Mansão de Teste")));
   ok("participante do roster aparece na seção de Participantes", Boolean(painelEl?.textContent.includes("Alan")));
   ok("tracker de rodadas também lista o participante", Boolean(painelEl?.querySelector(".op2-painel-ordem")?.textContent.includes("Alan")));
