@@ -6,7 +6,8 @@
     },
     "Item": {
       "habilidade": "Ability",
-      "equipamento": "Equipment"
+      "equipamento": "Equipment",
+      "ponto-interesse": "Point of Interest"
     }
   },
   "OP2": {
@@ -14,6 +15,7 @@
       "Personagem": "Character Sheet",
       "Npc": "NPC Sheet",
       "Item": "Item Sheet",
+      "PontoInteresse": "Point of Interest",
       "SemNome": "Unnamed"
     },
     "Atributo": {
@@ -147,6 +149,59 @@
       "RemoverPericia": "Remove skill",
       "PericiasAjuda": "NPCs don't use the full list: declare only the skills this NPC actually uses."
     },
+    "POI": {
+      "DescricaoBasica": "Basic description",
+      "DescricaoBasicaAjuda": "Narrated the first time someone investigates this point of interest.",
+      "Quadro": "Information board",
+      "QuadroAjuda": "Investigate compares the die size against the DT, without rolling. Examine rolls and compares the sum.",
+      "AdicionarInformacao": "New information",
+      "RemoverInformacao": "Remove information",
+      "DescricaoContextual": "Contextual description (GM only)",
+      "DescricaoContextualAjuda": "The full explanation. It resolves the players' freeform interactions.",
+      "Ferramentas": "Tool section",
+      "FerramentasAjuda": "Empty = normal reading, no reaction. A normal reading is also information — only reveal it after they investigate.",
+      "FerramentaSemReacao": "No reaction",
+      "ReveladoPorLaser": "Reacts to the Sweep Laser",
+      "SomenteMestre": "The information board and the contextual description are GM-only.",
+      "Ferramenta": {
+        "camera": "Modified Camera",
+        "laboratorio": "Portable Laboratory",
+        "lanternaUV": "UV Burst Flashlight",
+        "laser": "Sweep Laser",
+        "infravermelho": "Infrared Reader",
+        "emf": "EMF Meter",
+        "poRevelador": "Revealing Dust",
+        "radio": "Modified Radio",
+        "termometro": "Differential Thermometer"
+      }
+    },
+    "Investigacao": {
+      "Investigar": "Investigate",
+      "Examinar": "Examine",
+      "Interagir": "Interact",
+      "Recapitular": "Recap",
+      "Compartilhar": "Share",
+      "EscolherPericia": "Board skill",
+      "EscolherPericiaAjuda": "Investigate hands out every piece of information with DT up to your die size, without rolling.",
+      "NadaNovo": "No new information with this skill.",
+      "ExaminarAviso": "Examining is a bet: if the check reveals no new information, you lose {custo} DP.",
+      "ExaminarSemInfo": "The examination revealed no new information.",
+      "PerderPD": "Lose {custo} DP",
+      "PDPago": "{ator} lost {custo} DP examining without finding anything.",
+      "InteragirQuem": "{ator} interacts with the point of interest. Resolve it with the contextual description:",
+      "RecapitularAviso": "Roleplay the recap of everything the group has found. If the GM deems it coherent, make an Insight check (DT {dt}). After a success, Recap locks for the group in this scene.",
+      "RecapitularSucesso": "{ator} recapped the investigation. The GM may grant a new clue — registering locks the action for the group in this scene.",
+      "CompartilharAjuda": "The ally rolls the Share skill (DT {dt}) as a free action.",
+      "EscolherAliado": "Ally who receives the clue",
+      "CompartilharTexto": "{ator} explains a clue from this scene to {aliado}.",
+      "TestarCompartilhar": "Roll {pericia} (DT {dt})",
+      "CompartilharSucesso": "{aliado} understood {ator}'s explanation and may deduce a new clue — registering locks Share for the group in this scene.",
+      "RegistrarPista": "Register clue",
+      "TravaRegistrada": "{acao} is locked for the group until the end of the scene.",
+      "AcaoTravada": "This action already succeeded in this scene.",
+      "SemAliados": "No other character in the scene to receive the clue.",
+      "POIVazio": "This point of interest has no information on its board."
+    },
     "Dialog": {
       "Teste": {
         "Titulo": "Check",
@@ -232,7 +287,9 @@
       "TetoDeContados": "Only {max} dice make the result.",
       "PericiaDesconhecida": "Unknown skill: {chave}",
       "AptidaoDuplicada": "An Aptitude field named \"{rotulo}\" already exists.",
-      "AtorAusente": "The character for this card no longer exists."
+      "AtorAusente": "The character for this card no longer exists.",
+      "POIAusente": "Point of interest not found.",
+      "SemPermissao": "This button belongs to another player or to the GM."
     },
     "Config": {
       "dtPadrao": {

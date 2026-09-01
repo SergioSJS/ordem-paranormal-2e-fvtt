@@ -46,6 +46,8 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       extras: new Set(),
       dt: base.dt ?? lerConfig("dtPadrao"),
       oposto: base.oposto ?? false,
+      // Examinar não tem DT única: cada informação do quadro tem a sua (spec §6.3.1).
+      semDT: base.semDT ?? false,
     };
   }
 
@@ -168,7 +170,7 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     this.estado.chaveAtributo = chaveAtributo ?? this.estado.chaveAtributo;
     this.#resolver({
       componentes: this.componentes(),
-      dt: oposto ? null : Number(dt),
+      dt: (oposto || this.estado.semDT) ? null : Number(dt),
       oposto: Boolean(oposto),
     });
     this.#resolver = null;

@@ -4,8 +4,9 @@
  * Tudo que muda a ficha de alguém passa por aqui e exige clique — nenhum efeito do
  * playtest é aplicado automaticamente.
  */
-import { SYSTEM_ID } from "../config.mjs";
+import { SYSTEM_ID, CUSTO_PD_EXAMINAR } from "../config.mjs";
 import { rolarFalhaCritica, aplicarFalhaCritica, aplicarDano } from "../dice/falha-critica.mjs";
+import { testarCompartilhamento, registrarTravaDeCena } from "../cena/acoes-investigacao.mjs";
 
 /** @type {Record<string, (ator: Actor, dataset: DOMStringMap) => Promise<void>>} */
 const ACOES = {
@@ -22,6 +23,24 @@ const ACOES = {
       quantidade: dataset.quantidade,
       alvos: alvos.map((a) => a.name).join(", "),
     }));
+  },
+  // Examinar é uma aposta (spec §6.3.1): não revelou nada novo, paga 1 PD.
+  async "pagar-custo-examinar"(ator) {
+    await aplicarDano(ator, CUSTO_PD_EXAMINAR, "pd");
+    ui.notifications.info(game.i18n.format("OP2.Investigacao.PDPago", {
+      ator: ator.name, custo: CUSTO_PD_EXAMINAR,
+    }));
+  },
+  // O teste do aliado no Compartilhar é ação livre (spec §6.5).
+  async "testar-compartilhar"(ator, dataset) {
+    await testarCompartilhamento(ator, dataset.compartilhadorId);
+  },
+  // As travas de 1×-por-cena são registradas pelo mestre, que julga a interpretação.
+  async "registrar-recapitular"(ator) {
+    await registrarTravaDeCena("recapitularUsado", ator);
+  },
+  async "registrar-compartilhar"(ator) {
+    await registrarTravaDeCena("compartilharUsado", ator);
   },
 };
 

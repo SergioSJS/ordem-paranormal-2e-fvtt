@@ -7,9 +7,11 @@ import { PersonagemData } from "./data/actor-personagem.mjs";
 import { NpcData } from "./data/actor-npc.mjs";
 import { HabilidadeData } from "./data/item-habilidade.mjs";
 import { EquipamentoData } from "./data/item-equipamento.mjs";
+import { PontoInteresseData } from "./data/item-ponto-interesse.mjs";
 import { PersonagemSheet } from "./sheets/actor-personagem-sheet.mjs";
 import { NpcSheet } from "./sheets/actor-npc-sheet.mjs";
 import { OP2ItemSheet } from "./sheets/item-sheet.mjs";
+import { PontoInteresseSheet } from "./sheets/item-ponto-interesse-sheet.mjs";
 import { OP2Roll } from "./dice/op2-roll.mjs";
 import { rolarTeste } from "./dice/teste.mjs";
 import { stepDie, faces } from "./dice/escada.mjs";
@@ -18,6 +20,9 @@ import { registrarHelpersDeDado } from "./ui/dice-icons.mjs";
 import { registrarHelpers, precarregarTemplates } from "./ui/handlebars.mjs";
 import { registrarChat } from "./ui/chat.mjs";
 import { encerrarCena } from "./cena/encerrar-cena.mjs";
+import {
+  investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar,
+} from "./cena/acoes-investigacao.mjs";
 
 Hooks.once("init", () => {
   console.log(`${SYSTEM_ID} | inicializando`);
@@ -28,6 +33,7 @@ Hooks.once("init", () => {
   CONFIG.Actor.dataModels.npc = NpcData;
   CONFIG.Item.dataModels.habilidade = HabilidadeData;
   CONFIG.Item.dataModels.equipamento = EquipamentoData;
+  CONFIG.Item.dataModels["ponto-interesse"] = PontoInteresseData;
 
   CONFIG.Dice.rolls.unshift(OP2Roll);
 
@@ -41,7 +47,10 @@ Hooks.once("init", () => {
   // Sem iniciativa rolada: os jogadores decidem a ordem entre si (spec §5.2).
   CONFIG.Combat.initiative = { formula: "0", decimals: 0 };
 
-  game.op2 = { rolarTeste, encerrarCena, stepDie, faces, OP2Roll };
+  game.op2 = {
+    rolarTeste, encerrarCena, stepDie, faces, OP2Roll,
+    investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar,
+  };
 });
 
 Hooks.once("ready", () => precarregarTemplates());
@@ -91,5 +100,8 @@ function registrarSheets() {
   Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
   Items.registerSheet(SYSTEM_ID, OP2ItemSheet, {
     types: ["habilidade", "equipamento"], makeDefault: true, label: "OP2.Ficha.Item",
+  });
+  Items.registerSheet(SYSTEM_ID, PontoInteresseSheet, {
+    types: ["ponto-interesse"], makeDefault: true, label: "OP2.Ficha.PontoInteresse",
   });
 }

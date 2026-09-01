@@ -1,0 +1,58 @@
+@layer system {
+
+// Cards de investigação: revelação sussurrada, custo de Examinar, ações de cena.
+.op2-card--investigacao { border-left-color: var(--op2-vermelho); }
+
+.op2-card__texto { margin: var(--op2-e2) 0 0; font-size: 0.85rem; }
+
+.op2-card__infos {
+  margin: var(--op2-e2) 0 0;
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+
+  li + li { margin-top: var(--op2-e1); }
+}
+
+.op2-card__info-pericia {
+  font-family: var(--op2-fonte-mono);
+  color: var(--op2-texto-fraco);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+// Ficha do Ponto de Interesse.
+.op2-poi {
+  &__infos {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li + li { margin-top: var(--op2-e2); }
+  }
+
+  &__info textarea { width: 100%; margin-top: var(--op2-e1); }
+
+  &__info-linha {
+    display: flex;
+    align-items: center;
+    gap: var(--op2-e2);
+
+    select { flex: 1; }
+  }
+
+  &__dt {
+    display: flex;
+    align-items: center;
+    gap: var(--op2-e1);
+
+    span {
+      font-family: var(--op2-fonte-display);
+      font-size: 0.75rem;
+      color: var(--op2-texto-fraco);
+    }
+
+    input { width: 3.5rem; }
+  }
+}
+
+}

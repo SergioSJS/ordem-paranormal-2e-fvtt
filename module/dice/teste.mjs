@@ -15,10 +15,13 @@ import { lerConfig } from "../settings/register.mjs";
  * @param {string} [opcoes.chaveAtributo] default: o atributo pareado na ficha
  * @param {number|null} [opcoes.dt]
  * @param {boolean} [opcoes.oposto]
+ * @param {boolean} [opcoes.semDT]       teste sem DT e sem sucesso/falha — Examinar
+ *                                       compara o total contra várias DTs (spec §6.3.1)
+ * @param {string} [opcoes.contexto]     título do card (default: nome da perícia)
  * @param {boolean} [opcoes.rapido]      pula o diálogo e usa os defaults
  * @returns {Promise<OP2Roll|null>}
  */
-export async function rolarTeste(ator, { chavePericia, chaveAtributo, dt, oposto = false, rapido = false } = {}) {
+export async function rolarTeste(ator, { chavePericia, chaveAtributo, dt, oposto = false, semDT = false, contexto, rapido = false } = {}) {
   const sistema = ator.system;
   const pericia = sistema.resolverChave(chavePericia);
   if (!pericia) {
@@ -31,8 +34,9 @@ export async function rolarTeste(ator, { chavePericia, chaveAtributo, dt, oposto
     rotuloPericia: rotuloDePericia(chavePericia),
     pericia: { ...pericia, dadoEfetivo: pericia.dado },
     chaveAtributo: chaveAtributo ?? sistema.atributoDe(chavePericia) ?? "fisico",
-    dt: dt ?? lerConfig("dtPadrao"),
+    dt: semDT ? null : (dt ?? lerConfig("dtPadrao")),
     oposto,
+    semDT,
   };
 
   const config = rapido ? configuracaoRapida(ator, base) : await TesteDialog.abrir({ ator, base });
@@ -41,7 +45,7 @@ export async function rolarTeste(ator, { chavePericia, chaveAtributo, dt, oposto
   const roll = OP2Roll.paraComponentes(config.componentes, {
     dt: config.dt,
     escopoCritico: lerConfig("escopoCritico"),
-    rotulo: base.rotuloPericia,
+    rotulo: contexto ?? base.rotuloPericia,
     atorId: ator.id,
   });
 
@@ -64,7 +68,7 @@ export async function rolarTeste(ator, { chavePericia, chaveAtributo, dt, oposto
 function configuracaoRapida(ator, base) {
   const atributo = ator.system.atributos[base.chaveAtributo];
   return {
-    dt: base.oposto ? null : base.dt,
+    dt: (base.oposto || base.semDT) ? null : base.dt,
     oposto: base.oposto,
     componentes: [
       { chave: `pericia.${base.chavePericia}`, rotulo: base.rotuloPericia, tipo: "pericia", dado: base.pericia.dado },

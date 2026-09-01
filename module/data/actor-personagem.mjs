@@ -39,6 +39,13 @@ export class PersonagemData extends foundry.abstract.TypeDataModel {
         }),
         // Recapitular e Compartilhar travam para o grupo após um sucesso (spec §6.4/§6.5).
         acoesUsadasNaCena: new foundry.data.fields.SetField(new StringField(), { initial: [] }),
+
+        // A revelação é por personagem: "uma informação que você ainda não tinha
+        // recebido" (spec §6.2). Fica no actor porque o jogador é dono do próprio
+        // estado — grava as próprias descobertas sem permissão no item nem socket.
+        // Zerada ao encerrar a cena.
+        poisInvestigados: new foundry.data.fields.SetField(new StringField(), { initial: [] }),
+        infosReveladas: new foundry.data.fields.SetField(new StringField(), { initial: [] }),
       }),
 
       biografia: new HTMLField({ required: true, initial: "", blank: true }),
