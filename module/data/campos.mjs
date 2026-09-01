@@ -61,13 +61,16 @@ export function campoAtributos(inicial = "d6") {
  * em "conhecimento em um campo específico" e a lista pode crescer (spec §2.3).
  */
 export function campoAptidoes() {
-  const { TypedObjectField, SchemaField, StringField } = f();
+  const { TypedObjectField, SchemaField, StringField, ObjectField } = f();
   const entrada = new SchemaField({
     rotulo: new StringField({ required: true, initial: "", blank: true }),
     die: campoDado(),
   });
+  // `initial` como função: cada ator precisa do seu próprio objeto, não de um
+  // compartilhado entre todos.
+  const opcoes = { initial: () => aptidoesIniciais() };
   // TypedObjectField existe a partir do v13; o fallback mantém o v12 utilizável em dev.
-  return TypedObjectField ? new TypedObjectField(entrada) : new foundry.data.fields.ObjectField();
+  return TypedObjectField ? new TypedObjectField(entrada, opcoes) : new ObjectField(opcoes);
 }
 
 /** Valores iniciais das aptidões padrão, usados na criação do ator. */

@@ -30,7 +30,10 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     return {
       ...contexto,
+      actor: this.actor,
       sistema,
+      // `fields` alimenta o {{formInput}}; sem ele o editor de texto rico não sobe.
+      fields: this.actor.system.schema.fields,
       editavel: this.isEditable,
       escada: ESCADA.map((dado) => ({ dado, icone: iconeDado(dado) })),
       atributos: Object.keys(ATRIBUTOS).map((chave) => ({

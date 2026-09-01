@@ -57,14 +57,13 @@ function ligar(elemento) {
 }
 
 export function registrarChat() {
-  // O v13 renomeou o hook e passa um HTMLElement; o v12 passava jQuery.
-  Hooks.on("renderChatMessageHTML", (_msg, html) => ligar(html));
-  Hooks.on("renderChatMessage", (_msg, html) => ligar(html instanceof HTMLElement ? html : html[0]));
-
-  // Botões que só o mestre pode ver ficam escondidos por CSS; a checagem real é aqui.
+  // Só `renderChatMessageHTML`: o `renderChatMessage` está depreciado desde o v13 e
+  // registrá-lo faz o core avisar a cada mensagem. O sistema exige v13 no mínimo.
   Hooks.on("renderChatMessageHTML", (msg, html) => {
+    // Botões de mestre são removidos do DOM, não escondidos por CSS.
     if (msg.getFlag(SYSTEM_ID, "tipo") && !game.user.isGM) {
       for (const botao of html.querySelectorAll("[data-op2-gm]")) botao.remove();
     }
+    ligar(html);
   });
 }

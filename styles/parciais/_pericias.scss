@@ -58,6 +58,7 @@
   &[hidden] { display: none; }
 
   &__nome {
+    justify-content: flex-end;
     overflow: hidden;
     padding: 0;
     border: 0;

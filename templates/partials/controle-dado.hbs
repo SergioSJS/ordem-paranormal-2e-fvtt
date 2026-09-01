@@ -1,8 +1,9 @@
 {{!-- Controle de dado: o ícone é o botão; o menu mostra as cinco formas da escada. --}}
-<div class="op2-controle-dado{{#unless @root.editavel}} desabilitado{{/unless}}" data-caminho="{{caminho}}">
+<div class="op2-controle-dado{{#if reduzido}} op2-controle-dado--reduzido{{/if}}{{#unless @root.editavel}} desabilitado{{/unless}}" data-caminho="{{caminho}}">
   <button type="button" class="op2-controle-dado__botao" data-action="abrirSeletor"
     {{#unless @root.editavel}}disabled{{/unless}}
-    aria-haspopup="true" aria-label="{{localize 'OP2.Dado.Alterar'}} — {{valorAtual}}">
+    aria-haspopup="true" aria-label="{{localize 'OP2.Dado.Alterar'}} — {{valorAtual}}"
+    data-tooltip="{{#if dica}}{{dica}}{{else}}{{localize 'OP2.Dado.Alterar'}}{{/if}}">
     {{{icone}}}
   </button>
 

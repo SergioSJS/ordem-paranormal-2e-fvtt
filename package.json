@@ -13,12 +13,14 @@
     "test": "node --test module/tests/*.test.mjs",
     "pack:build": "node scripts/build-packs.mjs",
     "check": "npm run lint && npm test && npm run build:css",
-    "preview": "npm run build:css && node scripts/preview.mjs"
+    "preview": "npm run build:css && node scripts/preview.mjs",
+    "e2e": "node scripts/e2e/verificar.mjs"
   },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^2.0.0",
     "eslint": "^8.57.0",
     "handlebars": "^4.7.9",
-    "sass": "^1.70.0"
+    "sass": "^1.70.0",
+    "playwright": "^1.62.0"
   }
 }

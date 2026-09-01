@@ -2,73 +2,61 @@
  * Ícones de dado.
  *
  * O livro não escreve "d8": desenha a forma com o número dentro. Cada tamanho tem uma
- * silhueta própria, e é isso que torna a ficha legível de relance — por isso aqui são
- * SVG inline coloridos por CSS, não `<select>` de texto.
+ * silhueta própria, e é isso que torna a ficha legível de relance.
  *
  *   d4 triângulo · d6 quadrado · d8 losango · d10 pipa · d12 octógono · d20 círculo
+ *
+ * A forma vem de `clip-path` no CSS, não de SVG inline: o conteúdo das mensagens de chat
+ * passa pelo sanitizador do Foundry, que remove `<svg>` e deixa só o texto solto. Um
+ * `<span>` sobrevive, funciona igual na ficha e no chat, e economiza centenas de nós —
+ * uma ficha chega a mostrar quase 200 dados de uma vez.
  */
 
-/** Polígonos em viewBox 0 0 24 24. `null` = círculo. */
-const FORMAS = {
-  d4: "12,2.5 22.4,20.5 1.6,20.5",
-  d6: "3.6,3.6 20.4,3.6 20.4,20.4 3.6,20.4",
-  d8: "12,1.6 22.4,12 12,22.4 1.6,12",
-  d10: "12,1.6 21.6,9 17.8,21 6.2,21 2.4,9",
-  d12: "8.2,1.8 15.8,1.8 22.2,8.2 22.2,15.8 15.8,22.2 8.2,22.2 1.8,15.8 1.8,8.2",
-  d20: null,
-};
-
-export const DADOS_CONHECIDOS = Object.keys(FORMAS);
+export const DADOS_CONHECIDOS = ["d4", "d6", "d8", "d10", "d12", "d20"];
 
 /**
  * @param {string} dado          "d8"
  * @param {object} [opcoes]
- * @param {string|number} [opcoes.texto]    o que vai dentro; default é o número de faces
- * @param {string} [opcoes.classe]          classes extras no `<svg>`
- * @param {string} [opcoes.titulo]          rótulo acessível; sem ele o ícone é decorativo
- * @returns {string} SVG
+ * @param {string|number} [opcoes.texto]  o que vai dentro; default é o número de faces
+ * @param {string} [opcoes.classe]        classes extras
+ * @param {string} [opcoes.titulo]        rótulo acessível; sem ele o ícone é decorativo
+ * @returns {string} HTML
  */
 export function iconeDado(dado, { texto, classe = "", titulo } = {}) {
-  const chave = FORMAS[dado] !== undefined ? dado : "d4";
-  const pontos = FORMAS[chave];
+  const chave = DADOS_CONHECIDOS.includes(dado) ? dado : "d4";
   const conteudo = texto ?? chave.slice(1);
-
-  const forma = pontos
-    ? `<polygon points="${pontos}" />`
-    : `<circle cx="12" cy="12" r="10.4" />`;
+  const classes = `op2-dado op2-dado--${chave} ${classe}`.trim();
 
   const acessivel = titulo
-    ? `role="img" aria-label="${foundry.utils.escapeHTML?.(titulo) ?? titulo}"`
-    : `aria-hidden="true" focusable="false"`;
+    ? `role="img" aria-label="${escapar(titulo)}"`
+    : `aria-hidden="true"`;
 
-  const classes = `op2-dado op2-dado--${chave} ${classe}`.trim();
-  // O texto do d4 desce: o centro visual de um triângulo não é o centro do viewBox.
-  const linhaDeBase = chave === "d4" ? 16.6 : 12.4;
-
-  return `<svg class="${classes}" viewBox="0 0 24 24" ${acessivel}>
-  <g class="op2-dado__forma">${forma}</g>
-  <text class="op2-dado__texto" x="12" y="${linhaDeBase}" text-anchor="middle" dominant-baseline="middle">${conteudo}</text>
-</svg>`;
+  return `<span class="${classes}" ${acessivel}><span class="op2-dado__texto">${escapar(conteudo)}</span></span>`;
 }
 
 /**
  * Ícone de um dado já rolado: a forma do dado, o resultado dentro.
- * @param {{dado: string, resultado: number, contado: boolean}} lancamento
+ * @param {{dado: string, resultado: number, contado?: boolean}} lancamento
  */
 export function iconeResultado({ dado, resultado, contado = true }) {
   return iconeDado(dado, {
     texto: resultado,
-    classe: `op2-dado--resultado ${contado ? "" : "op2-dado--descartado"}`,
+    classe: `op2-dado--resultado${contado ? "" : " op2-dado--descartado"}`,
     titulo: `${dado}: ${resultado}`,
   });
+}
+
+function escapar(valor) {
+  return String(valor).replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 }
 
 /**
  * Helpers de Handlebars: `{{op2Dado "d8"}}` e `{{op2DadoResultado d}}`.
  *
  * O prefixo não é cosmético. Um helper chamado `dado` sequestra `{{dado}}` em qualquer
- * contexto que tenha uma propriedade `dado` — e o SVG inteiro acaba injetado dentro de
- * um `aria-label`, quebrando a tag.
+ * contexto que tenha uma propriedade `dado` — e o markup inteiro acaba injetado dentro
+ * de um `aria-label`, quebrando a tag.
  */
 export function registrarHelpersDeDado() {
   Handlebars.registerHelper("op2Dado", (dado, opcoes) =>

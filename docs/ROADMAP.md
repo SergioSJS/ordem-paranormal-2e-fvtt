@@ -22,7 +22,8 @@ Manifesto, tooling, testes, docs, símbolo do projeto. Sem conteúdo de jogo.
 - [x] i18n pt-BR + en com teste de paridade
 - [ ] Compêndio de habilidades dos 3 perfis e das ocupações do playtest
 - [x] Busca na coluna de perícias
-- [ ] Validação manual em v13 e v14
+- [x] Validação em Foundry v14 real (`npm run e2e`, 24 verificações)
+- [ ] Validação em Foundry v13
 
 **Pronto quando:** dá para criar um agente, montar a ficha, rolar qualquer perícia
 trocando o atributo, ver RA/RB e crítico no chat, e o mestre aplicar falha crítica com

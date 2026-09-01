@@ -32,7 +32,10 @@ export class OP2ItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
     return {
       ...contexto,
+      item: this.item,
       sistema: this.item.system,
+      // `fields` alimenta o {{formInput}}; sem ele o editor de texto rico não sobe.
+      fields: this.item.system.schema.fields,
       editavel: this.isEditable,
       escada: ESCADA.map((dado) => ({ dado, icone: iconeDado(dado) })),
       origens: ORIGENS_HABILIDADE.map((v) => ({ v, rotulo: game.i18n.localize(`OP2.Habilidade.Origem.${v}`) })),

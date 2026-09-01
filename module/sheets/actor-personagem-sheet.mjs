@@ -59,7 +59,10 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     return {
       ...contexto,
+      actor: this.actor,
       sistema,
+      // `fields` alimenta o {{formInput}}; sem ele o editor de texto rico não sobe.
+      fields: this.actor.system.schema.fields,
       editavel: this.isEditable,
       ehGM: game.user.isGM,
       atributos: this.#atributos(sistema),
@@ -89,7 +92,11 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         dadoEfetivo: atributo.dadoEfetivo,
         reduzido: atributo.reduzido,
         icone: iconeDado(atributo.dadoEfetivo, { titulo: `${game.i18n.localize(`OP2.Atributo.${chave}`)}: ${atributo.dadoEfetivo}` }),
-        iconeBase: atributo.reduzido ? iconeDado(atributo.die, { classe: "op2-dado--base" }) : null,
+        // O dado base vai para o tooltip; um segundo ícone na linha comeria a largura
+        // do nome do atributo, que em inglês já é apertada.
+        dica: atributo.reduzido
+          ? `${game.i18n.localize("OP2.Atributo.Reduzido")} — ${atributo.die} → ${atributo.dadoEfetivo}`
+          : null,
         caminho: `system.atributos.${chave}.die`,
       };
     });

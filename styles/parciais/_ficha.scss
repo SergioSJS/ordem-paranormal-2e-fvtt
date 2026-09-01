@@ -171,11 +171,15 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--op2-e1);
-  padding: 0.35rem 0.6rem;
+  padding: 0.35rem 0.45rem;
   border: 1px solid var(--op2-linha);
   border-radius: var(--op2-raio);
 
   &__nome {
+    // `min-width: 0` é o que deixa o text-overflow agir dentro do flex.
+    min-width: 0;
+    flex: 1 1 auto;
+    justify-content: flex-start;
     overflow: hidden;
     padding: 0;
     border: 0;
@@ -183,9 +187,10 @@
     color: var(--op2-texto);
     cursor: pointer;
     font-family: var(--op2-fonte-display);
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 700;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.01em;
+    text-align: left;
     text-overflow: ellipsis;
     text-transform: uppercase;
     white-space: nowrap;
@@ -284,6 +289,8 @@
   &__texto { display: flex; min-width: 0; flex-direction: column; }
 
   &__nome {
+    justify-content: flex-start;
+    overflow: hidden;
     padding: 0;
     border: 0;
     background: transparent;
@@ -293,6 +300,8 @@
     font-size: 1rem;
     letter-spacing: 0.03em;
     text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 
     &:hover { color: var(--op2-vermelho-claro); }
   }

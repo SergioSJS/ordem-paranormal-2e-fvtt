@@ -76,12 +76,24 @@ O servidor do Foundry v14 exige **Node 24**. O `npm test` do projeto roda em Nod
 
 ## Testes
 
-`npm test` roda `node --test`, sem runner externo:
+### Offline — `npm test`
+
+`node --test`, sem runner externo:
 
 - `escada.test.mjs` — piso, teto, d20, passos compostos.
 - `analise.test.mjs` — RA/RB, crítico, falha crítica, precedência sobre a DT.
 - `i18n.test.mjs` — paridade pt-BR/en e chave inexistente usada no código.
 - `carga.test.mjs` — todo módulo importa, todo template compila, manifesto consistente.
+
+### Dentro do Foundry — `npm run e2e`
+
+Sobe o sistema num Foundry de verdade e confere o que os testes offline não alcançam:
+sanitização do conteúdo de chat, contexto real das fichas, hooks depreciados, CSS
+aplicado e texto cortado. Precisa de Node 24 e de um Foundry descartável rodando —
+o passo a passo está em `scripts/e2e/README.md`.
+
+Rode antes de fechar qualquer fase. Foi ele que pegou o sanitizador removendo `<svg>`
+dos cards de chat e o `{{actor.name}}` vazio na ficha.
 
 `module/tests/stub-foundry.mjs` tem stubs mínimos da API — o suficiente para carregar os
 módulos fora do Foundry. Não simula comportamento: lógica de regra fica em módulos puros

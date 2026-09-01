@@ -7,7 +7,7 @@
  */
 import { PERFIS, TIPOS_PERSONAGEM, PERICIAS, DT_FERIMENTO_BASE, DT_FERIMENTO_INCREMENTO } from "../config.mjs";
 import { stepDie, faces } from "../dice/escada.mjs";
-import { campoAtributos, campoPericias, campoAptidoes, campoRecurso, campoContador, aptidoesIniciais } from "./campos.mjs";
+import { campoAtributos, campoPericias, campoAptidoes, campoRecurso, campoContador } from "./campos.mjs";
 
 export class PersonagemData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
@@ -43,12 +43,6 @@ export class PersonagemData extends foundry.abstract.TypeDataModel {
 
       biografia: new HTMLField({ required: true, initial: "", blank: true }),
     };
-  }
-
-  /** Aptidões padrão só na criação; depois a coleção é do jogador. */
-  static migrateData(source) {
-    if (source.aptidoes && !Object.keys(source.aptidoes).length) source.aptidoes = aptidoesIniciais();
-    return super.migrateData(source);
   }
 
   /**

@@ -98,6 +98,8 @@ const sistema = {
 // Reaproveita o prepareDerivedData real em vez de recalcular à mão.
 Object.setPrototypeOf(sistema, PersonagemData.prototype);
 sistema.prepareDerivedData();
+// A ficha lê `system.schema.fields` para alimentar o {{formInput}}.
+sistema.schema = { fields: { biografia: {} } };
 
 const habilidades = [
   { id: "h1", name: "Foco Mental", img: "", type: "habilidade",
@@ -131,7 +133,6 @@ const ficha = new PersonagemSheet({ document: ator });
 const contexto = {
   ...(await ficha._prepareContext({})),
   actor: ator,
-  fields: {},
   tabs: {
     habilidades: { id: "habilidades", group: "principal", label: "OP2.Aba.habilidades", cssClass: "active", active: true },
     inventario: { id: "inventario", group: "principal", label: "OP2.Aba.inventario", cssClass: "", active: false },
