@@ -29,7 +29,8 @@ export function periciasDoQuadro(informacoes) {
  */
 export function resolverInvestigacao(informacoes, chavePericia, valorPericia, idsJaRevelados = new Set()) {
   return informacoes
-    .filter((info) => info.pericia === chavePericia && info.dt <= valorPericia && !idsJaRevelados.has(info.id))
+    .filter((info) => !info.oculta && info.pericia === chavePericia
+      && info.dt <= valorPericia && !idsJaRevelados.has(info.id))
     .sort((a, b) => a.dt - b.dt)
     .map((info) => info.id);
 }
@@ -50,7 +51,7 @@ export function resolverInvestigacao(informacoes, chavePericia, valorPericia, id
  */
 export function resolverExaminar(informacoes, chavePericia, total, idsJaRevelados = new Set(), { ignorarDT = false } = {}) {
   const revelaveis = informacoes
-    .filter((info) => info.pericia === chavePericia
+    .filter((info) => !info.oculta && info.pericia === chavePericia
       && !idsJaRevelados.has(info.id)
       && (ignorarDT || info.dt <= total))
     .sort((a, b) => a.dt - b.dt)

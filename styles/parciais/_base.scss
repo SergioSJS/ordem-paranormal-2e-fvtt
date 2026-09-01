@@ -170,6 +170,13 @@
 }
 
 .op2-botao-icone {
+  // `inline-flex` porque a mesma classe também veste um `<label>` (checkbox
+  // escondido + ícone) pra virar um toggle — `width`/`height` não pegam em
+  // elemento inline puro (achado em uso real: o ícone de ocultar informação
+  // ficava com o tamanho do próprio glifo, sem a caixa clicável ao redor).
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 1.6rem;
   height: 1.6rem;
   padding: 0;

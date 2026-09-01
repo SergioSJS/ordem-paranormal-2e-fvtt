@@ -40,6 +40,10 @@ export class PontoInteresseData extends foundry.abstract.TypeDataModel {
         pericia: new StringField({ required: true, initial: "percepcao", blank: false }),
         dt: new NumberField({ required: true, initial: 7, min: 0, integer: true, nullable: false }),
         texto: new HTMLField({ required: true, initial: "", blank: true }),
+        // Rascunho do mestre: nunca revelável enquanto oculta, mesmo que a DT seja
+        // batida (spec: preparar com antecedência sem comprometer a mesa com algo
+        // que ainda pode mudar). `resolverInvestigacao`/`resolverExaminar` filtram.
+        oculta: new BooleanField({ required: true, initial: false }),
       })),
 
       ferramentas: new SchemaField(ferramentas),

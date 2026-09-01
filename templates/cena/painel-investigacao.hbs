@@ -2,7 +2,7 @@
   <section class="op2-painel-secao op2-painel-investigacao-seletor">
     {{#if ehGM}}
       <label class="op2-campo op2-campo--inline">
-        <span>{{localize "OP2.Investigacao.Ativa"}}</span>
+        <span>{{localize "OP2.Investigacao.Visualizando"}}</span>
         <select data-seletor-investigacao>
           <option value=""></option>
           {{#each investigacoes}}
@@ -18,11 +18,24 @@
           aria-label="{{localize 'OP2.Investigacao.AbrirFicha'}}">
           <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
         </button>
+        <label class="op2-campo op2-campo--inline" data-tooltip="{{localize 'OP2.Investigacao.EmJogoAjuda'}}">
+          <input type="checkbox" data-action="alternarAtiva" {{#if investigacaoEstaEmJogo}}checked{{/if}}>
+          <span>{{localize "OP2.Investigacao.EmJogo"}}</span>
+        </label>
       {{/if}}
     {{else}}
-      {{#unless temInvestigacao}}
+      {{#if investigacoes.length}}
+        <label class="op2-campo op2-campo--inline">
+          <span>{{localize "OP2.Investigacao.Visualizando"}}</span>
+          <select data-seletor-investigacao>
+            {{#each investigacoes}}
+              <option value="{{uuid}}" {{#if (op2Eq uuid @root.investigacaoAtivaUuid)}}selected{{/if}}>{{nome}}</option>
+            {{/each}}
+          </select>
+        </label>
+      {{else}}
         <span class="op2-tag op2-tag--pequena">{{localize "OP2.Painel.SemInvestigacao"}}</span>
-      {{/unless}}
+      {{/if}}
     {{/if}}
   </section>
 
@@ -85,7 +98,7 @@
       {{/if}}
     </section>
 
-    <details class="op2-painel-secao" data-sync="participantes" open>
+    <details class="op2-painel-secao" data-sync="participantes">
       <summary class="op2-painel-titulo">{{localize "OP2.Painel.Participantes"}}</summary>
       {{#unless participantes.length}}
         <p class="op2-ajuda">{{localize "OP2.Painel.SemParticipantes"}}</p>
@@ -177,10 +190,15 @@
                     {{#if infos.length}}
                       <ul class="op2-poi-card__infos">
                         {{#each infos}}
-                          <li>
+                          <li{{#if oculta}} class="op2-poi-card__info--oculta"{{/if}}>
                             {{{texto}}}
                             {{#if @root.ehGM}}
                               <span class="op2-poi-card__dt">DT {{dt}}</span>
+                              {{#if oculta}}
+                                <span class="op2-poi-card__revelado-por" data-tooltip="{{localize 'OP2.POI.InfoOcultaAjuda'}}">
+                                  <i class="fa-solid fa-eye-slash" aria-hidden="true"></i> {{localize "OP2.POI.InfoOculta"}}
+                                </span>
+                              {{/if}}
                               {{#if reveladoPor.length}}
                                 <span class="op2-poi-card__revelado-por">— {{reveladoPor}}</span>
                               {{/if}}
@@ -296,12 +314,12 @@
             <img src="{{img}}" alt=""> <span>{{nome}}</span>
             {{#if @root.ehGM}}
               <span class="op2-painel-ordem__setas">
-                <button type="button" class="op2-botao-icone" data-action="moverParticipante"
+                <button type="button" class="op2-botao-icone" data-action="moverParticipante" data-tipo="personagem"
                   data-ator-uuid="{{uuid}}" data-direcao="-1" {{#if @first}}disabled{{/if}}
                   aria-label="{{localize 'OP2.Painel.MoverParaCima'}}">
                   <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
                 </button>
-                <button type="button" class="op2-botao-icone" data-action="moverParticipante"
+                <button type="button" class="op2-botao-icone" data-action="moverParticipante" data-tipo="personagem"
                   data-ator-uuid="{{uuid}}" data-direcao="1" {{#if @last}}disabled{{/if}}
                   aria-label="{{localize 'OP2.Painel.MoverParaBaixo'}}">
                   <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
@@ -318,6 +336,20 @@
             </label>
             <img src="{{img}}" alt=""> <span>{{nome}}</span>
             <span class="op2-painel-ordem__npc-tag">NPC</span>
+            {{#if @root.ehGM}}
+              <span class="op2-painel-ordem__setas">
+                <button type="button" class="op2-botao-icone" data-action="moverParticipante" data-tipo="npc"
+                  data-ator-uuid="{{uuid}}" data-direcao="-1" {{#if @first}}disabled{{/if}}
+                  aria-label="{{localize 'OP2.Painel.MoverParaCima'}}">
+                  <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="op2-botao-icone" data-action="moverParticipante" data-tipo="npc"
+                  data-ator-uuid="{{uuid}}" data-direcao="1" {{#if @last}}disabled{{/if}}
+                  aria-label="{{localize 'OP2.Painel.MoverParaBaixo'}}">
+                  <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </button>
+              </span>
+            {{/if}}
           </li>
         {{/each}}
       </ol>

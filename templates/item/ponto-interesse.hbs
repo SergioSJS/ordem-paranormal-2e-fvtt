@@ -38,6 +38,11 @@
                 <input type="number" name="system.informacoes.{{indice}}.dt" value="{{dt}}" min="0" step="1"
                   inputmode="numeric" {{#unless @root.editavel}}disabled{{/unless}}>
               </label>
+              <label class="op2-botao-icone op2-poi__info-oculta" data-tooltip="{{localize 'OP2.POI.InfoOcultaAjuda'}}">
+                <input type="checkbox" name="system.informacoes.{{indice}}.oculta" {{#if oculta}}checked{{/if}}
+                  {{#unless @root.editavel}}disabled{{/unless}} hidden>
+                <i class="fa-solid {{#if oculta}}fa-eye-slash{{else}}fa-eye{{/if}}" aria-hidden="true"></i>
+              </label>
               {{#if @root.editavel}}
                 <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo"
                   data-action="removerInformacao" data-info-id="{{id}}"

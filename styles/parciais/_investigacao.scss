@@ -210,6 +210,10 @@ summary.op2-painel-titulo { cursor: pointer; }
 
   &__revelado-por { color: var(--op2-sucesso); font-size: 0.75rem; }
 
+  // Rascunho do mestre: nunca é revelável enquanto oculta (`resolverInvestigacao`/
+  // `resolverExaminar` já filtram), só marcada visualmente aqui pra quem já vê tudo.
+  &__info--oculta { opacity: 0.55; }
+
   &__ferramentas {
     display: flex;
     flex-wrap: wrap;

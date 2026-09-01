@@ -21,7 +21,8 @@ import { usarFerramenta, usarLaser } from "./acoes-ferramenta.mjs";
 import { abrirLaboratorio } from "./laboratorio-app.mjs";
 import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerrar-investigacao.mjs";
 import {
-  investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,
+  investigacaoAtiva, todasInvestigacoes, investigacoesVisiveis, estaAtiva, alternarAtiva,
+  definirInvestigacaoAtiva, criarInvestigacao,
   adicionarParticipante, removerParticipante, definirOrdemParticipantes, alternarJaAgiu,
   vincularPoi, removerPoi, vincularDesafio, removerDesafio, alternarOculto, moverParticipante,
 } from "./investigacao-ativa.mjs";
@@ -61,6 +62,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       destrancar: PainelInvestigacao.#destrancar,
       abrirDesafio: PainelInvestigacao.#abrirDesafio,
       removerDesafio: PainelInvestigacao.#removerDesafio,
+      ajustarPontuacaoDesafio: PainelInvestigacao.#ajustarPontuacaoDesafio,
       alcancar: PainelInvestigacao.#alcancar,
       sustentar: PainelInvestigacao.#sustentar,
       pararDeSustentar: PainelInvestigacao.#pararDeSustentar,
@@ -74,6 +76,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       removerLinhaSobrecarga: PainelInvestigacao.#removerLinhaSobrecarga,
       criarInvestigacao: PainelInvestigacao.#criarInvestigacao,
       abrirInvestigacao: PainelInvestigacao.#abrirInvestigacao,
+      alternarAtiva: PainelInvestigacao.#alternarAtiva,
       removerParticipante: PainelInvestigacao.#removerParticipante,
       alternarJaAgiu: PainelInvestigacao.#alternarJaAgiu,
       alternarOculto: PainelInvestigacao.#alternarOculto,
@@ -101,8 +104,12 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     return {
       temInvestigacao: Boolean(investigacao),
       nomeInvestigacao: investigacao?.name ?? "",
-      investigacoes: todasInvestigacoes().map((i) => ({ uuid: i.uuid, nome: i.name })),
+      // Mestre navega/prepara qualquer investigação; jogador só as que o mestre
+      // marcou em jogo e onde o personagem dele participa (spec: grupo pode se
+      // dividir em investigações diferentes ao mesmo tempo).
+      investigacoes: (ehGM ? todasInvestigacoes() : investigacoesVisiveis()).map((i) => ({ uuid: i.uuid, nome: i.name })),
       investigacaoAtivaUuid: investigacao?.uuid ?? "",
+      investigacaoEstaEmJogo: investigacao ? estaAtiva(investigacao) : false,
       rodada,
       ehGM,
       temPersonagem: Boolean(ator),
@@ -216,28 +223,30 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   /**
-   * Ordem das rodadas: a gravada na investigação, saneada contra o roster atual —
-   * quem saiu do roster some, quem entrou aparece no fim. NPCs nunca entram: agem
-   * por último (spec §5.2).
+   * Ordem das rodadas, por grupo: a gravada em `ordemParticipantes` (uma lista só,
+   * misturando os dois tipos — cada leitura filtra o próprio), saneada contra o
+   * roster atual — quem saiu some, quem entrou aparece no fim. Personagem e NPC
+   * reordenam cada um dentro do próprio grupo; NPCs sempre rendem depois, agindo
+   * por último (spec §5.2) — só a ordem deles entre si muda com as setinhas.
    */
-  #contextoOrdem(investigacao, ehGM) {
-    const participantes = personagensDaCenaAtiva();
-    const ids = new Set(participantes.map((a) => a.id));
+  #contextoOrdemPorTipo(investigacao, ehGM, tipo) {
+    const doGrupo = tipo === "npc" ? npcsDaCenaAtiva() : personagensDaCenaAtiva();
+    const ids = new Set(doGrupo.map((a) => a.id));
     const gravada = (investigacao?.system.ordemParticipantes ?? [])
       .map((uuid) => fromUuidSync(uuid)?.id).filter((id) => id && ids.has(id));
-    const final = [...gravada, ...participantes.map((a) => a.id).filter((id) => !gravada.includes(id))];
+    const final = [...gravada, ...doGrupo.map((a) => a.id).filter((id) => !gravada.includes(id))];
     const ocultos = investigacao?.system.participantesOcultos ?? [];
     return final.map((id) => game.actors.get(id)).filter(Boolean)
       .filter((a) => ehGM || !ocultos.includes(a.uuid))
       .map((a) => this.#linhaParticipante(a, investigacao));
   }
 
-  /** NPCs agem por último (spec §5.2) — fora da ordem arrastável dos personagens. */
+  #contextoOrdem(investigacao, ehGM) {
+    return this.#contextoOrdemPorTipo(investigacao, ehGM, "personagem");
+  }
+
   #contextoNpcs(investigacao, ehGM) {
-    const ocultos = investigacao?.system.participantesOcultos ?? [];
-    return npcsDaCenaAtiva()
-      .filter((a) => ehGM || !ocultos.includes(a.uuid))
-      .map((a) => this.#linhaParticipante(a, investigacao));
+    return this.#contextoOrdemPorTipo(investigacao, ehGM, "npc");
   }
 
   _onRender(contexto, opcoes) {
@@ -248,9 +257,11 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     // meio, "piscando" as opções sem deixar escolher (achado em uso real). Todo
     // outro <select> do sistema evita isso com listener manual de `change`; este
     // segue o mesmo caminho.
+    // Cada usuário navega entre as investigações visíveis pra ele — o grupo pode
+    // se dividir em mais de uma investigação "em jogo" ao mesmo tempo (achado em
+    // uso real: dono do ponteiro passou de mundo/GM para cliente/cada usuário).
     const seletor = this.element.querySelector("[data-seletor-investigacao]");
     seletor?.addEventListener("change", async () => {
-      if (!game.user.isGM) return;
       await definirInvestigacaoAtiva(seletor.value);
       this.render();
     });
@@ -392,6 +403,20 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     if (investigacao) await removerDesafio(investigacao, alvo.dataset.desafioUuid);
   }
 
+  /**
+   * Ajuste rápido de PONTUAÇÃO sem precisar abrir a ficha do desafio nem rolar
+   * Arrombar de verdade — bookkeeping de mestre (ex.: alguém arrombou fora do
+   * sistema, ou o mestre quer corrigir um valor). Trava em [0, pontuacaoAlvo].
+   */
+  static async #ajustarPontuacaoDesafio(_evento, alvo) {
+    if (!game.user.isGM) return;
+    const desafio = await fromUuid(alvo.dataset.desafioUuid);
+    if (!desafio) return;
+    const novo = Math.max(0, Math.min(desafio.system.pontuacaoAlvo,
+      desafio.system.pontuacaoAtual + Number(alvo.dataset.delta)));
+    await desafio.update({ "system.pontuacaoAtual": novo });
+  }
+
   static async #alcancar(_evento, alvo) {
     const ator = this.#atorOuAviso();
     if (ator) await alcancar(ator, { modo: alvo.dataset.modo });
@@ -489,6 +514,13 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     investigacaoAtiva()?.sheet?.render(true);
   }
 
+  /** Liga/desliga se a investigação sendo vista agora está "em jogo" pros jogadores. */
+  static async #alternarAtiva() {
+    if (!game.user.isGM) return;
+    const investigacao = investigacaoAtiva();
+    if (investigacao) await alternarAtiva(investigacao);
+  }
+
   static async #removerParticipante(_evento, alvo) {
     const investigacao = investigacaoAtiva();
     if (investigacao) await removerParticipante(investigacao, alvo.dataset.participanteUuid);
@@ -514,10 +546,15 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     if (!game.user.isGM) return;
     const investigacao = investigacaoAtiva();
     if (!investigacao) return;
-    // A ordem exibida (roster + gravada, com quem entrou de novo no fim) — não o
-    // campo cru, que começa vazio até o primeiro drag-and-drop.
-    const ordemAtual = this.#contextoOrdem(investigacao, true).map((a) => a.uuid);
-    await moverParticipante(investigacao, ordemAtual, alvo.dataset.atorUuid, Number(alvo.dataset.direcao));
+    // Cada grupo reordena só entre si — personagem não troca de lugar com NPC
+    // (NPCs continuam agindo por último, spec §5.2). A ordem exibida de cada grupo
+    // (roster + gravada, quem entrou de novo no fim), não o campo cru: esse começa
+    // vazio até o primeiro drag-and-drop.
+    const tipo = alvo.dataset.tipo;
+    const outroTipo = tipo === "npc" ? "personagem" : "npc";
+    const ordemDoGrupo = this.#contextoOrdemPorTipo(investigacao, true, tipo).map((a) => a.uuid);
+    const ordemDoOutroGrupo = this.#contextoOrdemPorTipo(investigacao, true, outroTipo).map((a) => a.uuid);
+    await moverParticipante(investigacao, ordemDoGrupo, ordemDoOutroGrupo, alvo.dataset.atorUuid, Number(alvo.dataset.direcao));
   }
 }
 

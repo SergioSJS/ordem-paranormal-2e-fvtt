@@ -40,10 +40,16 @@ const SETTINGS = {
   cliqueAbreDialogo: {
     scope: "client", config: true, type: Boolean, default: false,
   },
-  // Qual Item `investigacao` o painel mostra agora. Não é uma escolha de regra —
-  // é ponteiro de sessão, por isso `config: false` (não aparece no menu de settings).
-  investigacaoAtivaUuid: {
-    scope: "world", config: false, type: String, default: "",
+  // Quais investigações o mestre marcou "em jogo" — o grupo pode se dividir em
+  // mais de uma ao mesmo tempo (achado em uso real). Ponteiro de sessão, não
+  // escolha de regra: `config: false`, não aparece no menu de settings.
+  investigacoesAtivasUuids: {
+    scope: "world", config: false, type: Array, default: [],
+  },
+  // Qual investigação O USUÁRIO ATUAL está vendo no painel — por cliente, não por
+  // mundo: cada jogador navega entre as suas, o mestre entre todas.
+  investigacaoVisualizandoUuid: {
+    scope: "client", config: false, type: String, default: "",
   },
 };
 

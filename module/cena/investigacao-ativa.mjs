@@ -1,11 +1,17 @@
 /**
- * Investigação: qual está ativa agora, e as operações de vincular/desvincular
- * participantes, POIs e desafios (spec §5.1).
+ * Investigação: quais estão em jogo agora, qual cada usuário está vendo, e as
+ * operações de vincular/desvincular participantes, POIs e desafios (spec §5.1).
  *
  * Investigação é Actor, com ficha própria — a ficha e o painel flutuante chamam
  * as mesmas funções daqui, para não duplicar a regra de "não repete UUID" em dois
  * lugares. Nada aqui toca Scene, token ou canvas: uma investigação não depende de
  * qual mapa está em tela.
+ *
+ * O grupo pode se dividir em mais de uma investigação ao mesmo tempo (achado em
+ * uso real) — por isso "em jogo" (`investigacoesAtivasUuids`, setting de mundo, o
+ * mestre decide quais existem-mas-não-estão-em-jogo-ainda) é diferente de "o que
+ * este usuário está vendo agora" (`investigacaoVisualizandoUuid`, setting de
+ * cliente — cada jogador navega entre as suas próprias, o mestre entre todas).
  */
 import { SYSTEM_ID } from "../config.mjs";
 import { lerConfig } from "../settings/register.mjs";
@@ -15,24 +21,58 @@ export function todasInvestigacoes() {
   return game.actors.filter((a) => a.type === "investigacao").sort((a, b) => b.sort - a.sort);
 }
 
-/** @returns {Actor|null} */
+/** @returns {Actor[]} as marcadas "em jogo" pelo mestre — todas, ativas ou não, seguem em `todasInvestigacoes()`. */
+export function investigacoesAtivas() {
+  return lerConfig("investigacoesAtivasUuids")
+    .map((uuid) => fromUuidSync(uuid)).filter((a) => a?.type === "investigacao");
+}
+
+export function estaAtiva(investigacao) {
+  return lerConfig("investigacoesAtivasUuids").includes(investigacao.uuid);
+}
+
+/** Liga/desliga uma investigação como "em jogo" — controla o que os jogadores podem navegar. */
+export async function alternarAtiva(investigacao) {
+  const uuids = lerConfig("investigacoesAtivasUuids");
+  const novo = uuids.includes(investigacao.uuid)
+    ? uuids.filter((uuid) => uuid !== investigacao.uuid)
+    : [...uuids, investigacao.uuid];
+  await game.settings.set(SYSTEM_ID, "investigacoesAtivasUuids", novo);
+}
+
+/**
+ * O que o usuário atual pode navegar no painel: o mestre prepara e acompanha
+ * qualquer uma (`todasInvestigacoes()`), sem precisar que esteja "em jogo" ainda;
+ * o jogador só vê as em-jogo onde o personagem dele participa e não está oculto.
+ */
+export function investigacoesVisiveis() {
+  if (game.user.isGM) return todasInvestigacoes();
+  const personagem = game.user.character;
+  if (!personagem) return [];
+  return investigacoesAtivas().filter((investigacao) => investigacao.system.participantes.includes(personagem.uuid)
+    && !investigacao.system.participantesOcultos.includes(personagem.uuid));
+}
+
+/** @returns {Actor|null} a investigação que o usuário atual está vendo agora no painel. */
 export function investigacaoAtiva() {
-  const uuid = lerConfig("investigacaoAtivaUuid");
-  if (!uuid) return null;
-  const ator = fromUuidSync(uuid);
-  return ator?.type === "investigacao" ? ator : null;
+  const visiveis = investigacoesVisiveis();
+  const uuid = lerConfig("investigacaoVisualizandoUuid");
+  const escolhida = visiveis.find((investigacao) => investigacao.uuid === uuid);
+  return escolhida ?? visiveis[0] ?? null;
 }
 
+/** Define qual investigação O USUÁRIO ATUAL está vendo — ponteiro de cliente, não de mundo. */
 export async function definirInvestigacaoAtiva(uuid) {
-  await game.settings.set(SYSTEM_ID, "investigacaoAtivaUuid", uuid ?? "");
+  await game.settings.set(SYSTEM_ID, "investigacaoVisualizandoUuid", uuid ?? "");
 }
 
-/** @returns {Promise<Actor>} a nova investigação, já marcada como ativa. */
+/** @returns {Promise<Actor>} a nova investigação, já em jogo e selecionada para quem criou. */
 export async function criarInvestigacao(nome) {
   const ator = await Actor.create({
     name: nome || game.i18n.localize("OP2.Investigacao.NovaPadrao"),
     type: "investigacao",
   });
+  await alternarAtiva(ator);
   await definirInvestigacaoAtiva(ator.uuid);
   return ator;
 }
@@ -54,21 +94,35 @@ export async function definirOrdemParticipantes(investigacao, ordem) {
 }
 
 /**
- * Sobe (`-1`) ou desce (`+1`) um participante na Ordem das Rodadas — alternativa ao
- * drag-and-drop, mais acessível e mais fácil de acertar em telas pequenas.
- *
- * Recebe `ordemAtual` já resolvida (quem chama sabe montar a ordem de exibição —
- * roster + `ordemParticipantes` gravada, com quem entrou de novo no fim) em vez de
- * ler `investigacao.system.ordemParticipantes` direto: cru, esse campo começa vazio
- * até o primeiro drag-and-drop, e mover a primeira linha nunca acharia o UUID nele.
+ * Sobe (`-1`) ou desce (`+1`) um UUID dentro de uma lista — pura, sem Foundry, pra
+ * dar pra testar offline. Personagens e NPCs cada um tem a própria pilha de setinhas
+ * (NPCs continuam agindo por último — spec §5.2 — só a ordem deles entre si muda).
+ * @returns {string[]} nova ordem, ou a mesma se o UUID não estiver na lista ou já
+ *   estiver na ponta pra onde `direcao` aponta.
  */
-export async function moverParticipante(investigacao, ordemAtual, atorUuid, direcao) {
+export function ordemAposMover(ordemAtual, uuid, direcao) {
   const ordem = [...ordemAtual];
-  const indice = ordem.indexOf(atorUuid);
+  const indice = ordem.indexOf(uuid);
   const novoIndice = indice + direcao;
-  if (indice === -1 || novoIndice < 0 || novoIndice >= ordem.length) return;
+  if (indice === -1 || novoIndice < 0 || novoIndice >= ordem.length) return ordem;
   [ordem[indice], ordem[novoIndice]] = [ordem[novoIndice], ordem[indice]];
-  await definirOrdemParticipantes(investigacao, ordem);
+  return ordem;
+}
+
+/**
+ * Alternativa ao drag-and-drop, mais fácil de acertar numa lista curta (achado em
+ * uso real: mestre errando o alvo do drop). Personagens e NPCs reordenam cada um
+ * dentro do próprio grupo (NPCs continuam agindo por último — spec §5.2 — só a
+ * ordem deles entre si muda); `ordemDoGrupo`/`ordemDoOutroGrupo` são as ordens de
+ * EXIBIÇÃO de cada grupo (roster + `ordemParticipantes` gravada, com quem entrou de
+ * novo no fim) — não o campo cru, que começa vazio até o primeiro drag-and-drop, e
+ * mover a primeira linha nunca acharia o UUID nele. O campo gravado é uma lista só,
+ * então a escrita leva os dois grupos — a ordem entre eles não importa, cada leitura
+ * volta a separar por tipo.
+ */
+export async function moverParticipante(investigacao, ordemDoGrupo, ordemDoOutroGrupo, atorUuid, direcao) {
+  const nova = ordemAposMover(ordemDoGrupo, atorUuid, direcao);
+  await definirOrdemParticipantes(investigacao, [...nova, ...ordemDoOutroGrupo]);
 }
 
 /**
