@@ -82,6 +82,33 @@ const relato = await page.evaluate(async () => {
   ]);
   ok("itens embutidos criados", ator.items.size === 2);
 
+  // Ícone padrão por tipo de documento (ICONES_PADRAO): aplicado na criação quando
+  // nenhum img é passado; uma escolha explícita prevalece (duplicar, importar).
+  ok("personagem nasce com o ícone padrão do tipo", ator.img === "icons/svg/mystery-man.svg");
+  ok("habilidade e equipamento nascem com os ícones padrão dos tipos",
+    ator.items.getName("Foco Mental")?.img === "icons/svg/upgrade.svg"
+    && ator.items.getName("Pé de cabra")?.img === "icons/svg/chest.svg");
+  {
+    const npcIcone = await Actor.create({ name: "icone-npc", type: "npc" });
+    ok("npc nasce com o ícone padrão do tipo", npcIcone.img === "icons/svg/cowled.svg");
+    await npcIcone.delete();
+
+    const escolhido = await Actor.create({ name: "icone-escolhido", type: "npc", img: "icons/svg/skull.svg" });
+    ok("img explícito na criação prevalece sobre o padrão", escolhido.img === "icons/svg/skull.svg");
+    await escolhido.delete();
+
+    const itensIcone = await Item.createDocuments([
+      { name: "i-ferramenta", type: "ferramenta" },
+      { name: "i-poi", type: "ponto-interesse" },
+      { name: "i-desafio", type: "desafio-acesso" },
+    ]);
+    ok("ferramenta/poi/desafio nascem com os ícones padrão dos tipos",
+      itensIcone[0]?.img === "icons/svg/clockwork.svg"
+      && itensIcone[1]?.img === "icons/svg/hanging-sign.svg"
+      && itensIcone[2]?.img === "icons/svg/padlock.svg");
+    await Item.deleteDocuments(itensIcone.map((i) => i.id));
+  }
+
   /* ------------------------------------------------------------------ ficha -- */
 
   await ator.sheet.render(true);
@@ -173,6 +200,7 @@ const relato = await page.evaluate(async () => {
   ok("investigação criada com data model próprio", investigacao?.system.constructor.name === "InvestigacaoData");
   ok("investigação é Actor, não Item", investigacao instanceof Actor);
   ok("investigação recém-criada já fica ativa", game.op2.investigacaoAtiva()?.uuid === investigacao.uuid);
+  ok("investigação nasce com o ícone padrão do tipo", investigacao.img === "icons/svg/eye.svg");
   await game.op2.adicionarParticipante(investigacao, ator.uuid);
 
   const poi = await Item.create({

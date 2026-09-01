@@ -134,6 +134,29 @@ export const TABELA_SOBRECARGA_PADRAO = [
   { rodada: 9, dano: "2d4" },
 ];
 
+/**
+ * Ícone padrão de cada tipo de documento, aplicado na criação quando nenhum `img`
+ * é passado — só o ponto de partida, o usuário troca normalmente depois (editImage
+ * do cabeçalho das fichas). São os SVGs monocromáticos que o core já traz: zero
+ * asset novo, funcionam offline e combinam com o tema escuro. Aplicados por hook
+ * preCreate — o `documentTypes` do system.json não tem chave de ícone (lido no
+ * fonte do v14: `game.system.documentTypes` só identifica o pacote dono do tipo).
+ */
+export const ICONES_PADRAO = {
+  Actor: {
+    personagem: "icons/svg/mystery-man.svg",
+    npc: "icons/svg/cowled.svg",
+    investigacao: "icons/svg/eye.svg",
+  },
+  Item: {
+    habilidade: "icons/svg/upgrade.svg",
+    equipamento: "icons/svg/chest.svg",
+    ferramenta: "icons/svg/clockwork.svg",
+    "ponto-interesse": "icons/svg/hanging-sign.svg",
+    "desafio-acesso": "icons/svg/padlock.svg",
+  },
+};
+
 export const OP2 = {
   SYSTEM_ID, I18N, ESCADA, DADO_SOBRE_HUMANO, ATRIBUTOS, PERICIAS, APTIDOES_PADRAO,
   PERFIS, TIPOS_PERSONAGEM, DT_PADRAO, MAX_DADOS_ROLADOS, MAX_DADOS_CONTADOS,
@@ -141,6 +164,6 @@ export const OP2 = {
   DT_FERIMENTO_BASE, DT_FERIMENTO_INCREMENTO,
   DT_RECAPITULAR, DT_COMPARTILHAR, CUSTO_PD_EXAMINAR, FERRAMENTAS_POI,
   FERRAMENTAS_ORDO, FERRAMENTAS_COM_CARGA,
-  TABELA_SOBRECARGA_PADRAO,
+  TABELA_SOBRECARGA_PADRAO, ICONES_PADRAO,
   CUSTO_PV_ARROMBAR, CUSTO_PV_SUSTENTAR, BONUS_DT_ALCANCAR_ARRISCADO,
 };

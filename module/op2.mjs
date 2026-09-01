@@ -2,7 +2,7 @@
  * Ordem Paranormal 2 (Playtest Alpha) — sistema não-oficial para Foundry VTT.
  * Compatível com v13 e v14.
  */
-import { SYSTEM_ID, OP2 } from "./config.mjs";
+import { SYSTEM_ID, OP2, ICONES_PADRAO } from "./config.mjs";
 import { PersonagemData } from "./data/actor-personagem.mjs";
 import { NpcData } from "./data/actor-npc.mjs";
 import { HabilidadeData } from "./data/item-habilidade.mjs";
@@ -57,6 +57,16 @@ Hooks.once("init", () => {
   CONFIG.Item.dataModels["desafio-acesso"] = DesafioAcessoData;
 
   CONFIG.Dice.rolls.unshift(OP2Roll);
+
+  // Ícone padrão por tipo de documento (ICONES_PADRAO), aplicado só quando a
+  // criação não traz `img` — duplicar ou importar de compêndio mantém o ícone
+  // original, e o usuário troca quando quiser pelo editImage das fichas.
+  for (const documento of ["Actor", "Item"]) {
+    Hooks.on(`preCreate${documento}`, (doc, data) => {
+      const icone = ICONES_PADRAO[documento]?.[data.type];
+      if (icone && !data.img) doc.updateSource({ img: icone });
+    });
+  }
 
   registrarSettings();
   aplicarIdiomaPadrao();
