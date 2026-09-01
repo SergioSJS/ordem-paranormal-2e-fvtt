@@ -36,7 +36,7 @@ test("todo template compila como Handlebars válido", async (t) => {
   assert.ok(templates.length > 0, "nenhum template encontrado");
 
   // Helpers do sistema e do core, registrados só para a compilação passar.
-  for (const nome of ["localize", "formInput", "op2Caminho", "op2Concat", "op2Eq", "op2Vezes", "dado", "dadoResultado"]) {
+  for (const nome of ["localize", "formInput", "op2Caminho", "op2Concat", "op2Eq", "op2Vezes", "op2Dado", "op2DadoResultado"]) {
     Handlebars.registerHelper(nome, () => "");
   }
 

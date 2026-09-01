@@ -63,10 +63,16 @@ export function iconeResultado({ dado, resultado, contado = true }) {
   });
 }
 
-/** Helpers de Handlebars: `{{dado "d8"}}` e `{{dadoResultado d}}`. */
+/**
+ * Helpers de Handlebars: `{{op2Dado "d8"}}` e `{{op2DadoResultado d}}`.
+ *
+ * O prefixo não é cosmético. Um helper chamado `dado` sequestra `{{dado}}` em qualquer
+ * contexto que tenha uma propriedade `dado` — e o SVG inteiro acaba injetado dentro de
+ * um `aria-label`, quebrando a tag.
+ */
 export function registrarHelpersDeDado() {
-  Handlebars.registerHelper("dado", (dado, opcoes) =>
+  Handlebars.registerHelper("op2Dado", (dado, opcoes) =>
     new Handlebars.SafeString(iconeDado(dado, opcoes?.hash ?? {})));
-  Handlebars.registerHelper("dadoResultado", (lancamento) =>
+  Handlebars.registerHelper("op2DadoResultado", (lancamento) =>
     new Handlebars.SafeString(iconeResultado(lancamento)));
 }

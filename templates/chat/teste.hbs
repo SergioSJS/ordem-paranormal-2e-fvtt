@@ -7,7 +7,7 @@
   <div class="op2-card__dados">
     {{#each componentes}}
       <span class="op2-card__dado{{#unless contado}} descartado{{/unless}}"
-        data-tooltip="{{componente.rotulo}}">{{dadoResultado this}}</span>
+        data-tooltip="{{componente.rotulo}}">{{op2DadoResultado this}}</span>
     {{/each}}
     <span class="op2-card__igual" aria-hidden="true">=</span>
     <span class="op2-card__total">{{total}}</span>

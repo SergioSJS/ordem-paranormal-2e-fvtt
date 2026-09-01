@@ -142,6 +142,74 @@ const contexto = {
 const parte = (nome) =>
   Handlebars.compile(readFileSync(join(RAIZ, "templates", nome), "utf8"))(contexto);
 
+/* ------------------------------------------------- diálogo e chat card -- */
+
+const { iconeDado, iconeResultado } = await import("../module/ui/dice-icons.mjs");
+const analise = await import("../module/dice/analise.mjs");
+
+const componentesDoTeste = [
+  { chave: "pericia.percepcao", rotulo: "Percepção", tipo: "pericia", dado: "d8" },
+  { chave: "atributo.mente", rotulo: "Mente", tipo: "atributo", dado: "d10" },
+  { chave: "extra.h1", rotulo: "Foco Mental", tipo: "extra", dado: "d6" },
+  { chave: "extra.h2", rotulo: "Ímpeto", tipo: "extra", dado: "d6" },
+];
+
+const contextoDialogo = {
+  estado: { dt: 7, oposto: false },
+  atributos: Object.keys(ATRIBUTOS).map((chave) => ({
+    chave,
+    rotulo: traduzir(`OP2.Atributo.${chave}`),
+    dado: sistema.atributos[chave].dadoEfetivo,
+    selecionado: chave === "mente",
+  })),
+  componentes: componentesDoTeste.map((c) => ({ ...c, icone: iconeDado(c.dado) })),
+  extras: habilidades.map((h, i) => ({
+    id: h.id, nome: h.name, img: h.img,
+    tipo: i === 0 ? "passo" : "dado-extra", passos: 1, dado: "d6", ativo: true,
+  })),
+  temExtras: true,
+  excedeContagem: true,
+  noTeto: true,
+  maxContados: 3,
+  maxRolados: 4,
+};
+
+// Uma rolagem plausível: 4 dados, 3 contados, com um par de 8 formando crítico.
+const dadosRolados = [
+  { indice: 0, dado: "d8", resultado: 8, contado: true, componente: componentesDoTeste[0] },
+  { indice: 1, dado: "d10", resultado: 8, contado: true, componente: componentesDoTeste[1] },
+  { indice: 2, dado: "d6", resultado: 5, contado: true, componente: componentesDoTeste[2] },
+  { indice: 3, dado: "d6", resultado: 2, contado: false, componente: componentesDoTeste[3] },
+];
+
+const leitura = analise.analisar(dadosRolados, { dt: 7 });
+
+const contextoSelecao = {
+  dt: 7,
+  maxContados: 3,
+  completo: true,
+  dados: dadosRolados.map((d) => ({ ...d, icone: iconeResultado(d) })),
+  parcial: leitura,
+};
+
+const contextoCard = {
+  rotulo: "Percepção",
+  componentes: dadosRolados,
+  ...leitura,
+  atorId: "fake",
+  ehGM: true,
+};
+
+const contextoFalha = {
+  face: 2, chave: "machucado", efeito: "reducao", alvo: "fisico",
+  aplicavel: true, atorId: "fake",
+};
+
+const parteCom = (nome, ctx) =>
+  Handlebars.compile(readFileSync(join(RAIZ, "templates", nome), "utf8"))(ctx);
+
+/* --------------------------------------------------------------- saída -- */
+
 const css = readFileSync(join(RAIZ, "styles/op2.css"), "utf8")
   .replaceAll("../assets/fonts/", "assets/fonts/");
 
@@ -152,6 +220,10 @@ const html = `<!doctype html>
   body { margin: 0; padding: 2rem; background: #060404; font-family: system-ui; }
   .janela { width: 880px; margin: 0 auto; border: 1px solid #2a201d; border-radius: 6px;
             box-shadow: 0 20px 60px rgb(0 0 0 / 60%); overflow: hidden; }
+  .janela--estreita { width: 420px; margin: 0; }
+  .fileira { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem;
+             max-width: 1360px; margin: 2rem auto 0; align-items: flex-start; }
+  .window-content { padding: .8rem; background: #0d0908; }
   .barra { padding: .5rem .8rem; background: #120c0a; border-bottom: 1px solid #2a201d;
            color: #8a7f79; font-size: .8rem; }
   .op2-prosemirror-fake { padding: .5rem; border: 1px solid rgb(242 237 230 / 12%);
@@ -170,6 +242,27 @@ const html = `<!doctype html>
       ${parte("actor/personagem-notas.hbs")}
       ${parte("actor/personagem-pericias.hbs")}
     </form>
+  </div>
+
+  <div class="fileira">
+    <div class="janela janela--estreita op2 op2-dialog">
+      <div class="barra">Diálogo de teste</div>
+      <div class="window-content standard-form">${parteCom("dialog/teste.hbs", contextoDialogo)}</div>
+    </div>
+
+    <div class="janela janela--estreita op2 op2-dialog">
+      <div class="barra">Escolha dos dados contabilizados</div>
+      <div class="window-content standard-form">${parteCom("dialog/selecao-dados.hbs", contextoSelecao)}</div>
+    </div>
+
+    <div class="janela janela--estreita op2">
+      <div class="barra">Chat</div>
+      <div class="window-content" style="padding:.6rem;background:var(--op2-fundo)">
+        ${parteCom("chat/teste.hbs", contextoCard)}
+        <div style="height:.6rem"></div>
+        ${parteCom("chat/falha-critica.hbs", contextoFalha)}
+      </div>
+    </div>
   </div>
 </body></html>`;
 
