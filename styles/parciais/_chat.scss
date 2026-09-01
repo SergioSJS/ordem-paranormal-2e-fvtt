@@ -127,7 +127,10 @@
       letter-spacing: 0.08em;
     }
 
-    dd { margin: 0; font-family: var(--op2-fonte-mono); font-size: 0.9rem; }
+    // O core tem `dl dd { color: var(--color-text-primary) }`, pensado para o
+    // fundo claro do log de chat — sem redeclarar aqui, o texto saía quase preto
+    // sobre o fundo quase preto do nosso tema (achado em uso real).
+    dd { margin: 0; color: var(--op2-texto); font-family: var(--op2-fonte-mono); font-size: 0.9rem; }
   }
 
   &__acoes {

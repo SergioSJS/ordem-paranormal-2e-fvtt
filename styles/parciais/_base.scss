@@ -16,6 +16,19 @@
     color: inherit;
   }
 
+  // O core define `button { height: var(--button-size); min-height: var(--button-size) }`
+  // com `--button-size: 2em` por padrão, sem camada — um "piso" que qualquer altura
+  // pequena que a gente declare não derruba, porque `min-height` é uma propriedade
+  // separada de `height` e não entra na mesma disputa de cascata. Toda vez que um
+  // botão nosso levava uma altura pequena (um pip, um traço de recurso), ele saía do
+  // tamanho pedido mesmo com `height` correto (achado em uso real: os traços de PV/PD
+  // saíam com 28px de altura em vez dos 6-7px pedidos). Zerar aqui, uma vez, cobre
+  // todo botão do sistema.
+  button:not([class*="fa-"]) {
+    min-height: 0;
+    min-width: 0;
+  }
+
   input[type="text"],
   input[type="number"],
   input[type="search"],

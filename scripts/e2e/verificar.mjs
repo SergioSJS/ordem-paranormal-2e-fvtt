@@ -96,6 +96,16 @@ const relato = await page.evaluate(async () => {
   ok("19 perícias + 6 aptidões = 25 linhas", linhas === 25);
   ok("ícones de dado renderizados", (el?.querySelectorAll(".op2-dado").length ?? 0) > 20);
   ok("trilhas de PV e PD com 26 traços", (el?.querySelectorAll(".op2-traco").length ?? 0) === 26);
+
+  // O core define `button { min-height: var(--button-size) }` (2em) sem camada — um
+  // piso que `height` sozinho não derruba, porque são propriedades diferentes na
+  // cascata. Sem zerar `min-height`, qualquer botão pequeno nosso (o traço, aqui)
+  // saía grande demais mesmo com a altura certa declarada (achado em uso real).
+  {
+    const traco = el?.querySelector(".op2-traco");
+    const altura = traco && parseFloat(getComputedStyle(traco).height);
+    ok("traço de recurso não é inflado pelo min-height padrão de botão", altura < 16);
+  }
   ok("faixa de estado aparece com redução ativa", Boolean(el?.querySelector(".op2-estado")));
 
   // Nome de atributo cortado é regressão de layout — em inglês a caixa é mais apertada.
@@ -143,6 +153,15 @@ const relato = await page.evaluate(async () => {
     ok("card do chat fica escuro mesmo dentro do log (tema claro)", corCard === "rgb(22, 16, 14)");
     ok("envelope da mensagem também fica escuro", corEnvelope === "rgb(22, 16, 14)");
   }
+  // O core tem `dl dd { color: var(--color-text-primary) }`, pensado para o fundo
+  // claro do log — nossos `dd` (RA/RB) nunca declaravam a própria cor, e o texto
+  // saía quase preto sobre o card quase preto (achado em uso real).
+  {
+    const dd = card.querySelector(".op2-card__leituras dd");
+    const corDd = getComputedStyle(dd).color;
+    ok("RA/RB legíveis (não herdam o cinza-escuro do core)", corDd !== "rgb(34, 34, 34)");
+  }
+
 
   /* ---------------------------------------------------------- investigação -- */
 
