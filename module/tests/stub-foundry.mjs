@@ -29,6 +29,21 @@ class ApplicationV2 {
 
 const HandlebarsApplicationMixin = (Base) => class extends Base {};
 
+/**
+ * Base das fichas. Precisa ser uma classe de verdade — campos privados (`#metodo`)
+ * só existem em instâncias construídas pela cadeia real de construtores.
+ */
+class DocumentSheetV2 extends ApplicationV2 {
+  constructor(opcoes = {}) {
+    super(opcoes);
+    this.document = opcoes.document ?? null;
+  }
+  get actor() { return this.document; }
+  get item() { return this.document; }
+  get isEditable() { return this.options.editable ?? true; }
+  get element() { return { querySelectorAll: () => [] }; }
+}
+
 class RollStub {
   constructor(formula, dados = {}, opcoes = {}) {
     this.formula = formula;
@@ -52,7 +67,7 @@ export function instalarStubs() {
     },
     applications: {
       api: { ApplicationV2, HandlebarsApplicationMixin, DialogV2: class {} },
-      sheets: { ActorSheetV2: ApplicationV2, ItemSheetV2: ApplicationV2 },
+      sheets: { ActorSheetV2: DocumentSheetV2, ItemSheetV2: DocumentSheetV2 },
       handlebars: { renderTemplate: async () => "", loadTemplates: async () => [] },
       ux: { TextEditor: { implementation: { enrichHTML: async (s) => s } } },
     },

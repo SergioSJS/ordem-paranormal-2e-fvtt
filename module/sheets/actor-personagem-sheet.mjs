@@ -245,8 +245,22 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await encerrarCena({ atores: [this.actor] });
   }
 
+  /** Filtro da coluna de perícias. Sobrevive ao re-render que o form dispara. */
+  #busca = "";
+
   _onRender(contexto, opcoes) {
     super._onRender(contexto, opcoes);
+
+    const campo = this.element.querySelector(".op2-busca__campo");
+    if (campo) {
+      campo.value = this.#busca;
+      campo.addEventListener("input", (evento) => {
+        this.#busca = evento.target.value;
+        this.#filtrarPericias();
+      });
+      if (this.#busca) this.#filtrarPericias();
+    }
+
     if (!this.isEditable) return;
 
     // A roda do mouse sobre um dado anda na escada — o gesto mais rápido para ajustar
@@ -259,6 +273,27 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         this.actor.update({ [caminho]: stepDie(atual, evento.deltaY < 0 ? 1 : -1) });
       }, { passive: false });
     }
+  }
+
+  /**
+   * Esconde as linhas que não casam com a busca. A Aptidão abre sozinha quando um
+   * subcampo casa — senão o resultado ficaria escondido dentro do `<details>` fechado.
+   */
+  #filtrarPericias() {
+    const termo = this.#busca.trim().toLowerCase();
+    const semAcento = (texto) => texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const alvo = semAcento(termo);
+
+    for (const linha of this.element.querySelectorAll(".op2-pericia")) {
+      const nome = semAcento(linha.querySelector(".op2-pericia__nome")?.textContent ?? "").toLowerCase();
+      linha.hidden = Boolean(alvo) && !nome.includes(alvo);
+    }
+
+    const aptidao = this.element.querySelector(".op2-aptidao");
+    if (!aptidao) return;
+    const algumVisivel = [...aptidao.querySelectorAll(".op2-pericia")].some((l) => !l.hidden);
+    aptidao.hidden = Boolean(alvo) && !algumVisivel;
+    if (alvo && algumVisivel) aptidao.open = true;
   }
 }
 

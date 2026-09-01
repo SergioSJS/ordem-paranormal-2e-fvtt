@@ -47,6 +47,18 @@ npm run check        # lint + testes + build do CSS — rode antes de commitar
 No Foundry: **Configurações → Configurar Aplicação → Hot Reload**. Com isso, `F5`
 recarrega CSS e templates sem reiniciar o servidor. Mudança em `.mjs` exige `F5` também.
 
+### Preview da ficha sem o Foundry
+
+```bash
+npm run preview        # gera preview.html
+open preview.html
+```
+
+`scripts/preview.mjs` instancia a ficha **de verdade** com os stubs de teste, então o
+contexto vem do mesmo `_prepareContext` que roda no jogo. Serve para iterar em CSS e
+layout depressa. **Não** reproduz o chrome da janela, o sistema de abas do core nem o
+tema do usuário — não dá nada por validado só porque o preview está bonito.
+
 ### Testar nas duas versões
 
 O sistema declara `minimum: 13, verified: 14`. Toda mudança que toca API do Foundry

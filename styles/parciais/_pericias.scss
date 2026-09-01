@@ -90,14 +90,18 @@
   &__atributo-nome {
     color: var(--op2-vermelho-claro);
     font-family: var(--op2-fonte-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.04em;
+    font-size: 0.68rem;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
+    white-space: nowrap;
   }
 }
 
 .op2-aptidao {
   margin-bottom: var(--op2-e1);
+
+  // A busca esconde a árvore inteira quando nenhum subcampo casa.
+  &[hidden] { display: none; }
 
   &__resumo {
     display: flex;

@@ -53,10 +53,16 @@
       </div>
     {{/each}}
 
-    {{#if temReducao}}
-      <button type="button" class="op2-botao op2-botao--fantasma op2-encerrar-cena" data-action="encerrarCena">
+  </div>
+
+  {{!-- Aparece só quando há redução ativa: explica o estado e oferece a saída dele. --}}
+  {{#if temReducao}}
+    <div class="op2-estado">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      <span class="op2-estado__texto">{{localize "OP2.Atributo.Reduzido"}}</span>
+      <button type="button" class="op2-botao op2-botao--pequeno" data-action="encerrarCena">
         <i class="fa-solid fa-hourglass-end"></i> {{localize "OP2.Cena.Encerrar"}}
       </button>
-    {{/if}}
-  </div>
+    </div>
+  {{/if}}
 </header>

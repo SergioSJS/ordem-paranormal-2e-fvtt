@@ -1,15 +1,14 @@
-{{!-- PV e PD: valor, máximo e a trilha de pips que a ficha do livro usa. --}}
+{{!-- PV e PD numa linha só, como na ficha do livro: rótulo, valor, máximo, trilha. --}}
 <div class="op2-recurso op2-recurso--{{chave}}">
-  <div class="op2-recurso__topo">
-    <span class="op2-tag op2-tag--pequena">{{localize rotulo}}</span>
-    <input type="number" class="op2-recurso__valor" name="system.recursos.{{chave}}.value"
-      value="{{value}}" {{#unless @root.editavel}}disabled{{/unless}}
-      aria-label="{{localize rotulo}} {{localize 'OP2.Recurso.Atual'}}">
-    <span class="op2-recurso__barra" aria-hidden="true">/</span>
-    <input type="number" class="op2-recurso__max" name="system.recursos.{{chave}}.max"
-      value="{{max}}" min="0" {{#unless @root.editavel}}disabled{{/unless}}
-      aria-label="{{localize rotulo}} {{localize 'OP2.Recurso.Maximo'}}">
-  </div>
+  <span class="op2-tag op2-tag--pequena">{{localize rotulo}}</span>
+
+  <input type="number" class="op2-recurso__valor" name="system.recursos.{{chave}}.value"
+    value="{{value}}" {{#unless @root.editavel}}disabled{{/unless}}
+    aria-label="{{localize rotulo}} {{localize 'OP2.Recurso.Atual'}}">
+  <span class="op2-recurso__barra" aria-hidden="true">/</span>
+  <input type="number" class="op2-recurso__max" name="system.recursos.{{chave}}.max"
+    value="{{max}}" min="0" {{#unless @root.editavel}}disabled{{/unless}}
+    aria-label="{{localize rotulo}} {{localize 'OP2.Recurso.Maximo'}}">
 
   {{#if pips}}
     <div class="op2-pips" role="group" aria-label="{{localize rotulo}}">

@@ -21,7 +21,7 @@ Manifesto, tooling, testes, docs, símbolo do projeto. Sem conteúdo de jogo.
 - [x] Ficha de NPC e de itens
 - [x] i18n pt-BR + en com teste de paridade
 - [ ] Compêndio de habilidades dos 3 perfis e das ocupações do playtest
-- [ ] Busca na coluna de perícias
+- [x] Busca na coluna de perícias
 - [ ] Validação manual em v13 e v14
 
 **Pronto quando:** dá para criar um agente, montar a ficha, rolar qualquer perícia

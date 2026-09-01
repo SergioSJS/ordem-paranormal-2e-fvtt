@@ -10,6 +10,9 @@ node_modules/
 styles/*.css
 styles/*.css.map
 
+# Preview gerado por scripts/preview.mjs
+preview.html
+
 # Packs compilados (fonte fica em packs/sources/)
 packs/habilidades/
 packs/perfis/

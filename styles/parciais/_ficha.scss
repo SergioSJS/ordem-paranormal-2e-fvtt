@@ -104,31 +104,30 @@
 }
 
 .op2-recursos {
-  display: grid;
-  gap: var(--op2-e2);
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-}
-
-.op2-recurso {
   display: flex;
   flex-direction: column;
-  gap: var(--op2-e1);
+  gap: var(--op2-e2);
+}
 
-  &__topo {
-    display: flex;
-    align-items: center;
-    gap: var(--op2-e1);
-  }
+// Rótulo, valor, máximo e trilha na mesma linha — a leitura da ficha do livro.
+.op2-recurso {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--op2-e1);
 
   &__valor,
   &__max {
-    width: 3rem;
-    height: 1.6rem;
+    width: 2.6rem;
+    height: 1.5rem;
+    padding: 0 0.2rem;
     font-family: var(--op2-fonte-mono);
     text-align: center;
   }
 
   &__barra { color: var(--op2-vermelho); }
+
+  .op2-pips { margin-left: var(--op2-e2); }
 }
 
 // Pips: PV e PD são trilhas de quadradinhos na ficha do livro, não campos numéricos.
@@ -152,33 +151,44 @@
   &:hover { border-color: var(--op2-vermelho-claro); }
 }
 
+// Os três atributos dividem a linha, como na ficha do livro.
 .op2-atributos {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   align-items: center;
   gap: var(--op2-e2);
   grid-column: span 2;
+  grid-template-columns: auto repeat(3, minmax(0, 1fr));
 
-  &--npc { grid-column: auto; }
+  &--npc {
+    grid-column: auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .op2-atributo {
   display: flex;
+  min-width: 0;
   align-items: center;
+  justify-content: space-between;
   gap: var(--op2-e1);
-  padding: 0.3rem 0.5rem;
+  padding: 0.35rem 0.6rem;
   border: 1px solid var(--op2-linha);
   border-radius: var(--op2-raio);
 
   &__nome {
+    overflow: hidden;
+    padding: 0;
     border: 0;
     background: transparent;
     color: var(--op2-texto);
     cursor: pointer;
     font-family: var(--op2-fonte-display);
-    font-size: 0.95rem;
-    letter-spacing: 0.06em;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-overflow: ellipsis;
     text-transform: uppercase;
+    white-space: nowrap;
 
     &:hover { color: var(--op2-vermelho-claro); }
   }
@@ -188,7 +198,23 @@
   &__base { display: flex; }
 }
 
-.op2-encerrar-cena { margin-left: auto; }
+// Faixa de estado: só existe quando alguma redução temporária está ativa.
+.op2-estado {
+  display: flex;
+  align-items: center;
+  padding: 0.35rem 0.6rem;
+  border-left: 3px solid var(--op2-vermelho);
+  background: color-mix(in srgb, var(--op2-vermelho) 12%, transparent);
+  color: var(--op2-vermelho-claro);
+  gap: var(--op2-e2);
+  grid-column: span 2;
+
+  &__texto {
+    flex: 1 1 auto;
+    color: var(--op2-texto);
+    font-size: 0.78rem;
+  }
+}
 
 .op2-abas {
   display: flex;
