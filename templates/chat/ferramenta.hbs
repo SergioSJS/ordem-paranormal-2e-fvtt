@@ -1,0 +1,21 @@
+<div class="op2 op2-card op2-card--investigacao">
+  <header class="op2-card__topo">
+    <span class="op2-tag op2-tag--pequena">{{titulo}}</span>
+    {{#if poiNome}}<span class="op2-card__dt">{{poiNome}}</span>{{/if}}
+  </header>
+
+  {{#if laser}}
+    {{#if temMarcados}}
+      <p class="op2-card__texto">{{localize "OP2.Ferramenta.LaserMarcou"}}</p>
+      <ul class="op2-card__infos">
+        {{#each marcados}}<li>{{this}}</li>{{/each}}
+      </ul>
+    {{else}}
+      <p class="op2-ajuda">{{localize "OP2.Ferramenta.LaserNada"}}</p>
+    {{/if}}
+  {{else if temReacao}}
+    <div class="op2-card__texto">{{{resultado}}}</div>
+  {{else}}
+    <p class="op2-ajuda">{{localize "OP2.Ferramenta.SemReacao"}}</p>
+  {{/if}}
+</div>

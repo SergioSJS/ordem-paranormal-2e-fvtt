@@ -66,12 +66,24 @@ de pagamento no chat.
 - [x] Seção "Desafios" no painel de investigação, com Arrombar por item
 - [ ] Validação em Foundry v13 (mesmo bloqueio das fases anteriores)
 
-### M2/M3 — ainda não iniciado
+### M2 — Ferramentas da Ordo Realitas ✅
+
+- [x] Item `ferramenta` com `subtipo` (10 ferramentas, spec §9)
+- [x] Usar ferramenta num POI: revela `ferramentas.<chave>` (ou "sem reação" —
+  também é informação, spec §9.3); consome carga quando a ferramenta controla
+  (Lanterna UV, Pó Revelador)
+- [x] Laser de Varredura: ação de cena que marca quais POIs reagem a alguma
+  ferramenta, sem dizer qual
+- [x] Seção de ferramentas por POI no painel, só com o que o personagem carrega
+- [x] Regras puras do Laboratório Portátil (escada crescente) e do Rádio
+  Modificado (tabela de conjuntos falsos) — prontas para o app de M3
+- [ ] Validação em Foundry v13 (mesmo bloqueio das fases anteriores)
+
+### M3 — ainda não iniciado
 
 - Destrancar: minigame Mastermind, senha em flag do mestre
-- `ferramenta` com handler por subtipo
-- Laboratório Portátil (escada crescente) e Rádio Modificado (ordenação de frases)
-- Cargas da Lanterna UV e do Pó Revelador
+- App do Laboratório Portátil (rolagem sequencial revelada uma a uma)
+- App do Rádio Modificado (ordenação de palavras)
 
 ## Fase 4 — Combate simplificado → `0.4.0`
 

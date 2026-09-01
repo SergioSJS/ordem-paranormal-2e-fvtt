@@ -352,6 +352,58 @@ const relato = await page.evaluate(async () => {
     await game.settings.set("ordem-paranormal-2e", "dtPadrao", dtOriginal);
   }
 
+  /* ---------------------------------------------------- ferramentas da Ordo -- */
+  // Fase 3 M2 (spec §9). Câmera tem reação nesse POI, Termômetro não — "sem
+  // reação" também é informação e precisa aparecer, nunca ficar em silêncio.
+  {
+    await poi.update({ "system.ferramentas.camera": "Uma foto revela uma sombra estranha atrás do quadro." });
+
+    await ator.createEmbeddedDocuments("Item", [
+      { name: "Câmera Modificada", type: "ferramenta", system: { subtipo: "camera" } },
+      { name: "Termômetro Diferencial", type: "ferramenta", system: { subtipo: "termometro" } },
+      { name: "Lanterna de Estouro UV", type: "ferramenta",
+        system: { subtipo: "lanternaUV", cargas: { usa: true, value: 1, max: 3 } } },
+      { name: "Laser de Varredura", type: "ferramenta", system: { subtipo: "laser" } },
+    ]);
+
+    const comReacao = await game.op2.usarFerramenta(ator, poi.uuid, "camera");
+    await esperar(500);
+    ok("ferramenta com reação retorna temReacao", comReacao?.temReacao === true);
+    ok("card mostra o texto da reação",
+      Boolean([...document.querySelectorAll(".op2-card")].at(-1)?.textContent.includes("sombra estranha")));
+
+    const semReacao = await game.op2.usarFerramenta(ator, poi.uuid, "termometro");
+    await esperar(500);
+    ok("ferramenta sem reação também revela um card (é informação)", semReacao?.temReacao === false);
+    ok("card avisa leitura normal, sem reação",
+      Boolean([...document.querySelectorAll(".op2-card")].at(-1)?.textContent.includes(game.i18n.localize("OP2.Ferramenta.SemReacao"))));
+
+    const lanternaItem = ator.items.getName("Lanterna de Estouro UV");
+    await game.op2.usarFerramenta(ator, poi.uuid, "lanternaUV");
+    await esperar(300);
+    ok("usar ferramenta com carga consome 1", lanternaItem.system.cargas.value === 0);
+    const semCargas = await game.op2.usarFerramenta(ator, poi.uuid, "lanternaUV");
+    ok("sem cargas recusa o uso", semCargas === null);
+
+    // LASER DE VARREDURA: marca o POI (que reage via Câmera) sem dizer qual ferramenta.
+    ok("POI começa sem marca do laser", poi.system.reveladoPorLaser === false);
+    const marcados = await game.op2.usarLaser(ator);
+    await esperar(500);
+    ok("laser marca o POI que reage a alguma ferramenta", marcados.includes("Quadro na Parede"));
+    ok("flag reveladoPorLaser gravada no POI", poi.system.reveladoPorLaser === true);
+
+    // Painel: botões de ferramenta aparecem para quem carrega o item; botão de
+    // Laser aparece no grupo de ações; badge do laser aparece no card do POI.
+    await painel.render();
+    await esperar(800);
+    ok("painel oferece Usar Laser de Varredura", Boolean(painel.element?.querySelector('[data-action="usarLaser"]')));
+    // Laser também é um slot reativo de POI (spec de Fase 2), fora do gatilho
+    // dedicado de cena — por isso conta junto com câmera/termômetro/lanterna.
+    const botoesFerramenta = [...painel.element.querySelectorAll('[data-action="usarFerramenta"]')];
+    ok("painel lista as ferramentas que o personagem carrega para aquele POI", botoesFerramenta.length === 4);
+    ok("card do POI mostra o selo do laser", Boolean(painel.element?.querySelector(".op2-poi-card .fa-satellite-dish")));
+  }
+
   /* ------------------------------------------------------------ ficha do POI -- */
 
   await poi.sheet.render(true);

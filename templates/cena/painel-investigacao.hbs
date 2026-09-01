@@ -48,6 +48,11 @@
             {{localize "OP2.Desafio.Sustentar"}}
           </button>
         {{/if}}
+        {{#if temLaser}}
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="usarLaser">
+            {{localize "OP2.Ferramenta.Subtipo.laser"}}
+          </button>
+        {{/if}}
       {{else}}
         <p class="op2-ajuda">{{localize "OP2.Painel.SemPersonagem"}}</p>
       {{/if}}
@@ -65,6 +70,11 @@
             <header class="op2-poi-card__topo">
               <img src="{{img}}" alt="">
               <strong>{{nome}}</strong>
+              {{#if reveladoPorLaser}}
+                <span class="op2-tag op2-tag--pequena" data-tooltip="{{localize 'OP2.Ferramenta.LaserDica'}}">
+                  <i class="fa-solid fa-satellite-dish" aria-hidden="true"></i>
+                </span>
+              {{/if}}
               {{#if @root.ehGM}}
                 <span class="op2-poi-card__acoes-gm">
                   <button type="button" class="op2-botao op2-botao--pequeno" data-action="abrirPoi"
@@ -127,6 +137,16 @@
                   data-poi-uuid="{{uuid}}">
                   {{localize "OP2.Investigacao.Interagir"}}
                 </button>
+              {{/if}}
+              {{#if ferramentasDisponiveis.length}}
+                <div class="op2-poi-card__ferramentas">
+                  {{#each ferramentasDisponiveis}}
+                    <button type="button" class="op2-botao op2-botao--pequeno" data-action="usarFerramenta"
+                      data-poi-uuid="{{../uuid}}" data-ferramenta="{{chave}}">
+                      {{rotulo}}
+                    </button>
+                  {{/each}}
+                </div>
               {{/if}}
             {{else}}
               {{#if @root.temPersonagem}}

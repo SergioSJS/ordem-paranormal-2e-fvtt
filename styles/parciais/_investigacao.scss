@@ -176,6 +176,13 @@
   }
 
   &__revelado-por { color: var(--op2-sucesso); font-size: 0.75rem; }
+
+  &__ferramentas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--op2-e1);
+    margin-top: var(--op2-e2);
+  }
 }
 
 .op2-painel-ordem {

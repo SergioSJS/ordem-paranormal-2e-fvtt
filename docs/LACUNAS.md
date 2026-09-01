@@ -123,6 +123,37 @@ cumulativa do teste.
 **Decisão:** `estado.sustentando` guarda só `ativo` e `fadiga` no ator. O card de chat
 avisa quando alguém solta; o que isso significa na cena é narrativo, decidido pela mesa.
 
+### Resultado do uso de ferramenta não fica gravado no personagem (spec §9)
+
+Investigar/Examinar gravam `infosReveladas` no ator porque a revelação é por
+informação, reaproveitável entre cenas. Uma ferramenta não tem "informações"
+discretas — só um texto de reação por POI.
+
+**Decisão:** o resultado só vai para o chat (sussurro dono + mestre), igual
+Interagir. Usar a mesma ferramenta duas vezes no mesmo POI manda o card de novo,
+sem controle de repetição — nada na spec pede isso.
+
+### EMF e Compêndio não têm mecânica automatizável (spec §9)
+
+O Medidor EMF depende de o mestre mandar um áudio e o jogador comparar a mão com
+formas de onda do Compêndio — é combinação humana, não regra. O Compêndio é só
+documento de referência.
+
+**Decisão:** as duas entram como `ferramenta` funcional (aparecem na lista, têm
+ficha), mas sem handler de uso automatizado — o texto de `descricao` é onde o
+conteúdo de referência vive; comparação de áudio fica com a mesa.
+
+### Laser de Varredura também é slot reativo de POI, além da ação de cena (Fase 2 → 3)
+
+O schema de `ponto-interesse` (Fase 2) já tratava `ferramentas.laser` como mais um
+campo de texto igual câmera/infravermelho/etc. A spec (§9) descreve o Laser só
+como ação de ambiente ("revela quais POIs reagem"), sem reação própria por POI.
+
+**Decisão:** manteve-se os dois caminhos. `usarFerramenta(ator, poi, "laser")`
+funciona como qualquer outra ferramenta (lê o texto daquele campo, se o mestre
+preencheu); `usarLaser(ator)` é a ação de cena da spec. Não são contraditórios —
+o segundo não substitui o primeiro, só soma.
+
 ## Como adicionar uma lacuna nova
 
 1. Documente aqui: o que a fonte diz, onde é ambígua, e o default escolhido com o motivo.

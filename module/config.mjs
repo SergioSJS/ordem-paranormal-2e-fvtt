@@ -108,6 +108,15 @@ export const FERRAMENTAS_POI = [
 ];
 
 /**
+ * As 10 ferramentas da Ordo Realitas (spec §9) — só para agentes. O Compêndio não
+ * entra em `FERRAMENTAS_POI` porque não reage a POI: é documento de referência.
+ */
+export const FERRAMENTAS_ORDO = ["compendio", ...FERRAMENTAS_POI];
+
+/** Ferramentas com carga limitada (spec §9): as demais são de uso ilimitado. */
+export const FERRAMENTAS_COM_CARGA = { lanternaUV: 3, poRevelador: 5 };
+
+/**
  * Sobrecarga mental de referência (spec §7.6): dano emocional ao fim de cada rodada.
  * A última linha cobre "9 ou mais" — a diagramação da tabela admite outra leitura,
  * então a tabela é editável por cena (docs/LACUNAS.md). `dano` é uma expressão de
@@ -131,5 +140,7 @@ export const OP2 = {
   VALOR_MINIMO_CRITICO, TABELA_FALHA_CRITICA, PASSOS_DE_AJUDA,
   DT_FERIMENTO_BASE, DT_FERIMENTO_INCREMENTO,
   DT_RECAPITULAR, DT_COMPARTILHAR, CUSTO_PD_EXAMINAR, FERRAMENTAS_POI,
+  FERRAMENTAS_ORDO, FERRAMENTAS_COM_CARGA,
   TABELA_SOBRECARGA_PADRAO,
+  CUSTO_PV_ARROMBAR, CUSTO_PV_SUSTENTAR, BONUS_DT_ALCANCAR_ARRISCADO,
 };

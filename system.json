@@ -38,6 +38,7 @@
     "Item": {
       "habilidade": {},
       "equipamento": {},
+      "ferramenta": {},
       "ponto-interesse": {},
       "desafio-acesso": {}
     }

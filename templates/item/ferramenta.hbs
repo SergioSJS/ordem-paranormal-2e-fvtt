@@ -1,0 +1,46 @@
+<div class="op2-item-ficha">
+  <header class="op2-item-ficha__topo">
+    <img src="{{item.img}}" alt="" data-action="editImage" data-edit="img">
+    <input type="text" class="op2-nome" name="name" value="{{item.name}}" {{#unless editavel}}disabled{{/unless}}>
+  </header>
+
+  <label class="op2-campo">
+    <span>{{localize "OP2.Ferramenta.Subtipo.Rotulo"}}</span>
+    <select name="system.subtipo" {{#unless editavel}}disabled{{/unless}}>
+      {{#each subtiposFerramenta}}
+        <option value="{{v}}" {{#if (op2Eq v ../sistema.subtipo)}}selected{{/if}}>{{rotulo}}</option>
+      {{/each}}
+    </select>
+  </label>
+
+  <fieldset class="op2-cargas">
+    <legend>{{localize "OP2.Equipamento.Cargas"}}</legend>
+    <label class="op2-campo op2-campo--inline">
+      <input type="checkbox" name="system.cargas.usa" {{#if sistema.cargas.usa}}checked{{/if}}
+        {{#unless editavel}}disabled{{/unless}}>
+      <span>{{localize "OP2.Equipamento.UsaCargas"}}</span>
+    </label>
+    <p class="op2-ajuda">{{localize "OP2.Ferramenta.CargasAjuda"}}</p>
+
+    {{#if sistema.cargas.usa}}
+      <div class="op2-grade-campos">
+        <label class="op2-campo">
+          <span>{{localize "OP2.Recurso.Atual"}}</span>
+          <input type="number" name="system.cargas.value" value="{{sistema.cargas.value}}" min="0"
+            {{#unless editavel}}disabled{{/unless}}>
+        </label>
+        <label class="op2-campo">
+          <span>{{localize "OP2.Recurso.Maximo"}}</span>
+          <input type="number" name="system.cargas.max" value="{{sistema.cargas.max}}" min="0"
+            {{#unless editavel}}disabled{{/unless}}>
+        </label>
+      </div>
+    {{/if}}
+  </fieldset>
+
+  <label class="op2-campo">
+    <span>{{localize "OP2.Ferramenta.Descricao"}}</span>
+    {{formInput fields.descricao value=sistema.descricao enriched=descricao toggled=true
+      editable=editavel name="system.descricao"}}
+  </label>
+</div>

@@ -10,8 +10,10 @@
  * quem revelou o quê. Nenhum dado de regra (DT, reação de ferramenta) vaza para o
  * lado do jogador.
  */
-import { SYSTEM_ID } from "../config.mjs";
+import { SYSTEM_ID, FERRAMENTAS_POI } from "../config.mjs";
 import { periciasDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs";
+import { temFerramenta } from "./ferramentas.mjs";
+import { usarFerramenta, usarLaser } from "./acoes-ferramenta.mjs";
 import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerrar-cena.mjs";
 import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada } from "./rodada.mjs";
 import {
@@ -46,6 +48,8 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       alcancar: PainelInvestigacao.#alcancar,
       sustentar: PainelInvestigacao.#sustentar,
       pararDeSustentar: PainelInvestigacao.#pararDeSustentar,
+      usarFerramenta: PainelInvestigacao.#usarFerramenta,
+      usarLaser: PainelInvestigacao.#usarLaser,
       novaRodada: PainelInvestigacao.#novaRodada,
       encerrarCena: PainelInvestigacao.#encerrarCena,
       alternarSobrecarga: PainelInvestigacao.#alternarSobrecarga,
@@ -79,6 +83,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       temPersonagem: Boolean(ator),
       atorNome: ator?.name ?? null,
       sustentando: ator?.system.estado.sustentando?.ativo ?? false,
+      temLaser: ator ? temFerramenta(ator.items, "laser") : false,
       pois: cena ? await this.#contextoPois(cena, ator, ehGM) : [],
       desafios: cena ? await this.#contextoDesafios(cena) : [],
       ordem: this.#contextoOrdem(cena),
@@ -105,11 +110,20 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       const investigado = ator?.system.estado.poisInvestigados.has(uuid) ?? false;
       const verQuadro = ehGM || investigado;
 
+      // Ferramentas do jogador que valem a pena tentar neste POI (spec §9.3): a
+      // reação em si fica oculta até o uso — só a lista do que ele carrega aparece.
+      const ferramentasDisponiveis = (verQuadro && ator)
+        ? FERRAMENTAS_POI.filter((chave) => temFerramenta(ator.items, chave))
+          .map((chave) => ({ chave, rotulo: game.i18n.localize(`OP2.Ferramenta.Subtipo.${chave}`) }))
+        : [];
+
       pois.push({
         uuid,
         nome: poi.name,
         img: poi.img,
         verQuadro,
+        reveladoPorLaser: poi.system.reveladoPorLaser,
+        ferramentasDisponiveis,
         descricaoBasica: verQuadro
           ? await editor.enrichHTML(poi.system.descricaoBasica, { relativeTo: poi })
           : null,
@@ -329,6 +343,16 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     if (ator) await pararDeSustentar(ator);
   }
 
+  static async #usarFerramenta(_evento, alvo) {
+    const ator = this.#atorOuAviso();
+    if (ator) await usarFerramenta(ator, alvo.dataset.poiUuid, alvo.dataset.ferramenta);
+  }
+
+  static async #usarLaser() {
+    const ator = this.#atorOuAviso();
+    if (ator) await usarLaser(ator);
+  }
+
   static async #novaRodada() {
     await avancarRodada();
   }
@@ -397,7 +421,7 @@ export function registrarPainelInvestigacao() {
   }
   for (const gatilho of ["createItem", "updateItem", "deleteItem"]) {
     Hooks.on(gatilho, (item) => {
-      if (item.type === "ponto-interesse" || item.type === "desafio-acesso") atualizar();
+      if (["ponto-interesse", "desafio-acesso", "ferramenta"].includes(item.type)) atualizar();
     });
   }
   Hooks.on("canvasReady", atualizar);

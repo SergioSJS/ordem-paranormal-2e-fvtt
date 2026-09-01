@@ -8,7 +8,8 @@
       "habilidade": "Ability",
       "equipamento": "Equipment",
       "ponto-interesse": "Point of Interest",
-      "desafio-acesso": "Access Challenge"
+      "desafio-acesso": "Access Challenge",
+      "ferramenta": "Tool"
     }
   },
   "OP2": {
@@ -18,7 +19,8 @@
       "Item": "Item Sheet",
       "PontoInteresse": "Point of Interest",
       "SemNome": "Unnamed",
-      "DesafioAcesso": "Access Challenge"
+      "DesafioAcesso": "Access Challenge",
+      "Ferramenta": "Ordo Realitas Tool"
     },
     "Atributo": {
       "fisico": "Physical",
@@ -340,7 +342,8 @@
       "AtorAusente": "The character for this card no longer exists.",
       "POIAusente": "Point of interest not found.",
       "SemPermissao": "This button belongs to another player or to the GM.",
-      "DesafioAusente": "Access challenge not found."
+      "DesafioAusente": "Access challenge not found.",
+      "SemFerramenta": "You don't have {ferramenta}."
     },
     "Config": {
       "dtPadrao": {
@@ -408,6 +411,29 @@
       "SustentarFalhouInicio": "{ator} couldn't hold on.",
       "SustentarSucesso": "{ator} is holding on.",
       "SustentarSoltou": "{ator} couldn't take it anymore and let go."
+    },
+    "Ferramenta": {
+      "Rotulo": "Tool",
+      "Subtipo": {
+        "compendio": "Order Compendium",
+        "camera": "Modified Camera",
+        "lanternaUV": "UV Flash Light",
+        "laboratorio": "Portable Lab",
+        "laser": "Scanning Laser",
+        "infravermelho": "Infrared Reader",
+        "emf": "EMF Meter",
+        "poRevelador": "Revealing Powder",
+        "radio": "Modified Radio",
+        "termometro": "Differential Thermometer",
+        "Rotulo": "Tool type"
+      },
+      "Descricao": "Description",
+      "CargasAjuda": "Only the UV Flash Light (3) and the Revealing Powder (5) have limited charges in the playtest; the rest are unlimited.",
+      "SemCargas": "{ferramenta} is out of charges.",
+      "SemReacao": "No reaction — normal reading.",
+      "LaserMarcou": "The Scanning Laser found a reaction at:",
+      "LaserNada": "No new point of interest reacted to other tools.",
+      "LaserDica": "The Scanning Laser detected a reaction to some tool here."
     }
   }
 }

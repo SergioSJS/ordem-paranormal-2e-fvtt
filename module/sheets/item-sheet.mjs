@@ -1,5 +1,5 @@
 /** Ficha de item. Uma classe, um template por tipo. */
-import { ESCADA, ATRIBUTOS, PERICIAS } from "../config.mjs";
+import { ESCADA, ATRIBUTOS, PERICIAS, FERRAMENTAS_ORDO } from "../config.mjs";
 import { ORIGENS_HABILIDADE, EFEITOS_HABILIDADE } from "../data/item-habilidade.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
 
@@ -40,6 +40,7 @@ export class OP2ItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       escada: ESCADA.map((dado) => ({ dado, icone: iconeDado(dado) })),
       origens: ORIGENS_HABILIDADE.map((v) => ({ v, rotulo: game.i18n.localize(`OP2.Habilidade.Origem.${v}`) })),
       efeitos: EFEITOS_HABILIDADE.map((v) => ({ v, rotulo: game.i18n.localize(`OP2.Habilidade.Efeito.${v}`) })),
+      subtiposFerramenta: FERRAMENTAS_ORDO.map((v) => ({ v, rotulo: game.i18n.localize(`OP2.Ferramenta.Subtipo.${v}`) })),
       chaves: [
         ...Object.keys(ATRIBUTOS).map((c) => ({ c, rotulo: game.i18n.localize(`OP2.Atributo.${c}`), grupo: "atributo" })),
         ...Object.keys(PERICIAS).map((c) => ({ c, rotulo: game.i18n.localize(`OP2.Pericia.${c}`), grupo: "pericia" })),

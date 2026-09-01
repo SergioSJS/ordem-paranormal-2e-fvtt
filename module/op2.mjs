@@ -7,6 +7,7 @@ import { PersonagemData } from "./data/actor-personagem.mjs";
 import { NpcData } from "./data/actor-npc.mjs";
 import { HabilidadeData } from "./data/item-habilidade.mjs";
 import { EquipamentoData } from "./data/item-equipamento.mjs";
+import { FerramentaData } from "./data/item-ferramenta.mjs";
 import { PontoInteresseData } from "./data/item-ponto-interesse.mjs";
 import { DesafioAcessoData } from "./data/item-desafio-acesso.mjs";
 import { PersonagemSheet } from "./sheets/actor-personagem-sheet.mjs";
@@ -28,6 +29,7 @@ import {
   investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar,
 } from "./cena/acoes-investigacao.mjs";
 import { arrombar, alcancar, sustentar, pararDeSustentar } from "./cena/acoes-desafio.mjs";
+import { usarFerramenta, usarLaser } from "./cena/acoes-ferramenta.mjs";
 
 Hooks.once("init", () => {
   console.log(`${SYSTEM_ID} | inicializando`);
@@ -38,6 +40,7 @@ Hooks.once("init", () => {
   CONFIG.Actor.dataModels.npc = NpcData;
   CONFIG.Item.dataModels.habilidade = HabilidadeData;
   CONFIG.Item.dataModels.equipamento = EquipamentoData;
+  CONFIG.Item.dataModels.ferramenta = FerramentaData;
   CONFIG.Item.dataModels["ponto-interesse"] = PontoInteresseData;
   CONFIG.Item.dataModels["desafio-acesso"] = DesafioAcessoData;
 
@@ -59,6 +62,7 @@ Hooks.once("init", () => {
     investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar,
     painelInvestigacao: abrirPainelInvestigacao, avancarRodada,
     arrombar, alcancar, sustentar, pararDeSustentar,
+    usarFerramenta, usarLaser,
   };
 });
 
@@ -108,7 +112,7 @@ function registrarSheets() {
 
   Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
   Items.registerSheet(SYSTEM_ID, OP2ItemSheet, {
-    types: ["habilidade", "equipamento"], makeDefault: true, label: "OP2.Ficha.Item",
+    types: ["habilidade", "equipamento", "ferramenta"], makeDefault: true, label: "OP2.Ficha.Item",
   });
   Items.registerSheet(SYSTEM_ID, PontoInteresseSheet, {
     types: ["ponto-interesse"], makeDefault: true, label: "OP2.Ficha.PontoInteresse",
