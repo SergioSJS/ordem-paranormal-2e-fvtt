@@ -407,7 +407,28 @@ const relato = await page.evaluate(async () => {
       Boolean(painelEl.textContent.includes(game.i18n.localize("OP2.Painel.SemInvestigacao"))));
     ok("sem investigação visível o painel não renderiza seções de jogo",
       !painelEl.querySelector("[data-seletor-investigacao]") && !painelEl.querySelector(".op2-painel-ordem"));
+    // Achado em uso real: o texto de ajuda era o mesmo pro mestre e pro jogador —
+    // "escolha uma investigação ou crie uma nova", que o jogador não tem como fazer
+    // (nem seletor nem botão de criar aparecem pra ele). Cada situação tem seu aviso.
+    ok("jogador sem personagem vê o aviso de atribuir personagem, não o texto do mestre",
+      painelEl.textContent.includes(game.i18n.localize("OP2.Painel.SemPersonagem"))
+      && !painelEl.textContent.includes(game.i18n.localize("OP2.Painel.SemInvestigacaoAjudaGM")));
     Object.defineProperty(game.user, "character", descCharacter);
+
+    // Personagem atribuído, mas fora de qualquer investigação em jogo: outro aviso,
+    // também sem o texto do mestre.
+    {
+      const semParticipacao = await Actor.create({ name: "Sem Investigação", type: "personagem" });
+      const descCharacter2 = Object.getOwnPropertyDescriptor(game.user, "character");
+      Object.defineProperty(game.user, "character", { value: semParticipacao, configurable: true });
+      await painel.render();
+      await esperar(400);
+      ok("jogador com personagem fora de qualquer investigação em jogo vê aviso específico",
+        painelEl.textContent.includes(game.i18n.localize("OP2.Painel.SemInvestigacaoAjudaJogador"))
+        && !painelEl.textContent.includes(game.i18n.localize("OP2.Painel.SemInvestigacaoAjudaGM")));
+      Object.defineProperty(game.user, "character", descCharacter2);
+      await semParticipacao.delete();
+    }
 
     // O mestre tirando de jogo é o que tira a investigação do seletor do jogador.
     delete game.user.isGM;

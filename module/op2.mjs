@@ -93,7 +93,29 @@ Hooks.once("init", () => {
   };
 });
 
-Hooks.once("ready", () => precarregarTemplates());
+Hooks.once("ready", () => {
+  precarregarTemplates();
+  migrarInvestigacoesAtivas();
+});
+
+/**
+ * Migração pontual: mundos que já tinham investigação antes de "em jogo" existir
+ * (`investigacoesAtivasUuids`, mundo) contavam com um único ponteiro global — toda
+ * investigação era, na prática, visível a quem participava dela. Sem isto, elas
+ * ficam invisíveis pros jogadores até o mestre marcar manualmente "Em jogo" uma por
+ * uma (achado em uso real: jogador com personagem já participante via um mundo
+ * criado antes desta mudança). Só roda se o setting nunca foi tocado (segue vazio,
+ * o default) e existe pelo menos uma investigação — depois da primeira vez que o
+ * mestre usa o checkbox, o setting deixa de estar vazio e isto nunca mais roda.
+ */
+async function migrarInvestigacoesAtivas() {
+  if (!game.user.isGM) return;
+  if (lerConfig("investigacoesAtivasUuids").length > 0) return;
+  const todas = todasInvestigacoes();
+  if (!todas.length) return;
+  await game.settings.set(SYSTEM_ID, "investigacoesAtivasUuids", todas.map((i) => i.uuid));
+  console.log(`${SYSTEM_ID} | migrou ${todas.length} investigação(ões) pré-existente(s) para "em jogo"`);
+}
 
 /**
  * Faz o pt-BR ser o idioma de quem ainda não escolheu nenhum.

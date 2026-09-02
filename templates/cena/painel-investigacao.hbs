@@ -40,7 +40,13 @@
   </section>
 
   {{#unless temInvestigacao}}
-    <p class="op2-ajuda">{{localize "OP2.Painel.SemInvestigacaoAjuda"}}</p>
+    {{#if ehGM}}
+      <p class="op2-ajuda">{{localize "OP2.Painel.SemInvestigacaoAjudaGM"}}</p>
+    {{else if temPersonagem}}
+      <p class="op2-ajuda">{{localize "OP2.Painel.SemInvestigacaoAjudaJogador"}}</p>
+    {{else}}
+      <p class="op2-ajuda">{{localize "OP2.Painel.SemPersonagem"}}</p>
+    {{/if}}
   {{/unless}}
 
   {{#if temInvestigacao}}
