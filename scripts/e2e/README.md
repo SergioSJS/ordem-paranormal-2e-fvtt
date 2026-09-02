@@ -30,6 +30,16 @@ Nenhum desses aparece em `npm test`.
 
 Nunca aponte para o seu User Data de trabalho: use um separado.
 
+> **Um Foundry por vez.** O harness aponta um symlink para este repositório, então o
+> Foundry descartável abre os MESMOS bancos de `packs/`. LevelDB aceita um processo só:
+> com o harness no ar, o seu Foundry sobe o mundo **sem compêndio nenhum** — sem erro,
+> eles simplesmente não aparecem. Mate o harness antes de abrir o app:
+>
+> ```bash
+> pkill -f "port=30099"
+> lsof packs/*/LOCK   # tem que sair vazio
+> ```
+
 ```bash
 FVTT_APP="/Applications/Foundry Virtual Tabletop.app/Contents/Resources/app"
 DATA=/tmp/fvtt-e2e

@@ -118,6 +118,11 @@ sanitização do conteúdo de chat, contexto real das fichas, hooks depreciados,
 aplicado e texto cortado. Precisa de Node 24 e de um Foundry descartável rodando —
 o passo a passo está em `scripts/e2e/README.md`.
 
+**Um Foundry por vez.** O e2e symlinka este repositório, então ele e o seu Foundry
+abrem os mesmos bancos de `packs/`. LevelDB aceita um processo só: com o e2e no ar, o
+seu app sobe o mundo **sem compêndio algum**, e sem erro nenhum na tela. `pkill -f
+"port=30099"` antes de abrir o app; `lsof packs/*/LOCK` confirma que soltou.
+
 Rode antes de fechar qualquer fase. Foi ele que pegou o sanitizador removendo `<svg>`
 dos cards de chat e o `{{actor.name}}` vazio na ficha.
 
