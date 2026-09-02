@@ -733,6 +733,73 @@ const relato = await page.evaluate(async () => {
       await importada.delete();
     }
 
+    // A aventura: uma importação entrega a mesa montada. As referências entre os
+    // documentos precisam fechar DENTRO do pacote — se um POI da investigação não
+    // estiver na aventura, o mestre importa e acha um vínculo quebrado.
+    // A aventura é gerada do PDF do playtest, que não vem no repositório: numa cópia
+    // limpa o pack existe vazio, e aí não há o que verificar.
+    const aventuras = game.packs.get("ordem-paranormal-2e.ato-i-aventura");
+    if (aventuras?.index.size) {
+      const aventura = await aventuras.getDocument([...aventuras.index][0]._id);
+      ok("a aventura traz cena, trilha, handouts, pré-gerados e a investigação",
+        aventura.scenes.size === 1 && aventura.playlists.size === 1
+        && aventura.journal.size === 2 && aventura.actors.size === 6);
+      ok("e os pontos de interesse e desafios do porão", aventura.items.size >= 10);
+
+      // O quadro sai do PDF: perícia, DT e o texto da pista.
+      const comQuadro = [...aventura.items].filter((i) => i.type === "ponto-interesse"
+        && i.system.informacoes.length);
+      ok("os pontos trazem o quadro de informações preenchido", comQuadro.length >= 15);
+      const linhas = comQuadro.flatMap((i) => i.system.informacoes);
+      ok("com perícia válida e DT em toda linha",
+        linhas.length >= 60 && linhas.every((l) => l.pericia && Number.isInteger(l.dt) && l.dt > 0));
+      ok("e as perícias traduzidas para as chaves do sistema",
+        linhas.some((l) => l.pericia.startsWith("aptidao."))
+        && linhas.every((l) => l.pericia === "aptidao" || !l.pericia.includes(" ")));
+
+      const investigacao = [...aventura.actors].find((a) => a.type === "investigacao");
+      const idsDeItens = new Set([...aventura.items].map((i) => i.id));
+      const idsDeAtores = new Set([...aventura.actors].map((a) => a.id));
+      const resolve = (uuids, conjunto) => uuids.every((u) => conjunto.has(u.split(".").pop()));
+      ok("a investigação já vem com os pontos de interesse vinculados",
+        investigacao.system.pois.length >= 15
+        && resolve(investigacao.system.pois, idsDeItens));
+      ok("com os desafios vinculados",
+        investigacao.system.desafios.length >= 5
+        && resolve(investigacao.system.desafios, idsDeItens));
+
+      // As caixas laterais do PDF trazem os números prontos — nada é chutado aqui.
+      const acessos = [...aventura.items].filter((i) => i.type === "desafio-acesso");
+      const deposito = acessos.find((i) => i.name.startsWith("Depósito A"));
+      ok("os desafios saem das caixas do PDF com DT, PA e senha",
+        deposito?.system.dtObjeto === 10 && deposito.system.pontuacaoAlvo === 10
+        && deposito.system.tamanhoSenha === 3 && deposito.system.maxTentativas === 3);
+      ok("e a senha não viaja no compêndio: o mestre sorteia na mesa",
+        acessos.every((i) => i.system.senha.length === 0));
+      const freezer = acessos.find((i) => i.name.includes("Freezer"));
+      ok("\"DT Acumulada 12\" vira pontuação alvo, não DT do teste",
+        freezer?.system.pontuacaoAlvo === 12 && freezer.system.dtObjeto === 7);
+      ok("e com os cinco pré-gerados como participantes",
+        investigacao.system.participantes.length === 5
+        && resolve(investigacao.system.participantes, idsDeAtores));
+      ok("a sobrecarga do porão vem ligada (spec §7.6)",
+        investigacao.system.sobrecarga.ativa === true);
+
+      // "Mostre o HANDOUT 02" no texto da pista vira a imagem na descrição de mestre.
+      const comHandout = [...aventura.items].filter((i) => i.type === "ponto-interesse"
+        && i.system.descricaoContextual.includes("op2-ato-i/handouts/"));
+      ok("os pontos que citam handout trazem a imagem na descrição do mestre",
+        comHandout.length >= 5);
+    }
+
+    // Compêndio organizado em pastas: sem isso vira uma lista solta de sete packs.
+    const nossos = game.packs.filter((c) => c.metadata.packageName === "ordem-paranormal-2e");
+    ok("todo compêndio do sistema mora numa pasta", nossos.every((c) => Boolean(c.folder)));
+    const nomesDePasta = new Set((game.packs.folders ?? []).map((f) => f.name));
+    ok("com a hierarquia Regras / Ato I dentro do sistema",
+      nomesDePasta.has("Ordem Paranormal 2") && nomesDePasta.has("Regras")
+      && [...nomesDePasta].some((n) => n.startsWith("Ato I")));
+
     // As duas faixas liberadas, como playlist pronta.
     const musicas = game.packs.get("ordem-paranormal-2e.ato-i-musicas");
     ok("compêndio traz a trilha do Ato I", musicas?.index.size === 1);

@@ -13,13 +13,30 @@ import { join } from "node:path";
 import { ClassicLevel } from "classic-level";
 
 /**
- * Grava um documento e separa as coleções embutidas, que é como o Foundry guarda:
- * o registro do pai fica com um ARRAY DE IDS e cada filho vira registro próprio, sob
+ * Coleções que o Foundry guarda como registro próprio, por tipo de documento pai.
+ *
+ * A lista é explícita de propósito. Um `Adventure` também tem `actors`, `items` e
+ * `scenes`, mas ali são dados EMBUTIDOS — separá-los em registros quebra a aventura
+ * (achado em uso real: 96 registros no lugar de 1, e a aventura importando vazia).
+ */
+const COLECOES = {
+  actors: ["items", "effects"],
+  items: ["effects"],
+  scenes: ["walls", "lights", "sounds", "tiles", "drawings", "regions", "templates", "tokens", "notes"],
+  journal: ["pages"],
+  playlists: ["sounds"],
+  tables: ["results"],
+  cards: ["cards"],
+  combats: ["combatants"],
+};
+
+/**
+ * Grava um documento e separa as coleções embutidas, que é como o Foundry guarda: o
+ * registro do pai fica com um ARRAY DE IDS e cada filho vira registro próprio, sob
  * `!<colecao>.<sub>!<idDoPai>.<idDoFilho>`.
  *
  * Sem isso o ator do compêndio chega sem as habilidades e a cena sem as paredes: o
- * Foundry simplesmente ignora a lista de objetos embutida (achado em uso real, com os
- * pré-gerados perdendo os itens).
+ * Foundry ignora a lista de objetos embutida (achado em uso real).
  */
 function gravar(lote, doc) {
   const { _key, ...valor } = doc;
@@ -27,7 +44,8 @@ function gravar(lote, doc) {
   if (!colecao || !id) throw new Error(`_key inválido: ${_key}`);
   let escritos = 1;
 
-  for (const [campo, conteudo] of Object.entries(valor)) {
+  for (const campo of COLECOES[colecao] ?? []) {
+    const conteudo = valor[campo];
     const ehColecao = Array.isArray(conteudo) && conteudo.length
       && conteudo.every((f) => f && typeof f === "object" && typeof f._id === "string");
     if (!ehColecao) continue;

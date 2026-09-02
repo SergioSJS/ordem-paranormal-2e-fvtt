@@ -131,15 +131,53 @@ npm run ato-i
 Isso copia handouts, tokens, mapas, músicas e históricos para `op2-ato-i/` dentro do seu
 User Data, que é onde os compêndios os procuram. Depois é só importar:
 
-| Compêndio | Conteúdo |
-|---|---|
-| Ato I — Pré-gerados | Alan, Edgar, Eloísa, Kênia e Victor, com habilidades e tokens |
-| Ato I — Handouts | os 18 handouts e os 5 históricos de personagem |
-| Habilidades | Foco Mental, Ímpeto, Avaliação, Mentoria, Prontidão e as demais |
-| Ocupações | Cientista, Operário, Artista, Profissional de escritório e Professor |
-| Ferramentas da Ordo Realitas | as 10 do §9, com as cargas da regra |
-| Ato I — Cenas | o Porão numa cena só, com muros e portas secretas |
-| Ato I — Trilha | as duas faixas, prontas para tocar |
+Os compêndios ficam em pastas, não soltos na lista:
+
+```
+Ordem Paranormal 2
+├── Regras
+│   ├── Habilidades          Foco Mental, Ímpeto, Avaliação, Mentoria, Prontidão…
+│   ├── Ocupações            Cientista, Operário, Artista, Professor…
+│   └── Ferramentas          as 10 da Ordo Realitas, com as cargas da regra
+└── Ato I — A Maldição do Ídolo de Pedra
+    ├── A Aventura           importa tudo abaixo de uma vez, já vinculado
+    ├── Pré-gerados          os cinco, com habilidades e tokens
+    ├── Cenas                o Porão, com muros e portas secretas
+    ├── Handouts             os 18 handouts e os 5 históricos
+    └── Trilha               as duas faixas
+```
+
+**Comece pela Aventura.** Importar esse único documento traz a cena, a trilha, os
+pré-gerados, os handouts, os pontos de interesse do porão com o quadro de informações
+preenchido, os desafios e uma investigação com tudo já vinculado — mesa montada.
+
+### A aventura sai do seu PDF
+
+O texto do Ato I é da editora, então **não vem no repositório nem no pacote do sistema**
+— mesma política do PDF e das artes. Quem tem o playtest gera na própria máquina:
+
+```bash
+# com o PDF em docs/Ordem-Paranormal-RPG-2-Playtest-Alpha-agentes.pdf
+npm run ato-i:extrair          # lê os pontos de interesse do PDF
+npm run ato-i:gerar-aventura   # monta a aventura com cena, trilha, handouts e tudo
+npm run pack:build
+```
+
+`extrair-aventura.py` lê as tabelas `Perícia · DT · Informação` direto do PDF: 23 pontos
+de interesse, 73 linhas de quadro, com as perícias já traduzidas para as chaves do
+sistema (`Aptidão (Humanas)` → `aptidao.humanas`). As condições que o livro escreve entre
+parênteses — *apenas Victor*, *se o ídolo for quebrado* — não têm campo no sistema e vão
+no começo do texto da linha, onde o mestre lê antes de liberar.
+
+As caixas laterais viram os cinco desafios de acesso do porão com os números do livro:
+`ARROMBAR (DT 10, PA 10)` e `DESTRANCAR (senha: 3d6, 3 tentativas)` entram como DT do
+objeto, pontuação alvo, tamanho da senha e teto de tentativas. A senha **não** vem
+sorteada no compêndio — quem sorteia é o mestre, na ficha do desafio, senão ela viajaria
+à vista de todos. Os handouts citados no texto (*"Mostre o HANDOUT 06"*) viram a imagem
+na descrição de mestre do ponto.
+
+Sem o PDF, o compêndio da aventura simplesmente não existe, e os demais funcionam
+normalmente.
 
 **Os três mapas viram uma cena.** Os arquivos publicados são o mesmo desenho revelado em
 etapas — porão, porão + sala secreta, e completo com o duto. Trocar de mapa no meio da

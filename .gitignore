@@ -5,6 +5,11 @@
 docs/*.pdf
 docs/Arquivos para o público - Ato I/
 
+# A aventura é gerada do PDF (npm run ato-i:extrair && npm run ato-i:gerar-aventura):
+# o texto dos pontos de interesse é da editora, como o PDF e as artes.
+packs/sources/ato-i-aventura/
+build/
+
 node_modules/
 .DS_Store
 *.DS_Store
@@ -25,8 +30,12 @@ packs/ferramentas/
 packs/ocupacoes/
 packs/ato-i-personagens/
 packs/ato-i-handouts/
+packs/ato-i-aventura/
 packs/ato-i-cenas/
 packs/ato-i-musicas/
 
 .fvtt-config
 .vscode/settings.json
+
+# Cache do Python dos scripts de extração
+__pycache__/
