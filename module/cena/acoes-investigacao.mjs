@@ -8,7 +8,7 @@
  * mestre no chat — o texto exige que ele julgue a interpretação antes.
  */
 import { SYSTEM_ID, DT_RECAPITULAR, DT_COMPARTILHAR, CUSTO_PD_EXAMINAR } from "../config.mjs";
-import { resolverInvestigacao, resolverExaminar, chaveInfo } from "./investigacao.mjs";
+import { resolverInvestigacao, resolverExaminar, chaveInfo, motivoSemRevelacao } from "./investigacao.mjs";
 import { personagensDaCenaAtiva } from "./encerrar-investigacao.mjs";
 import { investigacaoAtiva } from "./investigacao-ativa.mjs";
 import { rolarTeste, rotuloDePericia, renderizar } from "../dice/teste.mjs";
@@ -29,20 +29,36 @@ async function carregarPoi(poiUuid) {
 }
 
 /**
- * Liga/desliga o rascunho de uma linha do quadro de informações (spec: preparar
- * com antecedência sem comprometer a mesa com algo que ainda pode mudar). Grava no
- * Item do POI, não na investigação — o painel só é o atalho pra não precisar abrir
- * a ficha do POI pra isso (achado em uso real).
+ * Gira a visibilidade de uma linha do quadro entre os três estados, em ciclo:
+ *
+ *   rascunho (oculta) → descobrível (padrão) → aberta → rascunho…
+ *
+ * Um botão só porque é um clique no meio da mesa, não um formulário. Grava no
+ * Item do POI, não na investigação — o painel é só o atalho pra não precisar
+ * abrir a ficha do POI (achado em uso real).
+ * @returns {Promise<"rascunho"|"descobrivel"|"aberta"|null>} o estado novo
  */
-export async function alternarInfoOculta(poiUuid, infoId) {
+export async function cicloVisibilidadeInfo(poiUuid, infoId) {
   const poi = await carregarPoi(poiUuid);
-  if (!poi) return;
-  const informacoes = poi.system.informacoes.map((info) => (
-    info.id === infoId ? { ...info, oculta: !info.oculta } : info
-  ));
+  if (!poi) return null;
+
+  const proximo = (info) => {
+    if (info.oculta) return { oculta: false, aberta: false };
+    if (!info.aberta) return { oculta: false, aberta: true };
+    return { oculta: true, aberta: false };
+  };
+
+  let estado = null;
+  const informacoes = poi.system.informacoes.map((info) => {
+    if (info.id !== infoId) return info;
+    const novo = proximo(info);
+    estado = novo.oculta ? "rascunho" : (novo.aberta ? "aberta" : "descobrivel");
+    return { ...info, ...novo };
+  });
   // Botão de mestre, mas POI é documento de mundo: passa pela ponte por
   // segurança, do mesmo jeito que o resultado do desafio.
   await comoMestre("atualizarPoi", { uuid: poi.uuid, dados: { "system.informacoes": informacoes } });
+  return estado;
 }
 
 registrarAcaoDeMestre("atualizarPoi", async ({ uuid, dados }) => {
@@ -56,6 +72,29 @@ export function idsRevelados(ator, poiUuid) {
   return new Set([...ator.system.estado.infosReveladas]
     .filter((chave) => chave.startsWith(prefixo))
     .map((chave) => chave.slice(prefixo.length)));
+}
+
+/**
+ * Desfaz a revelação de uma linha do quadro — para todos os personagens da cena.
+ *
+ * Sem isto, uma pista revelada por engano (ou num teste de mesa) só saía
+ * encerrando a cena inteira, que zera tudo (achado em uso real: "e se eu quiser
+ * resetar? preciso encerrar a cena?"). Escreve nos personagens, então é ato de
+ * mestre — o jogador não tem permissão de atualizar a ficha dos outros.
+ * @returns {Promise<string[]>} nomes de quem perdeu a revelação
+ */
+export async function limparRevelacao(poiUuid, infoId) {
+  if (!game.user.isGM) return [];
+  const chave = chaveInfo(poiUuid, infoId);
+  const afetados = personagensDaCenaAtiva()
+    .filter((ator) => ator.system.estado.infosReveladas.has(chave));
+
+  for (const ator of afetados) {
+    await ator.update({
+      "system.estado.infosReveladas": [...ator.system.estado.infosReveladas].filter((c) => c !== chave),
+    });
+  }
+  return afetados.map((ator) => ator.name);
 }
 
 async function gravarRevelacoes(ator, poiUuid, idsNovos, { investigado = false } = {}) {
@@ -94,12 +133,30 @@ function infosPorId(poi, ids) {
   return poi.system.informacoes.filter((info) => ids.includes(info.id));
 }
 
+
 /**
- * INVESTIGAR (spec §6.3): entrega as informações da perícia com DT ≤ tamanho do
- * dado, sem rolagem. Na primeira vez, revela também a descrição básica do POI.
- * @returns {Promise<string[]|null>} ids revelados desta vez
+ * EXAMINAR (spec §6.3.1) — uma das duas coisas que se faz ao investigar um ponto
+ * (a outra é Interagir). Não existe uma ação "Investigar" separada: investigar É
+ * examinar ou interagir.
+ *
+ * Dois passos, com a mesma perícia, como a spec descreve em §6.3:
+ *
+ * 1. **De graça, sem rolar** — toda informação daquela perícia com DT ≤ ao tamanho
+ *    do dado do personagem. "Um personagem com Percepção d8 já recebe de graça
+ *    toda info de Percepção com DT ≤ 8" (spec §6.3, nota de implementação).
+ * 2. **Rolando** — o teste tenta o que ficou acima do dado ("e rola para tentar as
+ *    de DT 9+"). Crítico ignora a DT e revela o que falta da perícia (spec §4.3).
+ *
+ * Só custa 1 PD quando os DOIS passos vêm vazios — se o tamanho do dado já
+ * entregou algo, não houve aposta perdida.
+ * O aviso da aposta de 1 PD mora na tela de escolha da perícia, não num modal de
+ * confirmação à parte: eram duas janelas seguidas dizendo a mesma coisa antes de
+ * qualquer coisa acontecer (achado em uso real).
+ * @param {object} [opcoes]
+ * @param {boolean} [opcoes.rapido]     rola sem o diálogo de teste
+ * @returns {Promise<{roll: OP2Roll, revelaveis: string[], perdePD: boolean}|null>}
  */
-export async function investigar(ator, poiUuid, chavePericia) {
+export async function examinar(ator, poiUuid, chavePericia, { rapido = false } = {}) {
   const poi = await carregarPoi(poiUuid);
   if (!poi) return null;
 
@@ -110,83 +167,91 @@ export async function investigar(ator, poiUuid, chavePericia) {
   }
 
   const primeiraVez = !ator.system.estado.poisInvestigados.has(poiUuid);
-  const idsNovos = resolverInvestigacao(poi.system.informacoes, chavePericia, resolvido.valor, idsRevelados(ator, poiUuid));
-  await gravarRevelacoes(ator, poiUuid, idsNovos, { investigado: true });
 
-  const infos = infosPorId(poi, idsNovos).map((info) => ({ ...info, rotuloPericia: rotuloDePericia(info.pericia) }));
-  await enviarCard(ator, "revelacao", {
-    titulo: `${game.i18n.localize("OP2.Investigacao.Investigar")} — ${rotuloDePericia(chavePericia)}`,
-    poiNome: poi.name,
-    primeiraVez,
-    descricaoBasica: primeiraVez ? await editorDeTexto().enrichHTML(poi.system.descricaoBasica, { relativeTo: poi }) : null,
-    infos,
-    temInfos: infos.length > 0,
-  }, { whisper: sussurroPara(ator) });
-
-  return idsNovos;
-}
-
-/**
- * EXAMINAR (spec §6.3.1): rola a perícia e compara a soma contra a DT. Sem info
- * nova — por não atingir a DT ou por não haver mais nada — custa 1 PD. A aposta é
- * avisada antes de confirmar. Crítico ignora a DT e revela o que falta da perícia
- * (a "informação adicional" do crítico em investigação, spec §4.3).
- * @param {object} [opcoes]
- * @param {boolean} [opcoes.confirmar]  exibe o aviso da aposta de 1 PD antes
- * @param {boolean} [opcoes.rapido]     rola sem o diálogo de teste
- * @returns {Promise<{roll: OP2Roll, revelaveis: string[], perdePD: boolean}|null>}
- */
-export async function examinar(ator, poiUuid, chavePericia, { confirmar = true, rapido = false } = {}) {
-  const poi = await carregarPoi(poiUuid);
-  if (!poi) return null;
-
-  if (confirmar) {
-    const confirmou = await foundry.applications.api.DialogV2.confirm({
-      window: { title: game.i18n.localize("OP2.Investigacao.Examinar") },
-      content: `<p>${game.i18n.format("OP2.Investigacao.ExaminarAviso", { custo: CUSTO_PD_EXAMINAR })}</p>`,
-    });
-    if (!confirmou) return null;
-  }
+  // Passo 1: o que o tamanho do dado alcança, sem rolar. Vai gravado antes do
+  // teste porque não depende dele — é o que o personagem percebe ao olhar.
+  const gratis = resolverInvestigacao(
+    poi.system.informacoes, chavePericia, resolvido.valor, idsRevelados(ator, poiUuid),
+  );
+  await gravarRevelacoes(ator, poiUuid, gratis, { investigado: true });
 
   const roll = await rolarTeste(ator, {
     chavePericia,
     semDT: true,
     rapido,
+    // Um card só, com os dados e o desfecho dentro: o card genérico de teste rola
+    // sem DT e por isso não dizia nem sucesso nem falha — "veio só os valores"
+    // (achado em uso real) — e ainda oferecia Dano RA/RB, que não existe aqui.
+    semCard: true,
     contexto: `${game.i18n.localize("OP2.Investigacao.Examinar")} — ${rotuloDePericia(chavePericia)}`,
   });
   if (!roll) return null;
 
-  const { revelaveis, perdePD } = resolverExaminar(
+  // Passo 2: o teste tenta o que ficou acima do dado.
+  const { revelaveis } = resolverExaminar(
     poi.system.informacoes, chavePericia, roll.total, idsRevelados(ator, poiUuid),
     { ignorarDT: roll.critico },
   );
+  await gravarRevelacoes(ator, poiUuid, revelaveis);
 
+  // Os dados vão no card da própria ação, não num card de teste à parte.
+  const rolagem = {
+    componentes: roll.dados,
+    total: roll.total,
+    ra: roll.ra,
+    rb: roll.rb,
+    critico: roll.critico,
+    falhaCritica: roll.falhaCritica,
+  };
+
+  const perdePD = gratis.length === 0 && revelaveis.length === 0;
   if (perdePD) {
+    const sem = motivoSemRevelacao(
+      poi.system.informacoes, chavePericia, resolvido.valor, idsRevelados(ator, poiUuid),
+    );
     await enviarCard(ator, "examinar-custo", {
-      titulo: game.i18n.localize("OP2.Investigacao.Examinar"),
+      titulo: `${game.i18n.localize("OP2.Investigacao.Examinar")} — ${rotuloDePericia(chavePericia)}`,
       poiNome: poi.name,
       atorId: ator.id,
+      ...rolagem,
       rotuloCusto: game.i18n.format("OP2.Investigacao.PerderPD", { custo: CUSTO_PD_EXAMINAR }),
+      // Sem isto o card só diz "nada novo", e o jogador não sabe se insiste com
+      // outro dado, troca de perícia ou desiste do ponto (achado em uso real).
+      motivo: game.i18n.format(`OP2.Investigacao.SemRevelacao.${sem.motivo}`, {
+        pericia: rotuloDePericia(chavePericia),
+        dado: `d${resolvido.valor}`,
+      }),
+      // A DT que falta é dado de mestre: o jogador vê que o dado é pequeno, não o
+      // número exato de que precisaria.
+      dtMinima: sem.dtMinima ?? null,
     });
     return { roll, revelaveis: [], perdePD: true };
   }
 
-  await gravarRevelacoes(ator, poiUuid, revelaveis);
-  const infos = infosPorId(poi, revelaveis).map((info) => ({ ...info, rotuloPericia: rotuloDePericia(info.pericia) }));
+  const marcar = (ids, semRolar) => infosPorId(poi, ids)
+    .map((info) => ({ ...info, rotuloPericia: rotuloDePericia(info.pericia), semRolar }));
+
   await enviarCard(ator, "revelacao", {
     titulo: `${game.i18n.localize("OP2.Investigacao.Examinar")} — ${rotuloDePericia(chavePericia)}`,
     poiNome: poi.name,
-    infos,
+    primeiraVez,
+    descricaoBasica: primeiraVez
+      ? await editorDeTexto().enrichHTML(poi.system.descricaoBasica, { relativeTo: poi })
+      : null,
+    infos: [...marcar(gratis, true), ...marcar(revelaveis, false)],
     temInfos: true,
+    ...rolagem,
+    // O desfecho de Examinar não é o dado contra uma DT: é ter achado algo ou
+    // não. Só o teste (`revelaveis`) conta como sucesso — o que veio de graça
+    // pelo tamanho do dado já era do personagem antes de rolar.
+    desfechoTeste: revelaveis.length ? "sucesso" : "falha",
+    quantidadeTeste: revelaveis.length,
+    quantidadeGratis: gratis.length,
   }, { whisper: sussurroPara(ator) });
 
-  return { roll, revelaveis, perdePD: false };
+  return { roll, revelaveis: [...gratis, ...revelaveis], perdePD: false };
 }
 
-/**
- * INTERAGIR (spec §6.3.2): ação livre descrita pelo jogador, resolvida pelo mestre
- * pela descrição contextual. Sem teste, sem custo — o card vai só para o mestre.
- */
 export async function interagir(ator, poiUuid) {
   const poi = await carregarPoi(poiUuid);
   if (!poi) return null;
@@ -326,17 +391,21 @@ export async function registrarTravaDeCena(trava, ator) {
 }
 
 /**
- * Escolha da perícia do quadro — a primeira Investigação de um POI passa por aqui
- * (spec §6.3 passo 3: o jogador escolhe uma perícia e declara seu valor).
+ * EXAMINAR com escolha de perícia (spec §6.3.1). A lista é a COMPLETA — Examinar
+ * rola um teste, e nada na regra manda testar só as perícias do quadro: o jogador
+ * pode tentar a que quiser. Quem filtra é Investigar, e só porque a regra dela
+ * manda o mestre listar o quadro (spec §6.3 passo 2).
  */
-export async function dialogoInvestigar(ator, poiUuid) {
+export async function dialogoExaminar(ator, poiUuid) {
   const poi = await carregarPoi(poiUuid);
   if (!poi) return null;
 
   const chavePericia = await escolherPericia(ator, {
-    titulo: `${game.i18n.localize("OP2.Investigacao.Investigar")} — ${poi.name}`,
-    ajuda: game.i18n.localize("OP2.Investigacao.EscolherPericiaAjuda"),
+    titulo: `${game.i18n.localize("OP2.Investigacao.Examinar")} — ${poi.name}`,
+    ajuda: game.i18n.format("OP2.Investigacao.ExaminarEscolhaAjuda", { custo: CUSTO_PD_EXAMINAR }),
+    mostrarAtributo: true,
   });
   if (!chavePericia) return null;
-  return investigar(ator, poiUuid, chavePericia);
+  return examinar(ator, poiUuid, chavePericia);
 }
+

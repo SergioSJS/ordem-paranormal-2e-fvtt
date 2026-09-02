@@ -51,10 +51,21 @@ export class PontoInteresseData extends foundry.abstract.TypeDataModel {
         pericia: new StringField({ required: true, initial: "percepcao", blank: false }),
         dt: new NumberField({ required: true, initial: 7, min: 0, integer: true, nullable: false }),
         texto: new HTMLField({ required: true, initial: "", blank: true }),
-        // Rascunho do mestre: nunca revelável enquanto oculta, mesmo que a DT seja
-        // batida (spec: preparar com antecedência sem comprometer a mesa com algo
-        // que ainda pode mudar). `resolverInvestigacao`/`resolverExaminar` filtram.
+        // Três estados por linha, não dois. Com só `oculta` não existia o estado
+        // do meio — o que a mesa mais usa: `oculta` trancava a linha até pro
+        // Examinar, e não-oculta já aparecia pronta na tela do jogador. Não havia
+        // como deixar algo "lá pra ser achado" (achado em uso real: "não volta a
+        // ficar disponível para procurar").
+        //
+        //   oculta  → rascunho do mestre: invisível E não descobrível
+        //   aberta  → o jogador vê sem gastar ação (o mestre já entregou)
+        //   nenhuma → o padrão: só quem Examinar com a perícia e a DT descobre
+        //
+        // `resolverInvestigacao`/`resolverExaminar` filtram as duas: rascunho
+        // porque não existe, aberta porque já é sabida — e aí não conta como
+        // "informação nova" para efeito do custo de 1 PD (spec §6.3.1).
         oculta: new BooleanField({ required: true, initial: false }),
+        aberta: new BooleanField({ required: true, initial: false }),
       })),
 
       ferramentas: new SchemaField(ferramentas),

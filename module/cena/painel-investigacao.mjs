@@ -23,7 +23,7 @@ import {
   vincularPoi, removerPoi, vincularDesafio, removerDesafio, alternarOculto, moverParticipante,
 } from "./investigacao-ativa.mjs";
 import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada } from "./rodada.mjs";
-import { alternarInfoOculta } from "./acoes-investigacao.mjs";
+import { cicloVisibilidadeInfo, limparRevelacao } from "./acoes-investigacao.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -62,10 +62,10 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       removerParticipante: PainelInvestigacao.#removerParticipante,
       alternarJaAgiu: PainelInvestigacao.#alternarJaAgiu,
       alternarOculto: PainelInvestigacao.#alternarOculto,
-      alternarInfoOculta: PainelInvestigacao.#alternarInfoOculta,
+      cicloVisibilidadeInfo: PainelInvestigacao.#cicloVisibilidadeInfo,
+      limparRevelacao: PainelInvestigacao.#limparRevelacao,
       moverParticipante: PainelInvestigacao.#moverParticipante,
     },
-    dragDrop: [{ dragSelector: "[data-ator-ordem]", dropSelector: ".op2-painel-corpo" }],
   };
 
   static PARTS = {
@@ -112,7 +112,6 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       pois: investigacao ? await this.#contextoPois(investigacao, ehGM) : [],
       desafios: investigacao ? this.#contextoDesafios(investigacao, ehGM) : [],
       ordem: this.#contextoOrdem(investigacao, ehGM),
-      npcs: this.#contextoNpcs(investigacao, ehGM),
       participantes: this.#contextoParticipantes(investigacao, ehGM),
       sobrecarga: {
         ...sobrecarga,
@@ -131,7 +130,10 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
   #linhaParticipante(ator, investigacao) {
     const oculto = (investigacao?.system.participantesOcultos ?? []).includes(ator.uuid);
     const jaAgiu = (investigacao?.system.jaAgiram ?? []).includes(ator.uuid);
-    return { id: ator.id, uuid: ator.uuid, nome: ator.name, img: ator.img, tipo: ator.type, jaAgiu, oculto };
+    return {
+      id: ator.id, uuid: ator.uuid, nome: ator.name, img: ator.img, tipo: ator.type,
+      ehNpc: ator.type === "npc", jaAgiu, oculto,
+    };
   }
 
   /** Roster da investigação (spec §5.1) — não depende de token em Scene nenhuma. */
@@ -168,11 +170,20 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
           chave,
           rotulo: rotuloDePericia(chave),
           infos: poi.system.informacoes
-            .filter((info) => info.pericia === chave && (ehGM || !info.oculta))
+            // O jogador lê o que o mestre abriu e o que o personagem DELE
+            // descobriu — nada mais. Antes bastava não ser rascunho pra linha
+            // aparecer pronta na tela, e aí não sobrava nada pra procurar
+            // (achado em uso real).
+            .filter((info) => info.pericia === chave
+              && (ehGM || info.aberta || this.#jaDescobriu(uuid, info.id)))
             .map((info) => ({
               ...info,
               // O mestre vê a DT e quem já descobriu cada informação.
               dt: ehGM ? info.dt : null,
+              estado: info.oculta ? "rascunho" : (info.aberta ? "aberta" : "descobrivel"),
+              // Linha que o jogador só está vendo porque descobriu: marca no card
+              // dele também, senão não dá pra distinguir do que o mestre abriu.
+              descoberta: !ehGM && !info.aberta,
               reveladoPor: ehGM
                 ? personagensDaCenaAtiva()
                   .filter((a) => a.system.estado.infosReveladas.has(chaveInfo(uuid, info.id)))
@@ -208,35 +219,63 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       }));
   }
 
+  /** O personagem desta visão já descobriu esta linha? */
+  #jaDescobriu(poiUuid, infoId) {
+    return Boolean(this.atorDaVisao?.system.estado.infosReveladas.has(chaveInfo(poiUuid, infoId)));
+  }
+
   /**
-   * Ordem das rodadas, por grupo: a gravada em `ordemParticipantes` (uma lista só,
-   * misturando os dois tipos — cada leitura filtra o próprio), saneada contra o
-   * roster atual — quem saiu some, quem entrou aparece no fim. Personagem e NPC
-   * reordenam cada um dentro do próprio grupo; NPCs sempre rendem depois, agindo
-   * por último (spec §5.2) — só a ordem deles entre si muda com as setinhas.
+   * Ordem das rodadas: a gravada em `ordemParticipantes`, saneada contra o roster
+   * atual — quem saiu some, quem entrou aparece no fim.
+   *
+   * Uma lista só, personagens e NPCs misturados. Separar por tipo (NPCs sempre
+   * depois, spec §5.2) deixava a linha do NPC imóvel na prática — com um NPC só,
+   * as duas setas dele nasciam desabilitadas e ele não saía do lugar (achado em
+   * uso real: "os NPCs estão inativos, não é possível mover na ordem"). Quem age
+   * quando é decisão de mesa; o sistema guarda a ordem que a mesa montou.
    */
-  #contextoOrdemPorTipo(investigacao, ehGM, tipo) {
-    const doGrupo = tipo === "npc" ? npcsDaCenaAtiva() : personagensDaCenaAtiva();
-    const ids = new Set(doGrupo.map((a) => a.id));
+  #contextoOrdem(investigacao, ehGM) {
+    const roster = [...personagensDaCenaAtiva(), ...npcsDaCenaAtiva()];
+    const ids = new Set(roster.map((a) => a.id));
     const gravada = (investigacao?.system.ordemParticipantes ?? [])
       .map((uuid) => fromUuidSync(uuid)?.id).filter((id) => id && ids.has(id));
-    const final = [...gravada, ...doGrupo.map((a) => a.id).filter((id) => !gravada.includes(id))];
+    const final = [...gravada, ...roster.map((a) => a.id).filter((id) => !gravada.includes(id))];
     const ocultos = investigacao?.system.participantesOcultos ?? [];
     return final.map((id) => game.actors.get(id)).filter(Boolean)
       .filter((a) => ehGM || !ocultos.includes(a.uuid))
       .map((a) => this.#linhaParticipante(a, investigacao));
   }
 
-  #contextoOrdem(investigacao, ehGM) {
-    return this.#contextoOrdemPorTipo(investigacao, ehGM, "personagem");
+  /**
+   * `dragDrop` em `DEFAULT_OPTIONS` é opção do ApplicationV1 — o ApplicationV2
+   * ignora, e o painel ficava com `draggable="true"` no HTML sem nenhum handler
+   * ligado: arrastar não reordenava nada (achado em uso real). O caminho do V2 é
+   * este, o mesmo das fichas do core: uma instância de DragDrop criada aqui e
+   * religada a cada render.
+   */
+  get _dragDrop() {
+    return this.#dragDrop ??= new foundry.applications.ux.DragDrop.implementation({
+      dragSelector: "[data-ator-ordem]",
+      dropSelector: ".op2-painel-corpo",
+      // Reordenar e vincular POI/desafio/participante são atos de mestre — e
+      // gravam na investigação, que o jogador não tem permissão de atualizar.
+      permissions: {
+        dragstart: () => game.user.isGM,
+        drop: () => game.user.isGM,
+      },
+      callbacks: {
+        dragstart: this._onDragStart.bind(this),
+        drop: this._onDrop.bind(this),
+      },
+    });
   }
 
-  #contextoNpcs(investigacao, ehGM) {
-    return this.#contextoOrdemPorTipo(investigacao, ehGM, "npc");
-  }
+  /** @type {DragDrop|null} */
+  #dragDrop = null;
 
   _onRender(contexto, opcoes) {
     super._onRender(contexto, opcoes);
+    this._dragDrop.bind(this.element);
 
     // `data-action` liga no framework de ações do ApplicationV2, que reage ao
     // próprio clique de abrir o <select> — o dropdown nativo se fecha sozinho no
@@ -301,6 +340,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     }
   }
 
+  /** Solta a linha arrastada na posição do alvo, na lista única da rodada. */
   async #reordenar(atorUuid, evento) {
     if (!game.user.isGM) return;
     const investigacao = investigacaoAtiva();
@@ -308,10 +348,15 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
 
     // `ehGM: true` — arrastar já exige ser mestre, e a ordem gravada não pode perder
     // quem está oculto só porque a leitura de contexto filtraria a linha dele.
-    const ordem = this.#contextoOrdem(investigacao, true).map((a) => a.uuid).filter((uuid) => uuid !== atorUuid);
+    const ordem = this.#contextoOrdem(investigacao, true).map((a) => a.uuid)
+      .filter((uuid) => uuid !== atorUuid);
+
     const alvo = evento.target.closest("[data-ator-ordem]");
-    if (alvo && alvo.dataset.atorOrdem !== atorUuid) {
-      const indice = ordem.indexOf(alvo.dataset.atorOrdem);
+    const alvoUuid = alvo?.dataset.atorOrdem;
+    if (alvoUuid === atorUuid) return;
+
+    if (alvoUuid) {
+      const indice = ordem.indexOf(alvoUuid);
       const { top, height } = alvo.getBoundingClientRect();
       const depois = evento.clientY > top + height / 2;
       ordem.splice(indice + (depois ? 1 : 0), 0, atorUuid);
@@ -434,27 +479,37 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   /**
-   * Rascunho de uma linha do quadro de informações — direto do painel, sem abrir
-   * a ficha do POI (achado em uso real: mestre preparando tudo numa tela só).
+   * Visibilidade de uma linha do quadro — direto do painel, sem abrir a ficha do
+   * POI (achado em uso real: mestre preparando tudo numa tela só). Um clique gira
+   * rascunho → descobrível → aberta.
    */
-  static async #alternarInfoOculta(_evento, alvo) {
+  static async #cicloVisibilidadeInfo(_evento, alvo) {
     if (!game.user.isGM) return;
-    await alternarInfoOculta(alvo.dataset.poiUuid, alvo.dataset.infoId);
+    await cicloVisibilidadeInfo(alvo.dataset.poiUuid, alvo.dataset.infoId);
+  }
+
+  /**
+   * Devolve uma linha do quadro ao estado de não-descoberta, para todo mundo.
+   * Antes disso, o único jeito de desfazer era encerrar a cena, que zera tudo
+   * (achado em uso real).
+   */
+  static async #limparRevelacao(_evento, alvo) {
+    if (!game.user.isGM) return;
+    const nomes = await limparRevelacao(alvo.dataset.poiUuid, alvo.dataset.infoId);
+    if (nomes.length) {
+      ui.notifications.info(game.i18n.format("OP2.Painel.RevelacaoLimpa", { nomes: nomes.join(", ") }));
+    }
+    this.render();
   }
 
   static async #moverParticipante(_evento, alvo) {
     if (!game.user.isGM) return;
     const investigacao = investigacaoAtiva();
     if (!investigacao) return;
-    // Cada grupo reordena só entre si — personagem não troca de lugar com NPC
-    // (NPCs continuam agindo por último, spec §5.2). A ordem exibida de cada grupo
-    // (roster + gravada, quem entrou de novo no fim), não o campo cru: esse começa
-    // vazio até o primeiro drag-and-drop.
-    const tipo = alvo.dataset.tipo;
-    const outroTipo = tipo === "npc" ? "personagem" : "npc";
-    const ordemDoGrupo = this.#contextoOrdemPorTipo(investigacao, true, tipo).map((a) => a.uuid);
-    const ordemDoOutroGrupo = this.#contextoOrdemPorTipo(investigacao, true, outroTipo).map((a) => a.uuid);
-    await moverParticipante(investigacao, ordemDoGrupo, ordemDoOutroGrupo, alvo.dataset.atorUuid, Number(alvo.dataset.direcao));
+    // A ordem EXIBIDA (roster + gravada, com quem entrou de novo no fim), não o
+    // campo cru: esse começa vazio até o primeiro movimento.
+    const ordem = this.#contextoOrdem(investigacao, true).map((a) => a.uuid);
+    await moverParticipante(investigacao, ordem, alvo.dataset.atorUuid, Number(alvo.dataset.direcao));
   }
 }
 

@@ -34,7 +34,14 @@
     </div>
   {{/if}}
 
-  {{#if mostrarAtributo}}
+  {{#if nota}}
+    <p class="op2-ajuda">{{nota}}</p>
+  {{else if mostrarAtributo}}
     <p class="op2-ajuda">{{localize "OP2.Dialog.Pericia.TrocaAtributo"}}</p>
+  {{else}}
+    {{!-- Pergunta recorrente em uso real: "por que não rola ao clicar?". Porque
+          Investigar não rola — compara o tamanho do dado contra a DT (spec §6.3).
+          Dizer isso na própria tela evita a dúvida. --}}
+    <p class="op2-ajuda">{{localize "OP2.Dialog.Pericia.SemRolagem"}}</p>
   {{/if}}
 </div>

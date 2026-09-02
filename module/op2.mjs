@@ -34,17 +34,22 @@ import {
   alternarJaAgiu, alternarOculto, moverParticipante,
 } from "./cena/investigacao-ativa.mjs";
 import {
-  investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar, alternarInfoOculta,
+  examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo,
+  limparRevelacao,
 } from "./cena/acoes-investigacao.mjs";
 import {
   arrombar, alcancar, sustentar, pararDeSustentar, gerarSenhaDestrancar, tentarDestrancar,
-  hackTecnico, hackSocial, marcarHackSocialResolvido,
+  hackTecnico, hackSocial, marcarHackSocialResolvido, desafioGenerico,
 } from "./cena/acoes-desafio.mjs";
 import { usarFerramenta, usarLaser, usarRadio } from "./cena/acoes-ferramenta.mjs";
 import { abrirDestrancar } from "./cena/destrancar-app.mjs";
 import { abrirLaboratorio } from "./cena/laboratorio-app.mjs";
 import { abrirRadio } from "./cena/radio-app.mjs";
 import { abrirAcoesInvestigacao } from "./cena/acoes-app.mjs";
+import { rolarTesteDeQueda, zerarContadoresDeQueda } from "./cena/ferimentos.mjs";
+import { ajudar } from "./cena/acoes-ajuda.mjs";
+import { atacar, defender } from "./cena/acoes-combate.mjs";
+import { usarHabilidadeOuItem, concederPasso } from "./cena/acoes-recurso.mjs";
 
 Hooks.once("init", () => {
   console.log(`${SYSTEM_ID} | inicializando`);
@@ -86,12 +91,15 @@ Hooks.once("init", () => {
 
   game.op2 = {
     rolarTeste, encerrarCena, stepDie, faces, OP2Roll,
-    investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar, alternarInfoOculta,
+    examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo,
+  limparRevelacao,
     painelInvestigacao: abrirPainelInvestigacao, acoesInvestigacao: abrirAcoesInvestigacao, avancarRodada,
     arrombar, alcancar, sustentar, pararDeSustentar,
-    hackTecnico, hackSocial, marcarHackSocialResolvido,
+    hackTecnico, hackSocial, marcarHackSocialResolvido, desafioGenerico,
     gerarSenhaDestrancar, tentarDestrancar, abrirDestrancar,
     usarFerramenta, usarLaser, abrirLaboratorio, usarRadio, abrirRadio,
+    rolarTesteDeQueda, zerarContadoresDeQueda, ajudar, atacar, defender,
+    usarHabilidadeOuItem, concederPasso,
     investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,
     adicionarParticipante, removerParticipante, vincularPoi, removerPoi, vincularDesafio, removerDesafio,
     alternarJaAgiu, alternarOculto, moverParticipante,

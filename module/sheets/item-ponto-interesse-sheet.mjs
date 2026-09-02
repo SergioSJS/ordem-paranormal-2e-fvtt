@@ -8,6 +8,7 @@
 import { PERICIAS, APTIDOES_PADRAO, FERRAMENTAS_POI } from "../config.mjs";
 import { OP2ItemSheet } from "./item-sheet.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
+import { cicloVisibilidadeInfo } from "../cena/acoes-investigacao.mjs";
 
 export class PontoInteresseSheet extends OP2ItemSheet {
   static DEFAULT_OPTIONS = {
@@ -16,6 +17,7 @@ export class PontoInteresseSheet extends OP2ItemSheet {
     actions: {
       adicionarInformacao: PontoInteresseSheet.#adicionarInformacao,
       removerInformacao: PontoInteresseSheet.#removerInformacao,
+      cicloVisibilidadeInfo: PontoInteresseSheet.#cicloVisibilidadeInfo,
       removerFerramenta: PontoInteresseSheet.#removerFerramenta,
       adicionarConjuntoRadio: PontoInteresseSheet.#adicionarConjuntoRadio,
       removerConjuntoRadio: PontoInteresseSheet.#removerConjuntoRadio,
@@ -54,7 +56,12 @@ export class PontoInteresseSheet extends OP2ItemSheet {
       ehGM,
       // A aba do mestre some para jogadores — nem o rótulo pode vazar.
       tabs: ehGM ? contexto.tabs : contexto.tabs.filter((t) => t.id !== "mestre"),
-      informacoes: this.item.system.informacoes.map((info, indice) => ({ ...info, indice })),
+      informacoes: this.item.system.informacoes.map((info, indice) => ({
+        ...info,
+        indice,
+        // Três estados por linha, um botão só (o mesmo do painel).
+        estado: info.oculta ? "rascunho" : (info.aberta ? "aberta" : "descobrivel"),
+      })),
       descricaoBasicaEnriquecida: await enriquecer(this.item.system.descricaoBasica),
       descricaoContextualEnriquecida: await enriquecer(this.item.system.descricaoContextual),
       // Perícias válidas no quadro: as 19 comuns + cada campo de Aptidão.
@@ -111,6 +118,11 @@ export class PontoInteresseSheet extends OP2ItemSheet {
       .filter((info) => info.id !== alvo.dataset.infoId)
       .map((i) => ({ ...i }));
     await this.item.update({ "system.informacoes": informacoes });
+  }
+
+  /** Rascunho → descobrível → aberta → rascunho. Mesma regra do painel. */
+  static async #cicloVisibilidadeInfo(_evento, alvo) {
+    await cicloVisibilidadeInfo(this.item.uuid, alvo.dataset.infoId);
   }
 
   static async #removerFerramenta(_evento, alvo) {

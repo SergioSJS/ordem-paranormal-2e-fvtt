@@ -9,6 +9,9 @@ import { rolarFalhaCritica, aplicarFalhaCritica, aplicarDano } from "../dice/fal
 import { testarCompartilhamento, registrarTravaDeCena } from "../cena/acoes-investigacao.mjs";
 import { rolarSobrecarga } from "../cena/rodada.mjs";
 import { marcarHackSocialResolvido } from "../cena/acoes-desafio.mjs";
+import { rolarTesteDeQueda } from "../cena/ferimentos.mjs";
+import { defender } from "../cena/acoes-combate.mjs";
+import { concederPasso } from "../cena/acoes-recurso.mjs";
 
 /** @type {Record<string, (ator: Actor, dataset: DOMStringMap) => Promise<void>>} */
 const ACOES = {
@@ -32,6 +35,56 @@ const ACOES = {
     ui.notifications.info(game.i18n.format("OP2.Investigacao.PDPago", {
       ator: ator.name, custo: CUSTO_PD_EXAMINAR,
     }));
+  },
+  // Teste oposto de Luta (spec §8.1): o card do ataque espera a resposta do
+  // defensor — revidar, ou só se defender com Acrobacia +d6.
+  async "defender-ataque"(ator, dataset) {
+    if (!game.user.isGM && !ator.isOwner) {
+      ui.notifications.warn(game.i18n.localize("OP2.Aviso.SemPermissao"));
+      return;
+    }
+    await defender(ator, {
+      atacanteId: dataset.atacanteId,
+      totalAtaque: Number(dataset.total),
+      raAtaque: Number(dataset.ra),
+      rbAtaque: Number(dataset.rb),
+      armadoAtacante: dataset.armado === "true",
+      esquiva: dataset.esquiva === "true",
+    });
+  },
+  // O dano do combate já sabe em quem cai — não usa a seleção de tokens.
+  async "aplicar-dano-alvo"(ator, dataset) {
+    await aplicarDano(ator, Number(dataset.quantidade), dataset.recurso ?? "pv");
+    ui.notifications.info(game.i18n.format("OP2.Chat.DanoAplicado", {
+      quantidade: dataset.quantidade, alvos: ator.name,
+    }));
+  },
+  // Habilidade ou item na investigação (spec §6.6): o efeito é decisão do mestre,
+  // e o padrão sugerido pelo texto é um aumento de passo.
+  async "conceder-passo"(ator, dataset) {
+    if (!game.user.isGM) return;
+    await concederPasso(ator, { passos: Number(dataset.passos), origem: dataset.origem });
+  },
+  // Ímpeto: cada falha preenche um espaço (ficha do Ato I).
+  async "preencher-impeto"(ator) {
+    const { espacos, preenchidos } = ator.system.impeto ?? {};
+    if (!espacos || preenchidos >= espacos) {
+      ui.notifications.info(game.i18n.localize("OP2.Impeto.Cheia"));
+      return;
+    }
+    await ator.update({ "system.impeto.preenchidos": preenchidos + 1 });
+    ui.notifications.info(game.i18n.format("OP2.Impeto.Preenchido", {
+      ator: ator.name, preenchidos: preenchidos + 1, espacos,
+    }));
+  },
+  // Zerou PV ou PD: Vigor ou Disciplina contra a DT que escala (spec §8.2/§8.3).
+  // O sistema pede o teste; matar o personagem continua sendo decisão de mesa.
+  async "rolar-teste-queda"(ator, dataset) {
+    if (!game.user.isGM && !ator.isOwner) {
+      ui.notifications.warn(game.i18n.localize("OP2.Aviso.SemPermissao"));
+      return;
+    }
+    await rolarTesteDeQueda(ator, dataset.tipo);
   },
   // O teste do aliado no Compartilhar é ação livre (spec §6.5).
   async "testar-compartilhar"(ator, dataset) {

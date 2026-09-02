@@ -8,13 +8,59 @@
     <div class="op2-card__texto">{{{descricaoBasica}}}</div>
   {{/if}}
 
+  {{!-- Os dados vivem no card da própria ação: Examinar rola sem DT, então o card
+        genérico de teste não tinha desfecho para mostrar. --}}
+  {{#if componentes}}
+    <div class="op2-card__dados">
+      {{#each componentes}}
+        <span class="op2-card__dado{{#unless contado}} descartado{{/unless}}"
+          data-tooltip="{{componente.rotulo}}">{{op2DadoResultado this}}</span>
+      {{/each}}
+      <span class="op2-card__igual" aria-hidden="true">=</span>
+      <span class="op2-card__total">{{total}}</span>
+    </div>
+  {{/if}}
+
+  {{#if desfechoTeste}}
+    {{#if critico}}
+      <p class="op2-card__desfecho op2-card__desfecho--critico">
+        <i class="fa-solid fa-star" aria-hidden="true"></i>
+        {{localize "OP2.Critico"}} — {{localize "OP2.Investigacao.CriticoExaminar"}}
+      </p>
+    {{else if (op2Eq desfechoTeste "sucesso")}}
+      <p class="op2-card__desfecho op2-card__desfecho--sucesso">
+        <i class="fa-solid fa-check" aria-hidden="true"></i>
+        {{localize "OP2.Sucesso"}} — {{localize "OP2.Investigacao.ExaminarAchou" quantidade=quantidadeTeste}}
+      </p>
+    {{else}}
+      {{!-- O teste não passou, mas o tamanho do dado já tinha entregue algo: não é
+            aposta perdida (não custa PD), e o card precisa dizer isso. --}}
+      <p class="op2-card__desfecho op2-card__desfecho--falha">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        {{localize "OP2.Falha"}} — {{localize "OP2.Investigacao.ExaminarSoGratis" quantidade=quantidadeGratis}}
+      </p>
+    {{/if}}
+  {{/if}}
+
   {{#if temInfos}}
     <ol class="op2-card__infos">
       {{#each infos}}
-        <li><span class="op2-card__info-pericia">{{rotuloPericia}}:</span> {{{texto}}}</li>
+        {{!-- "sem rolar" = veio pelo tamanho do dado (spec §6.3); o resto veio
+              do teste. Marcar a diferença explica por que algumas linhas caem sem
+              o dado ter passado pela DT. --}}
+        <li>
+          <span class="op2-card__info-pericia">{{rotuloPericia}}:</span> {{{texto}}}
+          {{#if semRolar}}<span class="op2-card__info-marca">{{localize "OP2.Investigacao.SemRolar"}}</span>{{/if}}
+        </li>
       {{/each}}
     </ol>
   {{else}}
-    <p class="op2-ajuda">{{localize "OP2.Investigacao.NadaNovo"}}</p>
+    {{!-- Dizer o porquê: sem isso o jogador não sabe se insiste com outro dado,
+          troca de perícia ou desiste do ponto (achado em uso real). --}}
+    <p class="op2-ajuda">{{#if motivo}}{{motivo}}{{else}}{{localize "OP2.Investigacao.NadaNovo"}}{{/if}}</p>
+    {{#if dtMinima}}
+      <p class="op2-ajuda" data-op2-gm>{{localize "OP2.Investigacao.DtQueFaltava" dt=dtMinima}}</p>
+    {{/if}}
   {{/if}}
+
 </div>

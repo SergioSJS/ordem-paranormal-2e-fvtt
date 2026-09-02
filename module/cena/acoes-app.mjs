@@ -10,16 +10,18 @@
  * chamava — só o dono da ação mudou de lugar.
  */
 import { FERRAMENTAS_POI } from "../config.mjs";
-import { escolherPericia } from "../dice/pericia-dialog.mjs";
 import { investigacaoAtiva, investigacoesVisiveis, definirInvestigacaoAtiva } from "./investigacao-ativa.mjs";
 import { temFerramenta } from "./ferramentas.mjs";
 import {
-  dialogoInvestigar, examinar, interagir, recapitular, compartilhar,
+  dialogoExaminar, examinar, interagir, recapitular, compartilhar,
 } from "./acoes-investigacao.mjs";
 import {
-  arrombar, alcancar, sustentar, pararDeSustentar, hackTecnico, hackSocial,
+  arrombar, alcancar, sustentar, pararDeSustentar, hackTecnico, hackSocial, desafioGenerico,
 } from "./acoes-desafio.mjs";
 import { usarFerramenta, usarLaser, usarRadio } from "./acoes-ferramenta.mjs";
+import { ajudar } from "./acoes-ajuda.mjs";
+import { atacar } from "./acoes-combate.mjs";
+import { usarHabilidadeOuItem } from "./acoes-recurso.mjs";
 import { abrirDestrancar } from "./destrancar-app.mjs";
 import { abrirLaboratorio } from "./laboratorio-app.mjs";
 import { abrirRadio } from "./radio-app.mjs";
@@ -34,13 +36,15 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     // de investigação.
     position: { width: 620, height: 680 },
     actions: {
+      ajudar: AcoesInvestigacaoApp.#ajudar,
+      atacar: AcoesInvestigacaoApp.#atacar,
+      usarRecurso: AcoesInvestigacaoApp.#usarRecurso,
       recapitular: AcoesInvestigacaoApp.#recapitular,
       compartilhar: AcoesInvestigacaoApp.#compartilhar,
       alcancar: AcoesInvestigacaoApp.#alcancar,
       sustentar: AcoesInvestigacaoApp.#sustentar,
       pararDeSustentar: AcoesInvestigacaoApp.#pararDeSustentar,
       usarLaser: AcoesInvestigacaoApp.#usarLaser,
-      investigar: AcoesInvestigacaoApp.#investigar,
       examinar: AcoesInvestigacaoApp.#examinar,
       interagir: AcoesInvestigacaoApp.#interagir,
       usarFerramenta: AcoesInvestigacaoApp.#usarFerramenta,
@@ -50,6 +54,7 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       destrancar: AcoesInvestigacaoApp.#destrancar,
       hackTecnico: AcoesInvestigacaoApp.#hackTecnico,
       hackSocial: AcoesInvestigacaoApp.#hackSocial,
+      desafioGenerico: AcoesInvestigacaoApp.#desafioGenerico,
     },
   };
 
@@ -57,10 +62,26 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     corpo: { template: "systems/ordem-paranormal-2e/templates/actor/acoes-investigacao.hbs" },
   };
 
+  /** Hook de `updateActor`, para soltar no fechamento. */
+  #hookAtor = null;
+
   /** @param {Actor} ator */
   constructor(ator, opcoes = {}) {
     super({ id: `op2-acoes-${ator.id}`, ...opcoes });
     this.ator = ator;
+
+    // Investigar grava `estado.poisInvestigados` no personagem, e é isso que
+    // libera Examinar/Interagir naquele ponto. Sem reagir ao update do ator os
+    // botões ficavam travados até fechar e reabrir a janela (achado em uso real).
+    this.#hookAtor = Hooks.on("updateActor", (documento) => {
+      if (documento.id === this.ator.id) this.render();
+    });
+  }
+
+  _onClose(opcoes) {
+    super._onClose(opcoes);
+    if (this.#hookAtor) Hooks.off("updateActor", this.#hookAtor);
+    this.#hookAtor = null;
   }
 
   get title() {
@@ -120,6 +141,9 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
           destrancado: desafio.system.destrancado,
           hackTecnicoResolvido: desafio.system.hackTecnico.resolvido,
           hackSocialResolvido: desafio.system.hackSocial.resolvido,
+          genericoResolvido: desafio.system.generico.resolvido,
+          genericoRotulo: desafio.system.generico.rotulo?.trim()
+            || game.i18n.localize("OP2.Desafio.Generico"),
           abordagens,
           temAlgumaAbordagem: Object.values(abordagens).some(Boolean),
         };
@@ -144,6 +168,9 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
 
   /* -- ações ---------------------------------------------------------------- */
 
+  static async #ajudar() { await ajudar(this.ator); }
+  static async #atacar() { await atacar(this.ator); }
+  static async #usarRecurso() { await usarHabilidadeOuItem(this.ator); }
   static async #recapitular() { await recapitular(this.ator); }
   static async #compartilhar() { await compartilhar(this.ator); }
   static async #alcancar(_evento, alvo) { await alcancar(this.ator, { modo: alvo.dataset.modo }); }
@@ -151,21 +178,10 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
   static async #pararDeSustentar() { await pararDeSustentar(this.ator); this.render(); }
   static async #usarLaser() { await usarLaser(this.ator); }
 
-  static async #investigar(_evento, alvo) { await dialogoInvestigar(this.ator, alvo.dataset.poiUuid); }
-
-  /**
-   * Examinar rola de verdade (spec §6.3.1), então a escolha da perícia mostra o
-   * par perícia+atributo — e a troca do atributo em si acontece no diálogo de
-   * teste que abre logo depois, que é onde ela sempre morou.
-   */
+  /** Sub-ação de Investigar: mesma lista do quadro, e aqui rola (spec §6.3.1). */
   static async #examinar(_evento, alvo) {
-    const chave = alvo.dataset.pericia ?? await escolherPericia(this.ator, {
-      titulo: game.i18n.localize("OP2.Investigacao.Examinar"),
-      ajuda: game.i18n.localize("OP2.Investigacao.ExaminarEscolhaAjuda"),
-      mostrarAtributo: true,
-    });
-    if (!chave) return;
-    await examinar(this.ator, alvo.dataset.poiUuid, chave);
+    if (alvo.dataset.pericia) return void await examinar(this.ator, alvo.dataset.poiUuid, alvo.dataset.pericia);
+    await dialogoExaminar(this.ator, alvo.dataset.poiUuid);
   }
   static async #interagir(_evento, alvo) { await interagir(this.ator, alvo.dataset.poiUuid); }
 
@@ -198,6 +214,7 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
   static async #destrancar(_evento, alvo) { abrirDestrancar(alvo.dataset.desafioUuid); }
   static async #hackTecnico(_evento, alvo) { await hackTecnico(this.ator, alvo.dataset.desafioUuid); this.render(); }
   static async #hackSocial(_evento, alvo) { await hackSocial(this.ator, alvo.dataset.desafioUuid); this.render(); }
+  static async #desafioGenerico(_evento, alvo) { await desafioGenerico(this.ator, alvo.dataset.desafioUuid); this.render(); }
 }
 
 export function abrirAcoesInvestigacao(ator) {

@@ -12,6 +12,16 @@ export function chaveInfo(poiUuid, infoId) {
   return `${poiUuid}:${infoId}`;
 }
 
+/**
+ * Uma linha só é achável quando não é rascunho do mestre (`oculta`) nem já foi
+ * entregue de bandeja (`aberta`). As duas somem das buscas pelo mesmo motivo:
+ * não há nada a descobrir ali — uma porque não existe pro jogador, a outra
+ * porque ele já leu.
+ */
+export function descobrivel(info) {
+  return !info.oculta && !info.aberta;
+}
+
 /** Perícias presentes no quadro, sem repetição, na ordem em que aparecem. */
 export function periciasDoQuadro(informacoes) {
   return [...new Set(informacoes.map((info) => info.pericia))];
@@ -29,10 +39,31 @@ export function periciasDoQuadro(informacoes) {
  */
 export function resolverInvestigacao(informacoes, chavePericia, valorPericia, idsJaRevelados = new Set()) {
   return informacoes
-    .filter((info) => !info.oculta && info.pericia === chavePericia
+    .filter((info) => descobrivel(info) && info.pericia === chavePericia
       && info.dt <= valorPericia && !idsJaRevelados.has(info.id))
     .sort((a, b) => a.dt - b.dt)
     .map((info) => info.id);
+}
+
+/**
+ * Por que Investigar não trouxe nada? "Nenhuma informação nova" sozinho não diz
+ * se a perícia não serve ali, se o dado é pequeno demais ou se já se descobriu
+ * tudo — e sem isso o jogador fica sem saber o que fazer (achado em uso real).
+ *
+ * Rascunho do mestre (`oculta`) conta como inexistente: o jogador não pode nem
+ * suspeitar que existe algo ali esperando.
+ *
+ * @returns {{motivo: "sem-pericia"|"dado-pequeno"|"ja-revelado", dtMinima: number|null}}
+ *   `dtMinima` só existe em "dado-pequeno" — é o que faltaria alcançar.
+ */
+export function motivoSemRevelacao(informacoes, chavePericia, valorPericia, idsJaRevelados = new Set()) {
+  const daPericia = informacoes.filter((info) => descobrivel(info) && info.pericia === chavePericia);
+  if (!daPericia.length) return { motivo: "sem-pericia", dtMinima: null };
+
+  const naoRevelados = daPericia.filter((info) => !idsJaRevelados.has(info.id));
+  if (!naoRevelados.length) return { motivo: "ja-revelado", dtMinima: null };
+
+  return { motivo: "dado-pequeno", dtMinima: Math.min(...naoRevelados.map((info) => info.dt)) };
 }
 
 /**
@@ -51,7 +82,7 @@ export function resolverInvestigacao(informacoes, chavePericia, valorPericia, id
  */
 export function resolverExaminar(informacoes, chavePericia, total, idsJaRevelados = new Set(), { ignorarDT = false } = {}) {
   const revelaveis = informacoes
-    .filter((info) => !info.oculta && info.pericia === chavePericia
+    .filter((info) => descobrivel(info) && info.pericia === chavePericia
       && !idsJaRevelados.has(info.id)
       && (ignorarDT || info.dt <= total))
     .sort((a, b) => a.dt - b.dt)
