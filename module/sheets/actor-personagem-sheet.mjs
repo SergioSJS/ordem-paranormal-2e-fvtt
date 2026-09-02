@@ -84,7 +84,21 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       perfis: PERFIS.map((chave) => ({ chave, rotulo: game.i18n.localize(`OP2.Perfil.${chave}`) })),
       // Opções do seletor de dado, com o ícone já renderizado.
       escada: ESCADA.map((dado) => ({ dado, icone: iconeDado(dado) })),
-      habilidades: this.actor.items.filter((i) => i.type === "habilidade"),
+      // A barra de Ímpeto é a própria habilidade: o estado vem do item, e some com ele.
+      habilidades: await Promise.all(this.actor.items
+        .filter((i) => i.type === "habilidade")
+        .map(async (item) => ({
+        item,
+        // A descrição é a regra da habilidade: sem ela na ficha, o jogador precisa
+        // abrir o item para lembrar o que ela faz (achado em uso real).
+        descricao: await enriquecer(item.system.descricao, item),
+        barra: item.system.temBarraImpeto ? {
+          espacos: Array.from({ length: item.system.impeto.espacos }, (_, i) => ({
+            n: i + 1, cheio: i < item.system.impeto.preenchidos,
+          })),
+          cheia: item.system.impetoCheio,
+        } : null,
+      }))),
       equipamentos: this.actor.items.filter((i) => i.type === "equipamento"),
       ferramentas: this.actor.items.filter((i) => i.type === "ferramenta"),
       temReducao: Object.values(sistema.estado.reducoesTemporarias).some((n) => n > 0),
@@ -100,18 +114,6 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         })),
       // Barra de ímpeto: mesma leitura dos traços de recurso — um espaço por
       // clique, preenchidos primeiro.
-      impeto: {
-        tem: sistema.impeto.espacos > 0,
-        espacos: Array.from({ length: sistema.impeto.espacos }, (_, i) => ({
-          n: i + 1, cheio: i < sistema.impeto.preenchidos,
-        })),
-        podeGastarPasso: sistema.impeto.cheia,
-        // A barra vive dentro da habilidade que a declara. Personagem importado antes
-        // do campo existir — ou barra criada na mão, sem habilidade — não tem quem a
-        // hospede: aí ela aparece no topo da aba, para nunca ficar invisível.
-        semHospedeiro: sistema.impeto.espacos > 0
-          && !this.actor.items.some((i) => i.type === "habilidade" && i.system.barraImpeto),
-      },
       biografia: await enriquecer(sistema.biografia, this.actor),
     };
   }
@@ -318,25 +320,27 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   /** Clicar no traço N define o recurso em N; clicar no atual zera de N para N-1. */
   /**
-   * Barra de ímpeto: clicar num espaço preenche até ali; clicar no último
-   * preenchido apaga. Mesma interação dos traços de PV/PD, que a mesa já conhece.
+   * Barra de Ímpeto: clicar num espaço preenche até ali; clicar no último preenchido
+   * apaga. Mesma interação dos traços de PV/PD, que a mesa já conhece. O estado é do
+   * item — apagar a habilidade leva a barra junto.
    */
   static async #definirImpeto(_evento, alvo) {
-    const atual = this.actor.system.impeto.preenchidos;
+    const item = this.actor.items.get(alvo.dataset.itemId);
+    if (!item) return;
+    const atual = item.system.impeto.preenchidos;
     const valor = Number(alvo.dataset.valor);
     const novo = valor === atual ? valor - 1 : valor;
-    await this.actor.update({ "system.impeto.preenchidos": Math.max(0, novo) });
+    await item.update({ "system.impeto.preenchidos": Math.max(0, novo) });
   }
 
   /**
-   * Apagar a barra cheia sobe um atributo em um passo até o fim da cena. O aumento
-   * usa o mesmo campo das reduções temporárias, com sinal invertido: a ficha já
-   * resolve `stepDie(die, -reducao)` em `prepareDerivedData`, e encerrar a cena já
-   * zera tudo — não precisa de um segundo caminho para desfazer.
+   * Apagar a barra cheia sobe um atributo em um passo até o fim da cena. O aumento vai
+   * para `estado.aumentosTemporarios`, que o dado efetivo soma e o encerramento de
+   * cena zera.
    */
-  static async #gastarImpetoAtributo() {
-    const { impeto } = this.actor.system;
-    if (!impeto.cheia) return;
+  static async #gastarImpetoAtributo(_evento, alvo) {
+    const item = this.actor.items.get(alvo.dataset.itemId);
+    if (!item?.system.impetoCheio) return;
 
     const opcoes = Object.keys(ATRIBUTOS)
       .map((chave) => `<option value="${chave}">${game.i18n.localize(`OP2.Atributo.${chave}`)}</option>`)
@@ -354,10 +358,8 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (!escolhido) return;
 
     const atual = this.actor.system.estado.aumentosTemporarios[escolhido] ?? 0;
-    await this.actor.update({
-      "system.impeto.preenchidos": 0,
-      [`system.estado.aumentosTemporarios.${escolhido}`]: atual + 1,
-    });
+    await item.update({ "system.impeto.preenchidos": 0 });
+    await this.actor.update({ [`system.estado.aumentosTemporarios.${escolhido}`]: atual + 1 });
     ui.notifications.info(game.i18n.format("OP2.Impeto.PassoAplicado", {
       atributo: game.i18n.localize(`OP2.Atributo.${escolhido}`),
     }));

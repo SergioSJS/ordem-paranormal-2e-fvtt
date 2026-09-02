@@ -7,7 +7,7 @@
     "origem": "perfil",
     "perfil": "executor",
     "custo": "",
-    "descricao": "<p>Você possui uma <strong>barra de ímpeto</strong> com três espaços. Sempre que <strong>falha</strong> em um <strong>teste</strong>, você preenche um espaço na barra.</p><p>Você pode apagar espaços preenchidos para:</p><ul><li>1 espaço: receber <strong>+d4</strong> em um teste.</li><li>3 espaços: aumentar um <strong>atributo</strong> em um <strong>passo</strong> até o fim da cena.</li></ul><p><em>A barra fica no cabeçalho da ficha: clique nos espaços para preencher e apagar.</em></p>",
+    "descricao": "<p>Você possui uma <strong>barra de ímpeto</strong> com três espaços. Sempre que <strong>falha</strong> em um <strong>teste</strong>, você preenche um espaço na barra.</p><p>Você pode apagar espaços preenchidos para:</p><ul><li>1 espaço: receber <strong>+d4</strong> em um teste.</li><li>3 espaços: aumentar um <strong>atributo</strong> em um <strong>passo</strong> até o fim da cena.</li></ul><p><em>A barra fica logo abaixo, no card desta habilidade: clique nos espaços para preencher e apagar.</em></p>",
     "efeito": {
       "tipo": "nenhum",
       "passos": 1,
@@ -16,7 +16,10 @@
       "permitirD20": false
     },
     "usoEmInvestigacao": "",
-    "barraImpeto": true
+    "impeto": {
+      "espacos": 3,
+      "preenchidos": 0
+    }
   },
   "effects": [],
   "folder": null,

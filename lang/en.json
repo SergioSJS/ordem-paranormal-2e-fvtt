@@ -142,7 +142,10 @@
         "nenhum": "None",
         "passo": "Step up",
         "dado-extra": "Extra die"
-      }
+      },
+      "CustoPD": "DP cost",
+      "ImpetoEspacos": "Momentum bar (slots)",
+      "ImpetoAjuda": "The bar shows on this ability's card in the sheet. Deleting the ability deletes the bar with it."
     },
     "Equipamento": {
       "Adicionar": "New item",

@@ -12,6 +12,7 @@ import { marcarHackSocialResolvido } from "../cena/acoes-desafio.mjs";
 import { rolarTesteDeQueda } from "../cena/ferimentos.mjs";
 import { defender } from "../cena/acoes-combate.mjs";
 import { concederPasso } from "../cena/acoes-recurso.mjs";
+import { preencherImpeto } from "../cena/impeto.mjs";
 
 /** @type {Record<string, (ator: Actor, dataset: DOMStringMap) => Promise<void>>} */
 const ACOES = {
@@ -67,14 +68,13 @@ const ACOES = {
   },
   // Ímpeto: cada falha preenche um espaço (ficha do Ato I).
   async "preencher-impeto"(ator) {
-    const { espacos, preenchidos } = ator.system.impeto ?? {};
-    if (!espacos || preenchidos >= espacos) {
+    const estado = await preencherImpeto(ator);
+    if (!estado) {
       ui.notifications.info(game.i18n.localize("OP2.Impeto.Cheia"));
       return;
     }
-    await ator.update({ "system.impeto.preenchidos": preenchidos + 1 });
     ui.notifications.info(game.i18n.format("OP2.Impeto.Preenchido", {
-      ator: ator.name, preenchidos: preenchidos + 1, espacos,
+      ator: ator.name, preenchidos: estado.preenchidos, espacos: estado.espacos,
     }));
   },
   // Zerou PV ou PD: Vigor ou Disciplina contra a DT que escala (spec §8.2/§8.3).

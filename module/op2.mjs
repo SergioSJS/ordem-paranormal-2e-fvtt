@@ -109,6 +109,7 @@ Hooks.once("init", () => {
 Hooks.once("ready", () => {
   precarregarTemplates();
   migrarInvestigacoesAtivas();
+  migrarImpetoParaHabilidade();
 });
 
 /**
@@ -129,6 +130,47 @@ async function migrarInvestigacoesAtivas() {
   await game.settings.set(SYSTEM_ID, "investigacoesAtivasUuids", todas.map((i) => i.uuid));
   console.log(`${SYSTEM_ID} | migrou ${todas.length} investigação(ões) pré-existente(s) para "em jogo"`);
 }
+
+/**
+ * Migração pontual: a barra de Ímpeto morava no personagem (`system.impeto`) e passou
+ * a morar na habilidade que a concede — a barra É a habilidade, e guardada no ator ela
+ * sobrevivia a apagar o item (achado em uso real).
+ *
+ * Fichas importadas antes da mudança ficariam sem barra nenhuma: o campo do ator saiu
+ * do schema e a habilidade ainda não tem o dela. Isto move o estado para a habilidade
+ * certa e limpa o campo antigo. Roda uma vez — depois não há mais `_source.system.impeto`
+ * para achar.
+ */
+async function migrarImpetoParaHabilidade() {
+  if (!game.user.isGM) return;
+
+  const nomeDaBarra = game.i18n.localize("OP2.Impeto.Titulo").toLowerCase();
+
+  for (const ator of game.actors) {
+    if (ator.type !== "personagem") continue;
+
+    const habilidades = ator.items.filter((i) => i.type === "habilidade");
+    if (!habilidades.length) continue;
+    // Já tem barra em alguma habilidade: nada a migrar.
+    if (habilidades.some((i) => i.system.temBarraImpeto)) continue;
+
+    // Mundos gravados antes da mudança ainda trazem o campo do ator no `_source`; nos
+    // que já foram limpos, sobra o nome da habilidade — que é o da ficha do Ato I.
+    const antigo = ator._source.system?.impeto;
+    const alvo = habilidades.find((i) => i._source.system?.barraImpeto)
+      ?? habilidades.find((i) => i.name.toLowerCase() === nomeDaBarra);
+    if (!alvo) continue;
+
+    const espacos = antigo?.espacos || 3;
+    await alvo.update({ "system.impeto": {
+      espacos,
+      preenchidos: Math.min(antigo?.preenchidos ?? 0, espacos),
+    } });
+    if (antigo) await ator.update({ "system.-=impeto": null });
+    console.log(`${SYSTEM_ID} | barra de ímpeto de ${ator.name} movida para a habilidade "${alvo.name}"`);
+  }
+}
+
 
 /**
  * Faz o pt-BR ser o idioma de quem ainda não escolheu nenhum.

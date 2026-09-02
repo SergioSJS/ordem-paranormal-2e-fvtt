@@ -9,6 +9,7 @@ import { SelecaoDados } from "./selecao-dados.mjs";
 import { lerConfig } from "../settings/register.mjs";
 import { stepDie } from "./escada.mjs";
 import { consumirAjuda } from "../cena/acoes-ajuda.mjs";
+import { gastarImpeto, podePreencherImpeto } from "../cena/impeto.mjs";
 
 /**
  * @param {Actor} ator
@@ -71,11 +72,7 @@ export async function rolarTeste(ator, {
   }
 
   // O espaço de ímpeto só some depois de a rolagem ser confirmada.
-  if (config.gastarImpeto) {
-    await ator.update({
-      "system.impeto.preenchidos": Math.max(0, (ator.system.impeto?.preenchidos ?? 0) - 1),
-    });
-  }
+  if (config.gastarImpeto) await gastarImpeto(ator, 1);
 
   const roll = OP2Roll.paraComponentes(config.componentes, {
     dt: config.dt,
@@ -174,8 +171,7 @@ export async function enviarParaChat(roll, ator, { pularDados3D = false } = {}) 
     // "Sempre que falha em um teste, você preenche um espaço" (ficha do Ato I).
     // É botão, não automático: a mesa às vezes reinterpreta o que foi uma falha, e
     // nenhum outro efeito do sistema se aplica sozinho.
-    podePreencherImpeto: !dados.resultado.sucesso
-      && (ator.system.impeto?.espacos ?? 0) > (ator.system.impeto?.preenchidos ?? 0),
+    podePreencherImpeto: !dados.resultado.sucesso && podePreencherImpeto(ator),
   });
 
   return roll.toMessage(

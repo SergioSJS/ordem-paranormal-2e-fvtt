@@ -42,11 +42,14 @@ export class HabilidadeData extends foundry.abstract.TypeDataModel {
       }),
 
       /**
-       * Esta habilidade É a barra de Ímpeto (fichas do Ato I). A barra aparece dentro
-       * dela, na aba de habilidades — e não no cabeçalho: ela pertence a quem tem a
-       * habilidade, não a todo personagem (achado em uso real).
+       * Barra de Ímpeto (fichas do Ato I). O estado mora AQUI, não no personagem:
+       * a barra é a habilidade. Guardada no ator, apagar a habilidade deixava a barra
+       * para trás (achado em uso real). `espacos: 0` = esta habilidade não é uma barra.
        */
-      barraImpeto: new BooleanField({ required: true, initial: false }),
+      impeto: new SchemaField({
+        espacos: new NumberField({ required: true, initial: 0, min: 0, max: 6, integer: true, nullable: false }),
+        preenchidos: new NumberField({ required: true, initial: 0, min: 0, max: 6, integer: true, nullable: false }),
+      }),
 
       /** Habilidades podem ter uso próprio em cenas de investigação (spec §6.6). */
       usoEmInvestigacao: new HTMLField({ required: true, initial: "", blank: true }),
@@ -69,6 +72,15 @@ export class HabilidadeData extends foundry.abstract.TypeDataModel {
     if (!this.efeito.chaves.size) return true;
     return this.efeito.chaves.has(chavePericia)
       || (Boolean(chaveAtributo) && this.efeito.chaves.has(chaveAtributo));
+  }
+
+  /** Esta habilidade É uma barra de Ímpeto? */
+  get temBarraImpeto() {
+    return this.impeto.espacos > 0;
+  }
+
+  get impetoCheio() {
+    return this.temBarraImpeto && this.impeto.preenchidos >= this.impeto.espacos;
   }
 
   /** Chaves válidas para o seletor da ficha do item. */

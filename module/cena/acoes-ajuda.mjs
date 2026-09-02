@@ -11,7 +11,7 @@ import { SYSTEM_ID } from "../config.mjs";
 import { escolherPericia } from "../dice/pericia-dialog.mjs";
 import { rotuloDePericia, renderizar } from "../dice/teste.mjs";
 import { lerConfig } from "../settings/register.mjs";
-import { personagensDaCenaAtiva } from "./encerrar-investigacao.mjs";
+import { alvosDaCenaAtiva } from "./encerrar-investigacao.mjs";
 import { passosDeAjuda, podeAjudar } from "./ajuda.mjs";
 import { comoMestre, registrarAcaoDeMestre } from "../ui/socket.mjs";
 
@@ -20,7 +20,7 @@ import { comoMestre, registrarAcaoDeMestre } from "../ui/socket.mjs";
  * passos no aliado.
  */
 export async function ajudar(ator) {
-  const aliados = personagensDaCenaAtiva().filter((a) => a.id !== ator.id);
+  const aliados = alvosDaCenaAtiva({ exceto: ator });
   if (!aliados.length) {
     ui.notifications.warn(game.i18n.localize("OP2.Ajuda.SemAliados"));
     return null;

@@ -42,7 +42,10 @@ test("todo template compila como Handlebars válido", async (t) => {
 
   for (const caminho of templates) {
     await t.test(relative(RAIZ, caminho), () => {
-      assert.doesNotThrow(() => Handlebars.compile(readFileSync(caminho, "utf8")));
+      // `compile()` é preguiçoso: só parseia quando o template roda, então um bloco
+      // desbalanceado passava batido e só estourava no Foundry (achado em uso real).
+      // `precompile()` parseia na hora.
+      assert.doesNotThrow(() => Handlebars.precompile(readFileSync(caminho, "utf8")));
     });
   }
 });

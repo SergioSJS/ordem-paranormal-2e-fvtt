@@ -69,6 +69,31 @@ export function npcsDaCenaAtiva() {
   return participantesDaInvestigacao("npc");
 }
 
+/**
+ * Quem pode ser alvo de uma ação que envolve outro personagem (Ajudar, Compartilhar,
+ * Atacar).
+ *
+ * Não é "todo ator do mundo", nem sequer todo participante: quem o mestre escondeu
+ * (`participantesOcultos`) não está em cena, e oferecê-lo como alvo entrega que ele
+ * existe (achado em uso real: "lista tudo, não faz sentido algum"). Quem chama diz se
+ * NPC entra — Ajudar é entre personagens, Atacar não.
+ *
+ * @param {object} [opcoes]
+ * @param {Actor}  [opcoes.exceto]     quem está agindo, fora da própria lista
+ * @param {boolean} [opcoes.comNpcs]   inclui os NPCs do roster
+ */
+export function alvosDaCenaAtiva({ exceto, comNpcs = false } = {}) {
+  const investigacao = investigacaoAtiva();
+  const ocultos = investigacao?.system.participantesOcultos ?? [];
+  const roster = comNpcs
+    ? [...personagensDaCenaAtiva(), ...npcsDaCenaAtiva()]
+    : personagensDaCenaAtiva();
+
+  return roster
+    .filter((ator) => !ocultos.includes(ator.uuid))
+    .filter((ator) => ator.id !== exceto?.id);
+}
+
 function participantesDaInvestigacao(tipo) {
   const uuids = investigacaoAtiva()?.system.participantes ?? [];
   const atores = [];

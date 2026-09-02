@@ -29,16 +29,6 @@ export class PersonagemData extends foundry.abstract.TypeDataModel {
       // Sem fórmula publicada — vem preenchido nas fichas prontas (spec §11).
       recursos: new SchemaField({ pv: campoRecurso(0), pd: campoRecurso(0) }),
 
-      // Barra de ímpeto (fichas prontas do Ato I, habilidade de perfil do Executor):
-      // três espaços; cada falha em teste preenche um. Apagar 1 dá +d4 num teste;
-      // apagar 3 sobe um atributo em um passo até o fim da cena. `espacos: 0`
-      // significa "este personagem não tem a barra" — é o padrão, e é o que a
-      // maioria das fichas do playtest mostra.
-      impeto: new SchemaField({
-        espacos: new NumberField({ required: true, initial: 0, min: 0, max: 6, integer: true, nullable: false }),
-        preenchidos: new NumberField({ required: true, initial: 0, min: 0, max: 6, integer: true, nullable: false }),
-      }),
-
       estado: new SchemaField({
         testesFerimento: campoContador(),
         testesTrauma: campoContador(),
@@ -115,12 +105,6 @@ export class PersonagemData extends foundry.abstract.TypeDataModel {
     }
 
     // DT escala 7 → 10 → 13 → 16… a cada teste já feito (spec §8.2/§8.3).
-    // Nunca mais preenchido do que a barra comporta — fichas importadas ou editadas
-    // na mão podem trazer valores fora da faixa.
-    this.impeto.preenchidos = Math.min(this.impeto.preenchidos, this.impeto.espacos);
-    this.impeto.tem = this.impeto.espacos > 0;
-    this.impeto.cheia = this.impeto.espacos > 0 && this.impeto.preenchidos >= this.impeto.espacos;
-
     this.estado.dtProximoFerimento = DT_FERIMENTO_BASE + DT_FERIMENTO_INCREMENTO * this.estado.testesFerimento;
     this.estado.dtProximoTrauma = DT_FERIMENTO_BASE + DT_FERIMENTO_INCREMENTO * this.estado.testesTrauma;
   }

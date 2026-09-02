@@ -10,6 +10,7 @@ import { MAX_DADOS_ROLADOS, MAX_DADOS_CONTADOS, ATRIBUTOS } from "../config.mjs"
 import { stepDie } from "./escada.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
 import { lerConfig } from "../settings/register.mjs";
+import { impetoDisponivel } from "../cena/impeto.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -50,7 +51,7 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       ajuda,
       // Ímpeto: apagar um espaço dá +d4 no teste (ficha do Ato I). É escolha do
       // jogador na hora, então mora aqui e não numa ação separada.
-      impetoDisponivel: ator.system.impeto?.preenchidos ?? 0,
+      impetoDisponivel: impetoDisponivel(ator),
       gastarImpeto: false,
       passos: {
         pericia: ajuda?.alvo === "pericia" ? ajuda.passos : 0,

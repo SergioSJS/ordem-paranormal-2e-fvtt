@@ -142,7 +142,10 @@
         "nenhum": "Nenhum",
         "passo": "Aumento de passo",
         "dado-extra": "Dado adicional"
-      }
+      },
+      "CustoPD": "Custo em PD",
+      "ImpetoEspacos": "Barra de ímpeto (espaços)",
+      "ImpetoAjuda": "A barra aparece no card desta habilidade, na ficha. Apagar a habilidade apaga a barra junto."
     },
     "Equipamento": {
       "Adicionar": "Novo item",

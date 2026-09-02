@@ -9,7 +9,7 @@
  */
 import { SYSTEM_ID, DT_RECAPITULAR, DT_COMPARTILHAR, CUSTO_PD_EXAMINAR } from "../config.mjs";
 import { resolverInvestigacao, resolverExaminar, chaveInfo, motivoSemRevelacao } from "./investigacao.mjs";
-import { personagensDaCenaAtiva } from "./encerrar-investigacao.mjs";
+import { personagensDaCenaAtiva, alvosDaCenaAtiva } from "./encerrar-investigacao.mjs";
 import { investigacaoAtiva } from "./investigacao-ativa.mjs";
 import { rolarTeste, rotuloDePericia, renderizar } from "../dice/teste.mjs";
 import { escolherPericia } from "../dice/pericia-dialog.mjs";
@@ -310,7 +310,7 @@ export async function compartilhar(ator, { aliadoId = null } = {}) {
     return null;
   }
 
-  const aliados = personagensDaCenaAtiva().filter((a) => a.id !== ator.id);
+  const aliados = alvosDaCenaAtiva({ exceto: ator });
   if (!aliados.length) {
     ui.notifications.warn(game.i18n.localize("OP2.Investigacao.SemAliados"));
     return null;

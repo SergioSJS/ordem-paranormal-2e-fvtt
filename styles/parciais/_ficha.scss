@@ -262,10 +262,17 @@
 
 // Barra de ímpeto: mesma gramática do traço — retângulos inclinados, sem canto
 // arredondado —, mas maiores e em fileira própria, como na ficha do Ato I.
-.op2-impeto--solta {
-  margin-bottom: var(--op2-e2);
-  padding: var(--op2-e2);
-  border: 1px dashed var(--op2-linha-forte);
+// Regra da habilidade, na própria ficha: texto de corpo, menor que o nome, com o
+// espaçamento apertado — a lista precisa continuar escaneável.
+.op2-item__descricao {
+  margin-top: var(--op2-e1);
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--op2-texto);
+
+  p { margin: 0 0 0.35rem; }
+  p:last-child { margin-bottom: 0; }
+  ul { margin: 0.2rem 0 0.35rem; padding-left: 1.1rem; }
 }
 
 .op2-impeto {

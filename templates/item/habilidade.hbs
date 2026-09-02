@@ -17,7 +17,27 @@
       <input type="text" name="system.custo" value="{{sistema.custo}}"
         placeholder="{{localize 'OP2.Habilidade.SemCusto'}}" {{#unless editavel}}disabled{{/unless}}>
     </label>
+
+    {{!-- PD cobrados ao marcar a habilidade num teste: `custo` é o texto que a mesa lê,
+          este é o número que o diálogo desconta. --}}
+    <label class="op2-campo">
+      <span>{{localize "OP2.Habilidade.CustoPD"}}</span>
+      <input type="number" name="system.custoPD" value="{{sistema.custoPD}}" min="0" step="1"
+        inputmode="numeric" {{#unless editavel}}disabled{{/unless}}>
+    </label>
+
+    {{!-- A barra de Ímpeto É uma habilidade: quem declara os espaços é ela, e a barra
+          aparece no card dela na ficha. 0 = esta habilidade não tem barra. --}}
+    <label class="op2-campo">
+      <span>{{localize "OP2.Habilidade.ImpetoEspacos"}}</span>
+      <input type="number" name="system.impeto.espacos" value="{{sistema.impeto.espacos}}"
+        min="0" max="6" step="1" inputmode="numeric" {{#unless editavel}}disabled{{/unless}}>
+    </label>
   </div>
+
+  {{#if sistema.impeto.espacos}}
+    <p class="op2-ajuda">{{localize "OP2.Habilidade.ImpetoAjuda"}}</p>
+  {{/if}}
 
   <fieldset class="op2-efeito">
     <legend>{{localize "OP2.Habilidade.EfeitoRotulo"}}</legend>

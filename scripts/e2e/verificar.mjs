@@ -327,9 +327,13 @@ const relato = await page.evaluate(async () => {
       comAjuda.dados.some((d) => (d.componente?.dado ?? d.dado) === "d10"));
     ok("a ajuda é consumida pela rolagem", vitima.system.estado.ajuda.passos === 0);
 
-    // Ímpeto (fichas do Ato I): falha preenche, gasto vira +d4.
-    await vitima.update({ "system.impeto": { espacos: 3, preenchidos: 1 } });
-    ok("a barra de ímpeto aparece só para quem tem espaços", vitima.system.impeto.tem === true);
+    // Ímpeto (fichas do Ato I): a barra é a habilidade, e o estado mora nela.
+    await vitima.createEmbeddedDocuments("Item", [{
+      name: "Ímpeto", type: "habilidade", system: { impeto: { espacos: 3, preenchidos: 1 } },
+    }]);
+    const { barraDeImpeto, impetoDisponivel } = await import("/systems/ordem-paranormal-2e/module/cena/impeto.mjs");
+    ok("a barra é achada pela habilidade, não por campo do personagem",
+      barraDeImpeto(vitima)?.name === "Ímpeto" && impetoDisponivel(vitima) === 1);
 
     // Combate (spec §8.1): teste oposto, esquiva com +d6 somado.
     const bruto = await Actor.create({ name: "Bruto de Teste", type: "personagem" });
@@ -392,7 +396,7 @@ const relato = await page.evaluate(async () => {
     const pack = game.packs.get("ordem-paranormal-2e.ato-i-personagens");
     const entrada = [...pack.index].find((i) => i.name === "Alan");
     const alan = await Actor.create((await pack.getDocument(entrada._id)).toObject());
-    await alan.update({ "system.impeto.preenchidos": 2 });
+    await alan.items.getName("Ímpeto").update({ "system.impeto.preenchidos": 2 });
     await alan.sheet.render(true);
     await esperar(900);
     const el = alan.sheet.element;
@@ -403,17 +407,31 @@ const relato = await page.evaluate(async () => {
     ok("barra de Ímpeto sai do cabeçalho", !el.querySelector(".op2-cabecalho .op2-impeto"));
     ok("barra de Ímpeto mora na habilidade que a concede",
       el.querySelectorAll(".op2-item--com-barra .op2-impeto__espaco").length === 3);
+    ok("a barra mostra o estado gravado na própria habilidade",
+      el.querySelectorAll(".op2-item--com-barra .op2-impeto__espaco--cheio").length === 2);
+    ok("a descrição da habilidade aparece na ficha",
+      (el.textContent ?? "").includes("barra de ímpeto com três espaços"));
 
-    // Ficha importada antes de `barraImpeto` existir não tem quem hospede a barra:
-    // ela não pode simplesmente sumir.
-    const orfao = await Actor.create({ name: "Ímpeto Órfão", type: "personagem" });
-    await orfao.update({ "system.impeto": { espacos: 3, preenchidos: 1 } });
-    await orfao.createEmbeddedDocuments("Item", [{ name: "Sem barra", type: "habilidade" }]);
-    await orfao.sheet.render(true);
-    await esperar(900);
-    ok("barra sem habilidade hospedeira aparece no topo da aba, não some",
-      orfao.sheet.element.querySelectorAll(".op2-impeto--solta .op2-impeto__espaco").length === 3);
-    await orfao.delete();
+    // A ficha da habilidade precisa do campo: sem ele não há como transformar uma
+    // habilidade em barra, nem conferir os espaços (achado em uso real).
+    {
+      const barra = alan.items.getName("Ímpeto");
+      await barra.sheet.render(true);
+      await esperar(800);
+      const campo = barra.sheet.element.querySelector('[name="system.impeto.espacos"]');
+      ok("ficha da habilidade tem o campo de espaços da barra", Number(campo?.value) === 3);
+      ok("ficha da habilidade tem o campo de custo em PD",
+        Boolean(barra.sheet.element.querySelector('[name="system.custoPD"]')));
+      await barra.sheet.close();
+    }
+
+    // A barra É a habilidade: apagar a habilidade tem de levar a barra junto — com o
+    // estado no ator, ela sobrevivia ao item (achado em uso real).
+    await alan.items.getName("Ímpeto").delete();
+    await alan.sheet.render(true);
+    await esperar(700);
+    ok("apagar a habilidade Ímpeto tira a barra da ficha",
+      alan.sheet.element.querySelectorAll(".op2-impeto__espaco").length === 0);
 
     const npc = await Actor.create({ name: "NPC de Layout", type: "npc" });
     await npc.sheet.render(true);
@@ -454,12 +472,13 @@ const relato = await page.evaluate(async () => {
       dono.system.recursos.pd.value === antes && Boolean(roll));
 
     // Ímpeto: os três espaços viram um passo de atributo que o dado precisa sentir.
-    await dono.update({ "system.impeto": { espacos: 3, preenchidos: 3 } });
-    ok("barra cheia libera o gasto", dono.system.impeto.cheia === true);
-    await dono.update({
-      "system.impeto.preenchidos": 0,
-      "system.estado.aumentosTemporarios.mente": 1,
-    });
+    await dono.createEmbeddedDocuments("Item", [{
+      name: "Ímpeto", type: "habilidade", system: { impeto: { espacos: 3, preenchidos: 3 } },
+    }]);
+    const barra = dono.items.getName("Ímpeto");
+    ok("barra cheia libera o gasto", barra.system.impetoCheio === true);
+    await barra.update({ "system.impeto.preenchidos": 0 });
+    await dono.update({ "system.estado.aumentosTemporarios.mente": 1 });
     ok("aumento temporário sobe o dado do atributo (era descartado pelo min: 0)",
       dono.system.atributos.mente.dadoEfetivo === "d8"
       && dono.system.atributos.mente.aumentado === true);
@@ -494,7 +513,7 @@ const relato = await page.evaluate(async () => {
         alan?.system.atributos.mente.die === "d8"
         && alan?.system.recursos.pd.max === 16
         && alan?.system.pericias.percepcao.die === "d8"
-        && alan?.system.impeto.espacos === 3);
+        && alan?.items.find((i) => i.name === "Ímpeto")?.system.impeto.espacos === 3);
       ok("as habilidades vêm junto do pré-gerado",
         alan?.items.map((i) => i.name).sort().join() === "Foco Mental,Ímpeto");
     }
