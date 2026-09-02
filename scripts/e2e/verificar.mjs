@@ -746,6 +746,14 @@ const relato = await page.evaluate(async () => {
         && aventura.journal.size === 2 && aventura.actors.size === 6);
       ok("e os pontos de interesse e desafios do porão", aventura.items.size >= 10);
 
+      // A descrição é a primeira coisa que o mestre lê ao importar: ela não pode
+      // descrever uma aventura que não é mais essa.
+      ok("a descrição da aventura bate com o que ela traz",
+        aventura.description.includes(`${[...aventura.items].filter((i) => i.type === "desafio-acesso").length} desafios`)
+        && !/quadro de informações de cada ponto vem vazio/i.test(aventura.description));
+      ok("e avisa que `npm run ato-i` instala mapa, handouts e trilha",
+        aventura.description.includes("npm run ato-i"));
+
       // O quadro sai do PDF: perícia, DT e o texto da pista.
       const comQuadro = [...aventura.items].filter((i) => i.type === "ponto-interesse"
         && i.system.informacoes.length);
@@ -790,6 +798,66 @@ const relato = await page.evaluate(async () => {
         && i.system.descricaoContextual.includes("op2-ato-i/handouts/"));
       ok("os pontos que citam handout trazem a imagem na descrição do mestre",
         comHandout.length >= 5);
+
+      /* ---- o import de verdade: o compêndio certo não garante mundo certo ---- */
+      // Importar é o único jeito de saber se os UUIDs sobrevivem à travessia: no
+      // compêndio eles apontam para dentro da aventura, no mundo têm que apontar para
+      // os documentos criados.
+      const conteudo = {
+        Actor: [...aventura.actors], Item: [...aventura.items],
+        Scene: [...aventura.scenes], JournalEntry: [...aventura.journal],
+        Playlist: [...aventura.playlists],
+      };
+      const colecao = {
+        Actor: game.actors, Item: game.items, Scene: game.scenes,
+        JournalEntry: game.journal, Playlist: game.playlists,
+      };
+      // O import é `keepId`: limpar antes e depois deixa o teste repetível e não
+      // enche o mundo de teste a cada execução.
+      const limpar = async () => {
+        for (const [nome, docs] of Object.entries(conteudo)) {
+          for (const doc of docs) await colecao[nome].get(doc.id)?.delete().catch(() => {});
+        }
+      };
+      const noMundo = (nome) => conteudo[nome].map((d) => colecao[nome].get(d.id)).filter(Boolean);
+
+      await limpar();
+      await aventura.import({ dialog: false });
+      ok("importar a aventura cria tudo no mundo",
+        noMundo("Actor").length === 6 && noMundo("Item").length === 28
+        && noMundo("Scene").length === 1 && noMundo("JournalEntry").length === 2
+        && noMundo("Playlist").length === 1);
+
+      const pontosNoMundo = noMundo("Item").filter((i) => i.type === "ponto-interesse");
+      const linhasNoMundo = pontosNoMundo.flatMap((i) => i.system.informacoes);
+      ok("os pontos chegam ao mundo com o quadro preenchido",
+        pontosNoMundo.length === 23 && linhasNoMundo.length === 73
+        && linhasNoMundo.every((l) => l.pericia && l.dt > 0 && l.texto.length > 10));
+      ok("e com as três visibilidades no padrão descobrível",
+        linhasNoMundo.every((l) => l.oculta === false && l.aberta === false));
+
+      const desafiosNoMundo = noMundo("Item").filter((i) => i.type === "desafio-acesso");
+      ok("os cinco desafios de acesso chegam com os números do livro",
+        desafiosNoMundo.length === 5
+        && desafiosNoMundo.every((d) => d.system.dtObjeto > 0 && d.system.pontuacaoAlvo > 0
+          && (d.system.abordagens.arrombar || d.system.abordagens.destrancar)));
+
+      const investigacaoNoMundo = noMundo("Actor").find((a) => a.type === "investigacao");
+      const alvosDoLink = await Promise.all([
+        ...investigacaoNoMundo.system.pois,
+        ...investigacaoNoMundo.system.desafios,
+        ...investigacaoNoMundo.system.participantes,
+      ].map((uuid) => fromUuid(uuid)));
+      ok("a investigação importada resolve pontos, desafios e participantes no mundo",
+        alvosDoLink.length === 23 + 5 + 5 && alvosDoLink.every((d) => d && !d.pack));
+
+      const cenaNoMundo = noMundo("Scene")[0];
+      ok("a cena importada tem mapa e as paredes do porão",
+        Boolean(cenaNoMundo._source.background?.src) && cenaNoMundo.walls.size >= 30);
+
+      await limpar();
+      ok("e apagar o que foi importado devolve o mundo ao estado anterior",
+        noMundo("Item").length === 0 && noMundo("Actor").length === 0);
     }
 
     // Compêndio organizado em pastas: sem isso vira uma lista solta de sete packs.

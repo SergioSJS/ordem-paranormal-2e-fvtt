@@ -254,6 +254,8 @@ const investigacao = {
   effects: [], folder: null, sort: 0, ownership: { default: 0 }, flags: {},
 };
 
+const linhasDeQuadro = pontos.reduce((n, p) => n + p.system.informacoes.length, 0);
+
 const _id = ident("aventura-ato-i");
 const aventura = {
   _id, _key: `!adventures!${_id}`,
@@ -262,16 +264,19 @@ const aventura = {
   caption: "<p>A cena do porão montada: mapa, trilha, pré-gerados, handouts e a investigação já vinculada.</p>",
   description: [
     "<p>Importa a mesa inteira do Ato I: a cena do porão com muros e portas secretas, a",
-    "trilha, os cinco pré-gerados, os handouts e uma investigação com os pontos de",
-    "interesse e os desafios já vinculados.</p>",
-    "<p><strong>O quadro de informações de cada ponto vem vazio.</strong> As perícias, as",
-    "DTs e o que cada pista revela estão no material do mestre, que não é público — abra",
-    "cada ponto de interesse e preencha com o seu texto. As três linhas de visibilidade",
-    "(rascunho, descobrível, aberta) estão prontas para isso.</p>",
-    "<p>Os dois desafios existem porque o mapa mostra a sala secreta e o duto. As",
-    "abordagens ligadas são as que fazem sentido no desenho; a DT vem no padrão 7.</p>",
-    "<p><em>Rode <code>npm run ato-i</code> antes: as imagens e as músicas não vêm no",
-    "sistema.</em></p>",
+    "trilha, os cinco pré-gerados, os handouts, os pontos de interesse com o quadro",
+    `preenchido, os ${desafios.length} desafios de acesso e uma investigação vinculando tudo.</p>`,
+    `<p><strong>${pontos.length} pontos de interesse, ${linhasDeQuadro} linhas de quadro.</strong> Perícia, DT e`,
+    "texto de cada pista saem do seu PDF do playtest. As três visibilidades por linha",
+    "(rascunho, descobrível, aberta) vêm no padrão: só a descobrível, que é o que",
+    "Examinar acha.</p>",
+    "<p>Os desafios trazem os números das caixas do livro — DT do objeto, pontuação alvo",
+    "e o tamanho da senha. <strong>A senha não vem sorteada</strong>, senão viajaria à",
+    "vista dos jogadores: abra a ficha do desafio e use <em>Gerar senha</em>.</p>",
+    "<p><strong>Antes de importar, instale as artes.</strong> Mapa, handouts e trilha são",
+    "arquivos do pacote público do playtest e não cabem dentro do sistema — quem os copia",
+    "para o seu Foundry é <code>npm run ato-i</code>. Sem esse passo, a cena e os",
+    "handouts importam sem imagem e a playlist aponta para faixas que não existem.</p>",
   ].join("\n"),
   actors: [...pregerados, investigacao],
   items: [...pontos, ...desafios],
