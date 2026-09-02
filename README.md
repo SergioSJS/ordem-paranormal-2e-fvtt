@@ -152,6 +152,18 @@ O perímetro e as fronteiras entre as áreas estão murados; as divisórias inte
 (o quarto do berço, por exemplo) não estão — se você quiser visão sala a sala, são alguns
 muros a mais no editor.
 
+Fez esses muros, pôs luzes, ajustou a cena? Traga de volta para o compêndio:
+
+```bash
+npm run ato-i:cena -- --mundo op2-meu --cena "O Porão"   # feche o Foundry antes
+npm run ato-i:cena -- --de ~/Downloads/fvtt-Scene-porao.json   # ou o export da interface
+npm run pack:build
+```
+
+Paredes, luzes, sons, ladrilhos e desenhos entram. Tokens, notas e a névoa já explorada
+ficam de fora: apontam para documentos e estado do seu mundo, e não significariam nada
+em outro.
+
 Ocupação é texto livre na ficha e concede uma habilidade (spec §2.1). O Item de
 ocupação guarda as duas coisas juntas: **arraste a ocupação para a ficha** e ela
 preenche o campo e traz a habilidade dela, já marcada como de ocupação.
