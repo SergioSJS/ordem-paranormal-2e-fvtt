@@ -1,0 +1,28 @@
+{
+  "_id": "754690e2d01dd32a",
+  "name": "Prontidão",
+  "type": "habilidade",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "origem": "perfil",
+    "perfil": "vigilante",
+    "custo": "3 PD",
+    "descricao": "<p>No início de qualquer conflito, você pode gastar <strong>3 PD</strong>. Se fizer isso, <strong>ganha uma rodada</strong> na qual pode agir antes dos demais personagens e NPCs.</p><p><em>No painel de investigação, o mestre move você para o topo da Ordem das Rodadas.</em></p>",
+    "efeito": {
+      "tipo": "nenhum",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [],
+      "permitirD20": false
+    },
+    "usoEmInvestigacao": ""
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!items!754690e2d01dd32a"
+}

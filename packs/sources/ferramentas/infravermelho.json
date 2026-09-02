@@ -1,0 +1,23 @@
+{
+  "_id": "60d817a373b64cac",
+  "_key": "!items!60d817a373b64cac",
+  "name": "Leitor Infravermelho",
+  "type": "ferramenta",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "subtipo": "infravermelho",
+    "descricao": "<p>Lê gradientes térmicos paranormais. O efeito é por ponto de interesse e exige interpretação da mesa.</p>",
+    "cargas": {
+      "usa": false,
+      "value": 0,
+      "max": 0
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

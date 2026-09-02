@@ -9,7 +9,7 @@
       "habilidade": "Ability",
       "equipamento": "Equipment",
       "ponto-interesse": "Point of Interest",
-      "desafio-acesso": "Access Challenge",
+      "desafio-acesso": "Challenge",
       "ferramenta": "Tool"
     }
   },
@@ -20,7 +20,7 @@
       "Item": "Item Sheet",
       "PontoInteresse": "Point of Interest",
       "SemNome": "Unnamed",
-      "DesafioAcesso": "Access Challenge",
+      "DesafioAcesso": "Challenge",
       "Ferramenta": "Ordo Realitas Tool",
       "Investigacao": "Investigation"
     },
@@ -87,7 +87,14 @@
       "pv": "HP",
       "pd": "DP",
       "Atual": "Current",
-      "Maximo": "Maximum"
+      "Maximo": "Maximum",
+      "Titulo": "Use ability or item",
+      "Escolha": "What you use",
+      "Ajuda": "Describe the use to the table. The GM decides whether it fits and what it does — the suggested default is one step up on the check at hand.",
+      "SemItens": "This character has no abilities, equipment or tools to use.",
+      "Card": "{ator} uses {item}.",
+      "Conceder": "Grant +1 step on the next check",
+      "Concedido": "{ator} received +{passos} step(s) on the next check."
     },
     "Secao": {
       "Atributos": "Attributes",
@@ -174,7 +181,6 @@
       "QuadroAjuda": "Investigate compares the die size against the DT, without rolling. Examine rolls and compares the sum.",
       "AdicionarInformacao": "New information",
       "RemoverInformacao": "Remove information",
-      "InfoOcultaAjuda": "GM draft — never revealable to players while hidden, even if the DT is met.",
       "DescricaoContextual": "Contextual description (GM only)",
       "DescricaoContextualAjuda": "The full explanation. It resolves the players' freeform interactions.",
       "Ferramentas": "Tool section",
@@ -200,6 +206,11 @@
         "poRevelador": "Revealing Dust",
         "radio": "Modified Radio",
         "termometro": "Differential Thermometer"
+      },
+      "Visibilidade": {
+        "rascunho": "Draft — players can't see it and Examine never finds it. Click to make it discoverable.",
+        "descobrivel": "Discoverable — only by Examining with the skill and meeting the DT. Click to open it to everyone.",
+        "aberta": "Open — every player sees it without spending an action. Click to return to draft."
       }
     },
     "Acoes": {
@@ -209,19 +220,15 @@
       "Livres": "Free actions",
       "SemInvestigacao": "No investigation in play for this character. The GM needs to put one in play and add you as a participant.",
       "SemPOIs": "No points of interest available yet.",
-      "SemDesafios": "No access challenges available yet."
+      "SemDesafios": "No challenge available yet."
     },
     "Investigacao": {
-      "Investigar": "Investigate",
       "Examinar": "Examine",
       "Interagir": "Interact",
       "Recapitular": "Recap",
       "Compartilhar": "Share",
       "EscolherPericia": "Board skill",
-      "EscolherPericiaAjuda": "Investigate hands out every piece of information with DT up to your die size, without rolling.",
-      "POIVazio": "This point of interest has no information on its board.",
       "NadaNovo": "No new information with this skill.",
-      "ExaminarAviso": "Examining is a bet: if the check reveals no new information, you lose {custo} DP.",
       "ExaminarSemInfo": "The examination revealed no new information.",
       "PerderPD": "Lose {custo} DP",
       "PDPago": "{ator} lost {custo} DP examining without finding anything.",
@@ -247,8 +254,18 @@
       "FichaAjuda": "Round, mental strain, participants and the Recap/Share locks live in this investigation's flags, managed by the Investigation Panel. This field is just for GM notes.",
       "Notas": "Notes",
       "SemPoisAjuda": "No points of interest. Drag a Point of Interest item here.",
-      "SemDesafiosAjuda": "No access challenges. Drag an Access Challenge item here.",
-      "ExaminarEscolhaAjuda": "Examine rolls the skill and compares the sum against the DT. Costs 1 DP if it reveals nothing new."
+      "SemDesafiosAjuda": "No challenges. Drag a Challenge item here.",
+      "ExaminarEscolhaAjuda": "Examining hands over everything with DT up to your die size for free, then rolls for the rest. If nothing comes up, it costs {custo} PD.",
+      "SemRevelacao": {
+        "sem-pericia": "There's nothing here that {pericia} can reach.",
+        "dado-pequeno": "There's something here for {pericia}, but your {dado} doesn't reach it. A bigger die — or help — would change that.",
+        "ja-revelado": "You've already found everything {pericia} reaches here."
+      },
+      "DtQueFaltava": "GM: the lowest remaining DT for this skill is {dt}.",
+      "SemRolar": "no roll",
+      "ExaminarAchou": "the roll revealed {quantidade} new piece(s) of information.",
+      "ExaminarSoGratis": "the roll reached nothing new; the {quantidade} line(s) above came from your die size.",
+      "CriticoExaminar": "reveals what was left for this skill, ignoring the DT."
     },
     "Dialog": {
       "Teste": {
@@ -271,7 +288,8 @@
       },
       "Pericia": {
         "Titulo": "Pick the skill",
-        "TrocaAtributo": "The paired attribute is a suggestion — you can swap it in the check dialog, after picking the skill."
+        "TrocaAtributo": "The paired attribute is a suggestion — you can swap it in the check dialog, after picking the skill.",
+        "SemRolagem": "Investigate rolls no dice: it compares your die size against the information's DT. Picking resolves it."
       }
     },
     "Passo": "step",
@@ -357,8 +375,8 @@
       "AdicionarLinha": "New row",
       "RemoverLinha": "Remove row",
       "ProximoDano": "When round {rodada} ends: {dano} emotional damage.",
-      "Desafios": "Access challenges",
-      "SemDesafios": "No access challenge in this scene. The GM can drag an Access Challenge item here.",
+      "Desafios": "Challenges",
+      "SemDesafios": "No challenge in this scene. The GM can drag a Challenge item here.",
       "AbrirDesafio": "Open the challenge sheet",
       "RemoverDesafio": "Unlink from scene",
       "SemInvestigacao": "No investigation selected",
@@ -372,7 +390,9 @@
       "JaAgiuAjuda": "The GM checks off who has already acted this round — manual tracking, the system doesn't pass turns on its own. Clears when the round advances.",
       "AlternarOculto": "Show or hide from players",
       "MoverParaCima": "Move up in order",
-      "MoverParaBaixo": "Move down in order"
+      "MoverParaBaixo": "Move down in order",
+      "LimparRevelacao": "Undo this line's discovery (for everyone)",
+      "RevelacaoLimpa": "Discovery undone for: {nomes}."
     },
     "Rodada": {
       "Titulo": "Round {rodada}",
@@ -494,7 +514,13 @@
       "Abordagens": "Possible approaches",
       "AbordagensAjuda": "Check only what makes sense on this object. A jammed door can't be hacked; an electronic panel can't be forced open.",
       "SemAbordagem": "No approach checked on this challenge — the GM needs to pick at least one on its sheet.",
-      "SenhaAjuda": "The code itself is generated and checked by the Unlock app, at play time."
+      "SenhaAjuda": "The code itself is generated and checked by the Unlock app, at play time.",
+      "Generico": "Other approach",
+      "GenericoAjuda": "For what the playtest doesn't name: boarded-up planks, a rusted gate, a high window. Pick the skill and the name shown on the button.",
+      "GenericoRotulo": "Action name",
+      "GenericoRotuloExemplo": "e.g. Pry the boards off",
+      "GenericoPericia": "Skill tested",
+      "GenericoJaResolvido": "This challenge was already beaten with that approach."
     },
     "Ferramenta": {
       "Rotulo": "Tool",
@@ -535,6 +561,73 @@
       "RadioMoverEsquerda": "Move word left",
       "RadioMoverDireita": "Move word right",
       "RadioResultadoResumo": "Removed {removidos} of {totalFalsos} false set(s)."
+    },
+    "Ferimento": {
+      "Titulo": "Wound",
+      "Texto": "{ator} reached 0 HP. {pericia} check against DT {dt}.",
+      "Consequencia": "Success: keeps acting. Failure: dies.",
+      "Rolar": "Roll wound (DT {dt})",
+      "Sucesso": "{ator} stays on their feet.",
+      "Falha": {
+        "morte": "{ator} dies."
+      },
+      "ProximaDT": "The next check will be against DT {dt}."
+    },
+    "Trauma": {
+      "Titulo": "Trauma",
+      "Texto": "{ator} reached 0 DP. {pericia} check against DT {dt}.",
+      "Consequencia": {
+        "morte": "Success: keeps acting. Failure: mental collapse and death.",
+        "colapso": "Success: keeps acting. Failure: mental collapse — the character leaves the scene, without dying."
+      },
+      "Rolar": "Roll trauma (DT {dt})",
+      "Sucesso": "{ator} holds it together.",
+      "Falha": {
+        "morte": "{ator} suffers a mental collapse and dies.",
+        "colapso": "{ator} suffers a mental collapse and leaves the scene."
+      }
+    },
+    "Ajuda": {
+      "Titulo": "Help",
+      "Aliado": "Who you help",
+      "EscolhaAjuda": "Pick the skill you help with. It must fit the situation and be at least d6 — a d4 can't help. d6/d8 give +1 step; d10/d12 give +2.",
+      "DadoPequeno": "Your {pericia} is {dado}: a d4 can't help (rule of the action).",
+      "SemAliados": "There is no other character in the investigation to help.",
+      "Card": "{ajudante} helps {alvo} with {pericia} ({dado}): +{passos} step(s) on the next check.",
+      "NoDialogo": "Help from {de} ({pericia}): +{passos} step(s) already applied.",
+      "Pendente": "Pending help from {de}: +{passos} step(s)."
+    },
+    "Combate": {
+      "Atacar": "Attack",
+      "Defender": "Defend",
+      "Alvo": "Attack target",
+      "SemAlvos": "There is no other character or NPC in the investigation to attack.",
+      "ArmadoPergunta": "Are you wielding a weapon? Armed, damage is HR; unarmed, LR.",
+      "Armado": "Armed (HR)",
+      "Desarmado": "Unarmed (LR)",
+      "AtaqueContexto": "Attack against {alvo}",
+      "DefesaContexto": "Defense against {atacante}",
+      "Ataque": "{atacante} attacks {alvo} — opposed Fight check, result {total}.",
+      "EsquivaDica": "Fighting back is a Fight check and can deal damage. Dodging is Acrobatics +d6: if you win, nobody takes or deals damage.",
+      "Revidar": "Fight back (Fight)",
+      "Esquivar": "Dodge (Acrobatics +d6)",
+      "Resultado": "Attack result",
+      "Venceu": "{vencedor} wins the opposed check and deals {dano} damage to {perdedor}.",
+      "EsquivouTexto": "{defensor} dodges: nobody takes or deals damage.",
+      "Empate": "Tie on the opposed check — nobody deals damage.",
+      "AplicarDano": "Apply {dano} damage to {nome}"
+    },
+    "Impeto": {
+      "Titulo": "Momentum",
+      "Dica": "Each failed check fills one slot. Erase one to get +d4 on a check.",
+      "Passo": "Spend 3: +1 step",
+      "PassoDica": "Erases the whole bar and raises one attribute by one step until the end of the scene.",
+      "QualAtributo": "Which attribute goes up one step",
+      "PassoAplicado": "{atributo} goes up one step until the end of the scene.",
+      "Preencher": "Fill momentum",
+      "Preenchido": "{ator} filled one momentum slot ({preenchidos}/{espacos}).",
+      "Cheia": "The momentum bar is already full.",
+      "Gastar": "Spend 1 momentum: +d4"
     }
   }
 }

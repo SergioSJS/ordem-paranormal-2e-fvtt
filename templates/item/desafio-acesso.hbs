@@ -32,6 +32,11 @@
           {{#unless editavel}}disabled{{/unless}}>
         <span>{{localize "OP2.Desafio.HackSocial"}}</span>
       </label>
+      <label class="op2-campo op2-campo--inline">
+        <input type="checkbox" name="system.abordagens.generico" {{#if sistema.abordagens.generico}}checked{{/if}}
+          {{#unless editavel}}disabled{{/unless}}>
+        <span>{{localize "OP2.Desafio.Generico"}}</span>
+      </label>
     </div>
   </fieldset>
 
@@ -186,6 +191,33 @@
           </button>
         {{/if}}
       </div>
+    </fieldset>
+  {{/if}}
+
+  {{#if sistema.abordagens.generico}}
+    <fieldset class="op2-desafio-hack">
+      <legend>{{localize "OP2.Desafio.Generico"}}</legend>
+      <p class="op2-ajuda">{{localize "OP2.Desafio.GenericoAjuda"}}</p>
+      <div class="op2-grade-campos">
+        <label class="op2-campo">
+          <span>{{localize "OP2.Desafio.GenericoRotulo"}}</span>
+          <input type="text" name="system.generico.rotulo" value="{{sistema.generico.rotulo}}"
+            placeholder="{{localize 'OP2.Desafio.GenericoRotuloExemplo'}}" {{#unless editavel}}disabled{{/unless}}>
+        </label>
+        <label class="op2-campo">
+          <span>{{localize "OP2.Desafio.GenericoPericia"}}</span>
+          <select name="system.generico.pericia" {{#unless editavel}}disabled{{/unless}}>
+            {{#each opcoesPericia}}
+              <option value="{{chave}}" {{#if (op2Eq chave @root.sistema.generico.pericia)}}selected{{/if}}>{{rotulo}}</option>
+            {{/each}}
+          </select>
+        </label>
+      </div>
+      <label class="op2-campo op2-campo--inline">
+        <input type="checkbox" name="system.generico.resolvido" {{#if sistema.generico.resolvido}}checked{{/if}}
+          {{#unless editavel}}disabled{{/unless}}>
+        <span>{{localize "OP2.Desafio.HackSucesso"}}</span>
+      </label>
     </fieldset>
   {{/if}}
 

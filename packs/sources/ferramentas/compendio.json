@@ -1,0 +1,23 @@
+{
+  "_id": "42bab4ffbbfa6440",
+  "_key": "!items!42bab4ffbbfa6440",
+  "name": "Compêndio da Ordem",
+  "type": "ferramenta",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "subtipo": "compendio",
+    "descricao": "<p>Documento de referência. Um personagem o carrega; ele e quem ele permitir, no mesmo ambiente, podem consultar a qualquer momento. É a base de comparação para identificar manifestações.</p>",
+    "cargas": {
+      "usa": false,
+      "value": 0,
+      "max": 0
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

@@ -1,0 +1,246 @@
+{
+  "_id": "bbe9275fb65541b3",
+  "name": "Eloísa",
+  "type": "personagem",
+  "img": "op2-ato-i/tokens/personagem-eloisa.png",
+  "system": {
+    "tipo": "sobrevivente",
+    "perfil": "analista",
+    "ocupacao": "Artista",
+    "nivel": 2,
+    "nex": 0,
+    "atributos": {
+      "fisico": {
+        "die": "d8"
+      },
+      "mente": {
+        "die": "d8"
+      },
+      "emocao": {
+        "die": "d6"
+      }
+    },
+    "pericias": {
+      "acrobacia": {
+        "die": "d6",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "aptidao": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "atletismo": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "crime": {
+        "die": "d6",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "disciplina": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "enganacao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "furtividade": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "intimidar": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "intuicao": {
+        "die": "d8",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "luta": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "maquinas": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "medicina": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "ocultismo": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "percepcao": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "persuasao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "pesquisar": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "pontaria": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "sobrevivencia": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "tecnologia": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "vigor": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      }
+    },
+    "aptidoes": {
+      "artes": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "atualidades": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "burocracia": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "exatas": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "humanas": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "tatica": {
+        "rotulo": "",
+        "die": "d4"
+      }
+    },
+    "recursos": {
+      "pv": {
+        "value": 12,
+        "max": 12
+      },
+      "pd": {
+        "value": 14,
+        "max": 14
+      }
+    },
+    "impeto": {
+      "espacos": 0,
+      "preenchidos": 0
+    },
+    "biografia": ""
+  },
+  "items": [
+    {
+      "_id": "35b998a9a22a81d7",
+      "name": "Avaliação",
+      "type": "habilidade",
+      "img": "icons/svg/book.svg",
+      "system": {
+        "origem": "perfil",
+        "perfil": "analista",
+        "custo": "1 ação + 2 PD",
+        "descricao": "<p>Você pode gastar <strong>uma ação e 2 PD</strong> para observar um ser ou um ambiente. Você recebe <strong>dois d4</strong> que pode usar em testes relativos àquele ser ou ambiente (você pode usá-los como quiser, recebendo <strong>+2d4</strong> em um teste ou <strong>+d4</strong> em dois testes). Você não pode acumular mais do que dois dados bônus por esta habilidade.</p>",
+        "efeito": {
+          "tipo": "dado-extra",
+          "passos": 1,
+          "dado": "d4",
+          "chaves": [],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": "<p>Observar o ponto de interesse antes de examinar: os d4 valem nos testes sobre aquele ambiente.</p>"
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!bbe9275fb65541b3.35b998a9a22a81d7"
+    },
+    {
+      "_id": "05a15a653c1e78f6",
+      "name": "Foco Emocional",
+      "type": "habilidade",
+      "img": "icons/svg/book.svg",
+      "system": {
+        "origem": "perfil",
+        "perfil": "analista",
+        "custo": "2 PD",
+        "descricao": "<p>Quando faz um <strong>teste emocional</strong>, você pode gastar <strong>2 PD</strong> para receber <strong>+d4</strong> no teste.</p>",
+        "efeito": {
+          "tipo": "dado-extra",
+          "passos": 1,
+          "dado": "d4",
+          "chaves": [
+            "emocao"
+          ],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": ""
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!bbe9275fb65541b3.05a15a653c1e78f6"
+    }
+  ],
+  "prototypeToken": {
+    "name": "Eloísa",
+    "texture": {
+      "src": "op2-ato-i/tokens/token-eloisa.png"
+    },
+    "actorLink": true,
+    "disposition": 1,
+    "sight": {
+      "enabled": true
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!actors!bbe9275fb65541b3"
+}

@@ -68,5 +68,51 @@
     "units": "m"
   },
   "primaryTokenAttribute": "recursos.pv",
-  "secondaryTokenAttribute": "recursos.pd"
+  "secondaryTokenAttribute": "recursos.pd",
+  "packs": [
+    {
+      "name": "habilidades",
+      "label": "Habilidades",
+      "path": "packs/habilidades",
+      "type": "Item",
+      "system": "ordem-paranormal-2e",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "ferramentas",
+      "label": "Ferramentas da Ordo Realitas",
+      "path": "packs/ferramentas",
+      "type": "Item",
+      "system": "ordem-paranormal-2e",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "ato-i-personagens",
+      "label": "Ato I — Pré-gerados",
+      "path": "packs/ato-i-personagens",
+      "type": "Actor",
+      "system": "ordem-paranormal-2e",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "ato-i-handouts",
+      "label": "Ato I — Handouts",
+      "path": "packs/ato-i-handouts",
+      "type": "JournalEntry",
+      "system": "ordem-paranormal-2e",
+      "ownership": {
+        "PLAYER": "NONE",
+        "ASSISTANT": "OWNER"
+      }
+    }
+  ]
 }

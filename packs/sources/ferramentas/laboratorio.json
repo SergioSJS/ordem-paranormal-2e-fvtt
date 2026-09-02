@@ -1,0 +1,23 @@
+{
+  "_id": "e58e2a56d9af3f45",
+  "_key": "!items!e58e2a56d9af3f45",
+  "name": "Laboratório Portátil",
+  "type": "ferramenta",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "subtipo": "laboratorio",
+    "descricao": "<p>Minigame de escada crescente: um dado por vez, começando em d4 e subindo um passo a cada rolagem, com teto na sua Aptidão (Exatas). Cada rolagem precisa ser maior ou igual à anterior.</p><p>Rerrolagens disponíveis: metade do valor do seu atributo Mente.</p>",
+    "cargas": {
+      "usa": false,
+      "value": 0,
+      "max": 0
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

@@ -1,6 +1,9 @@
-# Nunca commitar o PDF do playtest (material protegido)
+# Nunca commitar material da editora. O PDF do playtest e os arquivos liberados do
+# Ato I são a fonte da spec e dos compêndios, mas não são nossos para redistribuir —
+# `npm run ato-i` copia os do Ato I para o User Data de quem já os tem.
 *.pdf
 docs/*.pdf
+docs/Arquivos para o público - Ato I/
 
 node_modules/
 .DS_Store
@@ -18,7 +21,9 @@ e2e-foundry.png
 
 # Packs compilados (fonte fica em packs/sources/)
 packs/habilidades/
-packs/perfis/
+packs/ferramentas/
+packs/ato-i-personagens/
+packs/ato-i-handouts/
 
 .fvtt-config
 .vscode/settings.json

@@ -1,0 +1,30 @@
+{
+  "_id": "6a8df4108132510a",
+  "name": "Foco Mental",
+  "type": "habilidade",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "origem": "perfil",
+    "perfil": "executor",
+    "custo": "2 PD",
+    "descricao": "<p>Quando faz um <strong>teste mental</strong>, você pode gastar <strong>2 PD</strong> para receber <strong>+d4</strong> no teste.</p>",
+    "efeito": {
+      "tipo": "dado-extra",
+      "passos": 1,
+      "dado": "d4",
+      "chaves": [
+        "mente"
+      ],
+      "permitirD20": false
+    },
+    "usoEmInvestigacao": ""
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!items!6a8df4108132510a"
+}

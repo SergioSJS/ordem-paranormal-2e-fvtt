@@ -1,0 +1,23 @@
+{
+  "_id": "0c45880226e95d19",
+  "_key": "!items!0c45880226e95d19",
+  "name": "Termômetro Diferencial",
+  "type": "ferramenta",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "subtipo": "termometro",
+    "descricao": "<p>Uso ilimitado. Retorna apenas <strong>mais quente</strong>, <strong>mais frio</strong> ou <strong>igual</strong> ao ambiente.</p>",
+    "cargas": {
+      "usa": false,
+      "value": 0,
+      "max": 0
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

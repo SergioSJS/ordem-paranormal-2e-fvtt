@@ -1,0 +1,28 @@
+{
+  "_id": "9153ca58fa939f41",
+  "name": "Conhecimento Técnico",
+  "type": "habilidade",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "origem": "ocupacao",
+    "perfil": "",
+    "custo": "",
+    "descricao": "<p>Você possui uma <strong>perícia mental</strong> aumentada para <strong>d6</strong> (este aumento já está contabilizado na ficha).</p>",
+    "efeito": {
+      "tipo": "nenhum",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [],
+      "permitirD20": false
+    },
+    "usoEmInvestigacao": ""
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!items!9153ca58fa939f41"
+}

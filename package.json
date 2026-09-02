@@ -14,7 +14,8 @@
     "pack:build": "node scripts/build-packs.mjs",
     "check": "npm run lint && npm test && npm run build:css",
     "preview": "npm run build:css && node scripts/preview.mjs",
-    "e2e": "node scripts/e2e/verificar.mjs"
+    "e2e": "node scripts/e2e/verificar.mjs",
+    "ato-i": "node scripts/instalar-ato-i.mjs"
   },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^2.0.0",

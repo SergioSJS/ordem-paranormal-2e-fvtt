@@ -9,7 +9,7 @@
       "habilidade": "Habilidade",
       "equipamento": "Equipamento",
       "ponto-interesse": "Ponto de Interesse",
-      "desafio-acesso": "Desafio de Acesso",
+      "desafio-acesso": "Desafio",
       "ferramenta": "Ferramenta"
     }
   },
@@ -20,7 +20,7 @@
       "Item": "Ficha de Item",
       "PontoInteresse": "Ponto de Interesse",
       "SemNome": "Sem nome",
-      "DesafioAcesso": "Desafio de Acesso",
+      "DesafioAcesso": "Desafio",
       "Ferramenta": "Ferramenta da Ordo Realitas",
       "Investigacao": "Investigação"
     },
@@ -87,7 +87,14 @@
       "pv": "PV",
       "pd": "PD",
       "Atual": "Atual",
-      "Maximo": "Máximo"
+      "Maximo": "Máximo",
+      "Titulo": "Usar habilidade ou item",
+      "Escolha": "O que você usa",
+      "Ajuda": "Descreva o uso para a mesa. O mestre decide se cabe e qual o efeito — o padrão sugerido é um aumento de passo no teste em questão.",
+      "SemItens": "Este personagem não tem habilidades, equipamentos ou ferramentas para usar.",
+      "Card": "{ator} usa {item}.",
+      "Conceder": "Conceder +1 passo no próximo teste",
+      "Concedido": "{ator} recebeu +{passos} passo(s) no próximo teste."
     },
     "Secao": {
       "Atributos": "Atributos",
@@ -174,7 +181,6 @@
       "QuadroAjuda": "Investigar compara o tamanho do dado contra a DT, sem rolar. Examinar rola e compara a soma.",
       "AdicionarInformacao": "Nova informação",
       "RemoverInformacao": "Remover informação",
-      "InfoOcultaAjuda": "Rascunho do mestre — nunca revelável aos jogadores enquanto oculta, mesmo que a DT seja batida.",
       "DescricaoContextual": "Descrição contextual (só do mestre)",
       "DescricaoContextualAjuda": "A explicação completa. Resolve as interações livres dos jogadores.",
       "Ferramentas": "Setor de ferramentas",
@@ -200,6 +206,11 @@
         "poRevelador": "Pó Revelador",
         "radio": "Rádio Modificado",
         "termometro": "Termômetro Diferencial"
+      },
+      "Visibilidade": {
+        "rascunho": "Rascunho — o jogador não vê, e Examinar nunca encontra. Clique para tornar descobrível.",
+        "descobrivel": "Descobrível — só quem Examinar com a perícia e alcançar a DT. Clique para abrir para todos.",
+        "aberta": "Aberta — todo jogador vê sem gastar ação. Clique para voltar a rascunho."
       }
     },
     "Acoes": {
@@ -209,19 +220,15 @@
       "Livres": "Ações livres",
       "SemInvestigacao": "Nenhuma investigação em jogo para este personagem. O mestre precisa colocar uma em jogo e adicionar você como participante.",
       "SemPOIs": "Nenhum ponto de interesse disponível ainda.",
-      "SemDesafios": "Nenhum desafio de acesso disponível ainda."
+      "SemDesafios": "Nenhum desafio disponível ainda."
     },
     "Investigacao": {
-      "Investigar": "Investigar",
       "Examinar": "Examinar",
       "Interagir": "Interagir",
       "Recapitular": "Recapitular",
       "Compartilhar": "Compartilhar",
       "EscolherPericia": "Perícia do quadro",
-      "EscolherPericiaAjuda": "Investigar entrega toda informação com DT até o tamanho do seu dado, sem rolar.",
-      "POIVazio": "Este ponto de interesse não tem informações no quadro.",
       "NadaNovo": "Nenhuma informação nova com esta perícia.",
-      "ExaminarAviso": "Examinar é uma aposta: se o teste não revelar nenhuma informação nova, você perde {custo} PD.",
       "ExaminarSemInfo": "O exame não revelou nenhuma informação nova.",
       "PerderPD": "Perder {custo} PD",
       "PDPago": "{ator} perdeu {custo} PD ao examinar sem descobrir nada.",
@@ -247,8 +254,18 @@
       "FichaAjuda": "Rodada, sobrecarga, participantes e travas de Recapitular/Compartilhar ficam em flags desta investigação, geridos pelo Painel de investigação. Este campo é só para notas do mestre.",
       "Notas": "Notas",
       "SemPoisAjuda": "Nenhum ponto de interesse. Arraste um Item de Ponto de Interesse para cá.",
-      "SemDesafiosAjuda": "Nenhum desafio de acesso. Arraste um Item de Desafio de Acesso para cá.",
-      "ExaminarEscolhaAjuda": "Examinar rola a perícia e compara a soma contra a DT. Custa 1 PD se não revelar nada novo."
+      "SemDesafiosAjuda": "Nenhum desafio. Arraste um Item de Desafio para cá.",
+      "ExaminarEscolhaAjuda": "Examinar entrega de graça tudo com DT até o tamanho do seu dado e rola pelo resto. Se nada vier, custa {custo} PD.",
+      "SemRevelacao": {
+        "sem-pericia": "Não há nada aqui que {pericia} alcance.",
+        "dado-pequeno": "Tem algo aqui para {pericia}, mas seu {dado} não alcança. Um dado maior — ou ajuda — mudaria isso.",
+        "ja-revelado": "Você já descobriu tudo que {pericia} alcança aqui."
+      },
+      "DtQueFaltava": "Mestre: a menor DT que falta nesta perícia é {dt}.",
+      "SemRolar": "sem rolar",
+      "ExaminarAchou": "o teste revelou {quantidade} informação(ões) nova(s).",
+      "ExaminarSoGratis": "o teste não alcançou nada novo; as {quantidade} linha(s) acima vieram pelo tamanho do seu dado.",
+      "CriticoExaminar": "revela o que faltava desta perícia, ignorando a DT."
     },
     "Dialog": {
       "Teste": {
@@ -271,7 +288,8 @@
       },
       "Pericia": {
         "Titulo": "Escolha a perícia",
-        "TrocaAtributo": "O atributo pareado é sugestão — dá para trocar no diálogo de teste, depois de escolher a perícia."
+        "TrocaAtributo": "O atributo pareado é sugestão — dá para trocar no diálogo de teste, depois de escolher a perícia.",
+        "SemRolagem": "Investigar não rola dado: compara o tamanho do seu dado contra a DT da informação. Escolher já resolve."
       }
     },
     "Passo": "passo",
@@ -357,8 +375,8 @@
       "AdicionarLinha": "Nova linha",
       "RemoverLinha": "Remover linha",
       "ProximoDano": "Ao encerrar a rodada {rodada}: {dano} de dano emocional.",
-      "Desafios": "Desafios de acesso",
-      "SemDesafios": "Nenhum desafio de acesso nesta cena. O mestre pode arrastar um Desafio de Acesso para cá.",
+      "Desafios": "Desafios",
+      "SemDesafios": "Nenhum desafio nesta cena. O mestre pode arrastar um Desafio para cá.",
       "AbrirDesafio": "Abrir a ficha do desafio",
       "RemoverDesafio": "Desvincular da cena",
       "SemInvestigacao": "Nenhuma investigação selecionada",
@@ -372,7 +390,9 @@
       "JaAgiuAjuda": "O mestre marca quem já agiu nesta rodada — controle manual, o sistema não passa turno sozinho. Zera ao avançar rodada.",
       "AlternarOculto": "Mostrar ou esconder dos jogadores",
       "MoverParaCima": "Subir na ordem",
-      "MoverParaBaixo": "Descer na ordem"
+      "MoverParaBaixo": "Descer na ordem",
+      "LimparRevelacao": "Desfazer a descoberta desta linha (para todos)",
+      "RevelacaoLimpa": "Descoberta desfeita para: {nomes}."
     },
     "Rodada": {
       "Titulo": "Rodada {rodada}",
@@ -494,7 +514,13 @@
       "Abordagens": "Abordagens possíveis",
       "AbordagensAjuda": "Marque só o que faz sentido neste objeto. Uma porta emperrada não se hackeia; um painel eletrônico não se arromba no braço.",
       "SemAbordagem": "Nenhuma abordagem marcada neste desafio — o mestre precisa escolher pelo menos uma na ficha dele.",
-      "SenhaAjuda": "A senha em si é gerada e conferida pelo app de Destrancar, na hora de jogar."
+      "SenhaAjuda": "A senha em si é gerada e conferida pelo app de Destrancar, na hora de jogar.",
+      "Generico": "Outra abordagem",
+      "GenericoAjuda": "Para o que o playtest não nomeia: uma tábua pregada, um portão enferrujado, uma janela alta. Escolha a perícia e o nome que aparece no botão.",
+      "GenericoRotulo": "Nome da ação",
+      "GenericoRotuloExemplo": "Ex.: Arrancar as tábuas",
+      "GenericoPericia": "Perícia testada",
+      "GenericoJaResolvido": "Este desafio já foi vencido por essa abordagem."
     },
     "Ferramenta": {
       "Rotulo": "Ferramenta",
@@ -535,6 +561,73 @@
       "RadioMoverEsquerda": "Mover palavra para a esquerda",
       "RadioMoverDireita": "Mover palavra para a direita",
       "RadioResultadoResumo": "Removeu {removidos} de {totalFalsos} conjunto(s) falso(s)."
+    },
+    "Ferimento": {
+      "Titulo": "Ferimento",
+      "Texto": "{ator} chegou a 0 PV. Teste de {pericia} contra DT {dt}.",
+      "Consequencia": "Sucesso: continua agindo. Falha: morre.",
+      "Rolar": "Rolar ferimento (DT {dt})",
+      "Sucesso": "{ator} se mantém de pé.",
+      "Falha": {
+        "morte": "{ator} morre."
+      },
+      "ProximaDT": "O próximo teste será contra DT {dt}."
+    },
+    "Trauma": {
+      "Titulo": "Trauma",
+      "Texto": "{ator} chegou a 0 PD. Teste de {pericia} contra DT {dt}.",
+      "Consequencia": {
+        "morte": "Sucesso: continua agindo. Falha: colapso mental e morte.",
+        "colapso": "Sucesso: continua agindo. Falha: colapso mental — o personagem sai de cena, sem morrer."
+      },
+      "Rolar": "Rolar trauma (DT {dt})",
+      "Sucesso": "{ator} segura a barra.",
+      "Falha": {
+        "morte": "{ator} entra em colapso mental e morre.",
+        "colapso": "{ator} entra em colapso mental e sai de cena."
+      }
+    },
+    "Ajuda": {
+      "Titulo": "Ajudar",
+      "Aliado": "Quem você ajuda",
+      "EscolhaAjuda": "Escolha a perícia com que você ajuda. Precisa ser coerente com a situação e ter no mínimo d6 — com d4 não dá para ajudar. d6/d8 dão +1 passo; d10/d12 dão +2.",
+      "DadoPequeno": "Sua {pericia} é {dado}: com d4 não é possível ajudar (regra da ação).",
+      "SemAliados": "Não há outro personagem na investigação para ajudar.",
+      "Card": "{ajudante} ajuda {alvo} com {pericia} ({dado}): +{passos} passo(s) no próximo teste.",
+      "NoDialogo": "Ajuda de {de} ({pericia}): +{passos} passo(s) já aplicado(s).",
+      "Pendente": "Ajuda pendente de {de}: +{passos} passo(s)."
+    },
+    "Combate": {
+      "Atacar": "Atacar",
+      "Defender": "Defender",
+      "Alvo": "Alvo do ataque",
+      "SemAlvos": "Não há outro personagem ou NPC na investigação para atacar.",
+      "ArmadoPergunta": "Você está empunhando uma arma? Com arma o dano é o RA; desarmado, o RB.",
+      "Armado": "Com arma (RA)",
+      "Desarmado": "Desarmado (RB)",
+      "AtaqueContexto": "Ataque contra {alvo}",
+      "DefesaContexto": "Defesa contra {atacante}",
+      "Ataque": "{atacante} ataca {alvo} — teste oposto de Luta, resultado {total}.",
+      "EsquivaDica": "Revidar é teste de Luta e pode causar dano. Esquivar é Acrobacia +d6: vencendo, ninguém sofre nem causa dano.",
+      "Revidar": "Revidar (Luta)",
+      "Esquivar": "Esquivar (Acrobacia +d6)",
+      "Resultado": "Resultado do ataque",
+      "Venceu": "{vencedor} vence o teste oposto e causa {dano} de dano em {perdedor}.",
+      "EsquivouTexto": "{defensor} esquiva: ninguém sofre nem causa dano.",
+      "Empate": "Empate no teste oposto — ninguém causa dano.",
+      "AplicarDano": "Aplicar {dano} de dano em {nome}"
+    },
+    "Impeto": {
+      "Titulo": "Ímpeto",
+      "Dica": "Cada falha em um teste preenche um espaço. Apague um para receber +d4 em um teste.",
+      "Passo": "Gastar 3: +1 passo",
+      "PassoDica": "Apaga a barra inteira e aumenta um atributo em um passo até o fim da cena.",
+      "QualAtributo": "Qual atributo sobe um passo",
+      "PassoAplicado": "{atributo} sobe um passo até o fim da cena.",
+      "Preencher": "Preencher ímpeto",
+      "Preenchido": "{ator} preencheu um espaço de ímpeto ({preenchidos}/{espacos}).",
+      "Cheia": "A barra de ímpeto já está cheia.",
+      "Gastar": "Gastar 1 ímpeto: +d4"
     }
   }
 }

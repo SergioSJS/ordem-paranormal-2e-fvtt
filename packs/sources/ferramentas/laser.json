@@ -1,0 +1,23 @@
+{
+  "_id": "594cd10ca0f85ac0",
+  "_key": "!items!594cd10ca0f85ac0",
+  "name": "Laser de Varredura",
+  "type": "ferramenta",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "subtipo": "laser",
+    "descricao": "<p>Ativado no ambiente, não em um ponto específico. Revela <strong>quais pontos de interesse reagem</strong> às demais ferramentas — economiza cargas e ações.</p>",
+    "cargas": {
+      "usa": false,
+      "value": 0,
+      "max": 0
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

@@ -1,0 +1,23 @@
+{
+  "_id": "28be88a171bb38a3",
+  "_key": "!items!28be88a171bb38a3",
+  "name": "Câmera Modificada",
+  "type": "ferramenta",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "subtipo": "camera",
+    "descricao": "<p>Mira em um ponto de interesse. Se houve evento paranormal imagético ali, o mestre envia um handout — um vislumbre do passado.</p>",
+    "cargas": {
+      "usa": false,
+      "value": 0,
+      "max": 0
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

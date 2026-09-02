@@ -23,6 +23,17 @@ export class DesafioAcessoData extends foundry.abstract.TypeDataModel {
         destrancar: new BooleanField({ required: true, initial: true }),
         hackTecnico: new BooleanField({ required: true, initial: false }),
         hackSocial: new BooleanField({ required: true, initial: false }),
+        // Escapatória para tudo que o playtest não nomeia: uma tábua pregada
+        // (Atletismo), um portão enferrujado (Máquinas), uma janela alta
+        // (Acrobacia). O mestre diz qual perícia e como se chama.
+        generico: new BooleanField({ required: true, initial: false }),
+      }),
+
+      /** Abordagem genérica: a perícia testada e o rótulo que aparece no botão. */
+      generico: new SchemaField({
+        pericia: new StringField({ required: true, initial: "atletismo", blank: false }),
+        rotulo: new StringField({ required: true, initial: "", blank: true }),
+        resolvido: new BooleanField({ required: true, initial: false }),
       }),
 
       dtObjeto: new NumberField({ required: true, initial: 7, min: 0, integer: true, nullable: false }),

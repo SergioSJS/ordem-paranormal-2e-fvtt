@@ -1,0 +1,244 @@
+{
+  "_id": "49b01f26785d0eec",
+  "name": "Victor",
+  "type": "personagem",
+  "img": "op2-ato-i/tokens/personagem-victor.png",
+  "system": {
+    "tipo": "sobrevivente",
+    "perfil": "vigilante",
+    "ocupacao": "Professor",
+    "nivel": 2,
+    "nex": 0,
+    "atributos": {
+      "fisico": {
+        "die": "d8"
+      },
+      "mente": {
+        "die": "d6"
+      },
+      "emocao": {
+        "die": "d8"
+      }
+    },
+    "pericias": {
+      "acrobacia": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "aptidao": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "atletismo": {
+        "die": "d6",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "crime": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "disciplina": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "enganacao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "furtividade": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "intimidar": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "intuicao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "luta": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "maquinas": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "medicina": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "ocultismo": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "percepcao": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "persuasao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "pesquisar": {
+        "die": "d8",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "pontaria": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "sobrevivencia": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "tecnologia": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "vigor": {
+        "die": "d6",
+        "atributo": "fisico",
+        "stepMod": 0
+      }
+    },
+    "aptidoes": {
+      "artes": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "atualidades": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "burocracia": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "exatas": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "humanas": {
+        "rotulo": "",
+        "die": "d6"
+      },
+      "tatica": {
+        "rotulo": "",
+        "die": "d4"
+      }
+    },
+    "recursos": {
+      "pv": {
+        "value": 14,
+        "max": 14
+      },
+      "pd": {
+        "value": 14,
+        "max": 14
+      }
+    },
+    "impeto": {
+      "espacos": 0,
+      "preenchidos": 0
+    },
+    "biografia": ""
+  },
+  "items": [
+    {
+      "_id": "9fc1d264d7a13582",
+      "name": "Mentoria",
+      "type": "habilidade",
+      "img": "icons/svg/book.svg",
+      "system": {
+        "origem": "perfil",
+        "perfil": "vigilante",
+        "custo": "",
+        "descricao": "<p>Quando <strong>ajuda</strong> outro personagem, você pode fazer um teste da perícia que usou para ajudar contra <strong>DT 7</strong>. Se passar, o personagem ajudado pode substituir um dos dados rolados por ele pela sua <strong>rolagem alta</strong>.</p>",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": ""
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!49b01f26785d0eec.9fc1d264d7a13582"
+    },
+    {
+      "_id": "334087885fe02612",
+      "name": "Prontidão",
+      "type": "habilidade",
+      "img": "icons/svg/book.svg",
+      "system": {
+        "origem": "perfil",
+        "perfil": "vigilante",
+        "custo": "3 PD",
+        "descricao": "<p>No início de qualquer conflito, você pode gastar <strong>3 PD</strong>. Se fizer isso, <strong>ganha uma rodada</strong> na qual pode agir antes dos demais personagens e NPCs.</p><p><em>No painel de investigação, o mestre move você para o topo da Ordem das Rodadas.</em></p>",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": ""
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!49b01f26785d0eec.334087885fe02612"
+    }
+  ],
+  "prototypeToken": {
+    "name": "Victor",
+    "texture": {
+      "src": "op2-ato-i/tokens/token-victor.png"
+    },
+    "actorLink": true,
+    "disposition": 1,
+    "sight": {
+      "enabled": true
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!actors!49b01f26785d0eec"
+}

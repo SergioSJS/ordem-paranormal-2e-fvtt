@@ -441,3 +441,40 @@ export async function marcarHackSocialResolvido(desafioUuid) {
   if (!desafio) return null;
   await gravarNoDesafio(desafio, { "system.hackSocial.resolvido": true });
 }
+
+/**
+ * DESAFIO GENÉRICO — a escapatória para o que o playtest não nomeia: uma tábua
+ * pregada, um portão enferrujado, uma janela alta. O mestre escolhe a perícia e o
+ * rótulo na ficha; aqui é só um teste contra a DT do objeto, e o sucesso resolve.
+ * Sem gate de rodada: quem inventa o obstáculo decide se cabe tentar de novo.
+ * @returns {Promise<{roll: OP2Roll, sucesso: boolean}|null>}
+ */
+export async function desafioGenerico(ator, desafioUuid, { rapido = false } = {}) {
+  const desafio = await carregarDesafio(desafioUuid);
+  if (!desafio) return null;
+  if (desafio.system.generico.resolvido) {
+    ui.notifications.warn(game.i18n.localize("OP2.Desafio.GenericoJaResolvido"));
+    return null;
+  }
+
+  const rotulo = desafio.system.generico.rotulo?.trim()
+    || game.i18n.localize("OP2.Desafio.Generico");
+
+  const roll = await rolarTeste(ator, {
+    chavePericia: desafio.system.generico.pericia,
+    dt: desafio.system.dtObjeto,
+    rapido,
+    contexto: `${rotulo} — ${desafio.name}`,
+  });
+  if (!roll) return null;
+
+  if (roll.sucesso) await gravarNoDesafio(desafio, { "system.generico.resolvido": true });
+
+  await enviarCard(ator, "hackear", {
+    titulo: rotulo,
+    desafioNome: desafio.name,
+    sucesso: roll.sucesso,
+  }, { whisper: sussurroPara(ator) });
+
+  return { roll, sucesso: roll.sucesso };
+}

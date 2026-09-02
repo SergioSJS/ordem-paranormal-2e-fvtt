@@ -1,0 +1,23 @@
+{
+  "_id": "48412bd96eb22e7e",
+  "_key": "!items!48412bd96eb22e7e",
+  "name": "Medidor EMF",
+  "type": "ferramenta",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "subtipo": "emf",
+    "descricao": "<p>O mestre envia o áudio de bipes; o jogador compara o padrão com as formas de onda do Compêndio da Ordem para identificar a frequência.</p>",
+    "cargas": {
+      "usa": false,
+      "value": 0,
+      "max": 0
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

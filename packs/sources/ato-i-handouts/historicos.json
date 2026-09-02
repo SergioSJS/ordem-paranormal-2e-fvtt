@@ -1,0 +1,108 @@
+{
+  "_id": "2b10b98626eb5e55",
+  "name": "Históricos de personagem — Ato I",
+  "pages": [
+    {
+      "_id": "18bfcef6545efb83",
+      "name": "Histórico - Alan",
+      "type": "image",
+      "src": "op2-ato-i/historicos/historico-alan.jpg",
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {
+        "caption": "Histórico - Alan"
+      },
+      "sort": 100,
+      "ownership": {
+        "default": -1
+      },
+      "flags": {},
+      "_key": "!journal.pages!2b10b98626eb5e55.18bfcef6545efb83"
+    },
+    {
+      "_id": "582241e72b18809a",
+      "name": "Histórico - Edgar",
+      "type": "image",
+      "src": "op2-ato-i/historicos/historico-edgar.jpg",
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {
+        "caption": "Histórico - Edgar"
+      },
+      "sort": 200,
+      "ownership": {
+        "default": -1
+      },
+      "flags": {},
+      "_key": "!journal.pages!2b10b98626eb5e55.582241e72b18809a"
+    },
+    {
+      "_id": "5a3fd7b84c905ea9",
+      "name": "Histórico - Eloísa",
+      "type": "image",
+      "src": "op2-ato-i/historicos/historico-eloisa.jpg",
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {
+        "caption": "Histórico - Eloísa"
+      },
+      "sort": 300,
+      "ownership": {
+        "default": -1
+      },
+      "flags": {},
+      "_key": "!journal.pages!2b10b98626eb5e55.5a3fd7b84c905ea9"
+    },
+    {
+      "_id": "31e7fa0c4dea5449",
+      "name": "Histórico - Kênia",
+      "type": "image",
+      "src": "op2-ato-i/historicos/historico-kenia.jpg",
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {
+        "caption": "Histórico - Kênia"
+      },
+      "sort": 400,
+      "ownership": {
+        "default": -1
+      },
+      "flags": {},
+      "_key": "!journal.pages!2b10b98626eb5e55.31e7fa0c4dea5449"
+    },
+    {
+      "_id": "4498b4f032ff2eb6",
+      "name": "Histórico - Victor",
+      "type": "image",
+      "src": "op2-ato-i/historicos/historico-victor.jpg",
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {
+        "caption": "Histórico - Victor"
+      },
+      "sort": 500,
+      "ownership": {
+        "default": -1
+      },
+      "flags": {},
+      "_key": "!journal.pages!2b10b98626eb5e55.4498b4f032ff2eb6"
+    }
+  ],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!journal!2b10b98626eb5e55"
+}

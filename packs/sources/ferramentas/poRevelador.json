@@ -1,0 +1,23 @@
+{
+  "_id": "ef5ab2fb8722941b",
+  "_key": "!items!ef5ab2fb8722941b",
+  "name": "Pó Revelador",
+  "type": "ferramenta",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "subtipo": "poRevelador",
+    "descricao": "<p>Aplicado em superfícies; reage em cores e formas conforme o elemento. O efeito é por ponto de interesse.</p>",
+    "cargas": {
+      "usa": true,
+      "value": 5,
+      "max": 5
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

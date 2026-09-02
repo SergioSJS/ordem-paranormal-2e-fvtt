@@ -2,10 +2,18 @@
  * Ficha do desafio de acesso — o objeto que Arrombar, Destrancar ou Hackear
  * tentam vencer (spec §7.1/§7.2/§7.3).
  */
+import { PERICIAS } from "../config.mjs";
+import { rotuloDePericia } from "../dice/teste.mjs";
 import { OP2ItemSheet } from "./item-sheet.mjs";
 
 export class DesafioAcessoSheet extends OP2ItemSheet {
   static DEFAULT_OPTIONS = {
+    // `height: "auto"` (o padrão da ficha de item) cresce sem teto: com as
+    // abordagens ligadas a janela passava da tela e o fim do formulário ficava
+    // inalcançável, sem barra de rolagem (achado em uso real — o mesmo problema
+    // que o painel já teve). Altura numérica dá ao core o que clampar.
+    position: { width: 560, height: 720 },
+    classes: ["op2-ficha--desafio"],
     actions: {
       ajustarPontuacao: DesafioAcessoSheet.#ajustarPontuacao,
       ajustarTentativas: DesafioAcessoSheet.#ajustarTentativas,
@@ -29,6 +37,10 @@ export class DesafioAcessoSheet extends OP2ItemSheet {
       // Sem nenhuma abordagem marcada a ficha não tem o que configurar — o aviso
       // substitui os blocos em vez de mostrar campos que não valem para nada.
       temAlgumaAbordagem: Object.values(this.item.system.abordagens).some(Boolean),
+      // Qualquer perícia serve para a abordagem genérica — é justamente o ponto.
+      opcoesPericia: Object.keys(PERICIAS)
+        .filter((chave) => !PERICIAS[chave].especializada)
+        .map((chave) => ({ chave, rotulo: rotuloDePericia(chave) })),
     };
   }
 
