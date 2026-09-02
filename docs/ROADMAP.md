@@ -7,7 +7,7 @@ promete, nas duas versões do Foundry.
 
 Manifesto, tooling, testes, docs, símbolo do projeto. Sem conteúdo de jogo.
 
-## Fase 1 — Ficha + motor de dados → `0.1.0` ◀ atual
+## Fase 1 — Ficha + motor de dados → `0.1.0` ✅
 
 - [x] Escada de dados com testes
 - [x] `OP2Roll` com RA/RB, crítico, falha crítica, precedência sobre a DT
@@ -22,7 +22,7 @@ Manifesto, tooling, testes, docs, símbolo do projeto. Sem conteúdo de jogo.
 - [x] i18n pt-BR + en com teste de paridade
 - [x] Busca na coluna de perícias
 - [x] Validação em Foundry v14 real (`npm run e2e`, 47 verificações)
-- [ ] Validação em Foundry v13
+- [ ] Validação em Foundry v13 (adiada por decisão do projeto)
 
 **Pronto quando:** dá para criar um agente, montar a ficha, rolar qualquer perícia
 trocando o atributo, ver RA/RB e crítico no chat, e o mestre aplicar falha crítica com
@@ -34,19 +34,23 @@ aventura *A Maldição do Ídolo de Pedra* — fora de escopo deste repositório
 Item `habilidade` existe e é funcional; o conteúdo é criado pela mesa, ou vem de um
 *adventure module* separado. Ver `docs/LACUNAS.md`.
 
-## Fase 2 — Investigação → `0.2.0` ◀ atual
+## Fase 2 — Investigação → `0.2.0` ✅
 
 O coração do playtest, e o que nenhum outro sistema tem.
 
 - [x] `ponto-interesse` como Item, com sheet de mestre (cabeçalho, quadro de perícias,
   descrição contextual só do GM)
 - [x] Painel de investigação por cena
-- [x] Investigar / Examinar / Interagir / Recapitular / Compartilhar
+- [x] Examinar / Interagir / Recapitular / Compartilhar / Usar habilidades e itens
+  (não existe ação "Investigar": investigar um ponto É examinar ou interagir, spec §6.3)
 - [x] Revelação **por personagem** — a informação é de quem descobriu
+- [x] Três estados por linha do quadro: rascunho / descobrível / aberta
+- [x] Desfazer uma descoberta sem encerrar a cena
 - [x] Travas de 1×-por-cena em Recapitular e Compartilhar
-- [x] Tracker de rodadas sem iniciativa: ordem arrastável, NPCs por último
+- [x] Tracker de rodadas sem iniciativa: uma lista só, arrastável, NPCs incluídos
+  (a spec sugere NPCs por último; prender o grupo deixava a linha deles imóvel)
 - [x] Sobrecarga mental com tabela editável por cena
-- [ ] Validação em Foundry v13 (bloqueada: sem instalação v13 na máquina)
+- [ ] Validação em Foundry v13 (adiada por decisão do projeto)
 
 **Ponto crítico entregue:** a coluna DT é lida de duas formas. Investigar compara o
 *tamanho* do dado, sem rolar (`resolverInvestigacao`). Examinar rola e compara a soma —
@@ -64,7 +68,7 @@ de pagamento no chat.
 - [x] Sustentar: custo inicial + teste, fadiga cumulativa a cada rodada
   (`estado.sustentando`, hook em `avancarRodada()`)
 - [x] Seção "Desafios" no painel de investigação, com Arrombar por item
-- [ ] Validação em Foundry v13 (mesmo bloqueio das fases anteriores)
+- [ ] Validação em Foundry v13 (adiada por decisão do projeto)
 
 ### M2 — Ferramentas da Ordo Realitas ✅
 
@@ -77,7 +81,7 @@ de pagamento no chat.
 - [x] Seção de ferramentas por POI no painel, só com o que o personagem carrega
 - [x] Regras puras do Laboratório Portátil (escada crescente) e do Rádio
   Modificado (tabela de conjuntos falsos) — prontas para o app de M3
-- [ ] Validação em Foundry v13 (mesmo bloqueio das fases anteriores)
+- [ ] Validação em Foundry v13 (adiada por decisão do projeto)
 
 ### M3 — minigames dedicados ✅
 
@@ -89,17 +93,42 @@ de pagamento no chat.
   (`conjuntos` verdadeiro/falso + frase, docs/LACUNAS.md), teto de falsos removidos
   pelo teste de Tecnologia, ordenação por setinhas. Verificado ao vivo: 220
   checks, 0 erros de console, screenshot real do app rodando.
-- [ ] Validação em Foundry v13 (mesmo bloqueio das fases anteriores)
+- [ ] Validação em Foundry v13 (adiada por decisão do projeto)
 
-Fase 3 fecha em `0.3.0` assim que a validação v13 destravar (falta instalação).
+Fase 3 fechada. A validação em v13 está adiada por decisão do projeto — o sistema
+declara `minimum: 13`, mas só o v14 foi exercitado de verdade.
 
-## Fase 4 — Combate simplificado → `0.4.0`
-
-Teste oposto de Luta, dano RA/RB, esquiva com `+d6`, ferimentos e traumas com DT
-escalando 7/10/13/16.
+## Fase 4 — Combate simplificado e regras avulsas → `0.4.0` ✅
 
 **Módulo isolado.** O playtest diz que essas regras são temporárias e serão substituídas
-— nada do resto do sistema deve depender delas.
+— nada do resto do sistema depende delas.
+
+- [x] Teste oposto (spec §4.6): maior resultado vence, sem DT; empate não move nada
+- [x] Combate: teste oposto de Luta, dano RA com arma e RB desarmado (spec §8.1)
+- [x] Esquiva: Acrobacia com `+d6` somado — a única exceção aditiva do playtest;
+      vencendo, ninguém sofre nem causa dano
+- [x] Ferimentos (§8.2): zerar PV pede Vigor contra DT 7/10/13/16, +3 por teste feito
+- [x] Traumas (§8.3): zerar PD pede Disciplina, com a consequência da falha configurável
+      (`falhaTrauma`) — o texto avisa que morrer por PD vai mudar
+- [x] Ajuda (§4.7): mínimo d6, +1 passo em d6/d8 e +2 em d10/d12, no dado que o setting
+      `ajudaAlvo` indica; vira passo pendente e o próximo teste consome
+- [x] Usar habilidades e itens (§6.6): o jogador declara, o card leva a descrição para a
+      mesa, e o mestre concede o passo — nada automático
+- [x] Barra de Ímpeto das fichas do Ato I: falha preenche, 1 espaço vira `+d4` no teste,
+      3 espaços sobem um atributo em um passo até o fim da cena
+- [ ] Validação em Foundry v13 (adiada por decisão do projeto)
+
+## Compêndios
+
+- [x] Habilidades do Ato I (8 itens)
+- [x] Pré-gerados do Ato I (Alan, Edgar, Eloísa, Kênia, Victor), com habilidades e tokens
+- [x] Handouts e históricos do Ato I como JournalEntry
+- [x] `npm run ato-i` instala as imagens no User Data (não são redistribuídas)
+- [x] As 10 ferramentas da Ordo Realitas como itens prontos, com as cargas da regra
+      (Lanterna UV 3, Pó Revelador 5; as demais ilimitadas)
+
+As habilidades de perfil moram no compêndio de habilidades com `origem: "perfil"` — não
+existe um pack "perfis" separado.
 
 ## Depois
 

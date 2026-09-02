@@ -217,3 +217,49 @@ palavras dos que sobraram bate com a frase certa.
 2. Registre o setting em `module/settings/register.mjs`.
 3. Traduza `OP2.Config.<chave>.name` e `.hint` nos dois arquivos de idioma.
 4. Cite a seção da spec no comentário do código que lê o setting.
+
+
+## Nome do Item de desafio (decisão de projeto)
+
+A spec chama a §7 de "Desafios de acesso", mas a seção mistura Destrancar/Arrombar/
+Hackear com Alcançar, Sustentar e a sobrecarga mental — não é só acesso. Com a abordagem
+genérica, o mesmo Item cobre uma tábua pregada (Atletismo) ou um portão enferrujado
+(Máquinas).
+
+**Decisão:** o rótulo é **Desafio** em toda a interface. O id do tipo de documento segue
+`desafio-acesso`: renomear tipo migra mundo, e um mundo já em uso não vale o risco por
+um nome. Se algum dia houver migração de schema por outro motivo, o rename pega carona.
+
+## Empate em teste oposto (spec §4.6)
+
+O texto diz "maior resultado vence" e não trata empate. **Decisão:** empate não move
+nada — ninguém vence, ninguém causa dano. Preserva o status quo, que é o que a mesa
+narra naturalmente.
+
+## "Empunhando arma" (spec §8.1)
+
+O dano é RA com arma e RB desarmado, mas o playtest não define o que conta como
+empunhar, e o inventário não tem estado de "na mão". **Decisão:** o sistema pergunta na
+hora do ataque, em vez de deduzir do inventário.
+
+## Zerar os contadores de ferimento e trauma (spec §8.2)
+
+O playtest não define cura nem descanso. **Decisão:** `game.op2.zerarContadoresDeQueda(ator)`
+existe como ferramenta de mestre, e nada os zera sozinho — nem encerrar a cena, que só
+limpa reduções temporárias e revelações.
+
+## Barra de Ímpeto
+
+Não está na spec: veio das fichas prontas do Ato I, onde é habilidade de perfil do
+Executor (Alan e Edgar têm; Eloísa, Kênia e Victor não). **Decisão:** o campo é
+`impeto.espacos`, com 0 como padrão — quem tem a barra é quem a declara na ficha, sem
+o sistema amarrar a mecânica ao perfil. Preencher na falha é botão no card, não
+automático, pela mesma regra de sempre: a mesa às vezes reinterpreta o que foi falha.
+
+## Redistribuição dos arquivos do Ato I
+
+Os arquivos públicos do Ato I (handouts, mapas, tokens, músicas) são material da
+editora, liberado de graça para o playtest. **Decisão:** não vão no repositório nem no
+pacote do sistema — mesma política do PDF. Os compêndios trazem só os dados e apontam
+para `op2-ato-i/` no User Data; `npm run ato-i` copia os arquivos para lá na máquina de
+quem já os tem.

@@ -17,10 +17,12 @@ da spec e das amostras visuais; extraia dele em vez de adivinhar.
 
 ## Estado
 
-**Fase:** 3 — Desafios e ferramentas (M1 pronto: desafios de acesso físico)
+**Fase:** 4 — combate simplificado, ferimentos/traumas, Ajuda e uso de habilidades:
+**fechada**. Fases 1 a 3 fechadas.
 **Versão:** 0.0.1
-**Próxima milestone:** 0.3.0 — M2/M3 (Destrancar, ferramenta, Laboratório Portátil,
-Rádio Modificado). Validação em v13 segue bloqueada em todas as fases (falta instalação).
+**Próximo:** compêndios (ferramentas da Ordo Realitas, perfis) e o que o playtest ainda
+não publicou (NEX, progressão, traumas permanentes). Validação em v13 **adiada por
+decisão do projeto** — o sistema declara `minimum: 13`, mas só o v14 foi exercitado.
 
 ## Convenções
 
@@ -38,6 +40,17 @@ Rádio Modificado). Validação em v13 segue bloqueada em todas as fases (falta 
   mexer no default do setting: o core só registra `core.language` *depois* do hook
   `init` e resolve o idioma logo em seguida, sem hook no meio. A interface do próprio
   Foundry só fica em português com o módulo `pt-BR`, que o manifesto recomenda.
+- **Não existe ação "Investigar".** Investigar um ponto é Examinar ou Interagir (spec
+  §6.3). `examinar()` faz os dois passos: entrega de graça o que o tamanho do dado
+  alcança e rola pelo resto; só custa 1 PD quando os dois vêm vazios.
+- **Três estados por linha do quadro:** rascunho (`oculta`), descobrível (padrão, o
+  único que Examinar acha) e aberta (`aberta`, o jogador vê sem gastar ação).
+- **Jogador não escreve em documento de mundo.** POI e Desafio são Items de mundo:
+  passe por `comoMestre()` (`module/ui/socket.mjs`), que executa no `activeGM`.
+- **`dragDrop` em `DEFAULT_OPTIONS` é do AppV1** e o AppV2 ignora em silêncio. No V2,
+  construa `DragDrop.implementation` num getter `_dragDrop` e religue em `_onRender`.
+- **O core arredonda `button` e deixa a janela translúcida.** Botão pequeno nosso pede
+  `border-radius: 0`; janela do sistema fixa fundo opaco e `backdrop-filter: none`.
 - Commits: Conventional Commits, em português.
 - Nunca commitar direto na `main` — sempre feature branch.
 
@@ -48,6 +61,8 @@ npm install
 npm run setup        # symlink -> ~/Library/Application Support/FoundryVTT/Data/systems/
 npm run watch:css    # sass em watch
 npm run check        # lint + testes + build do CSS — rode antes de commitar
+npm run pack:build   # compila os compêndios de packs/sources/
+npm run ato-i        # instala os arquivos públicos do Ato I no User Data
 ```
 
 No Foundry: **Configurações → Configurar Aplicação → Hot Reload**. Com isso, `F5`
@@ -92,6 +107,8 @@ O servidor do Foundry v14 exige **Node 24**. O `npm test` do projeto roda em Nod
 - `investigacao.test.mjs` — as duas leituras da coluna DT, custo de PD, sobrecarga.
 - `desafios.test.mjs` — Arrombar, dano de Alcançar, Destrancar (avaliação de palpite).
 - `ferramentas.test.mjs` — escada do Laboratório Portátil, tabela do Rádio Modificado.
+- `ferimentos.test.mjs` — escada de DT 7/10/13/16, quando o teste é devido, passos de Ajuda.
+- `combate.test.mjs` — teste oposto, dano RA/RB, esquiva que anula, empate.
 - `i18n.test.mjs` — paridade pt-BR/en e chave inexistente usada no código.
 - `carga.test.mjs` — todo módulo importa, todo template compila, manifesto consistente.
 
@@ -104,6 +121,11 @@ o passo a passo está em `scripts/e2e/README.md`.
 
 Rode antes de fechar qualquer fase. Foi ele que pegou o sanitizador removendo `<svg>`
 dos cards de chat e o `{{actor.name}}` vazio na ficha.
+
+### Prints do README — `node scripts/e2e/capturar.mjs`
+
+Monta um mundo de demonstração no mesmo Foundry descartável e fotografa as telas em
+`docs/img/`. Nenhuma imagem do README é mockup; se a interface mudar, rode de novo.
 
 `module/tests/stub-foundry.mjs` tem stubs mínimos da API — o suficiente para carregar os
 módulos fora do Foundry. Não simula comportamento: lógica de regra fica em módulos puros

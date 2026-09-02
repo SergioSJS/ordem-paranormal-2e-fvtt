@@ -71,8 +71,35 @@ mestre julgue a interpretação (spec §6.4/§6.5), então quem registra a trava
 cena, escritas só pelo GM.
 
 **Sem Combat do core para rodadas.** O tracker diverge entre v13 (AppV1) e v14 (AppV2);
-o painel de investigação implementa a ordem arrastável com NPCs ao fim (spec §5.2) e o
-avanço de rodada que dispara a sobrecarga mental (spec §7.6).
+o painel de investigação implementa a ordem arrastável e o avanço de rodada que dispara
+a sobrecarga mental (spec §7.6). A ordem é uma lista só, com personagens e NPCs
+misturados: separar os NPCs num grupo próprio (spec §5.2 sugere que ajam por último)
+deixava a linha deles imóvel na prática — com um NPC só, as duas setinhas nasciam
+desabilitadas. Quem age quando é decisão de mesa; o sistema guarda a ordem que a mesa
+montou.
+
+**`dragDrop` em `DEFAULT_OPTIONS` é opção do ApplicationV1.** O ApplicationV2 ignora, e
+o painel ficou meses com `draggable="true"` no HTML e nenhum handler ligado. O caminho
+do V2 é o das fichas do core: um getter `_dragDrop` que constrói
+`DragDrop.implementation` com os callbacks da própria classe, religado em `_onRender`.
+
+**Escrita de jogador em documento de mundo passa pelo mestre.** POI e Desafio são Items
+de mundo: um jogador que arromba, hackeia ou dispara uma revelação não tem permissão de
+atualizá-los (`User lacks permission to update Item`, achado em uso real). `module/ui/socket.mjs`
+registra ações nomeadas de mestre e as executa **só** no `game.users.activeGM` — um GM
+designado, para não aplicar duas vezes com dois mestres online. O jogador chama
+`comoMestre("atualizarDesafio", …)` e o resultado volta pelo próprio documento.
+
+**Três estados por linha do quadro, não dois.** `oculta` (rascunho do mestre: invisível e
+não descobrível), `aberta` (o jogador vê sem gastar ação) e o padrão — descobrível, que é
+o único estado que Examinar encontra. Com só `oculta`/visível não existia o estado do
+meio, e nada ficava procurável: ou a linha estava trancada até para o Examinar, ou já
+aparecia pronta na tela do jogador (achado em uso real).
+
+**Não existe ação "Investigar".** Investigar um ponto é Examinar ou Interagir (spec §6.3
+resolve a ação nas duas sub-ações). `examinar()` faz os dois passos com a mesma perícia:
+entrega de graça o que o tamanho do dado alcança e rola pelo resto. Só custa 1 PD quando
+os dois vêm vazios.
 
 **Investigação é Actor, não flag de Scene.** A primeira versão (Fase 2) guardava rodada,
 sobrecarga, POIs vinculados e as travas de Recapitular/Compartilhar em flags da Scene
@@ -80,7 +107,7 @@ ativa — e quebrava assim que uma investigação de verdade atravessava mais de
 (achado em uso real: o time se move entre cômodos, mas continua na mesma investigação).
 `investigacao` é um tipo de Actor com ficha própria (`InvestigacaoData`,
 `module/data/actor-investigacao.mjs`), sem nenhuma referência a `canvas.scene` em
-código nenhum do sistema. POI e Desafio de Acesso continuam Item — são conteúdo
+código nenhum do sistema. POI e Desafio continuam Item — são conteúdo
 autoral, reutilizável — mas o vínculo "este POI está nesta investigação" é um campo de
 schema na investigação (`system.pois`), não uma flag de Scene. O mestre troca pelo
 seletor do painel ou abrindo a ficha da investigação direto pela sidebar de Actors.
@@ -113,3 +140,10 @@ Onde a v13 moveu algo, o acesso usa fallback explícito — veja `renderizar()` 
 `<details data-sync>` é ignorado no v13 e preserva estado no v14: usar sempre.
 
 CSS fica em `@layer system` e nunca depende de estilo do core.
+
+**O core arredonda todo `button` e deixa a janela translúcida.** Duas armadilhas que já
+custaram tempo: um botão pequeno nosso (o traço de PV, o espaço de ímpeto) vira um oval
+se não zerar `border-radius`, e a janela nasce com `rgba(...,.9)` mais
+`backdrop-filter: blur(4px)`, o que empilha duas telas legíveis pela metade. Toda janela
+do sistema fixa fundo opaco, borda vermelha escura e `backdrop-filter: none`
+(`styles/parciais/_base.scss`).
