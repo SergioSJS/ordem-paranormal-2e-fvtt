@@ -144,8 +144,13 @@ const relato = await page.evaluate(async () => {
   // saía grande demais mesmo com a altura certa declarada (achado em uso real).
   {
     const traco = el?.querySelector(".op2-traco");
-    const altura = traco && parseFloat(getComputedStyle(traco).height);
-    ok("traço de recurso não é inflado pelo min-height padrão de botão", altura < 16);
+    const estilo = traco && getComputedStyle(traco);
+    ok("traço de recurso não é inflado pelo min-height padrão de botão", parseFloat(estilo.height) < 16);
+    // O traço é um <button>, e o core arredonda todo botão: numa caixa de 8×12px
+    // o raio do core virava um oval, contra a gramática do livro
+    // (docs/ESTILO-VISUAL.md). Achado em uso real.
+    ok("traço de recurso não é arredondado",
+      estilo.borderTopLeftRadius === "0px" && estilo.borderBottomRightRadius === "0px");
   }
   ok("faixa de estado aparece com redução ativa", Boolean(el?.querySelector(".op2-estado")));
 
@@ -233,32 +238,166 @@ const relato = await page.evaluate(async () => {
   await game.op2.vincularPoi(investigacao, poi.uuid);
   ok("vincular POI grava o UUID no schema da investigação", investigacao.system.pois.includes(poi.uuid));
 
-  // Investigar: Percepção d8 entrega a DT 6 de graça, mas não a DT 10 — sem rolar.
-  const reveladas = await game.op2.investigar(ator, poi.uuid, "percepcao");
-  ok("investigar revela só DT ≤ tamanho do dado", reveladas?.length === 1 && reveladas[0] === "i1");
-  ok("revelação gravada no actor", ator.system.estado.infosReveladas.has(`${poi.uuid}:i1`));
-  ok("POI marcado como investigado", ator.system.estado.poisInvestigados.has(poi.uuid));
+  // Não existe ação "Investigar": investigar um ponto é Examinar ou Interagir
+  // (spec §6.3 — a ação se resolve nas duas sub-ações). A API não expõe outra.
+  ok("não existe ação Investigar exposta na API",
+    game.op2.investigar === undefined && game.op2.dialogoInvestigar === undefined);
 
-  // Investigar com uma perícia sem nada no quadro deste POI: não quebra, não
-  // revela nada.
-  const semCorrespondencia = await game.op2.investigar(ator, poi.uuid, "luta");
-  ok("investigar com perícia sem correspondência não quebra e não revela nada",
-    Array.isArray(semCorrespondencia) && semCorrespondencia.length === 0);
+  // Examinar faz os dois passos com a mesma perícia (spec §6.3): Percepção d8
+  // entrega a DT 6 de graça, sem rolar, e o teste tenta a DT 10.
+  const examinou = await game.op2.examinar(ator, poi.uuid, "percepcao", { rapido: true });
+  dados.examinar = examinou && { total: examinou.roll.total, dt: examinou.roll.dt, perdePD: examinou.perdePD };
+  ok("examinar rolou sem DT", examinou && examinou.roll.dt === null);
+  ok("examinar entrega de graça a DT ≤ tamanho do dado",
+    ator.system.estado.infosReveladas.has(`${poi.uuid}:i1`));
+  ok("POI marcado como investigado ao examinar", ator.system.estado.poisInvestigados.has(poi.uuid));
+  ok("o que veio sem rolar não custa PD", examinou?.perdePD === false);
 
   await esperar(800);
   const msgs = [...game.messages.values()];
   ok("revelação é sussurrada (dono + mestre)",
     msgs.some((m) => m.getFlag("ordem-paranormal-2e", "tipo") === "investigacao" && m.whisper.length > 0));
+  // O card genérico de teste rola sem DT e por isso não dizia nem sucesso nem
+  // falha — "veio só os valores" (achado em uso real) — e ainda oferecia Dano
+  // RA/RB, que não existe em Examinar. Agora é um card só, com tudo dentro.
+  {
+    const conteudo = game.messages.contents.at(-1)?.content ?? "";
+    ok("o card de Examinar traz os dados rolados", conteudo.includes("op2-card__dados"));
+    ok("o card de Examinar diz o desfecho", conteudo.includes("op2-card__desfecho"));
+    ok("o card de Examinar não oferece Dano RA/RB",
+      !conteudo.includes(game.i18n.localize("OP2.Chat.DanoRA")));
+    ok("Examinar não publica também o card genérico de teste",
+      game.messages.contents.at(-1)?.getFlag("ordem-paranormal-2e", "tipo") !== "teste");
+  }
 
-  // Examinar: rola sem DT — o card não pode vazar a DT das informações.
-  const examinou = await game.op2.examinar(ator, poi.uuid, "percepcao", { confirmar: false, rapido: true });
-  dados.examinar = examinou && { total: examinou.roll.total, dt: examinou.roll.dt, perdePD: examinou.perdePD };
-  ok("examinar rolou sem DT", examinou && examinou.roll.dt === null);
-  await esperar(800);
-  const revelouI2 = ator.system.estado.infosReveladas.has(`${poi.uuid}:i2`);
-  const cardCusto = [...document.querySelectorAll(".op2-card")]
-    .some((c) => c.textContent.includes(game.i18n.localize("OP2.Investigacao.ExaminarSemInfo")));
-  ok("examinar revelou a DT 10 ou abriu o card de custo de PD", revelouI2 || cardCusto);
+  ok("o card marca a linha que caiu sem rolar",
+    [...document.querySelectorAll(".op2-card")].some((c) => c.querySelector(".op2-card__info-marca")));
+
+  // O último card DESTA chamada — o chat guarda cards de execuções anteriores no
+  // mesmo mundo, então contar `.op2-card` na tela inteira dá falso positivo.
+  const ultimoCard = game.messages.contents.at(-1)?.content ?? "";
+  ok("com algo revelado, o card é de revelação e não o de custo de PD",
+    !ultimoCard.includes(game.i18n.localize("OP2.Investigacao.ExaminarSemInfo")));
+
+  // Perícia sem nada no quadro: aí sim é aposta perdida — paga 1 PD e o card diz
+  // por quê, em vez de só "nenhuma informação nova" (achado em uso real).
+  const semNada = await game.op2.examinar(ator, poi.uuid, "luta", { rapido: true });
+  ok("examinar com perícia sem correspondência custa 1 PD", semNada?.perdePD === true);
+  await esperar(600);
+  ok("o card de custo explica o motivo",
+    [...document.querySelectorAll(".op2-card--falha")].some((c) => c.querySelector(".op2-ajuda")));
+
+  /* ------------------------------------------------------------ fase 4 ------ */
+
+  // Ferimentos e traumas (spec §8.2/§8.3): o dano que zera o recurso pede o teste,
+  // com DT que escala. Antes disso os contadores existiam sem nada que os movesse.
+  {
+    const vitima = await Actor.create({ name: "Vítima de Teste", type: "personagem" });
+    await vitima.update({
+      "system.recursos.pv.max": 4, "system.recursos.pv.value": 3,
+      "system.recursos.pd.max": 4, "system.recursos.pd.value": 2,
+    });
+    const { aplicarDano } = await import("/systems/ordem-paranormal-2e/module/dice/falha-critica.mjs");
+
+    await aplicarDano(vitima, 3, "pv");
+    await esperar(600);
+    const cardFerimento = game.messages.contents.at(-1)?.content ?? "";
+    ok("zerar PV pede teste de ferimento", cardFerimento.includes("rolar-teste-queda"));
+
+    const res = await game.op2.rolarTesteDeQueda(vitima, "ferimento", { rapido: true });
+    await esperar(500);
+    ok("teste de ferimento usa a DT 7 do primeiro teste", res?.dt === 7);
+    ok("o contador sobe mesmo passando (a escalada é por teste feito)",
+      vitima.system.estado.testesFerimento === 1 && vitima.system.estado.dtProximoFerimento === 10);
+
+    await aplicarDano(vitima, 2, "pd");
+    await esperar(600);
+    const cardTrauma = game.messages.contents.at(-1)?.content ?? "";
+    ok("zerar PD pede teste de trauma", cardTrauma.includes('data-tipo="trauma"'));
+
+    // Ajuda (spec §4.7): passo pendente que o próximo teste consome.
+    const { passosDeAjuda, podeAjudar } = await import("/systems/ordem-paranormal-2e/module/cena/ajuda.mjs");
+    ok("d4 não ajuda; d10 dá dois passos", !podeAjudar("d4") && passosDeAjuda("d10") === 2);
+
+    await vitima.update({ "system.pericias.vigor.die": "d6" });
+    await vitima.update({ "system.estado.ajuda": { passos: 2, de: "Aliado", pericia: "Medicina" } });
+    const comAjuda = await game.op2.rolarTeste(vitima, { chavePericia: "vigor", dt: 7, rapido: true });
+    ok("a ajuda sobe o dado da perícia antes de rolar",
+      comAjuda.dados.some((d) => (d.componente?.dado ?? d.dado) === "d10"));
+    ok("a ajuda é consumida pela rolagem", vitima.system.estado.ajuda.passos === 0);
+
+    // Ímpeto (fichas do Ato I): falha preenche, gasto vira +d4.
+    await vitima.update({ "system.impeto": { espacos: 3, preenchidos: 1 } });
+    ok("a barra de ímpeto aparece só para quem tem espaços", vitima.system.impeto.tem === true);
+
+    // Combate (spec §8.1): teste oposto, esquiva com +d6 somado.
+    const bruto = await Actor.create({ name: "Bruto de Teste", type: "personagem" });
+    await bruto.update({ "system.pericias.luta.die": "d10" });
+    const ataque = await game.op2.atacar(bruto, { alvoUuid: vitima.uuid, armado: true, rapido: true });
+    await esperar(400);
+    ok("o ataque rola sem DT (teste oposto, spec §4.6)", ataque?.dt === null);
+    ok("o card do ataque oferece revidar e esquivar",
+      (game.messages.contents.at(-1)?.content ?? "").includes('data-esquiva="true"'));
+
+    const defesa = await game.op2.defender(vitima, {
+      atacanteId: bruto.id, totalAtaque: ataque.total, raAtaque: ataque.ra, rbAtaque: ataque.rb,
+      armadoAtacante: true, esquiva: true, rapido: true,
+    });
+    ok("a esquiva soma um d6 aos dados da Acrobacia (única exceção aditiva)",
+      defesa.roll.dados.filter((d) => (d.componente?.dado ?? d.dado) === "d6").length >= 1);
+    ok("esquiva vencedora não causa dano nenhum",
+      defesa.vencedor !== "defensor" || defesa.dano === 0);
+
+    await vitima.delete();
+    await bruto.delete();
+  }
+
+  // Sobrecarga mental (spec §7.6): ao encerrar a rodada N vale a linha N da tabela.
+  {
+    const sobrecarga = investigacao.system.sobrecarga;
+    ok("a tabela de sobrecarga vem com a progressão de referência do playtest",
+      sobrecarga.tabela.map((l) => `${l.rodada}:${l.dano}`).join(",")
+        === "1:0,2:0,3:1,4:1,5:1d4,6:1d4,7:1d6,8:1d6,9:2d4");
+    const { danoSobrecarga } = await import("/systems/ordem-paranormal-2e/module/cena/investigacao.mjs");
+    ok("rodada 3 cobra 1 de PD, rodada 5 cobra 1d4, rodada 9+ cobra 2d4",
+      danoSobrecarga(sobrecarga.tabela, 3) === "1"
+      && danoSobrecarga(sobrecarga.tabela, 5) === "1d4"
+      && danoSobrecarga(sobrecarga.tabela, 12) === "2d4");
+  }
+
+  // Compêndios: o que o mestre importa precisa bater com a ficha publicada.
+  {
+    const pack = game.packs.get("ordem-paranormal-2e.ato-i-personagens");
+    ok("compêndio de pré-gerados do Ato I existe e tem os cinco", pack?.index.size === 5);
+    if (pack) {
+      const entrada = [...pack.index].find((i) => i.name === "Alan");
+      const alan = entrada && await pack.getDocument(entrada._id);
+      ok("Alan importa com os valores da ficha publicada",
+        alan?.system.atributos.mente.die === "d8"
+        && alan?.system.recursos.pd.max === 16
+        && alan?.system.pericias.percepcao.die === "d8"
+        && alan?.system.impeto.espacos === 3);
+      ok("as habilidades vêm junto do pré-gerado",
+        alan?.items.map((i) => i.name).sort().join() === "Foco Mental,Ímpeto");
+    }
+    ok("compêndio de habilidades tem as oito do Ato I",
+      game.packs.get("ordem-paranormal-2e.habilidades")?.index.size === 8);
+    ok("compêndio de handouts do Ato I existe",
+      game.packs.get("ordem-paranormal-2e.ato-i-handouts")?.index.size === 2);
+
+    // As 10 ferramentas da Ordo Realitas (spec §9), prontas para o mestre distribuir.
+    const ferramentas = game.packs.get("ordem-paranormal-2e.ferramentas");
+    ok("compêndio traz as dez ferramentas da Ordo Realitas", ferramentas?.index.size === 10);
+    if (ferramentas) {
+      const entrada = [...ferramentas.index].find((i) => i.name === "Pó Revelador");
+      const po = entrada && await ferramentas.getDocument(entrada._id);
+      ok("Pó Revelador vem com as 5 cargas da regra",
+        po?.system.cargas.usa === true && po?.system.cargas.max === 5);
+      const semCarga = [...ferramentas.index].find((i) => i.name === "Laser de Varredura");
+      const laser = semCarga && await ferramentas.getDocument(semCarga._id);
+      ok("ferramenta de uso ilimitado não vem com carga", laser?.system.cargas.usa === false);
+    }
+  }
 
   /* ------------------------------------------------------- painel e rodadas -- */
 
@@ -267,25 +406,56 @@ const relato = await page.evaluate(async () => {
   const painelEl = painel.element;
   ok("painel renderizou", Boolean(painelEl));
   ok("painel lista o POI", Boolean(painelEl?.textContent.includes("Quadro na Parede")));
+
+  // Desfazer uma descoberta sem encerrar a cena — antes disso, uma pista revelada
+  // por engano só saía encerrando a investigação inteira (achado em uso real).
+  {
+    ok("painel mostra quem descobriu a linha",
+      Boolean(painelEl?.querySelector(".op2-poi-card__revelado-por")?.textContent.includes(ator.name)));
+    const desfazer = painelEl?.querySelector('[data-action="limparRevelacao"]');
+    ok("linha descoberta ganha o botão de desfazer", Boolean(desfazer));
+    desfazer?.click();
+    await esperar(700);
+    ok("desfazer tira a revelação da ficha do personagem",
+      !ator.system.estado.infosReveladas.has(`${poi.uuid}:i1`));
+    ok("desfazer não encerra a cena nem apaga o resto",
+      investigacao.system.pois.includes(poi.uuid) && ator.system.estado.poisInvestigados.has(poi.uuid));
+  }
   ok("mestre vê as DTs no quadro", Boolean(painelEl?.textContent.includes("DT 10")));
 
-  // Ocultar uma linha do quadro direto do painel — sem abrir a ficha do POI
-  // (achado em uso real: mestre preparando tudo numa tela só).
+  // Visibilidade da linha do quadro, direto do painel — sem abrir a ficha do POI
+  // (achado em uso real: mestre preparando tudo numa tela só). São TRÊS estados:
+  // com só "oculta/visível" não existia o do meio, e nada ficava achável — ou a
+  // linha estava trancada até pro Examinar, ou já aparecia pronta pro jogador
+  // ("não volta a ficar disponível para procurar").
   {
-    const botaoOcultarInfo = painelEl?.querySelector('[data-action="alternarInfoOculta"][data-info-id="i1"]');
-    ok("painel tem o botão de ocultar por informação do quadro", Boolean(botaoOcultarInfo));
-    botaoOcultarInfo?.click();
+    // O módulo de regras puro, dentro da página: a asserção precisa ser sobre o
+    // que Examinar realmente enxerga, não sobre os campos soltos.
+    const { resolverInvestigacao } = await import("/systems/ordem-paranormal-2e/module/cena/investigacao.mjs");
+    const linha = () => poi.system.informacoes.find((info) => info.id === "i1");
+    const botao = () => painelEl?.querySelector('[data-action="cicloVisibilidadeInfo"][data-info-id="i1"]');
+    ok("painel tem o botão de visibilidade por informação do quadro", Boolean(botao()));
+    ok("o padrão de uma linha nova é descobrível", !linha().oculta && !linha().aberta);
+
+    botao()?.click();
     await esperar(500);
-    ok("ocultar pelo painel grava no Item do POI, sem precisar abrir a ficha dele",
-      poi.system.informacoes.find((info) => info.id === "i1")?.oculta === true);
+    ok("um clique abre a linha para todos (sem gastar ação)", linha().aberta === true);
+    ok("linha aberta some das buscas — não há o que descobrir nela",
+      resolverInvestigacao(poi.system.informacoes, "percepcao", 12, new Set()).includes("i1") === false);
+
+    botao()?.click();
+    await esperar(500);
+    ok("outro clique vira rascunho do mestre", linha().oculta === true && linha().aberta === false);
     await painel.render();
     await esperar(400);
-    ok("linha oculta ganha a marcação visual no painel",
+    ok("linha em rascunho ganha a marcação visual no painel",
       Boolean(painelEl?.querySelector(".op2-poi-card__info--oculta")));
-    // Desfaz, pra não deixar o POI sujo pro resto do roteiro.
-    painelEl?.querySelector('[data-action="alternarInfoOculta"][data-info-id="i1"]')?.click();
+
+    botao()?.click();
     await esperar(500);
-    ok("alternar de novo desfaz a ocultação", poi.system.informacoes.find((info) => info.id === "i1")?.oculta === false);
+    ok("o ciclo fecha de volta em descobrível", !linha().oculta && !linha().aberta);
+    ok("descobrível é o único estado que Examinar encontra",
+      resolverInvestigacao(poi.system.informacoes, "percepcao", 12, new Set()).includes("i1"));
   }
   ok("painel lista a investigação ativa", Boolean(painelEl?.textContent.includes("Mansão de Teste")));
   ok("participante do roster aparece na seção de Participantes", Boolean(painelEl?.textContent.includes("Alan")));
@@ -313,16 +483,59 @@ const relato = await page.evaluate(async () => {
   // Setinhas de subir/descer — alternativa ao drag-and-drop, mais fácil de acertar
   // numa lista curta (achado em uso real: mestre errando o alvo do drop).
   {
-    const ordemAntes = [...painelEl.querySelectorAll("[data-ator-ordem]")].map((li) => li.dataset.atorOrdem);
-    ok("Ordem das Rodadas lista os dois personagens", ordemAntes.length === 2);
+    const linhas = () => [...painelEl.querySelectorAll("[data-ator-ordem]")];
+    const nomes = () => linhas().map((li) => li.querySelector("span")?.textContent.trim());
+    const ordemAntes = linhas().map((li) => li.dataset.atorOrdem);
+    ok("Ordem das Rodadas é uma lista só, com personagens e NPCs juntos",
+      ordemAntes.length === 3 && linhas().some((li) => li.classList.contains("op2-painel-ordem__linha--npc")));
     ok("primeira linha não tem seta para cima (já é a primeira)",
-      painelEl.querySelector('[data-ator-ordem] [data-action="moverParticipante"][data-direcao="-1"]')?.disabled === true);
+      linhas()[0]?.querySelector('[data-action="moverParticipante"][data-direcao="-1"]')?.disabled === true);
 
-    painelEl.querySelector('[data-ator-ordem] [data-action="moverParticipante"][data-direcao="1"]')?.click();
+    linhas()[0]?.querySelector('[data-action="moverParticipante"][data-direcao="1"]')?.click();
     await esperar(500);
     ok("seta para baixo troca a ordem gravada na investigação",
       investigacao.system.ordemParticipantes[0] === ordemAntes[1]
       && investigacao.system.ordemParticipantes[1] === ordemAntes[0]);
+
+    // Separar NPCs num grupo próprio deixava a linha deles imóvel: com um NPC só,
+    // as duas setas nasciam desabilitadas (achado em uso real: "os NPCs estão
+    // inativos, não dá pra mover").
+    const linhaNpc = () => linhas().find((li) => li.classList.contains("op2-painel-ordem__linha--npc"));
+    ok("linha de NPC é arrastável como qualquer outra", linhaNpc()?.getAttribute("draggable") === "true");
+    ok("NPC não fica com as duas setas desabilitadas",
+      [...linhaNpc().querySelectorAll('[data-action="moverParticipante"]')].some((b) => !b.disabled));
+    const bordaDireita = (li) => Math.round(li.querySelector(".op2-painel-ordem__setas").getBoundingClientRect().left);
+    ok("setas de mover ficam na mesma coluna em toda linha",
+      new Set(linhas().map(bordaDireita)).size === 1);
+
+    const nomeNpc = linhaNpc()?.querySelector("span")?.textContent.trim();
+    const posicaoAntes = nomes().indexOf(nomeNpc);
+    linhaNpc()?.querySelector('[data-action="moverParticipante"][data-direcao="-1"]')?.click();
+    await esperar(600);
+    ok("NPC sobe na ordem, passando na frente de um personagem",
+      nomes().indexOf(nomeNpc) === posicaoAntes - 1);
+
+    // `dragDrop` em DEFAULT_OPTIONS é opção do ApplicationV1 — o V2 ignora, e o
+    // painel ficava com `draggable="true"` sem handler nenhum: arrastar não
+    // reordenava nada (achado em uso real).
+    ok("o painel cria a instância de DragDrop do ApplicationV2",
+      typeof painel._dragDrop?.bind === "function"
+      && typeof painelEl.querySelector("[data-ator-ordem]")?.ondragstart === "function");
+
+    // Soltar de verdade: o NPC no fim da lista.
+    {
+      const alvo = linhas().at(-1);
+      const uuidNpc = linhaNpc().dataset.atorOrdem;
+      const dt = new DataTransfer();
+      dt.setData("text/plain", JSON.stringify({ tipo: "ordem", atorUuid: uuidNpc }));
+      const caixa = alvo.getBoundingClientRect();
+      alvo.dispatchEvent(new DragEvent("drop", {
+        dataTransfer: dt, bubbles: true, cancelable: true, clientY: caixa.bottom - 2,
+      }));
+      await esperar(600);
+      ok("arrastar reordena a lista, NPC incluído",
+        investigacao.system.ordemParticipantes.at(-1) === uuidNpc);
+    }
   }
 
   await game.op2.removerParticipante(investigacao, beto.uuid);
@@ -348,6 +561,43 @@ const relato = await page.evaluate(async () => {
     await esperar(400);
 
     ok("POI oculto some da tela do jogador", !painelEl?.textContent.includes("Quadro na Parede"));
+
+    // O quadro na tela do jogador é só o que o mestre abriu + o que ESTE
+    // personagem descobriu. Antes bastava não ser rascunho pra linha aparecer
+    // pronta, e aí não sobrava nada pra procurar (achado em uso real).
+    {
+      const visivel = await Item.create({ name: "Vitrine", type: "ponto-interesse", system: {
+        informacoes: [
+          { id: "va", pericia: "percepcao", dt: 6, texto: "PISTA-ABERTA" },
+          { id: "vb", pericia: "percepcao", dt: 6, texto: "PISTA-DESCOBRIVEL" },
+        ],
+      } });
+      await game.op2.vincularPoi(investigacao, visivel.uuid);
+      // Abrir a linha é ato de mestre e passa pela ponte `comoMestre`: com o
+      // `isGM` fingido de falso ela sairia pelo socket e não voltaria para este
+      // mesmo cliente. Vira mestre só para o preparo.
+      Object.defineProperty(game.user, "isGM", { value: true, configurable: true });
+      await game.op2.cicloVisibilidadeInfo(visivel.uuid, "va");
+      await esperar(400);
+      Object.defineProperty(game.user, "isGM", { value: false, configurable: true });
+      await painel.render();
+      await esperar(400);
+      const texto = painelEl?.textContent ?? "";
+      ok("jogador vê a linha que o mestre abriu", texto.includes("PISTA-ABERTA"));
+      ok("jogador NÃO vê a linha descobrível antes de descobrir", !texto.includes("PISTA-DESCOBRIVEL"));
+
+      await game.op2.examinar(ator, visivel.uuid, "percepcao", { rapido: true });
+      await esperar(600);
+      await painel.render();
+      await esperar(400);
+      ok("depois de Examinar, a linha descoberta aparece pro jogador",
+        (painelEl?.textContent ?? "").includes("PISTA-DESCOBRIVEL"));
+      ok("linha descoberta vem marcada como descoberta na tela do jogador",
+        Boolean(painelEl?.querySelector(".op2-poi-card__info--descoberta")));
+
+      await game.op2.removerPoi(investigacao, visivel.uuid);
+      await visivel.delete();
+    }
     ok("NPC oculto some da tela do jogador", !painelEl?.textContent.includes("Zelador"));
     // Marcar "já agiu" grava na Investigação, e o jogador não é dono desse Actor —
     // o clique gerava um erro de permissão visível no core (achado em uso real).
