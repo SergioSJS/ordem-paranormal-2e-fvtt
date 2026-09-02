@@ -1,4 +1,20 @@
 <div class="op2-teste">
+  {{!-- Ajuda do aliado (spec §4.7): o passo já vem marcado no dado, mas quem rola
+        precisa saber de onde ele veio — e pode desfazer no ±. --}}
+  {{#if estado.ajuda}}
+    <p class="op2-teste__ajuda">
+      <i class="fa-solid fa-hands-holding" aria-hidden="true"></i>
+      {{localize "OP2.Ajuda.NoDialogo" de=estado.ajuda.de pericia=estado.ajuda.pericia passos=estado.ajuda.passos}}
+    </p>
+  {{/if}}
+
+  {{#if estado.impetoDisponivel}}
+    <label class="op2-campo op2-campo--inline">
+      <input type="checkbox" data-action="alternarImpeto" {{#if estado.gastarImpeto}}checked{{/if}}>
+      <span>{{localize "OP2.Impeto.Gastar"}} ({{estado.impetoDisponivel}})</span>
+    </label>
+  {{/if}}
+
   <ol class="op2-teste__componentes">
     {{#each componentes}}
       <li class="op2-teste__componente op2-teste__componente--{{tipo}}">

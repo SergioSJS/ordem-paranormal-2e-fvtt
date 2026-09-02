@@ -1,0 +1,15 @@
+<div class="op2 op2-card op2-card--{{#if sucesso}}sucesso{{else}}falha{{/if}}">
+  <header class="op2-card__topo">
+    <span class="op2-tag op2-tag--pequena">{{titulo}}</span>
+    <span class="op2-card__dt">{{localize "OP2.DT"}} {{dt}}</span>
+  </header>
+
+  <p class="op2-card__desfecho op2-card__desfecho--{{#if sucesso}}sucesso{{else}}falha{{/if}}">
+    <i class="fa-solid {{#if sucesso}}fa-check{{else}}fa-skull{{/if}}" aria-hidden="true"></i>
+    {{texto}}
+  </p>
+
+  {{!-- A escalada é por teste feito, não por falha (spec §8.2): quem passou hoje
+        enfrenta uma DT maior da próxima vez. --}}
+  <p class="op2-ajuda">{{localize "OP2.Ferimento.ProximaDT" dt=proximaDt}}</p>
+</div>

@@ -24,6 +24,7 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     actions: {
       passo: TesteDialog.#ajustarPasso,
       alternarExtra: TesteDialog.#alternarExtra,
+      alternarImpeto: TesteDialog.#alternarImpeto,
     },
   };
 
@@ -40,10 +41,21 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     this.ator = ator;
     this.base = base;
     this.#resolver = resolver;
+    // A ajuda do aliado (spec §4.7) entra como passo já marcado no dado que o
+    // setting `ajudaAlvo` indica — visível e ajustável, não um bônus escondido.
+    const ajuda = base.ajuda;
     this.estado = {
       chaveAtributo: base.chaveAtributo,
       somenteAtributo: base.somenteAtributo ?? false,
-      passos: { pericia: 0, atributo: 0 },
+      ajuda,
+      // Ímpeto: apagar um espaço dá +d4 no teste (ficha do Ato I). É escolha do
+      // jogador na hora, então mora aqui e não numa ação separada.
+      impetoDisponivel: ator.system.impeto?.preenchidos ?? 0,
+      gastarImpeto: false,
+      passos: {
+        pericia: ajuda?.alvo === "pericia" ? ajuda.passos : 0,
+        atributo: ajuda?.alvo === "atributo" ? ajuda.passos : 0,
+      },
       extras: new Set(),
       dt: base.dt ?? lerConfig("dtPadrao"),
       oposto: base.oposto ?? false,
@@ -118,7 +130,18 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       });
     }
 
-    lista.push(...extras);
+    if (this.estado.gastarImpeto) {
+      extras.unshift({
+        chave: "impeto",
+        rotulo: game.i18n.localize("OP2.Impeto.Titulo"),
+        tipo: "extra",
+        dado: "d4",
+      });
+    }
+
+    // Dados que a ação já traz (o +d6 da esquiva, spec §8.1) entram antes dos
+    // extras opcionais: eles são parte do teste, não uma escolha do jogador.
+    lista.push(...(this.base.dadosExtras ?? []), ...extras);
     return lista.slice(0, MAX_DADOS_ROLADOS);
   }
 
@@ -164,6 +187,11 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render();
   }
 
+  static #alternarImpeto() {
+    this.estado.gastarImpeto = !this.estado.gastarImpeto;
+    this.render();
+  }
+
   static #alternarExtra(_evento, alvo) {
     const id = alvo.dataset.itemId;
     if (this.estado.extras.has(id)) this.estado.extras.delete(id);
@@ -179,6 +207,7 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       componentes: this.componentes(),
       dt: (oposto || this.estado.semDT) ? null : Number(dt),
       oposto: Boolean(oposto),
+      gastarImpeto: this.estado.gastarImpeto,
     });
     this.#resolver = null;
   }

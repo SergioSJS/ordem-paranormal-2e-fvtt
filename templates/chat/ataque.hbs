@@ -1,0 +1,23 @@
+<div class="op2 op2-card op2-card--investigacao">
+  <header class="op2-card__topo">
+    <span class="op2-tag op2-tag--pequena">{{titulo}}</span>
+    <span class="op2-card__dt">{{total}}</span>
+  </header>
+
+  <p class="op2-card__texto">{{texto}}</p>
+  <p class="op2-ajuda">{{dicaEsquiva}}</p>
+
+  {{!-- O defensor escolhe: revidar (troca de golpes) ou só se defender. --}}
+  <div class="op2-card__acoes">
+    <button type="button" class="op2-botao op2-botao--pequeno" data-op2-acao="defender-ataque"
+      data-ator-id="{{alvoId}}" data-atacante-id="{{atacanteId}}" data-total="{{total}}"
+      data-ra="{{ra}}" data-rb="{{rb}}" data-armado="{{armado}}" data-esquiva="false">
+      {{localize "OP2.Combate.Revidar"}}
+    </button>
+    <button type="button" class="op2-botao op2-botao--pequeno" data-op2-acao="defender-ataque"
+      data-ator-id="{{alvoId}}" data-atacante-id="{{atacanteId}}" data-total="{{total}}"
+      data-ra="{{ra}}" data-rb="{{rb}}" data-armado="{{armado}}" data-esquiva="true">
+      {{localize "OP2.Combate.Esquivar"}}
+    </button>
+  </div>
+</div>

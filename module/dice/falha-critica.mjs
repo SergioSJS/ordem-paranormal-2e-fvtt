@@ -6,6 +6,8 @@
  */
 import { SYSTEM_ID, TABELA_FALHA_CRITICA } from "../config.mjs";
 import { renderizar } from "./teste.mjs";
+import { devidoTesteDeQueda } from "../cena/queda.mjs";
+import { pedirTesteDeQueda } from "../cena/ferimentos.mjs";
 
 /**
  * @param {Actor} ator
@@ -72,5 +74,14 @@ export async function aplicarFalhaCritica(ator, face) {
  */
 export async function aplicarDano(ator, quantidade, recurso = "pv") {
   const atual = ator.system.recursos[recurso].value;
-  await ator.update({ [`system.recursos.${recurso}.value`]: Math.max(0, atual - quantidade) });
+  const novo = Math.max(0, atual - quantidade);
+  await ator.update({ [`system.recursos.${recurso}.value`]: novo });
+
+  // Chegar a 0 — ou tomar dano já em 0 — pede teste de Vigor (PV) ou Disciplina
+  // (PD), com DT que escala (spec §8.2/§8.3). O card só PEDE: quem rola é a mesa,
+  // como em todo o resto do sistema. NPC não tem os contadores da ficha de
+  // personagem, então fica de fora.
+  if (ator.type === "personagem" && devidoTesteDeQueda(novo, quantidade)) {
+    await pedirTesteDeQueda(ator, recurso === "pd" ? "trauma" : "ferimento");
+  }
 }

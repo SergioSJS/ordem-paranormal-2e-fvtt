@@ -7,6 +7,8 @@ import { OP2Roll } from "./op2-roll.mjs";
 import { TesteDialog } from "./teste-dialog.mjs";
 import { SelecaoDados } from "./selecao-dados.mjs";
 import { lerConfig } from "../settings/register.mjs";
+import { stepDie } from "./escada.mjs";
+import { consumirAjuda } from "../cena/acoes-ajuda.mjs";
 
 /**
  * @param {Actor} ator
@@ -21,7 +23,10 @@ import { lerConfig } from "../settings/register.mjs";
  * @param {boolean} [opcoes.rapido]      pula o diálogo e usa os defaults
  * @returns {Promise<OP2Roll|null>}
  */
-export async function rolarTeste(ator, { chavePericia, chaveAtributo, dt, oposto = false, semDT = false, contexto, rapido = false } = {}) {
+export async function rolarTeste(ator, {
+  chavePericia, chaveAtributo, dt, oposto = false, semDT = false, contexto, rapido = false,
+  semCard = false, dadosExtras = [],
+} = {}) {
   const sistema = ator.system;
   const pericia = sistema.resolverChave(chavePericia);
   if (!pericia) {
@@ -44,10 +49,25 @@ export async function rolarTeste(ator, { chavePericia, chaveAtributo, dt, oposto
     dt: semDT ? null : (dt ?? lerConfig("dtPadrao")),
     oposto,
     semDT,
+    // Dados somados que não vêm da ficha — hoje só o +d6 da esquiva (spec §8.1),
+    // a única exceção aditiva do playtest.
+    dadosExtras,
+    // Ajuda recebida e ainda não usada (spec §4.7): entra como passo já aplicado
+    // no dado que o setting `ajudaAlvo` indica, e some depois desta rolagem.
+    ajuda: ator.system.estado?.ajuda?.passos
+      ? { ...ator.system.estado.ajuda, alvo: lerConfig("ajudaAlvo") }
+      : null,
   };
 
   const config = rapido ? configuracaoRapida(ator, base) : await TesteDialog.abrir({ ator, base });
   if (!config) return null;
+
+  // O espaço de ímpeto só some depois de a rolagem ser confirmada.
+  if (config.gastarImpeto) {
+    await ator.update({
+      "system.impeto.preenchidos": Math.max(0, (ator.system.impeto?.preenchidos ?? 0) - 1),
+    });
+  }
 
   const roll = OP2Roll.paraComponentes(config.componentes, {
     dt: config.dt,
@@ -60,21 +80,40 @@ export async function rolarTeste(ator, { chavePericia, chaveAtributo, dt, oposto
 
   // Rolou mais do que soma: mostra os dados 3D antes de pedir a escolha, senão o
   // jogador escolheria às cegas e veria a animação depois do resultado.
+  // `semCard`: quem chamou publica o próprio card com os dados dentro. É o caso
+  // de Examinar — o card genérico não tinha o que dizer (rola sem DT, então nem
+  // sucesso nem falha) e ainda oferecia "Dano RA/RB", que não existe ali. A
+  // animação dos dados continua acontecendo, só o card não sai.
   if (roll.precisaSelecao) {
     await mostrarDados3D(roll);
     roll.aplicarSelecao(await SelecaoDados.abrir(roll));
-    await enviarParaChat(roll, ator, { pularDados3D: true });
+    if (!semCard) await enviarParaChat(roll, ator, { pularDados3D: true });
+  } else if (semCard) {
+    await mostrarDados3D(roll);
   } else {
     await enviarParaChat(roll, ator);
   }
+
+  // Ajuda é para UMA rolagem: usada, acabou (spec §4.7 — custa a ação do aliado
+  // para aquele teste, não é um efeito com duração).
+  if (base.ajuda) await consumirAjuda(ator);
 
   return roll;
 }
 
 /** Configuração sem diálogo: perícia + atributo pareado, DT padrão. */
 function configuracaoRapida(ator, base) {
+  // Sem diálogo, a ajuda pendente precisa entrar aqui — senão o modo rápido
+  // (macros, cards, testes) ignoraria silenciosamente o passo do aliado.
+  const passosDaAjuda = (tipo) => (base.ajuda && base.ajuda.alvo === tipo ? base.ajuda.passos : 0);
+
   const componentes = [
-    { chave: `pericia.${base.chavePericia}`, rotulo: base.rotuloPericia, tipo: "pericia", dado: base.pericia.dado },
+    {
+      chave: `pericia.${base.chavePericia}`,
+      rotulo: base.rotuloPericia,
+      tipo: "pericia",
+      dado: stepDie(base.pericia.dado, passosDaAjuda("pericia")),
+    },
   ];
 
   if (!base.somenteAtributo) {
@@ -83,9 +122,11 @@ function configuracaoRapida(ator, base) {
       chave: `atributo.${base.chaveAtributo}`,
       rotulo: game.i18n.localize(`OP2.Atributo.${base.chaveAtributo}`),
       tipo: "atributo",
-      dado: atributo.dadoEfetivo,
+      dado: stepDie(atributo.dadoEfetivo, passosDaAjuda("atributo")),
     });
   }
+
+  componentes.push(...(base.dadosExtras ?? []));
 
   return {
     dt: (base.oposto || base.semDT) ? null : base.dt,
@@ -122,6 +163,11 @@ export async function enviarParaChat(roll, ator, { pularDados3D = false } = {}) 
     componentes: roll.dados,
     ...dados.resultado,
     ehGM: game.user.isGM,
+    // "Sempre que falha em um teste, você preenche um espaço" (ficha do Ato I).
+    // É botão, não automático: a mesa às vezes reinterpreta o que foi uma falha, e
+    // nenhum outro efeito do sistema se aplica sozinho.
+    podePreencherImpeto: !dados.resultado.sucesso
+      && (ator.system.impeto?.espacos ?? 0) > (ator.system.impeto?.preenchidos ?? 0),
   });
 
   return roll.toMessage(

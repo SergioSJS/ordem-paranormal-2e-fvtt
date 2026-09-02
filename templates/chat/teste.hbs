@@ -47,6 +47,12 @@
       data-quantidade="{{rb}}" data-recurso="pv" data-ator-id="{{atorId}}">
       {{localize "OP2.Chat.DanoRB"}} ({{rb}})
     </button>
+    {{#if podePreencherImpeto}}
+      <button type="button" class="op2-botao op2-botao--pequeno"
+        data-op2-acao="preencher-impeto" data-ator-id="{{atorId}}">
+        {{localize "OP2.Impeto.Preencher"}}
+      </button>
+    {{/if}}
     {{#if falhaCritica}}
       <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-op2-gm
         data-op2-acao="rolar-falha-critica" data-ator-id="{{atorId}}">
