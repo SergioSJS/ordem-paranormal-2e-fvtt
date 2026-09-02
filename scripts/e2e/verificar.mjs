@@ -357,6 +357,54 @@ const relato = await page.evaluate(async () => {
     await bruto.delete();
   }
 
+  // Botões que envolvem outro personagem: sem alvo possível, não são oferecidos —
+  // avisar depois do clique deixava o jogador procurando o que não existe (achado em
+  // uso real). E o dano de um card cai em quem o card é, não em quem está selecionado.
+  {
+    const solitario = await Actor.create({ name: "Solitário", type: "personagem" });
+    await game.op2.adicionarParticipante(investigacao, solitario.uuid);
+    const app = game.op2.acoesInvestigacao(solitario);
+    await esperar(1000);
+    const estado = () => Object.fromEntries([...app.element.querySelectorAll("[data-action]")]
+      .map((b) => [b.dataset.action, b.disabled]));
+
+    // `ator` já é participante desta investigação, então há um aliado; o que falta ao
+    // solitário são itens para usar.
+    const semItens = estado();
+    ok("Usar habilidade ou item fica desligado sem nada para usar", semItens.usarRecurso === true);
+
+    await solitario.createEmbeddedDocuments("Item", [{ name: "Pé de cabra", type: "equipamento" }]);
+    await app.render();
+    await esperar(700);
+    ok("com item na mochila, a ação liga", estado().usarRecurso === false);
+
+    // Dano do card: Alcançar arriscado com DT impossível sempre falha e oferece o dano.
+    await solitario.update({ "system.recursos.pv.max": 10, "system.recursos.pv.value": 10 });
+    const pvDoOutro = ator.system.recursos.pv.value;
+    await game.op2.alcancar(solitario, { modo: "arriscado", dt: 30, rapido: true });
+    await esperar(900);
+    const card = game.messages.contents.at(-1);
+    const botao = document.querySelector(`[data-message-id="${card.id}"] [data-op2-acao="aplicar-dano"]`);
+    ok("card de Alcançar oferece o dano da queda", Boolean(botao));
+    botao?.click();
+    await esperar(900);
+    ok("o dano cai em quem caiu, não no token selecionado",
+      solitario.system.recursos.pv.value < 10 && ator.system.recursos.pv.value === pvDoOutro);
+
+    await app.close();
+    await game.op2.removerParticipante(investigacao, solitario.uuid);
+    await solitario.delete();
+  }
+
+  // Dano improvisado a partir de um teste qualquer usa a seleção da cena — e por isso
+  // é botão de mestre.
+  {
+    const conteudo = game.messages.contents
+      .filter((m) => m.getFlag("ordem-paranormal-2e", "tipo") === "teste").at(-1)?.content ?? "";
+    ok("dano avulso do card de teste é marcado como conteúdo de mestre",
+      conteudo.includes('data-op2-acao="aplicar-dano-selecionado"') && conteudo.includes("data-op2-gm"));
+  }
+
   // Dice So Nice: quando os dados já rolaram em 3D antes da escolha (4 rolados → 3
   // contados), a mensagem não pode animar de novo. O DSN decide pela flag `skip` —
   // `dsnHide` nas opções do `toMessage` não existe e era ignorada em silêncio, então
@@ -411,6 +459,9 @@ const relato = await page.evaluate(async () => {
       el.querySelectorAll(".op2-item--com-barra .op2-impeto__espaco--cheio").length === 2);
     ok("a descrição da habilidade aparece na ficha",
       (el.textContent ?? "").includes("barra de ímpeto com três espaços"));
+    // Descrição carrega regra, não instrução de interface.
+    ok("a descrição não explica onde fica a barra",
+      !(el.textContent ?? "").includes("A barra fica"));
 
     // A ficha da habilidade precisa do campo: sem ele não há como transformar uma
     // habilidade em barra, nem conferir os espaços (achado em uso real).

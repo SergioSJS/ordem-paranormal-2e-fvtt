@@ -26,18 +26,22 @@
           {{#if recapitularUsado.usado}}<span class="op2-painel-trava">· {{recapitularUsado.nome}}</span>{{/if}}
         </button>
         <button type="button" class="op2-botao op2-botao--pequeno" data-action="compartilhar"
+          {{#unless temAliados}}disabled data-tooltip="{{localize 'OP2.Acoes.SemAliado'}}"{{/unless}}
           {{#if compartilharUsado.usado}}disabled{{/if}}>
           {{localize "OP2.Investigacao.Compartilhar"}}
           {{#if compartilharUsado.usado}}<span class="op2-painel-trava">· {{compartilharUsado.nome}}</span>{{/if}}
         </button>
-        <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="atacar">
+        <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="atacar"
+          {{#unless temAlvosDeAtaque}}disabled data-tooltip="{{localize 'OP2.Acoes.SemAlvo'}}"{{/unless}}>
           {{localize "OP2.Combate.Atacar"}}
         </button>
-        <button type="button" class="op2-botao op2-botao--pequeno" data-action="usarRecurso">
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="usarRecurso"
+          {{#unless temRecursos}}disabled data-tooltip="{{localize 'OP2.Recurso.SemItens'}}"{{/unless}}>
           {{localize "OP2.Recurso.Titulo"}}
         </button>
         <button type="button" class="op2-botao op2-botao--pequeno" data-action="ajudar"
-          data-tooltip="{{localize 'OP2.Ajuda.EscolhaAjuda'}}">
+          {{#if temAliados}}data-tooltip="{{localize 'OP2.Ajuda.EscolhaAjuda'}}"
+          {{else}}disabled data-tooltip="{{localize 'OP2.Ajuda.SemAliados'}}"{{/if}}>
           {{localize "OP2.Ajuda.Titulo"}}
         </button>
         <button type="button" class="op2-botao op2-botao--pequeno" data-action="alcancar" data-modo="seguro">

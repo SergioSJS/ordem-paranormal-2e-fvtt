@@ -224,7 +224,9 @@
       "Livres": "Free actions",
       "SemInvestigacao": "No investigation in play for this character. The GM needs to put one in play and add you as a participant.",
       "SemPOIs": "No points of interest available yet.",
-      "SemDesafios": "No challenge available yet."
+      "SemDesafios": "No challenge available yet.",
+      "SemAliado": "Nobody else in the scene to share the clue with.",
+      "SemAlvo": "Nobody else in the scene to attack."
     },
     "Investigacao": {
       "Examinar": "Examine",
@@ -351,7 +353,8 @@
       "RolarFalhaCritica": "Roll effect (1d8)",
       "AplicarEfeito": "Apply effect",
       "DanoAplicado": "{quantidade} damage to {alvos}.",
-      "AplicarDano": "Apply damage"
+      "AplicarDano": "Apply damage",
+      "DanoNosSelecionados": "Applies to the tokens selected on the scene; with no selection, to whoever rolled."
     },
     "Cena": {
       "Encerrar": "End scene",

@@ -162,10 +162,14 @@ async function migrarImpetoParaHabilidade() {
     if (!alvo) continue;
 
     const espacos = antigo?.espacos || 3;
-    await alvo.update({ "system.impeto": {
-      espacos,
-      preenchidos: Math.min(antigo?.preenchidos ?? 0, espacos),
-    } });
+    const atualizacao = {
+      "system.impeto": { espacos, preenchidos: Math.min(antigo?.preenchidos ?? 0, espacos) },
+    };
+    // A descrição vinha com uma instrução de interface ("a barra fica no cabeçalho"),
+    // que além de errada agora não é regra nenhuma — descrição carrega regra.
+    const semInstrucao = alvo.system.descricao?.replace(/<p><em>A barra fica [^<]*<\/em><\/p>/g, "");
+    if (semInstrucao !== alvo.system.descricao) atualizacao["system.descricao"] = semInstrucao;
+    await alvo.update(atualizacao);
     if (antigo) await ator.update({ "system.-=impeto": null });
     console.log(`${SYSTEM_ID} | barra de ímpeto de ${ator.name} movida para a habilidade "${alvo.name}"`);
   }

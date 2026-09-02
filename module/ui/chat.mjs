@@ -22,7 +22,18 @@ const ACOES = {
   async "aplicar-falha-critica"(ator, dataset) {
     await aplicarFalhaCritica(ator, Number(dataset.face));
   },
+  // Dano de quem o card é: o dano de Alcançar é de quem caiu, o de Arrombar é de quem
+  // forçou. Antes isto ia para os tokens selecionados, então cair de um telhado
+  // machucava quem o mestre tivesse clicado na cena (achado em uso real).
   async "aplicar-dano"(ator, dataset) {
+    await aplicarDano(ator, Number(dataset.quantidade), dataset.recurso ?? "pv");
+    ui.notifications.info(game.i18n.format("OP2.Chat.DanoAplicado", {
+      quantidade: dataset.quantidade, alvos: ator.name,
+    }));
+  },
+  // Dano improvisado a partir de um teste qualquer: aí sim vale a seleção da cena,
+  // porque o card não sabe em quem cai. É julgamento de mestre, e só ele vê o botão.
+  async "aplicar-dano-selecionado"(ator, dataset) {
     const alvos = atoresSelecionados(ator);
     for (const alvo of alvos) await aplicarDano(alvo, Number(dataset.quantidade), dataset.recurso ?? "pv");
     ui.notifications.info(game.i18n.format("OP2.Chat.DanoAplicado", {

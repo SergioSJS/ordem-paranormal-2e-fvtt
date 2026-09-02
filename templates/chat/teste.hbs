@@ -39,12 +39,17 @@
   </dl>
 
   <div class="op2-card__acoes">
-    <button type="button" class="op2-botao op2-botao--pequeno" data-op2-acao="aplicar-dano"
-      data-quantidade="{{ra}}" data-recurso="pv" data-ator-id="{{atorId}}">
+    {{!-- Um teste qualquer não sabe em quem o dano cai: estes botões usam os tokens
+          selecionados na cena, e por isso são do mestre. Combate, Arrombar e Alcançar
+          têm cards próprios, que já sabem o alvo. --}}
+    <button type="button" class="op2-botao op2-botao--pequeno" data-op2-gm
+      data-op2-acao="aplicar-dano-selecionado" data-quantidade="{{ra}}" data-recurso="pv"
+      data-ator-id="{{atorId}}" data-tooltip="{{localize 'OP2.Chat.DanoNosSelecionados'}}">
       {{localize "OP2.Chat.DanoRA"}} ({{ra}})
     </button>
-    <button type="button" class="op2-botao op2-botao--pequeno" data-op2-acao="aplicar-dano"
-      data-quantidade="{{rb}}" data-recurso="pv" data-ator-id="{{atorId}}">
+    <button type="button" class="op2-botao op2-botao--pequeno" data-op2-gm
+      data-op2-acao="aplicar-dano-selecionado" data-quantidade="{{rb}}" data-recurso="pv"
+      data-ator-id="{{atorId}}" data-tooltip="{{localize 'OP2.Chat.DanoNosSelecionados'}}">
       {{localize "OP2.Chat.DanoRB"}} ({{rb}})
     </button>
     {{#if podePreencherImpeto}}

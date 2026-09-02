@@ -224,7 +224,9 @@
       "Livres": "Ações livres",
       "SemInvestigacao": "Nenhuma investigação em jogo para este personagem. O mestre precisa colocar uma em jogo e adicionar você como participante.",
       "SemPOIs": "Nenhum ponto de interesse disponível ainda.",
-      "SemDesafios": "Nenhum desafio disponível ainda."
+      "SemDesafios": "Nenhum desafio disponível ainda.",
+      "SemAliado": "Ninguém mais em cena para compartilhar a pista.",
+      "SemAlvo": "Ninguém mais em cena para atacar."
     },
     "Investigacao": {
       "Examinar": "Examinar",
@@ -351,7 +353,8 @@
       "RolarFalhaCritica": "Rolar efeito (1d8)",
       "AplicarEfeito": "Aplicar efeito",
       "DanoAplicado": "{quantidade} de dano em {alvos}.",
-      "AplicarDano": "Aplicar dano"
+      "AplicarDano": "Aplicar dano",
+      "DanoNosSelecionados": "Aplica nos tokens selecionados na cena; sem seleção, em quem rolou."
     },
     "Cena": {
       "Encerrar": "Encerrar cena",
