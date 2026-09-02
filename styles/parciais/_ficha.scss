@@ -583,7 +583,8 @@
 // fieldsets ficaram esquecidos e destoavam do resto da ficha).
 .op2-efeito,
 .op2-cargas,
-.op2-desafio-progresso {
+.op2-desafio-progresso,
+.op2-desafio-hack {
   display: flex;
   flex-direction: column;
   padding: var(--op2-e3);
@@ -598,6 +599,57 @@
     font-size: 0.8rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
+  }
+}
+
+// Hackear (spec §7.3): técnico e social lado a lado, cada um com estado próprio —
+// mesmo espírito visual de duas abordagens independentes já usado no resto da ficha.
+.op2-desafio-hack {
+  gap: var(--op2-e3);
+
+  &__modo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--op2-e1);
+    padding-top: var(--op2-e2);
+    border-top: 1px dashed var(--op2-linha);
+
+    &:first-child { padding-top: 0; border-top: none; }
+
+    h4 {
+      margin: 0;
+      font-family: var(--op2-fonte-display);
+      font-size: 0.85rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+  }
+
+  &__timer {
+    display: flex;
+    align-items: center;
+    gap: var(--op2-e2);
+  }
+
+  &__timer-valor {
+    min-width: 1.5rem;
+    font-family: var(--op2-fonte-mono);
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  &__perguntas {
+    display: flex;
+    flex-direction: column;
+    gap: var(--op2-e1);
+  }
+
+  &__pergunta {
+    display: flex;
+    align-items: center;
+    gap: var(--op2-e1);
+
+    input { flex: 1; min-width: 0; }
   }
 }
 

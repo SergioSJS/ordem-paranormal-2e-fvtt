@@ -67,6 +67,11 @@
       {{/if}}
     </header>
 
+    {{!-- Ações são do personagem, não do painel: pro jogador o painel é só
+          leitura do que o mestre revelou. Um jogador com mais de um personagem
+          não teria como escolher por qual deles o botão agiria (achado em uso
+          real) — o lugar dessas ações é a ficha do personagem. --}}
+    {{#if ehGM}}
     <section class="op2-painel-secao op2-painel-acoes-grupo">
       {{#if temPersonagem}}
         <button type="button" class="op2-botao op2-botao--pequeno" data-action="recapitular"
@@ -103,6 +108,7 @@
         <p class="op2-ajuda">{{localize "OP2.Painel.SemPersonagem"}}</p>
       {{/if}}
     </section>
+    {{/if}}
 
     <details class="op2-painel-secao" data-sync="participantes">
       <summary class="op2-painel-titulo">{{localize "OP2.Painel.Participantes"}}</summary>
@@ -172,14 +178,17 @@
               <div class="op2-poi-card__basica">{{{descricaoBasica}}}</div>
             {{/if}}
 
-            {{#if verQuadro}}
               <ul class="op2-poi-card__quadro">
                 {{#each quadro}}
                   <li class="op2-poi-card__pericia">
-                    <div class="op2-poi-card__pericia-linha">
-                      <span class="op2-poi-card__rotulo">{{rotulo}}</span>
-                      {{#if valor}}<span class="op2-poi-card__dado">{{op2Dado (op2Concat "d" valor)}}</span>{{/if}}
-                      {{#if @root.temPersonagem}}
+                    {{!-- Perícia, dado e os botões de teste são bastidor do mestre:
+                          pro jogador, o painel mostra só a pista que já foi
+                          liberada, sem entregar por qual perícia ela vem nem
+                          qual dado ele tem (achado em uso real). --}}
+                    {{#if @root.ehGM}}
+                      <div class="op2-poi-card__pericia-linha">
+                        <span class="op2-poi-card__rotulo">{{rotulo}}</span>
+                        {{#if valor}}<span class="op2-poi-card__dado">{{op2Dado (op2Concat "d" valor)}}</span>{{/if}}
                         <span class="op2-poi-card__botoes">
                           <button type="button" class="op2-botao op2-botao--pequeno" data-action="investigar"
                             data-poi-uuid="{{../uuid}}" data-pericia="{{chave}}">
@@ -191,8 +200,8 @@
                             {{localize "OP2.Investigacao.Examinar"}}
                           </button>
                         </span>
-                      {{/if}}
-                    </div>
+                      </div>
+                    {{/if}}
                     {{#if infos.length}}
                       <ul class="op2-poi-card__infos">
                         {{#each infos}}
@@ -218,13 +227,13 @@
                   </li>
                 {{/each}}
               </ul>
-              {{#if @root.temPersonagem}}
+              {{#if @root.ehGM}}
                 <button type="button" class="op2-botao op2-botao--pequeno" data-action="interagir"
                   data-poi-uuid="{{uuid}}">
                   {{localize "OP2.Investigacao.Interagir"}}
                 </button>
               {{/if}}
-              {{#if ferramentasDisponiveis.length}}
+              {{#if @root.ehGM}}{{#if ferramentasDisponiveis.length}}
                 <div class="op2-poi-card__ferramentas">
                   {{#each ferramentasDisponiveis}}
                     <button type="button" class="op2-botao op2-botao--pequeno"
@@ -234,15 +243,7 @@
                     </button>
                   {{/each}}
                 </div>
-              {{/if}}
-            {{else}}
-              {{#if @root.temPersonagem}}
-                <button type="button" class="op2-botao op2-botao--pequeno" data-action="investigar"
-                  data-poi-uuid="{{uuid}}">
-                  {{localize "OP2.Investigacao.Investigar"}}
-                </button>
-              {{/if}}
-            {{/if}}
+              {{/if}}{{/if}}
           </li>
         {{/each}}
       </ol>
@@ -300,7 +301,7 @@
               {{#if destrancado}} — {{localize "OP2.Desafio.Destrancou"}}{{/if}}
             </p>
 
-            {{#if @root.temPersonagem}}
+            {{#if @root.ehGM}}
               <button type="button" class="op2-botao op2-botao--pequeno" data-action="arrombar"
                 data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}>
                 {{localize "OP2.Desafio.Arrombar"}}
@@ -308,6 +309,14 @@
               <button type="button" class="op2-botao op2-botao--pequeno" data-action="destrancar"
                 data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}>
                 {{localize "OP2.Desafio.Destrancar"}}
+              </button>
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="hackTecnico"
+                data-desafio-uuid="{{uuid}}" {{#if hackTecnicoResolvido}}disabled{{/if}}>
+                {{localize "OP2.Desafio.HackTecnico"}}
+              </button>
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="hackSocial"
+                data-desafio-uuid="{{uuid}}" {{#if hackSocialResolvido}}disabled{{/if}}>
+                {{localize "OP2.Desafio.HackSocial"}}
               </button>
             {{/if}}
           </li>

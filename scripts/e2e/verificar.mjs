@@ -225,6 +225,12 @@ const relato = await page.evaluate(async () => {
   ok("revelação gravada no actor", ator.system.estado.infosReveladas.has(`${poi.uuid}:i1`));
   ok("POI marcado como investigado", ator.system.estado.poisInvestigados.has(poi.uuid));
 
+  // Investigar com uma perícia sem nada no quadro deste POI: não quebra, não
+  // revela nada.
+  const semCorrespondencia = await game.op2.investigar(ator, poi.uuid, "luta");
+  ok("investigar com perícia sem correspondência não quebra e não revela nada",
+    Array.isArray(semCorrespondencia) && semCorrespondencia.length === 0);
+
   await esperar(800);
   const msgs = [...game.messages.values()];
   ok("revelação é sussurrada (dono + mestre)",
@@ -687,6 +693,27 @@ const relato = await page.evaluate(async () => {
       await esperar(400);
       ok("stepper de tentativas desce", fechadura.system.tentativasUsadas === tentAntes + 1);
     }
+
+    // Hackear na ficha: banco de perguntas do hack social + timer visual do
+    // hack técnico (spec §7.3 pede "ferramenta de GM: timer + banco de perguntas").
+    {
+      desafioEl.querySelector('[data-action="adicionarPerguntaHack"]')?.click();
+      await esperar(500);
+      ok("nova pergunta do hack social tem campo de pergunta e de resposta",
+        Boolean(desafioEl.querySelector("input[name='system.hackSocial.perguntas.0.pergunta']"))
+        && Boolean(desafioEl.querySelector("input[name='system.hackSocial.perguntas.0.resposta']")));
+
+      desafioEl.querySelector('[data-action="removerPerguntaHack"][data-indice="0"]')?.click();
+      await esperar(500);
+      ok("remover pergunta tira a linha do banco", fechadura.system.hackSocial.perguntas.length === 0);
+
+      const botaoTimer = desafioEl.querySelector('[data-action="iniciarTimerHack"]');
+      ok("ficha tem botão de iniciar o timer do hack técnico", Boolean(botaoTimer));
+      botaoTimer?.click();
+      await esperar(200);
+      ok("timer começa em 10 e desabilita o botão (evita reiniciar no meio)",
+        desafioEl.querySelector("[data-timer-hack]")?.textContent === "10" && botaoTimer.disabled === true);
+    }
     await fechadura.sheet.close();
 
     await fechadura.delete();
@@ -847,6 +874,75 @@ const relato = await page.evaluate(async () => {
     await esperar(800);
     ok("painel oferece o botão Destrancar por desafio", Boolean(painel.element?.querySelector('[data-action="destrancar"]')));
     await desafioVitrine.delete();
+  }
+
+  /* -------------------------------------------------------------- hackear -- */
+  // Spec §7.3. Só o teste (Tecnologia/Intuição vs DT) e o gate de rodada são
+  // automatizados (docs/LACUNAS.md) — o problema matemático e conferir as
+  // respostas exigem input humano, a spec é explícita sobre isso.
+  {
+    const painelFacil = await Item.create({ name: "Painel Fácil", type: "desafio-acesso", system: { dtObjeto: 0 } });
+    const hackOk = await game.op2.hackTecnico(ator, painelFacil.uuid, { rapido: true });
+    ok("hack técnico com DT 0 sempre passa", hackOk?.sucesso === true);
+    ok("sucesso marca resolvido no Item", painelFacil.system.hackTecnico.resolvido === true);
+    ok("hack técnico já resolvido recusa nova tentativa",
+      await game.op2.hackTecnico(ator, painelFacil.uuid, { rapido: true }) === null);
+    await painelFacil.delete();
+
+    const painelDificil = await Item.create({ name: "Painel Impossível", type: "desafio-acesso", system: { dtObjeto: 999 } });
+    const rodadaDoTeste = investigacao.system.rodada;
+    const hackFalhou = await game.op2.hackTecnico(ator, painelDificil.uuid, { rapido: true });
+    ok("hack técnico com DT 999 falha", hackFalhou?.sucesso === false);
+    ok("falha grava a rodada da tentativa", painelDificil.system.hackTecnico.ultimaTentativaRodada === rodadaDoTeste);
+    ok("mesma rodada recusa nova tentativa (spec: só libera na rodada seguinte)",
+      await game.op2.hackTecnico(ator, painelDificil.uuid, { rapido: true }) === null);
+
+    await game.op2.avancarRodada();
+    await esperar(500);
+    const novaTentativa = await game.op2.hackTecnico(ator, painelDificil.uuid, { rapido: true });
+    ok("rodada seguinte libera nova tentativa", novaTentativa !== null);
+    await painelDificil.delete();
+
+    // Hack social: sucesso revela o banco de perguntas pro mestre (elemento
+    // `data-op2-gm`, removido do DOM do jogador — mesmo mecanismo de todo botão
+    // de bastidor do sistema) e as chances de erro calculadas.
+    const segurancaSocial = await Item.create({
+      name: "Segurança Social", type: "desafio-acesso",
+      system: {
+        dtObjeto: 0,
+        hackSocial: {
+          respostasNecessarias: 2,
+          perguntas: [
+            { pergunta: "Nome completo?", resposta: "João da Silva" },
+            { pergunta: "Ano de nascimento?", resposta: "1990" },
+          ],
+        },
+      },
+    });
+    const resultadoSocial = await game.op2.hackSocial(ator, segurancaSocial.uuid, { rapido: true });
+    ok("hack social com DT 0 sempre passa", resultadoSocial?.sucesso === true);
+    ok("chances de erro calculadas (base 1 ou mais)", resultadoSocial.chancesDeErro >= 1);
+
+    await esperar(600);
+    const cardHack = [...document.querySelectorAll(".op2-card")].at(-1);
+    ok("card do hack social mostra o banco de perguntas pro mestre",
+      Boolean(cardHack?.textContent.includes("João da Silva")));
+    const botaoMarcarResolvido = cardHack?.querySelector('[data-op2-acao="marcar-hack-social-resolvido"]');
+    ok("card tem o botão de marcar resolvido", Boolean(botaoMarcarResolvido));
+    botaoMarcarResolvido?.click();
+    await esperar(500);
+    ok("marcar resolvido grava no Item", segurancaSocial.system.hackSocial.resolvido === true);
+    await segurancaSocial.delete();
+
+    // Painel: os dois botões de Hackear aparecem junto de Arrombar/Destrancar.
+    const desafioComPainel = await Item.create({ name: "Cofre com Painel", type: "desafio-acesso" });
+    await game.op2.vincularDesafio(investigacao, desafioComPainel.uuid);
+    await painel.render();
+    await esperar(600);
+    ok("painel oferece Hackear (técnico) por desafio", Boolean(painel.element?.querySelector('[data-action="hackTecnico"]')));
+    ok("painel oferece Hackear (social) por desafio", Boolean(painel.element?.querySelector('[data-action="hackSocial"]')));
+    await game.op2.removerDesafio(investigacao, desafioComPainel.uuid);
+    await desafioComPainel.delete();
   }
 
   /* ------------------------------------------------------ laboratório portátil -- */

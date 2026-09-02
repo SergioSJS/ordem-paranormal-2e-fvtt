@@ -29,9 +29,9 @@ import {
 } from "./investigacao-ativa.mjs";
 import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada } from "./rodada.mjs";
 import {
-  dialogoInvestigar, investigar, examinar, interagir, recapitular, compartilhar, idsRevelados, alternarInfoOculta,
+  dialogoInvestigar, investigar, examinar, interagir, recapitular, compartilhar, alternarInfoOculta,
 } from "./acoes-investigacao.mjs";
-import { arrombar, alcancar, sustentar, pararDeSustentar } from "./acoes-desafio.mjs";
+import { arrombar, alcancar, sustentar, pararDeSustentar, hackTecnico, hackSocial } from "./acoes-desafio.mjs";
 import { abrirDestrancar } from "./destrancar-app.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
 
@@ -61,6 +61,8 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       removerPoi: PainelInvestigacao.#removerPoi,
       arrombar: PainelInvestigacao.#arrombar,
       destrancar: PainelInvestigacao.#destrancar,
+      hackTecnico: PainelInvestigacao.#hackTecnico,
+      hackSocial: PainelInvestigacao.#hackSocial,
       abrirDesafio: PainelInvestigacao.#abrirDesafio,
       removerDesafio: PainelInvestigacao.#removerDesafio,
       ajustarPontuacaoDesafio: PainelInvestigacao.#ajustarPontuacaoDesafio,
@@ -164,13 +166,9 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       const poi = await fromUuid(uuid);
       if (poi?.type !== "ponto-interesse") continue;
 
-      const reveladas = ator ? idsRevelados(ator, uuid) : new Set();
-      const investigado = ator?.system.estado.poisInvestigados.has(uuid) ?? false;
-      const verQuadro = ehGM || investigado;
-
       // Ferramentas do jogador que valem a pena tentar neste POI (spec §9.3): a
       // reação em si fica oculta até o uso — só a lista do que ele carrega aparece.
-      const ferramentasDisponiveis = (verQuadro && ator)
+      const ferramentasDisponiveis = ator
         ? FERRAMENTAS_POI.filter((chave) => temFerramenta(ator.items, chave))
           .map((chave) => ({ chave, rotulo: game.i18n.localize(`OP2.Ferramenta.Subtipo.${chave}`) }))
         : [];
@@ -180,18 +178,20 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
         nome: poi.name,
         img: poi.img,
         oculto,
-        verQuadro,
         reveladoPorLaser: poi.system.reveladoPorLaser,
         ferramentasDisponiveis,
-        descricaoBasica: verQuadro
-          ? await editor.enrichHTML(poi.system.descricaoBasica, { relativeTo: poi })
-          : null,
-        quadro: verQuadro ? periciasDoQuadro(poi.system.informacoes).map((chave) => ({
+        // O mestre controla visibilidade direto pelo olho — deste POI e de cada
+        // linha do quadro abaixo — sem depender de o jogador ter investigado
+        // antes (achado em uso real: "marco visível e não aparece pro jogador" —
+        // o gate de `poisInvestigados` competia com o toggle e escondia o que
+        // devia mostrar).
+        descricaoBasica: await editor.enrichHTML(poi.system.descricaoBasica, { relativeTo: poi }),
+        quadro: periciasDoQuadro(poi.system.informacoes).map((chave) => ({
           chave,
           rotulo: rotuloDePericia(chave),
           valor: ator?.system.resolverChave(chave)?.valor ?? null,
           infos: poi.system.informacoes
-            .filter((info) => info.pericia === chave && (ehGM || reveladas.has(info.id)))
+            .filter((info) => info.pericia === chave && (ehGM || !info.oculta))
             .map((info) => ({
               ...info,
               // O mestre vê a DT e quem já descobriu cada informação.
@@ -202,7 +202,11 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
                   .map((a) => a.name)
                 : [],
             })),
-        })) : [],
+        }))
+          // Perícia sem nenhuma linha liberada não existe para o jogador: só a
+          // presença dela na tela já entregaria que há algo ali para aquela
+          // perícia (achado em uso real). O mestre continua vendo o quadro todo.
+          .filter((grupo) => ehGM || grupo.infos.length > 0),
       });
     }
     return pois;
@@ -222,6 +226,8 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
         pontuacaoAlvo: desafio.system.pontuacaoAlvo,
         quebrado: desafio.system.quebrado,
         destrancado: desafio.system.destrancado,
+        hackTecnicoResolvido: desafio.system.hackTecnico.resolvido,
+        hackSocialResolvido: desafio.system.hackSocial.resolvido,
       }));
   }
 
@@ -394,6 +400,16 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
   static async #destrancar(_evento, alvo) {
     if (!this.#atorOuAviso()) return;
     abrirDestrancar(alvo.dataset.desafioUuid);
+  }
+
+  static async #hackTecnico(_evento, alvo) {
+    const ator = this.#atorOuAviso();
+    if (ator) await hackTecnico(ator, alvo.dataset.desafioUuid);
+  }
+
+  static async #hackSocial(_evento, alvo) {
+    const ator = this.#atorOuAviso();
+    if (ator) await hackSocial(ator, alvo.dataset.desafioUuid);
   }
 
   static async #abrirDesafio(_evento, alvo) {

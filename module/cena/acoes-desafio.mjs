@@ -1,21 +1,26 @@
 /**
- * Ações de desafio de acesso físico (spec §7.2, §7.4, §7.5).
+ * Ações de desafio de acesso físico (spec §7.2–§7.5).
  *
  * Arrombar cobra 1 PV por tentativa e grava a pontuação direto no Item — como
  * Investigar grava revelação sem confirmação extra, a atualização do contador não é
  * uma decisão de mesa. Alcançar não guarda estado: dano de queda vai pro card com
  * botão, nunca automático. Sustentar liga uma flag no ator; o desgaste por rodada
- * é aplicado por `avancarRodada()` (module/cena/rodada.mjs).
+ * é aplicado por `avancarRodada()` (module/cena/rodada.mjs). Hackear automatiza só
+ * o teste e o gate de rodada — o problema matemático (técnico) e conferir as
+ * respostas (social) exigem input humano, a spec é explícita sobre isso
+ * (docs/LACUNAS.md).
  */
 import { SYSTEM_ID, CUSTO_PV_ARROMBAR, CUSTO_PV_SUSTENTAR, BONUS_DT_ALCANCAR_ARRISCADO } from "../config.mjs";
 import {
   acumularArrombar, arrombou, excedeuTentativas, danoDeAlcancar, avaliarPalpite, venceuDestrancar,
+  podeTentarHackNestaRodada, chancesDeErroHackSocial,
 } from "./desafios.mjs";
 import { rolarTeste, renderizar, enviarParaChat, rotuloDePericia } from "../dice/teste.mjs";
 import { aplicarDano } from "../dice/falha-critica.mjs";
 import { stepDie } from "../dice/escada.mjs";
 import { OP2Roll } from "../dice/op2-roll.mjs";
 import { lerConfig } from "../settings/register.mjs";
+import { rodadaAtual } from "./rodada.mjs";
 
 const CHAT = "systems/ordem-paranormal-2e/templates/chat";
 
@@ -317,4 +322,106 @@ export async function tentarDestrancar(ator, desafioUuid, palpite) {
   }, { whisper: sussurroPara(ator) });
 
   return { resultado, venceu, quebrado };
+}
+
+/**
+ * HACK TÉCNICO (spec §7.3): Tecnologia vs DT do objeto. Sem curva automática pro
+ * problema matemático em si (docs/LACUNAS.md) — o card mostra o resultado (quanto
+ * maior, mais fácil deveria ser o problema que o mestre escolhe) e um timer visual
+ * de 10s fica disponível na ficha do desafio para o mestre iniciar. Falha só libera
+ * nova tentativa na rodada seguinte.
+ * @returns {Promise<{roll: OP2Roll, sucesso: boolean}|null>}
+ */
+export async function hackTecnico(ator, desafioUuid, { rapido = false } = {}) {
+  const desafio = await carregarDesafio(desafioUuid);
+  if (!desafio) return null;
+  if (desafio.system.hackTecnico.resolvido) {
+    ui.notifications.warn(game.i18n.localize("OP2.Desafio.HackJaResolvido"));
+    return null;
+  }
+  const rodada = rodadaAtual();
+  if (!podeTentarHackNestaRodada(desafio.system.hackTecnico.ultimaTentativaRodada, rodada)) {
+    ui.notifications.warn(game.i18n.localize("OP2.Desafio.HackEsperaRodada"));
+    return null;
+  }
+
+  const roll = await rolarTeste(ator, {
+    chavePericia: "tecnologia",
+    dt: desafio.system.dtObjeto,
+    rapido,
+    contexto: `${game.i18n.localize("OP2.Desafio.HackTecnico")} — ${desafio.name}`,
+  });
+  if (!roll) return null;
+
+  await desafio.update({
+    "system.hackTecnico.ultimaTentativaRodada": rodada,
+    "system.hackTecnico.resolvido": roll.sucesso,
+  });
+
+  await enviarCard(ator, "hackear", {
+    titulo: game.i18n.localize("OP2.Desafio.HackTecnico"),
+    desafioNome: desafio.name,
+    sucesso: roll.sucesso,
+    tecnico: true,
+  }, { whisper: sussurroPara(ator) });
+
+  return { roll, sucesso: roll.sucesso };
+}
+
+/**
+ * HACK SOCIAL (spec §7.3): Intuição vs DT do objeto. Sucesso revela o banco de
+ * perguntas (mestre-only) e quantas "chances de errar" o excedente sobre a DT
+ * concede (`chancesDeErroHackSocial`) — contar acertos/erros contra
+ * `respostasNecessarias` é julgamento de mesa (comparar resposta falada com o
+ * gabarito não é string match), por isso `marcarHackSocialResolvido` é manual.
+ * @returns {Promise<{roll: OP2Roll, sucesso: boolean, chancesDeErro: number}|null>}
+ */
+export async function hackSocial(ator, desafioUuid, { rapido = false } = {}) {
+  const desafio = await carregarDesafio(desafioUuid);
+  if (!desafio) return null;
+  if (desafio.system.hackSocial.resolvido) {
+    ui.notifications.warn(game.i18n.localize("OP2.Desafio.HackJaResolvido"));
+    return null;
+  }
+  const rodada = rodadaAtual();
+  if (!podeTentarHackNestaRodada(desafio.system.hackSocial.ultimaTentativaRodada, rodada)) {
+    ui.notifications.warn(game.i18n.localize("OP2.Desafio.HackEsperaRodada"));
+    return null;
+  }
+
+  const roll = await rolarTeste(ator, {
+    chavePericia: "intuicao",
+    dt: desafio.system.dtObjeto,
+    rapido,
+    contexto: `${game.i18n.localize("OP2.Desafio.HackSocial")} — ${desafio.name}`,
+  });
+  if (!roll) return null;
+
+  const chancesDeErro = roll.sucesso ? chancesDeErroHackSocial(roll.total, desafio.system.dtObjeto) : 0;
+
+  await desafio.update({ "system.hackSocial.ultimaTentativaRodada": rodada });
+
+  await enviarCard(ator, "hackear", {
+    titulo: game.i18n.localize("OP2.Desafio.HackSocial"),
+    desafioNome: desafio.name,
+    atorId: ator.id,
+    desafioUuid: desafio.uuid,
+    sucesso: roll.sucesso,
+    social: true,
+    chancesDeErro,
+    respostasNecessarias: desafio.system.hackSocial.respostasNecessarias,
+    perguntas: roll.sucesso ? desafio.system.hackSocial.perguntas : [],
+  }, { whisper: sussurroPara(ator) });
+
+  return { roll, sucesso: roll.sucesso, chancesDeErro };
+}
+
+/**
+ * O mestre marca o hack social como resolvido depois de conferir as respostas na
+ * mesa — não dá pra automatizar comparar o que o jogador falou com o gabarito.
+ */
+export async function marcarHackSocialResolvido(desafioUuid) {
+  const desafio = await carregarDesafio(desafioUuid);
+  if (!desafio) return null;
+  await desafio.update({ "system.hackSocial.resolvido": true });
 }

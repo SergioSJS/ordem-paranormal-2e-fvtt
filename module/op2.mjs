@@ -33,10 +33,11 @@ import {
   alternarJaAgiu, alternarOculto, moverParticipante,
 } from "./cena/investigacao-ativa.mjs";
 import {
-  investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar,
+  investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar, alternarInfoOculta,
 } from "./cena/acoes-investigacao.mjs";
 import {
   arrombar, alcancar, sustentar, pararDeSustentar, gerarSenhaDestrancar, tentarDestrancar,
+  hackTecnico, hackSocial, marcarHackSocialResolvido,
 } from "./cena/acoes-desafio.mjs";
 import { usarFerramenta, usarLaser, usarRadio } from "./cena/acoes-ferramenta.mjs";
 import { abrirDestrancar } from "./cena/destrancar-app.mjs";
@@ -82,9 +83,10 @@ Hooks.once("init", () => {
 
   game.op2 = {
     rolarTeste, encerrarCena, stepDie, faces, OP2Roll,
-    investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar,
+    investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar, alternarInfoOculta,
     painelInvestigacao: abrirPainelInvestigacao, avancarRodada,
     arrombar, alcancar, sustentar, pararDeSustentar,
+    hackTecnico, hackSocial, marcarHackSocialResolvido,
     gerarSenhaDestrancar, tentarDestrancar, abrirDestrancar,
     usarFerramenta, usarLaser, abrirLaboratorio, usarRadio, abrirRadio,
     investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,

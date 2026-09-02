@@ -1,11 +1,11 @@
 /**
- * Desafio de acesso — o obstáculo que Arrombar ou Destrancar tentam vencer
- * (spec §7.1/§7.2).
+ * Desafio de acesso — o obstáculo que Arrombar, Destrancar ou Hackear tentam vencer
+ * (spec §7.1/§7.2/§7.3).
  *
- * Arrombar e Destrancar são duas abordagens *independentes* para o mesmo objeto —
- * cada uma com o próprio contador de tentativas, porque exceder uma não deveria
- * consumir a outra (a mesa pode narrar "força bruta" e "picking" como tentativas
- * bem diferentes no mesmo cadeado).
+ * Cada abordagem é *independente* pro mesmo objeto — cada uma com o próprio
+ * contador de tentativas, porque exceder uma não deveria consumir a outra (a mesa
+ * pode narrar "força bruta", "picking" e "hackear o painel" como tentativas bem
+ * diferentes no mesmo dispositivo).
  */
 export class DesafioAcessoData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
@@ -33,6 +33,25 @@ export class DesafioAcessoData extends foundry.abstract.TypeDataModel {
         palpite: new ArrayField(new NumberField({ required: true, integer: true })),
         resultado: new ArrayField(new StringField({ required: true, choices: ["exato", "alto", "baixo"] })),
       }), { initial: [] }),
+
+      // HACKEAR (spec §7.3): duas abordagens independentes, cada uma com o próprio
+      // estado — mesmo espírito de Arrombar/Destrancar não consumirem tentativa uma
+      // da outra. Sem curva/automação do problema em si (docs/LACUNAS.md): só o
+      // teste, o gate de rodada, e — no social — o banco de perguntas do mestre.
+      hackTecnico: new SchemaField({
+        ultimaTentativaRodada: new NumberField({ required: true, initial: -1, integer: true, nullable: false }),
+        resolvido: new BooleanField({ required: true, initial: false }),
+      }),
+      hackSocial: new SchemaField({
+        // "Varia por missão" (spec) — o mestre define por desafio.
+        respostasNecessarias: new NumberField({ required: true, initial: 3, min: 1, integer: true, nullable: false }),
+        perguntas: new ArrayField(new SchemaField({
+          pergunta: new StringField({ required: true, initial: "", blank: true }),
+          resposta: new StringField({ required: true, initial: "", blank: true }),
+        }), { initial: [] }),
+        ultimaTentativaRodada: new NumberField({ required: true, initial: -1, integer: true, nullable: false }),
+        resolvido: new BooleanField({ required: true, initial: false }),
+      }),
     };
   }
 }

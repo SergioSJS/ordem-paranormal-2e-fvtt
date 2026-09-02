@@ -99,12 +99,29 @@ extra); o resto é texto livre. Quem tiver o material cria os itens na sua mesa,
 Quantas habilidades por nível, e quais, não está no playtest. O campo `nivel` existe e
 não dispara nada.
 
-### Curva do problema matemático no hack técnico (spec §7.3)
+### Hackear dispositivos: curva, timer e banco de perguntas (spec §7.3)
 
-O texto só dá a direção: quanto maior o resultado, mais fácil o problema.
+A spec é explícita que os dois hacks (técnico e social) "exigem input humano" e pede
+"ferramenta de GM (timer + banco de perguntas), não automação" — mas não define a
+curva do problema matemático nem o formato do timer nem onde mora o banco de perguntas.
 
-**Decisão:** fica como ferramenta de mestre (timer + banco de perguntas) na fase 3, sem
-curva automática.
+**Decisão — automatizado:** só o teste em si (Tecnologia/Intuição vs `dtObjeto`, mesmo
+padrão de Arrombar) e o gate "falha só libera nova tentativa na rodada seguinte" (regra
+explícita, spec §7.3). O resto é manual, no espírito do que a spec pede:
+
+- **Hack técnico:** sem curva automática — o card mostra o resultado do teste (quanto
+  maior, mais fácil deveria ser o problema que o mestre escolhe) e um timer visual de
+  10s que o mestre inicia na ficha do desafio, cliente-only, sem persistência.
+- **Hack social:** "chances de erro" segue literal a fórmula publicada — 1 base + 1 a
+  cada 3 pontos de excedente sobre a DT (o texto não diz a base; 1 é o mínimo que faz
+  "ganha uma chance adicional" fazer sentido gramatical). O banco de perguntas
+  (pergunta + resposta) mora no próprio `desafio-acesso`, editável na ficha — mesmo
+  padrão de `informacoes` do POI e `conjuntos` do Rádio. Contar acertos/erros contra
+  `respostasNecessarias` é manual (botão "marcar resolvido"), porque comparar a
+  resposta *falada* do jogador com o gabarito é julgamento de mesa, não string match.
+- **Bloqueio/alarme na falha** ("depende do dispositivo", spec): fica como texto livre
+  no card, decidido pela mesa — mesmo tratamento que Sustentar já dá pro "o que
+  acontece ao soltar".
 
 ### Alcançar seguro: o que acontece entre as duas ações? (spec §7.4)
 

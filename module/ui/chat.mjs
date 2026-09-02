@@ -8,6 +8,7 @@ import { SYSTEM_ID, CUSTO_PD_EXAMINAR } from "../config.mjs";
 import { rolarFalhaCritica, aplicarFalhaCritica, aplicarDano } from "../dice/falha-critica.mjs";
 import { testarCompartilhamento, registrarTravaDeCena } from "../cena/acoes-investigacao.mjs";
 import { rolarSobrecarga } from "../cena/rodada.mjs";
+import { marcarHackSocialResolvido } from "../cena/acoes-desafio.mjs";
 
 /** @type {Record<string, (ator: Actor, dataset: DOMStringMap) => Promise<void>>} */
 const ACOES = {
@@ -50,6 +51,11 @@ const ACOES = {
       return;
     }
     await rolarSobrecarga(ator, dataset.expressao);
+  },
+  // Comparar a resposta falada do jogador com o gabarito é julgamento de mesa —
+  // o botão só existe pro mestre (`data-op2-gm`, removido do DOM pro jogador).
+  async "marcar-hack-social-resolvido"(_ator, dataset) {
+    await marcarHackSocialResolvido(dataset.desafioUuid);
   },
 };
 
