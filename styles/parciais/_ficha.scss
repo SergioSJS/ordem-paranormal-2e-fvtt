@@ -232,6 +232,11 @@
   height: 0.75rem;
   padding: 0;
   border: 1px solid var(--op2-linha-forte);
+  // O traço é um <button>, e o core arredonda todo botão: sem zerar aqui, uma
+  // caixa de 8×12px com o raio do core vira um oval — exatamente o que o livro
+  // não faz (docs/ESTILO-VISUAL.md: "se você se pegar arredondando cantos,
+  // parou de seguir o livro"). Achado em uso real.
+  border-radius: 0;
   background: transparent;
   cursor: pointer;
   transform: skewX(-18deg);
@@ -242,6 +247,37 @@
   }
 
   &:hover { border-color: var(--op2-vermelho-claro); }
+}
+
+// Barra de ímpeto: mesma gramática do traço — retângulos inclinados, sem canto
+// arredondado —, mas maiores e em fileira própria, como na ficha do Ato I.
+.op2-impeto {
+  display: flex;
+  align-items: center;
+  gap: var(--op2-e2);
+
+  &__barra {
+    display: flex;
+    gap: 3px;
+  }
+
+  &__espaco {
+    width: 1.6rem;
+    height: 0.85rem;
+    padding: 0;
+    border: 1px solid var(--op2-linha-forte);
+    border-radius: 0;
+    background: transparent;
+    cursor: pointer;
+    transform: skewX(-18deg);
+
+    &--cheio {
+      border-color: var(--op2-vermelho);
+      background: var(--op2-vermelho);
+    }
+
+    &:hover { border-color: var(--op2-vermelho-claro); }
+  }
 }
 
 // Abaixo de 30% do máximo, os traços preenchidos pulsam em vermelho — o mesmo aviso
@@ -581,6 +617,14 @@
 // navegador: borda inset de 2px, sem cor do tema, texto colado na legenda (achado
 // em uso real — só `.op2-efeito` tinha ganhado esse tratamento, os outros dois
 // fieldsets ficaram esquecidos e destoavam do resto da ficha).
+// A ficha do desafio cresce conforme as abordagens ligadas — precisa rolar
+// dentro da janela em vez de esticar além da tela (achado em uso real).
+.op2-ficha--desafio .window-content {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
 .op2-efeito,
 .op2-cargas,
 .op2-desafio-progresso,

@@ -257,4 +257,32 @@
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 
+
+// ---------------------------------------------------------------- janelas --
+// O core deixa o frame translúcido (`rgba(11,10,19,.9)`), o cabeçalho em 50% e
+// ainda aplica `backdrop-filter: blur(4px)` no conteúdo: com duas janelas
+// empilhadas dava pra ler as duas ao mesmo tempo, e nenhuma direito (achado em
+// uso real). Toda janela do sistema fica opaca, com uma borda vermelha escura
+// que dá o contorno pra achar a janela na tela.
+.application.op2,
+.application.op2-ficha--poi,
+.application.op2-ficha--desafio {
+  --op2-borda-janela: #{rgba(#8f2315, 0.85)};
+
+  background: var(--op2-fundo);
+  backdrop-filter: none;
+  border: 3px solid var(--op2-borda-janela);
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.8);
+
+  > .window-header {
+    background: var(--op2-superficie-alta);
+    backdrop-filter: none;
+    border-bottom: 1px solid var(--op2-borda-janela);
+  }
+
+  .window-content {
+    backdrop-filter: none;
+  }
+}
+
 }

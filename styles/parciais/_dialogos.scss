@@ -36,7 +36,9 @@
   &__lista {
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    // Linha separada de linha: encostadas, os ícones de dado de linhas vizinhas
+    // pareciam encavalados mesmo com a linha alta (achado em uso real).
+    gap: 0.2rem;
   }
 
   &__linha {
@@ -46,11 +48,13 @@
     gap: var(--op2-e2);
     grid-template-columns: minmax(0, 1fr) 1.7rem auto 1.7rem auto;
     width: 100%;
-    // A linha precisa ser mais alta que o ícone do dado: com padding menor os
-    // dados de linhas vizinhas encostavam um no outro e o realce do hover ficava
-    // deslocado da linha (achado em uso real).
-    min-height: 2.1rem;
-    padding: 0.15rem 0.6rem;
+    // `min-height` sozinho não segura: o core zera a altura mínima de `button`
+    // dentro de `.window-content` e o computado voltava a 0 — o ícone do dado
+    // (1.4rem + line-height) transbordava a caixa e a borda do hover passava por
+    // cima dele (achado em uso real, medido no navegador). `block-size` fixa a
+    // altura da linha antes de qualquer regra do core entrar.
+    block-size: 2.4rem;
+    padding: 0.3rem 0.6rem;
     border: 1px solid transparent;
     border-radius: var(--op2-raio);
     background: transparent;
@@ -83,13 +87,32 @@
     color: var(--op2-texto-fraco);
   }
 
-  &__dado .op2-dado { width: 1.6rem; height: 1.6rem; }
+  // Menor que a linha, com folga: em 1.6rem o dado ocupava a altura inteira e
+  // qualquer arredondamento o punha em cima da borda.
+  &__dado {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+
+    .op2-dado { width: 1.4rem; height: 1.4rem; }
+  }
 }
 
 .op2-teste {
   display: flex;
   flex-direction: column;
   gap: var(--op2-e3);
+
+  // Ajuda do aliado (spec §4.7): o passo já vem aplicado, então a origem dele
+  // precisa estar escrita — senão vira bônus fantasma.
+  &__ajuda {
+    margin: 0;
+    padding: var(--op2-e2);
+    border-left: 2px solid var(--op2-sucesso);
+    background: color-mix(in srgb, var(--op2-sucesso) 12%, transparent);
+    font-size: 0.8rem;
+  }
 
   &__componentes {
     display: flex;

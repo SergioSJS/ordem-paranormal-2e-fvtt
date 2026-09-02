@@ -20,6 +20,17 @@
   font-size: 0.75rem;
 }
 
+// Marca as linhas que caíram pelo tamanho do dado, sem passar pelo teste.
+.op2-card__info-marca {
+  margin-left: 0.35rem;
+  font-family: var(--op2-fonte-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--op2-texto-fraco);
+  white-space: nowrap;
+}
+
 // Stepper de +/- inline: ajuste fino de um número sem abrir teclado (pontuação
 // e tentativas do desafio de acesso, no painel e na ficha do item). Mesmo visual
 // do controle de cargas do inventário — botões-ícone colados no valor.
@@ -247,6 +258,17 @@ summary.op2-painel-titulo { cursor: pointer; }
   // `resolverExaminar` já filtram), só marcada visualmente aqui pra quem já vê tudo.
   &__info--oculta { opacity: 0.55; }
 
+  // Linha que ESTE personagem descobriu examinando — o resto do quadro que o
+  // jogador vê é o que o mestre abriu.
+  &__info--descoberta { border-left: 2px solid var(--op2-sucesso); padding-left: var(--op2-e2); }
+
+  // O ícone diz o estado; a cor reforça sem depender de ler o tooltip.
+  &__visibilidade {
+    &--rascunho { color: var(--op2-texto-fraco); }
+    &--descobrivel { color: var(--op2-vermelho-claro); }
+    &--aberta { color: var(--op2-sucesso); }
+  }
+
   &__ferramentas {
     display: flex;
     flex-wrap: wrap;
@@ -291,11 +313,15 @@ summary.op2-painel-titulo { cursor: pointer; }
   }
 
   // Alternativa ao drag-and-drop (spec: nem todo mestre acerta o alvo do drop numa
-  // lista curta) — duas setinhas pequenas, uma em cima da outra.
+  // lista curta) — duas setinhas pequenas, uma em cima da outra. Encostadas na
+  // borda direita em toda linha: quando o `margin-left: auto` morava na tag "NPC",
+  // as setas do NPC apareciam num lugar diferente das do personagem (achado em
+  // uso real: "o botão de mover está completamente diferente").
   &__setas {
     display: flex;
     flex-direction: column;
     gap: 1px;
+    margin-left: auto;
 
     button {
       padding: 0;
@@ -305,11 +331,11 @@ summary.op2-painel-titulo { cursor: pointer; }
     }
   }
 
+  // Marcador ao lado do nome, não empurrado pra ponta — quem manda na ponta
+  // direita são as setinhas, iguais em toda linha.
   &__npc-tag {
-    margin-left: auto;
-    font-family: var(--op2-fonte-mono);
-    font-size: 0.7rem;
-    text-transform: uppercase;
+    flex: 0 0 auto;
+    font-size: 0.6rem;
   }
 }
 
@@ -510,10 +536,23 @@ summary.op2-painel-titulo { cursor: pointer; }
 .op2-acoes {
   &__topo { display: flex; align-items: center; gap: var(--op2-e2); }
 
+  // Grade em vez de fileira solta: os botões tinham larguras diferentes e a
+  // linha quebrava em qualquer lugar, virando um amontoado (achado em uso real).
   &__grupo {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
     gap: var(--op2-e1);
+    grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+
+    .op2-botao {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      justify-content: center;
+      padding: 0.4em 0.6em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   &__alvo {
@@ -535,6 +574,7 @@ summary.op2-painel-titulo { cursor: pointer; }
     img { width: 1.8rem; height: 1.8rem; object-fit: cover; border-radius: var(--op2-raio); }
     strong { font-family: var(--op2-fonte-display); letter-spacing: 0.03em; }
   }
+
 }
 
 // Botão que abre as ações, no cabeçalho da ficha logo abaixo de Nível/NEX. A
@@ -581,6 +621,7 @@ summary.op2-painel-titulo { cursor: pointer; }
   padding-top: var(--op2-e2);
   border-top: 1px dashed var(--op2-linha);
 }
+
 
 // Botão flutuante do painel — nada de círculo: a gramática do livro é tag rasgada
 // (docs/ESTILO-VISUAL.md, "se você se pegar arredondando cantos, parou de seguir o
