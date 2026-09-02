@@ -1,10 +1,47 @@
 /**
  * Compila os compêndios de `packs/sources/<nome>/` para `packs/<nome>/`.
  * Lê a lista do próprio `system.json`, então não há uma segunda fonte de verdade.
+ *
+ * Escreve o LevelDB direto, em vez de chamar `fvtt package pack`. O CLI resolve o caso
+ * simples e tropeça no resto: ele não sabe empacotar documento embutido guardado em
+ * arquivo próprio (a cena do Porão saiu com o banco vazio), e no v14 o mapa de fundo é
+ * um documento de NÍVEL separado. Escrever aqui é uma volta a menos e o formato exato
+ * que o mundo usa — chave é o `_key`, valor é o documento sem ele.
  */
-import { readFileSync, existsSync, rmSync } from "node:fs";
-import { execFileSync } from "node:child_process";
-import { dirname } from "node:path";
+import { readFileSync, existsSync, rmSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+import { ClassicLevel } from "classic-level";
+
+/**
+ * Grava um documento e separa as coleções embutidas, que é como o Foundry guarda:
+ * o registro do pai fica com um ARRAY DE IDS e cada filho vira registro próprio, sob
+ * `!<colecao>.<sub>!<idDoPai>.<idDoFilho>`.
+ *
+ * Sem isso o ator do compêndio chega sem as habilidades e a cena sem as paredes: o
+ * Foundry simplesmente ignora a lista de objetos embutida (achado em uso real, com os
+ * pré-gerados perdendo os itens).
+ */
+function gravar(lote, doc) {
+  const { _key, ...valor } = doc;
+  const [, colecao, id] = /^!([^!]+)!(.+)$/.exec(_key) ?? [];
+  if (!colecao || !id) throw new Error(`_key inválido: ${_key}`);
+  let escritos = 1;
+
+  for (const [campo, conteudo] of Object.entries(valor)) {
+    const ehColecao = Array.isArray(conteudo) && conteudo.length
+      && conteudo.every((f) => f && typeof f === "object" && typeof f._id === "string");
+    if (!ehColecao) continue;
+
+    valor[campo] = conteudo.map((filho) => filho._id);
+    for (const filho of conteudo) {
+      const { _key: _ignorado, ...corpo } = filho;
+      escritos += gravar(lote, { ...corpo, _key: `!${colecao}.${campo}!${id}.${filho._id}` });
+    }
+  }
+
+  lote.put(_key, valor);
+  return escritos;
+}
 
 const manifesto = JSON.parse(readFileSync("system.json", "utf8"));
 const packs = manifesto.packs ?? [];
@@ -20,30 +57,30 @@ for (const pack of packs) {
     console.warn(`Pulando "${pack.name}": ${fonte} não existe.`);
     continue;
   }
-  // Apaga o banco antes: `pack` escreve por cima, então documento removido da fonte
-  // continuaria no compêndio, e um `unpack` errado deixa subpasta órfã lá dentro.
-  // Com o Foundry aberto o banco está travado — daí o aviso em vez do erro cru.
-  if (existsSync(pack.path)) {
-    try {
-      rmSync(pack.path, { recursive: true, force: true });
-    } catch (erro) {
-      console.error(`Não deu para limpar ${pack.path}: feche o Foundry e rode de novo.`);
-      throw erro;
-    }
+
+  const documentos = readdirSync(fonte)
+    .filter((a) => a.endsWith(".json"))
+    .map((a) => JSON.parse(readFileSync(join(fonte, a), "utf8")));
+
+  const semChave = documentos.filter((d) => !d._key);
+  if (semChave.length) {
+    throw new Error(`${pack.name}: ${semChave.length} documento(s) sem "_key" — o Foundry não os acha.`);
   }
 
-  console.log(`Compilando ${pack.name}…`);
-  // `--out` é a pasta PAI: o CLI cria `<out>/<name>` e é esse caminho que o
-  // `system.json` declara em `path` (achado em uso real: apontar `--out` para o
-  // próprio `path` gerava `packs/habilidades/habilidades`, e o Foundry não achava
-  // o banco).
-  const pai = dirname(pack.path);
-  execFileSync("npx", [
-    "fvtt", "package", "pack",
-    "--type", "System",
-    "--id", manifesto.id,
-    "-n", pack.name,
-    "--in", fonte,
-    "--out", pai,
-  ], { stdio: "inherit" });
+  // Apaga antes: documento removido da fonte não pode sobreviver no compêndio, e um
+  // `unpack` errado deixa subpasta órfã lá dentro.
+  if (existsSync(pack.path)) rmSync(pack.path, { recursive: true, force: true });
+
+  const db = new ClassicLevel(pack.path, { valueEncoding: "json" });
+  await db.open();
+  let escritos = 0;
+  try {
+    const lote = db.batch();
+    for (const doc of documentos) escritos += gravar(lote, doc);
+    await lote.write();
+  } finally {
+    await db.close();
+  }
+
+  console.log(`${pack.name}: ${documentos.length} arquivo(s), ${escritos} registro(s) → ${pack.path}`);
 }

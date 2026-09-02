@@ -145,12 +145,12 @@ User Data, que é onde os compêndios os procuram. Depois é só importar:
 etapas — porão, porão + sala secreta, e completo com o duto. Trocar de mapa no meio da
 sessão perde tokens, luzes e névoa explorada, então a cena usa o mapa completo e esconde
 o resto com **portas secretas**: invisíveis para o jogador, abertas pelo mestre quando o
-grupo descobre a passagem. As paredes não foram desenhadas na mão — `scripts/ato-i/gerar-cena.py`
-compara os três arquivos e deriva a borda de cada área.
+grupo descobre a passagem.
 
-O perímetro e as fronteiras entre as áreas estão murados; as divisórias internas do porão
-(o quarto do berço, por exemplo) não estão — se você quiser visão sala a sala, são alguns
-muros a mais no editor.
+A cena vem murada — perímetro, divisórias internas e as passagens secretas. Para partir
+do zero em outro mapa, `npm run ato-i:gerar-cena` deriva um primeiro traçado comparando
+os três arquivos publicados: sai o perímetro e a fronteira entre as áreas, o suficiente
+para depois ajustar à mão.
 
 Fez esses muros, pôs luzes, ajustou a cena? Traga de volta para o compêndio:
 

@@ -1,0 +1,28 @@
+{
+  "levels": [
+    "defaultLevel0000"
+  ],
+  "light": 20,
+  "move": 20,
+  "sight": 20,
+  "sound": 20,
+  "dir": 0,
+  "door": 0,
+  "ds": 0,
+  "threshold": {
+    "light": null,
+    "sight": null,
+    "sound": null,
+    "attenuation": false
+  },
+  "animation": null,
+  "flags": {},
+  "c": [
+    2913,
+    2250,
+    3213,
+    2250
+  ],
+  "_id": "Z16K2GXOzoTHB63A",
+  "_key": "!scenes.walls!e6b18132a28fc4fb.Z16K2GXOzoTHB63A"
+}

@@ -706,21 +706,30 @@ const relato = await page.evaluate(async () => {
     ok("compêndio traz uma cena do Porão, não três", cenas?.index.size === 1);
     if (cenas) {
       const cena = await cenas.getDocument([...cenas.index][0]._id);
-      ok("a cena usa o mapa completo", cena.background.src.includes("completo"));
-      ok("a cena tem paredes", cena.walls.size > 50);
-      ok("e portas secretas na fronteira das áreas escondidas",
-        cena.walls.filter((p) => p.door === 2).length > 10);
+      ok("a cena usa o mapa completo", cena._source.background?.src?.includes("completo") === true);
+      ok("a cena vem murada", cena.walls.size >= 30);
+      ok("e com portas secretas nas passagens escondidas",
+        cena.walls.filter((p) => p.door === 2).length >= 4);
       // Com padding, o Foundry desloca o fundo e as paredes caem fora da arte.
       ok("sem padding, para as paredes baterem com a arte", cena.padding === 0);
       ok("visão por token ligada — é o que faz a parede valer", cena.tokenVision === true);
 
       const importada = await Scene.create(cena.toObject());
+      // No v14 o fundo vira documento de nível na carga; se ele não chegar, a cena
+      // importa em branco — foi o que aconteceu com o fundo escrito como nível no
+      // compêndio, que o Foundry ignora (achado em uso real).
+      ok("o mapa chega até a cena importada",
+        importada.levels.contents[0]?.background?.src?.includes("completo") === true);
+
+      // Uma casa de tolerância: parede desenhada na mão encosta um pouco fora da borda.
+      const tolerancia = importada.grid.size;
       const fora = importada.walls.filter((p) => {
         const [x1, y1, x2, y2] = p.c;
-        return Math.min(x1, x2) < 0 || Math.min(y1, y2) < 0
-          || Math.max(x1, x2) > importada.width || Math.max(y1, y2) > importada.height;
+        return Math.min(x1, x2) < -tolerancia || Math.min(y1, y2) < -tolerancia
+          || Math.max(x1, x2) > importada.width + tolerancia
+          || Math.max(y1, y2) > importada.height + tolerancia;
       });
-      ok("nenhuma parede cai fora do mapa", fora.length === 0);
+      ok("nenhuma parede cai longe do mapa", fora.length === 0);
       await importada.delete();
     }
 

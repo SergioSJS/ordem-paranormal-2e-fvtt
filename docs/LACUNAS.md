@@ -293,11 +293,20 @@ largura no arquivo, o que o coloca em uma casa; as portas ficam na mesma ordem d
 grandeza. **Decisão:** grade de 100px, distância 1,5 m. Se a sua leitura da arte for
 outra, o alinhamento se ajusta na configuração da cena sem mexer nas paredes.
 
-## Paredes internas do Porão
+## Paredes do Porão
 
-As paredes vêm da diferença entre os três arquivos publicados, então saem exatas no
-perímetro e na fronteira entre porão, sala secreta e duto. As divisórias *internas* do
-porão não aparecem nessa conta — os dois lados delas são a mesma área em todos os
-arquivos. **Decisão:** ficam de fora; detectá-las pela cor das vigas erra demais nesta
-arte, que tem piso iluminado em várias cores. O mestre que quiser visão sala a sala
-acrescenta esses muros no editor.
+`gerar-cena.py` deriva paredes da diferença entre os três arquivos publicados: sai exato
+no perímetro e na fronteira entre porão, sala secreta e duto, e não enxerga as divisórias
+*internas* — os dois lados delas são a mesma área em todos os arquivos.
+
+**Decisão:** a cena do compêndio é a que foi murada à mão dentro do Foundry (39 paredes,
+6 portas secretas) e trazida por `npm run ato-i:cena`. O gerador fica como ponto de
+partida para outros mapas, e se recusa a sobrescrever a cena existente sem `--forcar`.
+
+## Fundo de cena em compêndio (v14)
+
+No v14 o mapa de fundo é um documento de **nível** (`!scenes.levels!…`), não um campo da
+cena. Compêndio não carrega esses registros: testado com id próprio e com
+`defaultLevel0000`, o Foundry ignora e sintetiza um nível padrão — a cena importa em
+branco. **Decisão:** a fonte do compêndio guarda o campo legado `background` no registro
+da cena, que o v14 migra para o nível ao carregar. É o único caminho que funciona hoje.

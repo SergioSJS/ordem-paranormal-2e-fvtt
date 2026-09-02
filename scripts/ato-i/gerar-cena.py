@@ -4,7 +4,7 @@ Cada mapa acrescenta uma área ao anterior. A máscara "onde há chão" de cada 
 subtraída da anterior, isola porão, sala secreta e duto. A borda da união vira parede;
 a fronteira entre duas regiões vira porta secreta.
 """
-import json, pathlib, hashlib
+import json, pathlib, hashlib, sys
 from collections import deque
 from PIL import Image, ImageDraw, ImageFilter
 
@@ -147,10 +147,18 @@ def main():
         "flags": {}, "folder": None, "sort": 0, "ownership": {"default": 0},
     }
     SAIDA.mkdir(parents=True, exist_ok=True)
+    destino = SAIDA / "porao.json"
+    # A cena do compêndio hoje é a que o mestre muralhou à mão, trazida por
+    # `npm run ato-i:cena` — bem melhor do que esta conta consegue. Regerar por cima
+    # apagaria esse trabalho, então exige `--forcar`.
+    if destino.exists() and "--forcar" not in sys.argv:
+        print(f"{destino} já existe e provavelmente é a cena feita à mão.")
+        print("Use --forcar para sobrescrever, ou npm run ato-i:cena para atualizar a partir do seu mundo.")
+        return
     for i, p in enumerate(cena["walls"]):
         p["_id"] = hashlib.sha1(f"parede-{i}".encode()).hexdigest()[:16]
         p["_key"] = f'!scenes.walls!{ident}.{p["_id"]}'
-    (SAIDA / "porao.json").write_text(json.dumps(cena, ensure_ascii=False, indent=2) + "\n")
+    destino.write_text(json.dumps(cena, ensure_ascii=False, indent=2) + "\n")
 
     # Conferência: as paredes desenhadas por cima da arte, para olhar antes de confiar.
     arte = Image.open(arquivos[2]).convert("RGB")

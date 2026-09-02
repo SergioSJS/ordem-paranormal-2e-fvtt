@@ -3,28 +3,33 @@
  *
  * O caminho normal é o contrário — o compêndio gera a cena. Este script existe para
  * quando o trabalho é seu: você mura, ilumina e ajusta a cena dentro do Foundry, que é
- * onde dá para ver o resultado, e depois traz isso para `packs/sources/` para virar
- * compêndio de novo.
+ * onde dá para ver o resultado, e depois traz isso para `packs/sources/`.
  *
- * Duas entradas:
+ *   npm run ato-i:cena -- --mundo op2-meu --cena "O Porão"
  *
- *   npm run ato-i:cena -- --mundo op2-meu --cena "O Porão"     # lê o banco do mundo
- *   npm run ato-i:cena -- --de ~/Downloads/fvtt-Scene-porao.json  # export da interface
+ * Lê o banco do mundo direto. `fvtt package unpack` não serve aqui: ele escreve só o
+ * documento da cena, e no v14 o mapa de fundo mora num documento de NÍVEL separado
+ * (`!scenes.levels!…`) — a cena voltava sem imagem nenhuma (achado em uso real).
  *
- * O banco do mundo fica travado enquanto o Foundry está aberto: feche antes, ou use o
- * export (clique direito na cena → Export Data).
+ * Com o Foundry aberto o banco fica travado; nesse caso o script trabalha sobre uma
+ * cópia, que é leitura consistente o bastante para exportar.
  *
- * O que entra no compêndio: paredes, luzes, sons de ambiente, ladrilhos, desenhos e a
- * configuração da cena. O que fica de fora: tokens, notas e a névoa já explorada — tudo
- * isso aponta para documentos e estado do SEU mundo, e não significaria nada em outro.
+ * Entra no compêndio: paredes, níveis (com o fundo), luzes, sons, ladrilhos, desenhos e
+ * regiões. Fica de fora: tokens, notas e névoa explorada — apontam para documentos e
+ * estado do SEU mundo, e não significariam nada em outro.
  */
-import { readFileSync, writeFileSync, existsSync, mkdtempSync, rmSync, readdirSync } from "node:fs";
-import { execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync, existsSync, mkdtempSync, rmSync, cpSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir, homedir } from "node:os";
+import { ClassicLevel } from "classic-level";
 
 const DESTINO = "packs/sources/ato-i-cenas/porao.json";
 const FUNDO = "op2-ato-i/mapas/mapa-03-o-porao-sala-secreta-duto-de-ventilacao-completo.jpg";
+
+/** Coleções embutidas que fazem sentido num compêndio. */
+const LEVAR = ["walls", "lights", "sounds", "tiles", "drawings", "regions", "templates"];
+/** Estado e referências do mundo de origem, que não viajam. */
+const DEIXAR = ["tokens", "notes"];
 
 const args = process.argv.slice(2);
 const opcao = (nome) => {
@@ -35,73 +40,111 @@ const opcao = (nome) => {
 const DATA = process.env.FOUNDRY_DATA
   ?? join(homedir(), "Library", "Application Support", "FoundryVTT", "Data");
 
-function doArquivo(caminho) {
-  return JSON.parse(readFileSync(caminho, "utf8"));
-}
-
-/** Lê a cena direto do banco do mundo — sem passar pela interface. */
-function doMundo(mundo, nomeDaCena) {
-  const pasta = join(DATA, "worlds", mundo, "data");
-  if (!existsSync(join(pasta, "scenes"))) {
-    throw new Error(`Não achei as cenas de "${mundo}" em ${pasta}. Confira o nome da pasta do mundo.`);
+async function lerDoMundo(mundo, procurado) {
+  const original = join(DATA, "worlds", mundo, "data", "scenes");
+  if (!existsSync(original)) {
+    throw new Error(`Não achei as cenas de "${mundo}" em ${original}.`);
   }
-  const saida = mkdtempSync(join(tmpdir(), "op2-cena-"));
+
+  // O Foundry aberto segura o LOCK: a cópia deixa exportar sem fechar o programa.
+  const temporario = mkdtempSync(join(tmpdir(), "op2-cena-"));
+  const copia = join(temporario, "scenes");
+  cpSync(original, copia, { recursive: true });
+  rmSync(join(copia, "LOCK"), { force: true });
+
+  const db = new ClassicLevel(copia, { valueEncoding: "json" });
   try {
-    execFileSync("npx", [
-      "fvtt", "package", "unpack", "--type", "World", "--id", mundo,
-      "-n", "scenes", "--in", pasta, "--out", saida,
-    ], { stdio: ["ignore", "ignore", "inherit"] });
+    await db.open();
+    const registros = new Map();
+    for await (const [chave, valor] of db.iterator()) registros.set(chave, valor);
 
-    const arquivos = readdirSync(saida).filter((a) => a.endsWith(".json"));
-    const cenas = arquivos.map((a) => doArquivo(join(saida, a)));
-    const achada = nomeDaCena
-      ? cenas.find((c) => c.name?.toLowerCase().includes(nomeDaCena.toLowerCase()))
-      : cenas.find((c) => c.name?.toLowerCase().includes("porão"));
-    if (!achada) {
-      throw new Error(`Nenhuma cena com "${nomeDaCena ?? "porão"}" no nome. Achei: ${cenas.map((c) => c.name).join(", ")}`);
+    const cenas = [...registros.entries()]
+      .filter(([k]) => k.startsWith("!scenes!"))
+      .map(([k, v]) => ({ id: k.slice("!scenes!".length), doc: v }));
+    // Nome exato primeiro: com uma cópia no mundo ("… (Cópia)"), a busca por trecho
+    // pega a errada — e a cópia costuma ser o backup, não o trabalho bom.
+    const procura = (procurado ?? "porão").toLowerCase();
+    const alvo = cenas.find((c) => c.doc.name?.toLowerCase() === procura)
+      ?? cenas.find((c) => c.doc.name?.toLowerCase().includes(procura));
+    if (!alvo) {
+      throw new Error(`Nenhuma cena com "${procurado ?? "porão"}" no nome. Achei: ${cenas.map((c) => c.doc.name).join(", ")}`);
     }
-    return achada;
+
+    const embutidos = {};
+    for (const [chave, valor] of registros) {
+      const m = /^!scenes\.([a-z]+)!([^.]+)\.(.+)$/.exec(chave);
+      if (!m || m[2] !== alvo.id) continue;
+      (embutidos[m[1]] ??= []).push(valor);
+    }
+    return { id: alvo.id, cena: alvo.doc, embutidos };
   } finally {
-    rmSync(saida, { recursive: true, force: true });
+    await db.close().catch(() => {});
+    rmSync(temporario, { recursive: true, force: true });
   }
 }
 
-function limpar(cena, anterior) {
-  // Mantém a identidade da entrada: o compêndio atualiza em vez de ganhar uma cópia.
-  const id = anterior?._id ?? cena._id;
+/**
+ * Escreve a cena no formato que o banco do mundo usa: o registro da cena guarda ARRAYS
+ * DE ID, e cada documento embutido é um registro próprio.
+ *
+ * Menos os níveis. No v14 o mapa de fundo mora num documento de nível, e o compêndio
+ * simplesmente não carrega esses registros — o Foundry sintetiza um nível padrão e a
+ * cena importa em branco (achado em uso real, testado com id próprio e com o
+ * `defaultLevel0000`). O caminho que funciona é o campo legado `background` no registro
+ * da cena, que o v14 migra para o nível ao carregar.
+ */
+function escrever({ id, cena, embutidos }, anterior) {
+  const idDaCena = anterior?._id ?? id;
+  const arquivos = [];
 
-  // Estado e referências do mundo de origem não viajam.
-  const fora = ["tokens", "notes", "fog", "active", "navigation", "navOrder", "navName",
-    "playlist", "playlistSound", "journal", "journalEntryPage", "ownership", "folder"];
-  const limpa = Object.fromEntries(Object.entries(cena).filter(([k]) => !fora.includes(k)));
-
-  limpa._id = id;
-  limpa._key = `!scenes!${id}`;
-  limpa.name = anterior?.name ?? cena.name;
+  const limpa = { ...cena };
+  for (const fora of [...DEIXAR, "active", "navigation", "navOrder", "navName", "fog",
+    "playlist", "playlistSound", "journal", "journalEntryPage", "folder", "thumb", "_stats",
+    "levels", "initialLevel"]) {
+    delete limpa[fora];
+  }
+  limpa._id = idDaCena;
+  limpa._key = `!scenes!${idDaCena}`;
   limpa.ownership = { default: 0 };
   limpa.folder = null;
   limpa.sort = 0;
-  // O fundo aponta para onde `npm run ato-i` instala, não para o caminho do seu mundo.
-  limpa.background = { ...(cena.background ?? {}), src: FUNDO };
 
-  // Cada documento embutido precisa da própria chave para o compêndio compilar.
-  for (const colecao of ["walls", "lights", "sounds", "tiles", "drawings", "templates", "regions"]) {
-    if (!Array.isArray(limpa[colecao])) continue;
-    limpa[colecao] = limpa[colecao].map((doc) => ({
-      ...doc, _key: `!scenes.${colecao}!${id}.${doc._id}`,
-    }));
+  // O fundo sai do nível e vira campo da cena; o caminho aponta para onde
+  // `npm run ato-i` instala, e não para o caminho do seu mundo.
+  const nivel = (embutidos.levels ?? [])[0];
+  limpa.background = { ...(nivel?.background ?? {}), src: FUNDO };
+  if (nivel?.foreground?.src) limpa.foreground = nivel.foreground.src;
+
+  for (const colecao of LEVAR) {
+    const docs = embutidos[colecao] ?? [];
+    if (!docs.length) { delete limpa[colecao]; continue; }
+    limpa[colecao] = docs.map((d) => d._id);
+    for (const doc of docs) {
+      arquivos.push([`porao-${colecao}-${doc._id}.json`,
+        { ...doc, _key: `!scenes.${colecao}!${idDaCena}.${doc._id}` }]);
+    }
   }
-  return limpa;
+  arquivos.unshift(["porao.json", limpa]);
+  return { cena: limpa, arquivos };
 }
 
-const bruta = opcao("de") ? doArquivo(opcao("de")) : doMundo(opcao("mundo") ?? "op2", opcao("cena"));
-const anterior = existsSync(DESTINO) ? doArquivo(DESTINO) : null;
-const cena = limpar(bruta, anterior);
-writeFileSync(DESTINO, `${JSON.stringify(cena, null, 2)}\n`);
+const PASTA = "packs/sources/ato-i-cenas";
+const anterior = existsSync(DESTINO) ? JSON.parse(readFileSync(DESTINO, "utf8")) : null;
+const { cena, arquivos } = escrever(await lerDoMundo(opcao("mundo") ?? "op2-meu", opcao("cena")), anterior);
+
+// Limpa a pasta antes: documento apagado no seu mundo não pode sobreviver no compêndio.
+for (const arquivo of readdirSync(PASTA)) {
+  if (arquivo.endsWith(".json")) rmSync(join(PASTA, arquivo));
+}
+for (const [nome, doc] of arquivos) {
+  writeFileSync(join(PASTA, nome), `${JSON.stringify(doc, null, 2)}\n`);
+}
 
 const conta = (c) => (Array.isArray(cena[c]) ? cena[c].length : 0);
-console.log(`"${cena.name}" → ${DESTINO}`);
+const fundo = cena.background?.src;
+console.log(`"${cena.name}" → ${PASTA}/ (${arquivos.length} arquivos)`);
 console.log(`  ${cena.width}x${cena.height}, grade ${cena.grid?.size}, padding ${cena.padding}`);
-console.log(`  paredes ${conta("walls")} (${(cena.walls ?? []).filter((p) => p.door === 2).length} secretas)`
-  + `, luzes ${conta("lights")}, sons ${conta("sounds")}, ladrilhos ${conta("tiles")}`);
+console.log(`  paredes ${conta("walls")}, luzes ${conta("lights")}, `
+  + `sons ${conta("sounds")}, ladrilhos ${conta("tiles")}`);
+console.log(`  fundo: ${fundo ?? "NENHUM — a cena vai importar sem mapa"}`);
 console.log("Agora: npm run pack:build");
