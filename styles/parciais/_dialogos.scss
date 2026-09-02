@@ -197,7 +197,11 @@
   grid-template-columns: 1.5rem minmax(0, 1fr) auto;
   text-align: left;
 
-  img { width: 1.5rem; height: 1.5rem; border: 0; }
+  // Lista de alvo/aliado: mesmo corte pelo topo das outras listas de retrato.
+  img {
+    width: 1.5rem; height: 1.5rem; border: 0;
+    object-fit: cover; object-position: center top;
+  }
 
   &__nome { font-family: var(--op2-fonte-corpo); font-size: 0.82rem; }
 

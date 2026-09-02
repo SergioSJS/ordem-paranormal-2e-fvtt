@@ -139,7 +139,9 @@
     margin: 0;
     border: 1px solid var(--op2-vermelho);
     border-radius: var(--op2-raio);
+    // Vale para o retrato do NPC também: foto em pé cortada pelo meio vira torso.
     object-fit: cover;
+    object-position: center top;
     cursor: pointer;
   }
 

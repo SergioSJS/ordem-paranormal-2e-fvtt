@@ -806,11 +806,11 @@ const relato = await page.evaluate(async () => {
       const conteudo = {
         Actor: [...aventura.actors], Item: [...aventura.items],
         Scene: [...aventura.scenes], JournalEntry: [...aventura.journal],
-        Playlist: [...aventura.playlists],
+        Playlist: [...aventura.playlists], Folder: [...aventura.folders],
       };
       const colecao = {
         Actor: game.actors, Item: game.items, Scene: game.scenes,
-        JournalEntry: game.journal, Playlist: game.playlists,
+        JournalEntry: game.journal, Playlist: game.playlists, Folder: game.folders,
       };
       // O import é `keepId`: limpar antes e depois deixa o teste repetível e não
       // enche o mundo de teste a cada execução.
@@ -827,6 +827,25 @@ const relato = await page.evaluate(async () => {
         noMundo("Actor").length === 6 && noMundo("Item").length === 28
         && noMundo("Scene").length === 1 && noMundo("JournalEntry").length === 2
         && noMundo("Playlist").length === 1);
+
+      // Sem pastas o import despeja 28 itens soltos na raiz do diretório.
+      const pastas = noMundo("Folder");
+      const raizes = pastas.filter((f) => !f.folder);
+      ok("e organiza o que importou em pastas, uma raiz por diretório",
+        pastas.length === 8 && raizes.length === 5
+        && raizes.every((f) => f.name === "Ato I — O Porão")
+        && new Set(raizes.map((f) => f.type)).size === 5);
+      const naPasta = (nome) => {
+        const alvo = pastas.find((f) => f.name === nome);
+        return noMundo("Item").concat(noMundo("Actor")).filter((d) => d.folder?.id === alvo?.id);
+      };
+      ok("com pontos, desafios e pré-gerados cada um na sua",
+        naPasta("Pontos de Interesse").length === 23
+        && naPasta("Desafios de Acesso").length === 5
+        && naPasta("Pré-gerados").length === 5);
+      ok("e nada solto fora de pasta",
+        [...noMundo("Actor"), ...noMundo("Item"), ...noMundo("Scene"),
+          ...noMundo("JournalEntry"), ...noMundo("Playlist")].every((d) => d.folder));
 
       const pontosNoMundo = noMundo("Item").filter((i) => i.type === "ponto-interesse");
       const linhasNoMundo = pontosNoMundo.flatMap((i) => i.system.informacoes);

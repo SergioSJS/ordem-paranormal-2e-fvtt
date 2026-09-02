@@ -195,46 +195,39 @@ function desafioDoPonto(ponto) {
   };
 }
 
-function pontoDeInteresse([nome, handout, descricao]) {
-  const _id = ident(`poi-ato-i-${nome}`);
+/**
+ * Pastas da aventura: sem elas o import despeja 28 itens e 6 atores na raiz do
+ * diretório. O Foundry cria as pastas junto com o conteúdo, uma árvore por tipo.
+ */
+const RAIZ = "Ato I — O Porão";
+function pasta(tipo, nome, pai = null, sort = 0) {
   return {
-    _id, name: nome, type: "ponto-interesse",
-    img: "systems/ordem-paranormal-2e/assets/icons/tipos/ponto-interesse.svg",
-    system: {
-      descricaoBasica: descricao,
-      // O handout é o que o mestre mostra quando a pista aparece.
-      descricaoContextual: `<p>Handout: <em>${handout}</em></p>`
-        + `<p><img src="op2-ato-i/handouts/${handout}" alt="${nome}"></p>`,
-      informacoes: [],
-    },
-    effects: [], folder: null, sort: 0, ownership: { default: 0 }, flags: {},
+    _id: ident(`pasta-${tipo}-${nome}`),
+    name: nome, type: tipo, folder: pai,
+    sorting: "m", sort, color: "#7f1d1d", description: "", flags: {},
   };
 }
 
-function desafio([nome, descricao, abordagens]) {
-  const _id = ident(`desafio-ato-i-${nome}`);
-  return {
-    _id, name: nome, type: "desafio-acesso",
-    img: "systems/ordem-paranormal-2e/assets/icons/tipos/desafio.svg",
-    system: {
-      abordagens,
-      dtObjeto: 7, pontuacaoAlvo: 10, pontuacaoAtual: 0,
-      maxTentativas: 0, tentativasUsadas: 0, quebrado: false,
-      generico: { pericia: "atletismo", rotulo: "Forçar a grade", resolvido: false },
-    },
-    // A descrição do obstáculo vive no próprio nome e no que o mapa mostra; o resto é
-    // texto de mestre.
-    effects: [], folder: null, sort: 0, ownership: { default: 0 },
-    flags: { "ordem-paranormal-2e": { notaDoMestre: descricao } },
-  };
-}
+const pastas = {
+  atores: pasta("Actor", RAIZ),
+  itens: pasta("Item", RAIZ),
+  diarios: pasta("JournalEntry", RAIZ),
+  cenas: pasta("Scene", RAIZ),
+  trilhas: pasta("Playlist", RAIZ),
+};
+pastas.pregerados = pasta("Actor", "Pré-gerados", pastas.atores._id, 100);
+pastas.pontos = pasta("Item", "Pontos de Interesse", pastas.itens._id, 100);
+pastas.desafios = pasta("Item", "Desafios de Acesso", pastas.itens._id, 200);
 
-const pontos = pontosDoPorao();
-const desafios = pontosBrutos().map(desafioDoPonto).filter(Boolean);
-const pregerados = ler("ato-i-personagens").map(semChave);
-const diarios = ler("ato-i-handouts").map(semChave);
-const trilha = ler("ato-i-musicas").map(semChave);
-const cena = cenaCompleta();
+/** Põe o documento na pasta e devolve ele — o import respeita o campo `folder`. */
+const em = (destino) => (doc) => ({ ...doc, folder: destino._id });
+
+const pontos = pontosDoPorao().map(em(pastas.pontos));
+const desafios = pontosBrutos().map(desafioDoPonto).filter(Boolean).map(em(pastas.desafios));
+const pregerados = ler("ato-i-personagens").map(semChave).map(em(pastas.pregerados));
+const diarios = ler("ato-i-handouts").map(semChave).map(em(pastas.diarios));
+const trilha = ler("ato-i-musicas").map(semChave).map(em(pastas.trilhas));
+const cena = em(pastas.cenas)(cenaCompleta());
 
 const investigacao = {
   _id: ident("investigacao-ato-i"),
@@ -251,7 +244,7 @@ const investigacao = {
     // do schema é exatamente essa, então basta ligar.
     sobrecarga: { ativa: true },
   },
-  effects: [], folder: null, sort: 0, ownership: { default: 0 }, flags: {},
+  effects: [], folder: pastas.atores._id, sort: 0, ownership: { default: 0 }, flags: {},
 };
 
 const linhasDeQuadro = pontos.reduce((n, p) => n + p.system.informacoes.length, 0);
@@ -283,7 +276,7 @@ const aventura = {
   journal: diarios,
   scenes: [cena],
   playlists: trilha,
-  folders: [], macros: [], tables: [], cards: [], combats: [],
+  folders: Object.values(pastas), macros: [], tables: [], cards: [], combats: [],
   folder: null, sort: 0, ownership: { default: 0 }, flags: {},
 };
 
@@ -292,3 +285,4 @@ console.log(`${aventura.name} → ${DESTINO}`);
 console.log(`  atores ${aventura.actors.length} (${pregerados.length} pré-gerados + investigação)`);
 console.log(`  itens ${aventura.items.length} (${pontos.length} pontos, ${desafios.length} desafios)`);
 console.log(`  cenas ${aventura.scenes.length}, diários ${aventura.journal.length}, trilhas ${aventura.playlists.length}`);
+console.log(`  pastas ${aventura.folders.length} (${RAIZ} em cada diretório)`);

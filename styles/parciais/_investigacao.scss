@@ -203,7 +203,12 @@ summary.op2-painel-titulo { cursor: pointer; }
     align-items: center;
     gap: var(--op2-e2);
 
-    img { width: 2rem; height: 2rem; object-fit: cover; border-radius: var(--op2-raio); }
+    // Retrato de personagem é foto em pé: cortar pelo meio decapita. O corte sobe.
+    img {
+      width: 2rem; height: 2rem;
+      object-fit: cover; object-position: center top;
+      border-radius: var(--op2-raio);
+    }
 
     strong { flex: 1; font-family: var(--op2-fonte-display); letter-spacing: 0.03em; }
   }
@@ -291,7 +296,11 @@ summary.op2-painel-titulo { cursor: pointer; }
 
     &[draggable="true"] { cursor: grab; }
 
-    img { width: 1.6rem; height: 1.6rem; object-fit: cover; border-radius: var(--op2-raio); }
+    img {
+      width: 1.6rem; height: 1.6rem;
+      object-fit: cover; object-position: center top;
+      border-radius: var(--op2-raio);
+    }
 
     &--npc { color: var(--op2-texto-fraco); }
 
@@ -571,7 +580,11 @@ summary.op2-painel-titulo { cursor: pointer; }
     gap: var(--op2-e2);
     margin-bottom: var(--op2-e2);
 
-    img { width: 1.8rem; height: 1.8rem; object-fit: cover; border-radius: var(--op2-raio); }
+    img {
+      width: 1.8rem; height: 1.8rem;
+      object-fit: cover; object-position: center top;
+      border-radius: var(--op2-raio);
+    }
     strong { font-family: var(--op2-fonte-display); letter-spacing: 0.03em; }
   }
 
