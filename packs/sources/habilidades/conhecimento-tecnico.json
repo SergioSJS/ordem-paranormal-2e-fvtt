@@ -2,7 +2,7 @@
   "_id": "9153ca58fa939f41",
   "name": "Conhecimento Técnico",
   "type": "habilidade",
-  "img": "icons/svg/book.svg",
+  "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/conhecimento-tecnico.svg",
   "system": {
     "origem": "ocupacao",
     "perfil": "",

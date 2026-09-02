@@ -169,7 +169,7 @@
       "_id": "9fc1d264d7a13582",
       "name": "Mentoria",
       "type": "habilidade",
-      "img": "icons/svg/book.svg",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/mentoria.svg",
       "system": {
         "origem": "perfil",
         "perfil": "vigilante",
@@ -197,7 +197,7 @@
       "_id": "334087885fe02612",
       "name": "Prontidão",
       "type": "habilidade",
-      "img": "icons/svg/book.svg",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/prontidao.svg",
       "system": {
         "origem": "perfil",
         "perfil": "vigilante",

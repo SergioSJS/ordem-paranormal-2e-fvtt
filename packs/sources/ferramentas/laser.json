@@ -3,7 +3,7 @@
   "_key": "!items!594cd10ca0f85ac0",
   "name": "Laser de Varredura",
   "type": "ferramenta",
-  "img": "icons/svg/item-bag.svg",
+  "img": "systems/ordem-paranormal-2e/assets/icons/ferramentas/laser.svg",
   "system": {
     "subtipo": "laser",
     "descricao": "<p>Ativado no ambiente, não em um ponto específico. Revela <strong>quais pontos de interesse reagem</strong> às demais ferramentas — economiza cargas e ações.</p>",

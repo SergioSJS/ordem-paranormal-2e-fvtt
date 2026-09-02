@@ -3,7 +3,7 @@
   "_key": "!items!0c45880226e95d19",
   "name": "Termômetro Diferencial",
   "type": "ferramenta",
-  "img": "icons/svg/item-bag.svg",
+  "img": "systems/ordem-paranormal-2e/assets/icons/ferramentas/termometro.svg",
   "system": {
     "subtipo": "termometro",
     "descricao": "<p>Uso ilimitado. Retorna apenas <strong>mais quente</strong>, <strong>mais frio</strong> ou <strong>igual</strong> ao ambiente.</p>",

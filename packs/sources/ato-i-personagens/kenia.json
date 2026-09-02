@@ -169,7 +169,7 @@
       "_id": "947ca87f8d7e1db2",
       "name": "Avaliação",
       "type": "habilidade",
-      "img": "icons/svg/book.svg",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/avaliacao.svg",
       "system": {
         "origem": "perfil",
         "perfil": "analista",
@@ -197,7 +197,7 @@
       "_id": "d92d0b5395069cf8",
       "name": "Conhecimento Técnico",
       "type": "habilidade",
-      "img": "icons/svg/book.svg",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/conhecimento-tecnico.svg",
       "system": {
         "origem": "ocupacao",
         "perfil": "",

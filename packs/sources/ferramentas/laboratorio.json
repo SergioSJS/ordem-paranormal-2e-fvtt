@@ -3,7 +3,7 @@
   "_key": "!items!e58e2a56d9af3f45",
   "name": "Laboratório Portátil",
   "type": "ferramenta",
-  "img": "icons/svg/item-bag.svg",
+  "img": "systems/ordem-paranormal-2e/assets/icons/ferramentas/laboratorio.svg",
   "system": {
     "subtipo": "laboratorio",
     "descricao": "<p>Minigame de escada crescente: um dado por vez, começando em d4 e subindo um passo a cada rolagem, com teto na sua Aptidão (Exatas). Cada rolagem precisa ser maior ou igual à anterior.</p><p>Rerrolagens disponíveis: metade do valor do seu atributo Mente.</p>",

@@ -3,7 +3,7 @@
   "_key": "!items!28be88a171bb38a3",
   "name": "Câmera Modificada",
   "type": "ferramenta",
-  "img": "icons/svg/item-bag.svg",
+  "img": "systems/ordem-paranormal-2e/assets/icons/ferramentas/camera.svg",
   "system": {
     "subtipo": "camera",
     "descricao": "<p>Mira em um ponto de interesse. Se houve evento paranormal imagético ali, o mestre envia um handout — um vislumbre do passado.</p>",

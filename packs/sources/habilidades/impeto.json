@@ -2,7 +2,7 @@
   "_id": "4f2bc6682c3dcda1",
   "name": "Ímpeto",
   "type": "habilidade",
-  "img": "icons/svg/book.svg",
+  "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/impeto.svg",
   "system": {
     "origem": "perfil",
     "perfil": "executor",

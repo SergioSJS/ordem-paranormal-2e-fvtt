@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <polygon points="2,5 62,2 61,60 3,62" fill="#16100e"/>
+  <polygon points="2,5 62,2 61,60 3,62" fill="none" stroke="#c8321e" stroke-width="2"/>
+  <g fill="none" stroke="#f2ede6" stroke-width="2.4" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M10 24 L54 20 L54 44 L10 40 Z"/>
+    <path d="M24 22 L24 42 M38 21 L38 43"/>
+    <path d="M14 27 L20 26 L20 38 L14 37 Z" fill="#c8321e" stroke="none"/>
+    <path d="M28 26 L34 25 L34 39 L28 38 Z" fill="#c8321e" stroke="none"/>
+  </g>
+</svg>

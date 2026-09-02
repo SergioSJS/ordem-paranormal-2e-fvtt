@@ -3,7 +3,7 @@
   "_key": "!items!ea76a0eebcee9782",
   "name": "Lanterna de Estouro UV",
   "type": "ferramenta",
-  "img": "icons/svg/item-bag.svg",
+  "img": "systems/ordem-paranormal-2e/assets/icons/ferramentas/lanternaUV.svg",
   "system": {
     "subtipo": "lanternaUV",
     "descricao": "<p>Revela vestígios invisíveis à luz comum; alguns elementos paranormais reagem. O efeito é definido por ponto de interesse.</p><p><strong>Usar como lanterna comum não consome carga.</strong></p>",

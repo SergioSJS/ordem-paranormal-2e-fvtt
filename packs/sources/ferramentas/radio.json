@@ -3,7 +3,7 @@
   "_key": "!items!8f8000af9cf61cfe",
   "name": "Rádio Modificado",
   "type": "ferramenta",
-  "img": "icons/svg/item-bag.svg",
+  "img": "systems/ordem-paranormal-2e/assets/icons/ferramentas/radio.svg",
   "system": {
     "subtipo": "radio",
     "descricao": "<p>Minigame de ordenação: o rádio capta frases, algumas verdadeiras e outras não. Um teste de Tecnologia remove parte das falsas antes da leitura.</p>",

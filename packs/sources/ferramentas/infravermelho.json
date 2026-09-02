@@ -3,7 +3,7 @@
   "_key": "!items!60d817a373b64cac",
   "name": "Leitor Infravermelho",
   "type": "ferramenta",
-  "img": "icons/svg/item-bag.svg",
+  "img": "systems/ordem-paranormal-2e/assets/icons/ferramentas/infravermelho.svg",
   "system": {
     "subtipo": "infravermelho",
     "descricao": "<p>Lê gradientes térmicos paranormais. O efeito é por ponto de interesse e exige interpretação da mesa.</p>",

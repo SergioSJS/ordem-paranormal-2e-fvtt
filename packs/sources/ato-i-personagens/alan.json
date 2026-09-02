@@ -169,7 +169,7 @@
       "_id": "29df9860b0628774",
       "name": "Foco Mental",
       "type": "habilidade",
-      "img": "icons/svg/book.svg",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/foco-mental.svg",
       "system": {
         "origem": "perfil",
         "perfil": "executor",
@@ -199,7 +199,7 @@
       "_id": "bf063ac80ca1b5e5",
       "name": "Ímpeto",
       "type": "habilidade",
-      "img": "icons/svg/book.svg",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/impeto.svg",
       "system": {
         "origem": "perfil",
         "perfil": "executor",

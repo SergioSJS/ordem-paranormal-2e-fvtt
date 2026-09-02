@@ -2,7 +2,7 @@
   "_id": "b0ead045e11212ed",
   "name": "Mentoria",
   "type": "habilidade",
-  "img": "icons/svg/book.svg",
+  "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/mentoria.svg",
   "system": {
     "origem": "perfil",
     "perfil": "vigilante",

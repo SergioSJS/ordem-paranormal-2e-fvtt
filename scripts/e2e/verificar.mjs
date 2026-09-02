@@ -96,9 +96,9 @@ const relato = await page.evaluate(async () => {
   // Ícone padrão por tipo de documento (ICONES_PADRAO): aplicado na criação quando
   // nenhum img é passado; uma escolha explícita prevalece (duplicar, importar).
   ok("personagem nasce com o ícone padrão do tipo", ator.img === "icons/svg/mystery-man.svg");
-  ok("habilidade e equipamento nascem com os ícones padrão dos tipos",
-    ator.items.getName("Foco Mental")?.img === "icons/svg/upgrade.svg"
-    && ator.items.getName("Pé de cabra")?.img === "icons/svg/chest.svg");
+  ok("habilidade e equipamento nascem com os ícones do sistema",
+    ator.items.getName("Foco Mental")?.img === "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg"
+    && ator.items.getName("Pé de cabra")?.img === "systems/ordem-paranormal-2e/assets/icons/tipos/equipamento.svg");
   {
     const npcIcone = await Actor.create({ name: "icone-npc", type: "npc" });
     ok("npc nasce com o ícone padrão do tipo", npcIcone.img === "icons/svg/cowled.svg");
@@ -116,10 +116,10 @@ const relato = await page.evaluate(async () => {
     // Por tipo, nunca por índice: `createDocuments` não devolve na ordem de
     // entrada (achado em uso real — a asserção por índice passava por sorte).
     const imgPorTipo = Object.fromEntries(itensIcone.map((i) => [i.type, i.img]));
-    ok("ferramenta/poi/desafio nascem com os ícones padrão dos tipos",
-      imgPorTipo.ferramenta === "icons/svg/clockwork.svg"
-      && imgPorTipo["ponto-interesse"] === "icons/svg/hanging-sign.svg"
-      && imgPorTipo["desafio-acesso"] === "icons/svg/padlock.svg");
+    ok("ferramenta/poi/desafio nascem com os ícones do sistema",
+      imgPorTipo.ferramenta === "systems/ordem-paranormal-2e/assets/icons/tipos/ferramenta.svg"
+      && imgPorTipo["ponto-interesse"] === "systems/ordem-paranormal-2e/assets/icons/tipos/ponto-interesse.svg"
+      && imgPorTipo["desafio-acesso"] === "systems/ordem-paranormal-2e/assets/icons/tipos/desafio.svg");
     await Item.deleteDocuments(itensIcone.map((i) => i.id));
   }
 
@@ -219,7 +219,8 @@ const relato = await page.evaluate(async () => {
   ok("investigação criada com data model próprio", investigacao?.system.constructor.name === "InvestigacaoData");
   ok("investigação é Actor, não Item", investigacao instanceof Actor);
   ok("investigação recém-criada já fica ativa", game.op2.investigacaoAtiva()?.uuid === investigacao.uuid);
-  ok("investigação nasce com o ícone padrão do tipo", investigacao.img === "icons/svg/eye.svg");
+  ok("investigação nasce com o ícone do sistema",
+    investigacao.img === "systems/ordem-paranormal-2e/assets/icons/tipos/investigacao.svg");
   await game.op2.adicionarParticipante(investigacao, ator.uuid);
 
   const poi = await Item.create({
@@ -388,6 +389,36 @@ const relato = await page.evaluate(async () => {
     // As 10 ferramentas da Ordo Realitas (spec §9), prontas para o mestre distribuir.
     const ferramentas = game.packs.get("ordem-paranormal-2e.ferramentas");
     ok("compêndio traz as dez ferramentas da Ordo Realitas", ferramentas?.index.size === 10);
+
+    // Toda imagem de compêndio precisa existir de verdade: caminho errado só aparece
+    // como quadro quebrado na sidebar, nunca como erro (achado em uso real).
+    {
+      const caminhos = new Set();
+      for (const nome of ["habilidades", "ferramentas", "ato-i-personagens", "ato-i-handouts"]) {
+        const p = game.packs.get(`ordem-paranormal-2e.${nome}`);
+        if (!p) continue;
+        for (const entrada of p.index) {
+          const doc = await p.getDocument(entrada._id);
+          if (doc.img) caminhos.add(doc.img);
+          for (const item of doc.items ?? []) if (item.img) caminhos.add(item.img);
+          if (doc.prototypeToken?.texture?.src) caminhos.add(doc.prototypeToken.texture.src);
+          for (const pagina of doc.pages ?? []) if (pagina.src) caminhos.add(pagina.src);
+        }
+      }
+      const quebradas = [];
+      for (const caminho of caminhos) {
+        const resposta = await fetch(`/${caminho}`, { method: "HEAD" }).catch(() => null);
+        if (!resposta?.ok) quebradas.push(caminho);
+      }
+      // As imagens do Ato I só existem depois de `npm run ato-i`: fora delas, nenhuma
+      // imagem de compêndio pode faltar.
+      const doSistema = quebradas.filter((c) => !c.startsWith("op2-ato-i/"));
+      ok("nenhuma imagem de compêndio do sistema está quebrada", doSistema.length === 0);
+
+      const icones = [...caminhos].filter((c) => c.includes("/assets/icons/"));
+      ok("ferramentas e habilidades têm ícone próprio, não o padrão do tipo",
+        icones.length >= 18 && new Set(icones).size === icones.length);
+    }
     if (ferramentas) {
       const entrada = [...ferramentas.index].find((i) => i.name === "Pó Revelador");
       const po = entrada && await ferramentas.getDocument(entrada._id);

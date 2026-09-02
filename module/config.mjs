@@ -142,18 +142,21 @@ export const TABELA_SOBRECARGA_PADRAO = [
  * preCreate — o `documentTypes` do system.json não tem chave de ícone (lido no
  * fonte do v14: `game.system.documentTypes` só identifica o pacote dono do tipo).
  */
+/** Ícones desenhados para o sistema (assets/icons/), na gramática do livro. */
+export const ICONES = `systems/${SYSTEM_ID}/assets/icons`;
+
 export const ICONES_PADRAO = {
   Actor: {
     personagem: "icons/svg/mystery-man.svg",
     npc: "icons/svg/cowled.svg",
-    investigacao: "icons/svg/eye.svg",
+    investigacao: `${ICONES}/tipos/investigacao.svg`,
   },
   Item: {
-    habilidade: "icons/svg/upgrade.svg",
-    equipamento: "icons/svg/chest.svg",
-    ferramenta: "icons/svg/clockwork.svg",
-    "ponto-interesse": "icons/svg/hanging-sign.svg",
-    "desafio-acesso": "icons/svg/padlock.svg",
+    habilidade: `${ICONES}/tipos/habilidade.svg`,
+    equipamento: `${ICONES}/tipos/equipamento.svg`,
+    ferramenta: `${ICONES}/tipos/ferramenta.svg`,
+    "ponto-interesse": `${ICONES}/tipos/ponto-interesse.svg`,
+    "desafio-acesso": `${ICONES}/tipos/desafio.svg`,
   },
 };
 
@@ -164,6 +167,6 @@ export const OP2 = {
   DT_FERIMENTO_BASE, DT_FERIMENTO_INCREMENTO,
   DT_RECAPITULAR, DT_COMPARTILHAR, CUSTO_PD_EXAMINAR, FERRAMENTAS_POI,
   FERRAMENTAS_ORDO, FERRAMENTAS_COM_CARGA,
-  TABELA_SOBRECARGA_PADRAO, ICONES_PADRAO,
+  TABELA_SOBRECARGA_PADRAO, ICONES, ICONES_PADRAO,
   CUSTO_PV_ARROMBAR, CUSTO_PV_SUSTENTAR, BONUS_DT_ALCANCAR_ARRISCADO,
 };

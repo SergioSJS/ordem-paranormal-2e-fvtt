@@ -2,7 +2,7 @@
   "_id": "8070e44f0bfc2e2d",
   "name": "Foco Emocional",
   "type": "habilidade",
-  "img": "icons/svg/book.svg",
+  "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/foco-emocional.svg",
   "system": {
     "origem": "perfil",
     "perfil": "analista",

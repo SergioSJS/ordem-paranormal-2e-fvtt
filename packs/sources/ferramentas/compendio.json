@@ -3,7 +3,7 @@
   "_key": "!items!42bab4ffbbfa6440",
   "name": "Compêndio da Ordem",
   "type": "ferramenta",
-  "img": "icons/svg/item-bag.svg",
+  "img": "systems/ordem-paranormal-2e/assets/icons/ferramentas/compendio.svg",
   "system": {
     "subtipo": "compendio",
     "descricao": "<p>Documento de referência. Um personagem o carrega; ele e quem ele permitir, no mesmo ambiente, podem consultar a qualquer momento. É a base de comparação para identificar manifestações.</p>",

@@ -169,7 +169,7 @@
       "_id": "e826e6b77a206bd9",
       "name": "Esforço e Suor",
       "type": "habilidade",
-      "img": "icons/svg/book.svg",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/esforco-e-suor.svg",
       "system": {
         "origem": "ocupacao",
         "perfil": "",
@@ -197,7 +197,7 @@
       "_id": "18a68b3cd77dc901",
       "name": "Ímpeto",
       "type": "habilidade",
-      "img": "icons/svg/book.svg",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/impeto.svg",
       "system": {
         "origem": "perfil",
         "perfil": "executor",
