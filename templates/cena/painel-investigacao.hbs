@@ -67,47 +67,20 @@
       {{/if}}
     </header>
 
-    {{!-- Ações são do personagem, não do painel: pro jogador o painel é só
-          leitura do que o mestre revelou. Um jogador com mais de um personagem
-          não teria como escolher por qual deles o botão agiria (achado em uso
-          real) — o lugar dessas ações é a ficha do personagem. --}}
+    {{!-- Ação nenhuma no painel, nem pro mestre: o painel é a mesa de controle da
+          investigação (quem participa, o que está revelado, rodada, sobrecarga).
+          Quem age é sempre um personagem, e é na ficha dele que as ações moram —
+          no painel não dá pra saber por qual personagem o botão agiria (achado em
+          uso real). As travas de 1×-por-investigação aparecem aqui como estado,
+          não como botão. --}}
     {{#if ehGM}}
-    <section class="op2-painel-secao op2-painel-acoes-grupo">
-      {{#if temPersonagem}}
-        <button type="button" class="op2-botao op2-botao--pequeno" data-action="recapitular"
-          {{#if recapitularUsado.usado}}disabled{{/if}}>
-          {{localize "OP2.Investigacao.Recapitular"}}
-          {{#if recapitularUsado.usado}}<span class="op2-painel-trava">· {{recapitularUsado.nome}}</span>{{/if}}
-        </button>
-        <button type="button" class="op2-botao op2-botao--pequeno" data-action="compartilhar"
-          {{#if compartilharUsado.usado}}disabled{{/if}}>
-          {{localize "OP2.Investigacao.Compartilhar"}}
-          {{#if compartilharUsado.usado}}<span class="op2-painel-trava">· {{compartilharUsado.nome}}</span>{{/if}}
-        </button>
-        <button type="button" class="op2-botao op2-botao--pequeno" data-action="alcancar" data-modo="seguro">
-          {{localize "OP2.Desafio.AlcancarSeguro"}}
-        </button>
-        <button type="button" class="op2-botao op2-botao--pequeno" data-action="alcancar" data-modo="arriscado">
-          {{localize "OP2.Desafio.AlcancarArriscado"}}
-        </button>
-        {{#if sustentando}}
-          <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="pararDeSustentar">
-            {{localize "OP2.Desafio.PararDeSustentar"}}
-          </button>
-        {{else}}
-          <button type="button" class="op2-botao op2-botao--pequeno" data-action="sustentar">
-            {{localize "OP2.Desafio.Sustentar"}}
-          </button>
-        {{/if}}
-        {{#if temLaser}}
-          <button type="button" class="op2-botao op2-botao--pequeno" data-action="usarLaser">
-            {{localize "OP2.Ferramenta.Subtipo.laser"}}
-          </button>
-        {{/if}}
-      {{else}}
-        <p class="op2-ajuda">{{localize "OP2.Painel.SemPersonagem"}}</p>
+      {{#if travas.length}}
+        <section class="op2-painel-secao op2-painel-travas">
+          {{#each travas}}
+            <span class="op2-painel-trava">{{rotulo}} · {{nome}}</span>
+          {{/each}}
+        </section>
       {{/if}}
-    </section>
     {{/if}}
 
     <details class="op2-painel-secao" data-sync="participantes">
@@ -181,25 +154,12 @@
               <ul class="op2-poi-card__quadro">
                 {{#each quadro}}
                   <li class="op2-poi-card__pericia">
-                    {{!-- Perícia, dado e os botões de teste são bastidor do mestre:
-                          pro jogador, o painel mostra só a pista que já foi
-                          liberada, sem entregar por qual perícia ela vem nem
-                          qual dado ele tem (achado em uso real). --}}
+                    {{!-- A perícia do quadro é bastidor: pro jogador o painel
+                          mostra só a pista liberada, sem entregar por qual
+                          perícia ela vem (achado em uso real). --}}
                     {{#if @root.ehGM}}
                       <div class="op2-poi-card__pericia-linha">
                         <span class="op2-poi-card__rotulo">{{rotulo}}</span>
-                        {{#if valor}}<span class="op2-poi-card__dado">{{op2Dado (op2Concat "d" valor)}}</span>{{/if}}
-                        <span class="op2-poi-card__botoes">
-                          <button type="button" class="op2-botao op2-botao--pequeno" data-action="investigar"
-                            data-poi-uuid="{{../uuid}}" data-pericia="{{chave}}">
-                            {{localize "OP2.Investigacao.Investigar"}}
-                          </button>
-                          <button type="button" class="op2-botao op2-botao--pequeno" data-action="examinar"
-                            data-poi-uuid="{{../uuid}}" data-pericia="{{chave}}"
-                            data-tooltip="{{localize 'OP2.Painel.ExaminarDica'}}">
-                            {{localize "OP2.Investigacao.Examinar"}}
-                          </button>
-                        </span>
                       </div>
                     {{/if}}
                     {{#if infos.length}}
@@ -227,23 +187,6 @@
                   </li>
                 {{/each}}
               </ul>
-              {{#if @root.ehGM}}
-                <button type="button" class="op2-botao op2-botao--pequeno" data-action="interagir"
-                  data-poi-uuid="{{uuid}}">
-                  {{localize "OP2.Investigacao.Interagir"}}
-                </button>
-              {{/if}}
-              {{#if @root.ehGM}}{{#if ferramentasDisponiveis.length}}
-                <div class="op2-poi-card__ferramentas">
-                  {{#each ferramentasDisponiveis}}
-                    <button type="button" class="op2-botao op2-botao--pequeno"
-                      data-action="{{#if (op2Eq chave 'laboratorio')}}usarLaboratorio{{else if (op2Eq chave 'radio')}}usarRadio{{else}}usarFerramenta{{/if}}"
-                      data-poi-uuid="{{../uuid}}" data-ferramenta="{{chave}}">
-                      {{rotulo}}
-                    </button>
-                  {{/each}}
-                </div>
-              {{/if}}{{/if}}
           </li>
         {{/each}}
       </ol>
@@ -301,24 +244,6 @@
               {{#if destrancado}} — {{localize "OP2.Desafio.Destrancou"}}{{/if}}
             </p>
 
-            {{#if @root.ehGM}}
-              <button type="button" class="op2-botao op2-botao--pequeno" data-action="arrombar"
-                data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}>
-                {{localize "OP2.Desafio.Arrombar"}}
-              </button>
-              <button type="button" class="op2-botao op2-botao--pequeno" data-action="destrancar"
-                data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}>
-                {{localize "OP2.Desafio.Destrancar"}}
-              </button>
-              <button type="button" class="op2-botao op2-botao--pequeno" data-action="hackTecnico"
-                data-desafio-uuid="{{uuid}}" {{#if hackTecnicoResolvido}}disabled{{/if}}>
-                {{localize "OP2.Desafio.HackTecnico"}}
-              </button>
-              <button type="button" class="op2-botao op2-botao--pequeno" data-action="hackSocial"
-                data-desafio-uuid="{{uuid}}" {{#if hackSocialResolvido}}disabled{{/if}}>
-                {{localize "OP2.Desafio.HackSocial"}}
-              </button>
-            {{/if}}
           </li>
         {{/each}}
       </ol>

@@ -14,12 +14,7 @@
  * quem revelou o quê. Nenhum dado de regra (DT, reação de ferramenta) vaza para o
  * lado do jogador.
  */
-import { FERRAMENTAS_POI } from "../config.mjs";
 import { periciasDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs";
-import { temFerramenta } from "./ferramentas.mjs";
-import { usarFerramenta, usarLaser, usarRadio } from "./acoes-ferramenta.mjs";
-import { abrirLaboratorio } from "./laboratorio-app.mjs";
-import { abrirRadio } from "./radio-app.mjs";
 import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerrar-investigacao.mjs";
 import {
   investigacaoAtiva, todasInvestigacoes, investigacoesVisiveis, estaAtiva, alternarAtiva,
@@ -28,11 +23,7 @@ import {
   vincularPoi, removerPoi, vincularDesafio, removerDesafio, alternarOculto, moverParticipante,
 } from "./investigacao-ativa.mjs";
 import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada } from "./rodada.mjs";
-import {
-  dialogoInvestigar, investigar, examinar, interagir, recapitular, compartilhar, alternarInfoOculta,
-} from "./acoes-investigacao.mjs";
-import { arrombar, alcancar, sustentar, pararDeSustentar, hackTecnico, hackSocial } from "./acoes-desafio.mjs";
-import { abrirDestrancar } from "./destrancar-app.mjs";
+import { alternarInfoOculta } from "./acoes-investigacao.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -51,28 +42,15 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     // número, como as fichas de ator já usam, dá ao core uma altura de verdade
     // pra clampar/redimensionar em vez de brigar com CSS por cima.
     position: { width: 640, height: 720 },
+    // Só gestão: vincular, revelar, ordenar, rodada, sobrecarga. Ação de
+    // personagem (investigar, arrombar, ferramenta…) mora na ficha dele
+    // (`acoes-app.mjs`) — no painel não dá pra saber quem age.
     actions: {
-      investigar: PainelInvestigacao.#investigar,
-      examinar: PainelInvestigacao.#examinar,
-      interagir: PainelInvestigacao.#interagir,
-      recapitular: PainelInvestigacao.#recapitular,
-      compartilhar: PainelInvestigacao.#compartilhar,
       abrirPoi: PainelInvestigacao.#abrirPoi,
       removerPoi: PainelInvestigacao.#removerPoi,
-      arrombar: PainelInvestigacao.#arrombar,
-      destrancar: PainelInvestigacao.#destrancar,
-      hackTecnico: PainelInvestigacao.#hackTecnico,
-      hackSocial: PainelInvestigacao.#hackSocial,
       abrirDesafio: PainelInvestigacao.#abrirDesafio,
       removerDesafio: PainelInvestigacao.#removerDesafio,
       ajustarPontuacaoDesafio: PainelInvestigacao.#ajustarPontuacaoDesafio,
-      alcancar: PainelInvestigacao.#alcancar,
-      sustentar: PainelInvestigacao.#sustentar,
-      pararDeSustentar: PainelInvestigacao.#pararDeSustentar,
-      usarFerramenta: PainelInvestigacao.#usarFerramenta,
-      usarLaser: PainelInvestigacao.#usarLaser,
-      usarLaboratorio: PainelInvestigacao.#usarLaboratorio,
-      usarRadio: PainelInvestigacao.#usarRadio,
       novaRodada: PainelInvestigacao.#novaRodada,
       encerrarCena: PainelInvestigacao.#encerrarCena,
       alternarSobrecarga: PainelInvestigacao.#alternarSobrecarga,
@@ -102,9 +80,18 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
   async _prepareContext() {
     const investigacao = investigacaoAtiva();
     const ehGM = game.user.isGM;
-    const ator = this.atorDaVisao;
     const sobrecarga = sobrecargaDaCena(investigacao);
     const rodada = rodadaAtual(investigacao);
+
+    // Travas de 1×-por-investigação (spec §6.4/§6.5) aparecem como estado, não
+    // como botão: quem usa Recapitular/Compartilhar é um personagem, pela ficha.
+    const travas = [
+      ["recapitularUsado", "OP2.Investigacao.Recapitular"],
+      ["compartilharUsado", "OP2.Investigacao.Compartilhar"],
+    ]
+      .map(([campo, chave]) => ({ trava: investigacao?.system[campo], rotulo: game.i18n.localize(chave) }))
+      .filter(({ trava }) => trava?.usado)
+      .map(({ trava, rotulo }) => ({ rotulo, nome: trava.nome }));
 
     return {
       temInvestigacao: Boolean(investigacao),
@@ -117,17 +104,16 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       investigacaoEstaEmJogo: investigacao ? estaAtiva(investigacao) : false,
       rodada,
       ehGM,
-      temPersonagem: Boolean(ator),
-      atorNome: ator?.name ?? null,
-      sustentando: ator?.system.estado.sustentando?.ativo ?? false,
-      temLaser: ator ? temFerramenta(ator.items, "laser") : false,
-      pois: investigacao ? await this.#contextoPois(investigacao, ator, ehGM) : [],
+      travas,
+      // Só para escolher o aviso certo quando não há investigação: jogador sem
+      // personagem atribuído vê um texto, jogador com personagem fora de
+      // qualquer investigação em jogo vê outro.
+      temPersonagem: Boolean(this.atorDaVisao),
+      pois: investigacao ? await this.#contextoPois(investigacao, ehGM) : [],
       desafios: investigacao ? this.#contextoDesafios(investigacao, ehGM) : [],
       ordem: this.#contextoOrdem(investigacao, ehGM),
       npcs: this.#contextoNpcs(investigacao, ehGM),
       participantes: this.#contextoParticipantes(investigacao, ehGM),
-      recapitularUsado: investigacao?.system.recapitularUsado ?? null,
-      compartilharUsado: investigacao?.system.compartilharUsado ?? null,
       sobrecarga: {
         ...sobrecarga,
         // O dano que aplica ao encerrar a rodada atual.
@@ -156,7 +142,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       .map((a) => this.#linhaParticipante(a, investigacao));
   }
 
-  async #contextoPois(investigacao, ator, ehGM) {
+  async #contextoPois(investigacao, ehGM) {
     const editor = foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
     const pois = [];
     for (const uuid of investigacao.system.pois) {
@@ -166,20 +152,12 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       const poi = await fromUuid(uuid);
       if (poi?.type !== "ponto-interesse") continue;
 
-      // Ferramentas do jogador que valem a pena tentar neste POI (spec §9.3): a
-      // reação em si fica oculta até o uso — só a lista do que ele carrega aparece.
-      const ferramentasDisponiveis = ator
-        ? FERRAMENTAS_POI.filter((chave) => temFerramenta(ator.items, chave))
-          .map((chave) => ({ chave, rotulo: game.i18n.localize(`OP2.Ferramenta.Subtipo.${chave}`) }))
-        : [];
-
       pois.push({
         uuid,
         nome: poi.name,
         img: poi.img,
         oculto,
         reveladoPorLaser: poi.system.reveladoPorLaser,
-        ferramentasDisponiveis,
         // O mestre controla visibilidade direto pelo olho — deste POI e de cada
         // linha do quadro abaixo — sem depender de o jogador ter investigado
         // antes (achado em uso real: "marco visível e não aparece pro jogador" —
@@ -189,7 +167,6 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
         quadro: periciasDoQuadro(poi.system.informacoes).map((chave) => ({
           chave,
           rotulo: rotuloDePericia(chave),
-          valor: ator?.system.resolverChave(chave)?.valor ?? null,
           infos: poi.system.informacoes
             .filter((info) => info.pericia === chave && (ehGM || !info.oculta))
             .map((info) => ({
@@ -344,43 +321,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     await definirOrdemParticipantes(investigacao, ordem);
   }
 
-  /* -- ações --------------------------------------------------------------- */
-
-  #atorOuAviso() {
-    const ator = this.atorDaVisao;
-    if (!ator) ui.notifications.warn(game.i18n.localize("OP2.Painel.SemPersonagem"));
-    return ator;
-  }
-
-  static async #investigar(_evento, alvo) {
-    const ator = this.#atorOuAviso();
-    if (!ator) return;
-    const { poiUuid, pericia } = alvo.dataset;
-    if (pericia) await investigar(ator, poiUuid, pericia);
-    else await dialogoInvestigar(ator, poiUuid);
-  }
-
-  static async #examinar(_evento, alvo) {
-    const ator = this.#atorOuAviso();
-    if (!ator) return;
-    await examinar(ator, alvo.dataset.poiUuid, alvo.dataset.pericia);
-  }
-
-  static async #interagir(_evento, alvo) {
-    const ator = this.#atorOuAviso();
-    if (!ator) return;
-    await interagir(ator, alvo.dataset.poiUuid);
-  }
-
-  static async #recapitular() {
-    const ator = this.#atorOuAviso();
-    if (ator) await recapitular(ator);
-  }
-
-  static async #compartilhar() {
-    const ator = this.#atorOuAviso();
-    if (ator) await compartilhar(ator);
-  }
+  /* -- gestão -------------------------------------------------------------- */
 
   static async #abrirPoi(_evento, alvo) {
     const poi = await fromUuid(alvo.dataset.poiUuid);
@@ -390,26 +331,6 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
   static async #removerPoi(_evento, alvo) {
     const investigacao = investigacaoAtiva();
     if (investigacao) await removerPoi(investigacao, alvo.dataset.poiUuid);
-  }
-
-  static async #arrombar(_evento, alvo) {
-    const ator = this.#atorOuAviso();
-    if (ator) await arrombar(ator, alvo.dataset.desafioUuid);
-  }
-
-  static async #destrancar(_evento, alvo) {
-    if (!this.#atorOuAviso()) return;
-    abrirDestrancar(alvo.dataset.desafioUuid);
-  }
-
-  static async #hackTecnico(_evento, alvo) {
-    const ator = this.#atorOuAviso();
-    if (ator) await hackTecnico(ator, alvo.dataset.desafioUuid);
-  }
-
-  static async #hackSocial(_evento, alvo) {
-    const ator = this.#atorOuAviso();
-    if (ator) await hackSocial(ator, alvo.dataset.desafioUuid);
   }
 
   static async #abrirDesafio(_evento, alvo) {
@@ -434,67 +355,6 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     const novo = Math.max(0, Math.min(desafio.system.pontuacaoAlvo,
       desafio.system.pontuacaoAtual + Number(alvo.dataset.delta)));
     await desafio.update({ "system.pontuacaoAtual": novo });
-  }
-
-  static async #alcancar(_evento, alvo) {
-    const ator = this.#atorOuAviso();
-    if (ator) await alcancar(ator, { modo: alvo.dataset.modo });
-  }
-
-  static async #sustentar() {
-    const ator = this.#atorOuAviso();
-    if (ator) await sustentar(ator);
-  }
-
-  static async #pararDeSustentar() {
-    const ator = this.#atorOuAviso();
-    if (ator) await pararDeSustentar(ator);
-  }
-
-  static async #usarFerramenta(_evento, alvo) {
-    const ator = this.#atorOuAviso();
-    if (ator) await usarFerramenta(ator, alvo.dataset.poiUuid, alvo.dataset.ferramenta);
-  }
-
-  static async #usarLaser() {
-    const ator = this.#atorOuAviso();
-    if (ator) await usarLaser(ator);
-  }
-
-  /**
-   * Laboratório Portátil é um minigame, não uma revelação de texto — pede quantos
-   * dados o POI exige (spec §9.1: 4 a 6, decidido pelo mestre para aquele POI) e
-   * abre o app dedicado em vez do card genérico de ferramenta.
-   */
-  static async #usarLaboratorio(_evento, alvo) {
-    const ator = this.#atorOuAviso();
-    if (!ator) return;
-
-    const qtdDados = await foundry.applications.api.DialogV2.prompt({
-      window: { title: game.i18n.localize("OP2.Ferramenta.Subtipo.laboratorio") },
-      content: `
-        <div class="form-group">
-          <label>${game.i18n.localize("OP2.Ferramenta.QtdDados")}</label>
-          <input type="number" name="qtd" value="4" min="4" max="6">
-        </div>`,
-      ok: { callback: (_ev, botao) => Number(botao.form.elements.qtd.value) },
-      rejectClose: false,
-    });
-    if (!qtdDados) return;
-
-    await abrirLaboratorio(ator, qtdDados, alvo.dataset.poiUuid);
-  }
-
-  /**
-   * Rádio Modificado (spec §9.2) também é minigame, não card de texto — rola
-   * Tecnologia (diálogo padrão de teste, não `rapido`: o jogador pode querer
-   * escolher dados extra/ajuda antes) e só então abre o app de ordenação.
-   */
-  static async #usarRadio(_evento, alvo) {
-    const ator = this.#atorOuAviso();
-    if (!ator) return;
-    const resultado = await usarRadio(ator, alvo.dataset.poiUuid);
-    if (resultado) abrirRadio(resultado);
   }
 
   static async #novaRodada() {

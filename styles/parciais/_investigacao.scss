@@ -157,6 +157,15 @@ summary.op2-painel-titulo { cursor: pointer; }
 
 .op2-painel-trava { color: var(--op2-texto-fraco); }
 
+// Travas de 1×-por-investigação como estado, não botão — quem usa Recapitular /
+// Compartilhar é um personagem, pela ficha dele.
+.op2-painel-travas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--op2-e2);
+  font-size: 0.8rem;
+}
+
 .op2-painel-pois {
   margin: 0;
   padding: 0;
@@ -516,7 +525,9 @@ summary.op2-painel-titulo { cursor: pointer; }
   }
 }
 
-// Botão que abre as ações, no cabeçalho da ficha logo abaixo de Nível/NEX.
+// Botão que abre as ações, no cabeçalho da ficha logo abaixo de Nível/NEX. A
+// coluna de identidade é estreita: rótulo curto e `nowrap`, senão "AÇÕES DE
+// INVESTIGAÇÃO" quebra em duas linhas e vaza da caixa (achado em uso real).
 .op2-acoes-investigacao {
   width: 100%;
   margin-top: var(--op2-e2);
@@ -524,6 +535,9 @@ summary.op2-painel-titulo { cursor: pointer; }
   align-items: center;
   justify-content: center;
   gap: var(--op2-e1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 // Botão flutuante do painel — nada de círculo: a gramática do livro é tag rasgada

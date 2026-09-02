@@ -43,6 +43,7 @@ import { usarFerramenta, usarLaser, usarRadio } from "./cena/acoes-ferramenta.mj
 import { abrirDestrancar } from "./cena/destrancar-app.mjs";
 import { abrirLaboratorio } from "./cena/laboratorio-app.mjs";
 import { abrirRadio } from "./cena/radio-app.mjs";
+import { abrirAcoesInvestigacao } from "./cena/acoes-app.mjs";
 
 Hooks.once("init", () => {
   console.log(`${SYSTEM_ID} | inicializando`);
@@ -84,7 +85,7 @@ Hooks.once("init", () => {
   game.op2 = {
     rolarTeste, encerrarCena, stepDie, faces, OP2Roll,
     investigar, examinar, interagir, recapitular, compartilhar, dialogoInvestigar, alternarInfoOculta,
-    painelInvestigacao: abrirPainelInvestigacao, avancarRodada,
+    painelInvestigacao: abrirPainelInvestigacao, acoesInvestigacao: abrirAcoesInvestigacao, avancarRodada,
     arrombar, alcancar, sustentar, pararDeSustentar,
     hackTecnico, hackSocial, marcarHackSocialResolvido,
     gerarSenhaDestrancar, tentarDestrancar, abrirDestrancar,

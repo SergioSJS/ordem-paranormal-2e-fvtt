@@ -542,12 +542,24 @@ const relato = await page.evaluate(async () => {
   dados.sobrecarga = { pdAntes, pdDepois: ator.system.recursos.pd.value };
   ok("sobrecarga aplicou 1 de dano emocional", ator.system.recursos.pd.value === pdAntes - 1);
 
-  // Trava de 1×-por-investigação: o botão some desabilitado para o grupo.
+  // Trava de 1×-por-investigação: no painel ela é estado (quem usou), não botão —
+  // quem usa Recapitular é um personagem, pela ficha dele.
   await investigacao.update({ "system.recapitularUsado": { usado: true, atorId: ator.id, nome: ator.name } });
   await painel.render();
   await esperar(800);
-  const botaoRecapitular = painel.element?.querySelector('[data-action="recapitular"]');
-  ok("trava desabilita Recapitular no painel", Boolean(botaoRecapitular?.disabled));
+  ok("painel mostra a trava de Recapitular com quem usou",
+    Boolean(painel.element?.querySelector(".op2-painel-travas")?.textContent.includes(ator.name)));
+  ok("trava aparece como estado, não como botão no painel",
+    !painel.element?.querySelector('[data-action="recapitular"]'));
+
+  {
+    // E nas ações da ficha o botão vem desabilitado pela trava.
+    const app = game.op2.acoesInvestigacao(ator);
+    await esperar(700);
+    const botao = document.getElementById(`op2-acoes-${ator.id}`)?.querySelector('[data-action="recapitular"]');
+    ok("trava desabilita Recapitular nas ações da ficha", botao?.disabled === true);
+    await app.close();
+  }
 
   // Encerrar a investigação limpa revelações, travas e o contador de rodadas —
   // mas não o roster de participantes, nem os POIs/desafios vinculados, nem a
@@ -646,13 +658,22 @@ const relato = await page.evaluate(async () => {
       await painel.render();
       await esperar(400);
     }
+    // Arrombar mora nas ações da ficha, não no painel — o painel é só gestão.
     {
-      const botaoArrombarCofre = [...painel.element.querySelectorAll('[data-action="arrombar"]')]
+      ok("painel não tem mais botão de ação de personagem (Arrombar)",
+        !painel.element.querySelector('[data-action="arrombar"]'));
+
+      const appAcoes = game.op2.acoesInvestigacao(ator);
+      await esperar(700);
+      const elAcoes = document.getElementById(`op2-acoes-${ator.id}`);
+      const botaoArrombarCofre = [...elAcoes.querySelectorAll('[data-action="arrombar"]')]
         .find((b) => b.dataset.desafioUuid === cofre.uuid);
-      ok("desafio quebrado desabilita o botão Arrombar no painel", botaoArrombarCofre?.disabled === true);
+      ok("ações da ficha oferecem Arrombar por desafio", Boolean(botaoArrombarCofre));
+      ok("desafio quebrado desabilita o botão Arrombar", botaoArrombarCofre?.disabled === true);
       // Achado junto: um botão desabilitado era visualmente idêntico a um clicável.
       ok("botão desabilitado parece desabilitado (opacidade reduzida)",
         parseFloat(getComputedStyle(botaoArrombarCofre).opacity) < 1);
+      await appAcoes.close();
     }
 
     // Mostrar/ocultar também vale para desafios de acesso, não só POI.
@@ -816,16 +837,25 @@ const relato = await page.evaluate(async () => {
     ok("laser marca o POI que reage a alguma ferramenta", marcados.includes("Quadro na Parede"));
     ok("flag reveladoPorLaser gravada no POI", poi.system.reveladoPorLaser === true);
 
-    // Painel: botões de ferramenta aparecem para quem carrega o item; botão de
-    // Laser aparece no grupo de ações; badge do laser aparece no card do POI.
+    // O painel mostra o selo do laser (estado do POI); usar ferramenta é ação de
+    // personagem e mora nas ações da ficha.
     await painel.render();
     await esperar(800);
-    ok("painel oferece Usar Laser de Varredura", Boolean(painel.element?.querySelector('[data-action="usarLaser"]')));
-    // Laser também é um slot reativo de POI (spec de Fase 2), fora do gatilho
-    // dedicado de cena — por isso conta junto com câmera/termômetro/lanterna.
-    const botoesFerramenta = [...painel.element.querySelectorAll('[data-action="usarFerramenta"]')];
-    ok("painel lista as ferramentas que o personagem carrega para aquele POI", botoesFerramenta.length === 4);
     ok("card do POI mostra o selo do laser", Boolean(painel.element?.querySelector(".op2-poi-card .fa-satellite-dish")));
+    ok("painel não tem botão de usar ferramenta", !painel.element?.querySelector('[data-action="usarFerramenta"]'));
+
+    {
+      const app = game.op2.acoesInvestigacao(ator);
+      await esperar(700);
+      const elAcoes = document.getElementById(`op2-acoes-${ator.id}`);
+      ok("ações da ficha oferecem Usar Laser de Varredura",
+        Boolean(elAcoes?.querySelector('[data-action="usarLaser"]')));
+      // Laser também é um slot reativo de POI (spec de Fase 2), fora do gatilho
+      // dedicado de cena — por isso conta junto com câmera/termômetro/lanterna.
+      ok("ações listam as ferramentas que o personagem carrega para aquele POI",
+        [...elAcoes.querySelectorAll('[data-action="usarFerramenta"]')].length === 4);
+      await app.close();
+    }
   }
 
   /* -------------------------------------------------- destrancar (Mastermind) -- */
@@ -881,12 +911,17 @@ const relato = await page.evaluate(async () => {
     await fechadura.delete();
     await cofreDigital.delete();
 
-    // Painel: botão Destrancar aparece junto do Arrombar em cada desafio vinculado.
+    // Destrancar aparece junto do Arrombar nas ações da ficha, por desafio.
     const desafioVitrine = await Item.create({ name: "Porta do Fundo", type: "desafio-acesso" });
     await game.op2.vincularDesafio(investigacao, desafioVitrine.uuid);
-    await painel.render();
-    await esperar(800);
-    ok("painel oferece o botão Destrancar por desafio", Boolean(painel.element?.querySelector('[data-action="destrancar"]')));
+    {
+      const app = game.op2.acoesInvestigacao(ator);
+      await esperar(700);
+      ok("ações da ficha oferecem o botão Destrancar por desafio",
+        Boolean(document.getElementById(`op2-acoes-${ator.id}`)?.querySelector('[data-action="destrancar"]')));
+      await app.close();
+    }
+    await game.op2.removerDesafio(investigacao, desafioVitrine.uuid);
     await desafioVitrine.delete();
   }
 
@@ -951,10 +986,16 @@ const relato = await page.evaluate(async () => {
     // Painel: os dois botões de Hackear aparecem junto de Arrombar/Destrancar.
     const desafioComPainel = await Item.create({ name: "Cofre com Painel", type: "desafio-acesso" });
     await game.op2.vincularDesafio(investigacao, desafioComPainel.uuid);
-    await painel.render();
-    await esperar(600);
-    ok("painel oferece Hackear (técnico) por desafio", Boolean(painel.element?.querySelector('[data-action="hackTecnico"]')));
-    ok("painel oferece Hackear (social) por desafio", Boolean(painel.element?.querySelector('[data-action="hackSocial"]')));
+    {
+      const app = game.op2.acoesInvestigacao(ator);
+      await esperar(700);
+      const elAcoes = document.getElementById(`op2-acoes-${ator.id}`);
+      ok("ações da ficha oferecem Hackear (técnico) por desafio",
+        Boolean(elAcoes?.querySelector('[data-action="hackTecnico"]')));
+      ok("ações da ficha oferecem Hackear (social) por desafio",
+        Boolean(elAcoes?.querySelector('[data-action="hackSocial"]')));
+      await app.close();
+    }
     await game.op2.removerDesafio(investigacao, desafioComPainel.uuid);
     await desafioComPainel.delete();
   }

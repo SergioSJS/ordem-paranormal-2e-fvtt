@@ -204,6 +204,7 @@
     },
     "Acoes": {
       "Titulo": "Ações de investigação",
+      "Botao": "Ações",
       "Ajuda": "Abre as ações de investigação deste personagem — investigar, examinar, ferramentas, desafios.",
       "Livres": "Ações livres",
       "SemInvestigacao": "Nenhuma investigação em jogo para este personagem. O mestre precisa colocar uma em jogo e adicionar você como participante.",
