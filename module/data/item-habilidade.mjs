@@ -74,6 +74,19 @@ export class HabilidadeData extends foundry.abstract.TypeDataModel {
       || (Boolean(chaveAtributo) && this.efeito.chaves.has(chaveAtributo));
   }
 
+  /**
+   * PD cobrados ao usar a habilidade num teste.
+   *
+   * `custoPD` é o número; quando ele não foi preenchido — habilidade escrita à mão, ou
+   * importada antes do campo existir — vale o que estiver escrito em `custo` ("2 PD").
+   * Sem isso, "gaste 2 PD para receber +d4" não cobrava nada (achado em uso real).
+   */
+  get custoEmPD() {
+    if (this.custoPD > 0) return this.custoPD;
+    const escrito = /(\d+)\s*(pd|dp)\b/i.exec(this.custo ?? "");
+    return escrito ? Number(escrito[1]) : 0;
+  }
+
   /** Esta habilidade É uma barra de Ímpeto? */
   get temBarraImpeto() {
     return this.impeto.espacos > 0;

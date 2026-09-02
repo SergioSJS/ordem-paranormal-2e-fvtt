@@ -78,20 +78,29 @@ export function npcsDaCenaAtiva() {
  * existe (achado em uso real: "lista tudo, não faz sentido algum"). Quem chama diz se
  * NPC entra — Ajudar é entre personagens, Atacar não.
  *
+ * Ajudar e Compartilhar são de jogador para jogador: só entram personagens cujo dono
+ * está conectado — ajudar quem não está na mesa não é jogada, e o roster acumula gente
+ * de sessões antigas (achado em uso real). Atacar aceita NPC, que não tem dono.
+ *
  * @param {object} [opcoes]
  * @param {Actor}  [opcoes.exceto]     quem está agindo, fora da própria lista
  * @param {boolean} [opcoes.comNpcs]   inclui os NPCs do roster
+ * @param {boolean} [opcoes.soConectados] exige dono conectado (não vale para NPC)
  */
-export function alvosDaCenaAtiva({ exceto, comNpcs = false } = {}) {
+export function alvosDaCenaAtiva({ exceto, comNpcs = false, soConectados = false } = {}) {
   const investigacao = investigacaoAtiva();
   const ocultos = investigacao?.system.participantesOcultos ?? [];
   const roster = comNpcs
     ? [...personagensDaCenaAtiva(), ...npcsDaCenaAtiva()]
     : personagensDaCenaAtiva();
 
+  const temDonoNaMesa = (ator) => game.users.some((u) => u.active && !u.isGM
+    && ator.testUserPermission(u, "OWNER"));
+
   return roster
     .filter((ator) => !ocultos.includes(ator.uuid))
-    .filter((ator) => ator.id !== exceto?.id);
+    .filter((ator) => ator.id !== exceto?.id)
+    .filter((ator) => !soConectados || ator.type === "npc" || temDonoNaMesa(ator));
 }
 
 function participantesDaInvestigacao(tipo) {

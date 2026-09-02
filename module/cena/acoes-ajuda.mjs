@@ -20,7 +20,7 @@ import { comoMestre, registrarAcaoDeMestre } from "../ui/socket.mjs";
  * passos no aliado.
  */
 export async function ajudar(ator) {
-  const aliados = alvosDaCenaAtiva({ exceto: ator });
+  const aliados = alvosDaCenaAtiva({ exceto: ator, soConectados: true });
   if (!aliados.length) {
     ui.notifications.warn(game.i18n.localize("OP2.Ajuda.SemAliados"));
     return null;

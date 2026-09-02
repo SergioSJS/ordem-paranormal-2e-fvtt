@@ -161,7 +161,7 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       sustentando: ator.system.estado.sustentando?.ativo ?? false,
       // Ação sem alvo possível não é oferecida: avisar só depois do clique deixa o
       // jogador procurando o que não existe (achado em uso real).
-      temAliados: alvosDaCenaAtiva({ exceto: ator }).length > 0,
+      temAliados: alvosDaCenaAtiva({ exceto: ator, soConectados: true }).length > 0,
       temAlvosDeAtaque: alvosDaCenaAtiva({ exceto: ator, comNpcs: true }).length > 0,
       temRecursos: ator.items.some((i) => ["habilidade", "equipamento", "ferramenta"].includes(i.type)),
       temLaser: temFerramenta(ator.items, "laser"),

@@ -225,7 +225,7 @@
       "SemInvestigacao": "No investigation in play for this character. The GM needs to put one in play and add you as a participant.",
       "SemPOIs": "No points of interest available yet.",
       "SemDesafios": "No challenge available yet.",
-      "SemAliado": "Nobody else in the scene to share the clue with.",
+      "SemAliado": "No other character with a connected player to share the clue with.",
       "SemAlvo": "Nobody else in the scene to attack."
     },
     "Investigacao": {
@@ -601,7 +601,7 @@
       "Aliado": "Who you help",
       "EscolhaAjuda": "Pick the skill you help with. It must fit the situation and be at least d6 — a d4 can't help. d6/d8 give +1 step; d10/d12 give +2.",
       "DadoPequeno": "Your {pericia} is {dado}: a d4 can't help (rule of the action).",
-      "SemAliados": "There is no other character in the investigation to help.",
+      "SemAliados": "No other character with a connected player in this investigation.",
       "Card": "{ajudante} helps {alvo} with {pericia} ({dado}): +{passos} step(s) on the next check.",
       "NoDialogo": "Help from {de} ({pericia}): +{passos} step(s) already applied.",
       "Pendente": "Pending help from {de}: +{passos} step(s)."

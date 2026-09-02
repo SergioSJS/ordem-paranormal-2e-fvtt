@@ -94,10 +94,10 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
         tipo: i.system.efeito.tipo,
         passos: i.system.efeito.passos,
         dado: i.system.efeito.dado,
-        custoPD: i.system.custoPD ?? 0,
+        custoPD: i.system.custoEmPD ?? 0,
         // Sem PD suficiente a habilidade aparece, mas não deixa marcar: esconder
         // faria parecer que ela não existe naquele teste.
-        semPD: (i.system.custoPD ?? 0) > pd,
+        semPD: (i.system.custoEmPD ?? 0) > pd,
         ativo: this.estado.extras.has(i.id),
       }));
   }
@@ -105,7 +105,7 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   /** PD que as habilidades marcadas vão cobrar nesta rolagem. */
   get custoDeExtras() {
     let total = 0;
-    for (const id of this.estado.extras) total += this.ator.items.get(id)?.system.custoPD ?? 0;
+    for (const id of this.estado.extras) total += this.ator.items.get(id)?.system.custoEmPD ?? 0;
     return total;
   }
 
@@ -213,7 +213,7 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   static #alternarExtra(_evento, alvo) {
     const id = alvo.dataset.itemId;
     const item = this.ator.items.get(id);
-    const custo = item?.system.custoPD ?? 0;
+    const custo = item?.system.custoEmPD ?? 0;
     if (this.estado.extras.has(id)) this.estado.extras.delete(id);
     else if (custo > (this.ator.system.recursos?.pd?.value ?? 0) - this.custoDeExtras) {
       ui.notifications.warn(game.i18n.format("OP2.Aviso.SemPD", { nome: item.name, custo }));

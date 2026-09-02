@@ -357,6 +357,67 @@ const relato = await page.evaluate(async () => {
     await bruto.delete();
   }
 
+  // Alvo de ação entre personagens: o roster acumula gente de sessões antigas, e
+  // participante oculto não está em cena. Ajudar e Compartilhar são de jogador para
+  // jogador — personagem sem dono conectado não é alvo (achado em uso real: "lista
+  // todos os personagens cadastrados no Foundry").
+  {
+    const { alvosDaCenaAtiva } = await import("/systems/ordem-paranormal-2e/module/cena/encerrar-investigacao.mjs");
+    const naCena = await Actor.create({ name: "Alvo Em Cena", type: "personagem" });
+    const oculto = await Actor.create({ name: "Alvo Oculto", type: "personagem" });
+    const npcEmCena = await Actor.create({ name: "NPC Em Cena", type: "npc" });
+    const foraDaCena = await Actor.create({ name: "Alvo Fora", type: "personagem" });
+    for (const a of [naCena, oculto, npcEmCena]) await game.op2.adicionarParticipante(investigacao, a.uuid);
+    await game.op2.alternarOculto(investigacao, "participantes", oculto.uuid);
+    await esperar(400);
+
+    const nomes = (opcoes) => alvosDaCenaAtiva(opcoes).map((a) => a.name);
+    const paraAtacar = nomes({ exceto: ator, comNpcs: true });
+    ok("alvo fora da investigação não é oferecido", !paraAtacar.includes(foraDaCena.name));
+    ok("participante oculto não é oferecido", !paraAtacar.includes(oculto.name));
+    ok("quem age não aparece na própria lista", !paraAtacar.includes(ator.name));
+    ok("NPC em cena é alvo de ataque", paraAtacar.includes(npcEmCena.name));
+    ok("NPC não é alvo de Ajudar", !nomes({ exceto: ator }).includes(npcEmCena.name));
+    ok("personagem sem jogador conectado não é alvo de Ajudar",
+      !nomes({ exceto: ator, soConectados: true }).includes(naCena.name));
+
+    for (const a of [naCena, oculto, npcEmCena, foraDaCena]) {
+      await game.op2.removerParticipante(investigacao, a.uuid);
+      await a.delete();
+    }
+  }
+
+  // Habilidade com custo escrito em texto ("2 PD") cobra igual: fichas importadas
+  // antes do campo numérico existir não podem sair de graça (achado em uso real).
+  {
+    const dono = await Actor.create({ name: "Custo Escrito", type: "personagem" });
+    await dono.createEmbeddedDocuments("Item", [
+      { name: "Foco por texto", type: "habilidade", system: { custo: "2 PD" } },
+      { name: "Foco por número", type: "habilidade", system: { custoPD: 3 } },
+      { name: "Sem custo", type: "habilidade", system: { custo: "Ação importante" } },
+    ]);
+    ok("custo em PD é lido do texto quando o número está vazio",
+      dono.items.getName("Foco por texto").system.custoEmPD === 2);
+    ok("o número preenchido prevalece",
+      dono.items.getName("Foco por número").system.custoEmPD === 3);
+    ok("custo que não fala em PD não cobra nada",
+      dono.items.getName("Sem custo").system.custoEmPD === 0);
+    await dono.delete();
+  }
+
+  // Limpar a descoberta vale para qualquer personagem que a tenha, não só para quem
+  // está no roster da investigação em foco — senão o Examinar seguinte diz "já
+  // revelado" para quem ficou de fora (achado em uso real).
+  {
+    const forasteiro = await Actor.create({ name: "Forasteiro", type: "personagem" });
+    await forasteiro.update({ "system.estado.infosReveladas": [`${poi.uuid}:i1`] });
+    const limpos = await game.op2.limparRevelacao(poi.uuid, "i1");
+    ok("limpar descoberta alcança quem está fora do roster",
+      limpos.includes(forasteiro.name)
+      && !forasteiro.system.estado.infosReveladas.has(`${poi.uuid}:i1`));
+    await forasteiro.delete();
+  }
+
   // Botões que envolvem outro personagem: sem alvo possível, não são oferecidos —
   // avisar depois do clique deixava o jogador procurando o que não existe (achado em
   // uso real). E o dano de um card cai em quem o card é, não em quem está selecionado.

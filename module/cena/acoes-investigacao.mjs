@@ -9,7 +9,7 @@
  */
 import { SYSTEM_ID, DT_RECAPITULAR, DT_COMPARTILHAR, CUSTO_PD_EXAMINAR } from "../config.mjs";
 import { resolverInvestigacao, resolverExaminar, chaveInfo, motivoSemRevelacao } from "./investigacao.mjs";
-import { personagensDaCenaAtiva, alvosDaCenaAtiva } from "./encerrar-investigacao.mjs";
+import { alvosDaCenaAtiva } from "./encerrar-investigacao.mjs";
 import { investigacaoAtiva } from "./investigacao-ativa.mjs";
 import { rolarTeste, rotuloDePericia, renderizar } from "../dice/teste.mjs";
 import { escolherPericia } from "../dice/pericia-dialog.mjs";
@@ -86,8 +86,13 @@ export function idsRevelados(ator, poiUuid) {
 export async function limparRevelacao(poiUuid, infoId) {
   if (!game.user.isGM) return [];
   const chave = chaveInfo(poiUuid, infoId);
-  const afetados = personagensDaCenaAtiva()
-    .filter((ator) => ator.system.estado.infosReveladas.has(chave));
+  // Todo personagem que tenha a chave, não só o roster da investigação em foco: a
+  // revelação é gravada no ator e sobrevive a ele sair da investigação — limpar só o
+  // roster deixava a descoberta presa em quem estivesse fora, e o Examinar seguinte
+  // dizia "já revelado" (achado em uso real).
+  const afetados = game.actors
+    .filter((ator) => ator.type === "personagem"
+      && ator.system.estado.infosReveladas.has(chave));
 
   for (const ator of afetados) {
     await ator.update({
@@ -310,7 +315,7 @@ export async function compartilhar(ator, { aliadoId = null } = {}) {
     return null;
   }
 
-  const aliados = alvosDaCenaAtiva({ exceto: ator });
+  const aliados = alvosDaCenaAtiva({ exceto: ator, soConectados: true });
   if (!aliados.length) {
     ui.notifications.warn(game.i18n.localize("OP2.Investigacao.SemAliados"));
     return null;
