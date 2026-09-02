@@ -9,7 +9,7 @@
  */
 import { SYSTEM_ID, DT_RECAPITULAR, DT_COMPARTILHAR, CUSTO_PD_EXAMINAR } from "../config.mjs";
 import { resolverInvestigacao, resolverExaminar, chaveInfo, motivoSemRevelacao } from "./investigacao.mjs";
-import { alvosDaCenaAtiva } from "./encerrar-investigacao.mjs";
+import { alvosDaCenaAtiva, alvosMarcados } from "./encerrar-investigacao.mjs";
 import { investigacaoAtiva } from "./investigacao-ativa.mjs";
 import { rolarTeste, rotuloDePericia, renderizar } from "../dice/teste.mjs";
 import { escolherPericia } from "../dice/pericia-dialog.mjs";
@@ -315,7 +315,9 @@ export async function compartilhar(ator, { aliadoId = null } = {}) {
     return null;
   }
 
-  const aliados = alvosDaCenaAtiva({ exceto: ator, soConectados: true });
+  // A mira do Foundry manda; sem alvo marcado, oferece quem está em cena.
+  const marcados = alvosMarcados({ exceto: ator, tipos: ["personagem"] });
+  const aliados = marcados.length ? marcados : alvosDaCenaAtiva({ exceto: ator });
   if (!aliados.length) {
     ui.notifications.warn(game.i18n.localize("OP2.Investigacao.SemAliados"));
     return null;

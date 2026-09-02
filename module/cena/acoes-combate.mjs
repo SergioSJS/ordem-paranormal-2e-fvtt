@@ -11,7 +11,7 @@
 import { SYSTEM_ID } from "../config.mjs";
 import { rolarTeste, renderizar } from "../dice/teste.mjs";
 import { vencedorDoOposto, resolverAtaque } from "./combate.mjs";
-import { alvosDaCenaAtiva } from "./encerrar-investigacao.mjs";
+import { alvosDaCenaAtiva, alvosMarcados } from "./encerrar-investigacao.mjs";
 
 /** Rola o ataque e publica o card que espera a resposta do defensor. */
 export async function atacar(ator, { alvoUuid, armado, rapido = false } = {}) {
@@ -120,9 +120,15 @@ function textoDoDesfecho({ vencedor, esquiva, atacante, defensor, dano }) {
   return game.i18n.format("OP2.Combate.Venceu", { vencedor: vence.name, perdedor: perde.name, dano });
 }
 
-/** Alvos possíveis: quem está em cena na investigação, menos quem ataca. */
+/**
+ * Quem apanha. A mira do Foundry manda: marcou um token, é nele — sem lista, sem
+ * exigir que esteja na investigação. Sem marcação, oferece quem está em cena.
+ */
 async function escolherAlvo(ator) {
-  const candidatos = alvosDaCenaAtiva({ exceto: ator, comNpcs: true });
+  const marcados = alvosMarcados({ exceto: ator });
+  if (marcados.length === 1) return marcados[0];
+
+  const candidatos = marcados.length > 1 ? marcados : alvosDaCenaAtiva({ exceto: ator, comNpcs: true });
   if (!candidatos.length) {
     ui.notifications.warn(game.i18n.localize("OP2.Combate.SemAlvos"));
     return null;

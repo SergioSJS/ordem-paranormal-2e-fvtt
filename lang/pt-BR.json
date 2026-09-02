@@ -225,8 +225,8 @@
       "SemInvestigacao": "Nenhuma investigação em jogo para este personagem. O mestre precisa colocar uma em jogo e adicionar você como participante.",
       "SemPOIs": "Nenhum ponto de interesse disponível ainda.",
       "SemDesafios": "Nenhum desafio disponível ainda.",
-      "SemAliado": "Nenhum outro personagem com jogador conectado para compartilhar a pista.",
-      "SemAlvo": "Ninguém mais em cena para atacar."
+      "SemAliado": "Marque o alvo no mapa, ou adicione outro personagem à investigação.",
+      "SemAlvo": "Marque o alvo no mapa, ou adicione alguém à investigação."
     },
     "Investigacao": {
       "Examinar": "Examinar",
@@ -598,10 +598,10 @@
     },
     "Ajuda": {
       "Titulo": "Ajudar",
-      "Aliado": "Quem você ajuda",
+      "Aliado": "Quem você ajuda (marque no mapa para pular esta escolha)",
       "EscolhaAjuda": "Escolha a perícia com que você ajuda. Precisa ser coerente com a situação e ter no mínimo d6 — com d4 não dá para ajudar. d6/d8 dão +1 passo; d10/d12 dão +2.",
       "DadoPequeno": "Sua {pericia} é {dado}: com d4 não é possível ajudar (regra da ação).",
-      "SemAliados": "Nenhum outro personagem com jogador conectado nesta investigação.",
+      "SemAliados": "Marque o alvo no mapa, ou adicione outro personagem à investigação.",
       "Card": "{ajudante} ajuda {alvo} com {pericia} ({dado}): +{passos} passo(s) no próximo teste.",
       "NoDialogo": "Ajuda de {de} ({pericia}): +{passos} passo(s) já aplicado(s).",
       "Pendente": "Ajuda pendente de {de}: +{passos} passo(s)."
@@ -609,7 +609,7 @@
     "Combate": {
       "Atacar": "Atacar",
       "Defender": "Defender",
-      "Alvo": "Alvo do ataque",
+      "Alvo": "Alvo do ataque (marque no mapa para pular esta escolha)",
       "SemAlvos": "Não há outro personagem ou NPC na investigação para atacar.",
       "ArmadoPergunta": "Você está empunhando uma arma? Com arma o dano é o RA; desarmado, o RB.",
       "Armado": "Com arma (RA)",

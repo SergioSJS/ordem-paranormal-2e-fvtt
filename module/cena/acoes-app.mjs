@@ -12,7 +12,7 @@
 import { FERRAMENTAS_POI } from "../config.mjs";
 import { investigacaoAtiva, investigacoesVisiveis, definirInvestigacaoAtiva } from "./investigacao-ativa.mjs";
 import { temFerramenta } from "./ferramentas.mjs";
-import { alvosDaCenaAtiva } from "./encerrar-investigacao.mjs";
+import { alvosDaCenaAtiva, alvosMarcados } from "./encerrar-investigacao.mjs";
 import {
   dialogoExaminar, examinar, interagir, recapitular, compartilhar,
 } from "./acoes-investigacao.mjs";
@@ -161,8 +161,10 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       sustentando: ator.system.estado.sustentando?.ativo ?? false,
       // Ação sem alvo possível não é oferecida: avisar só depois do clique deixa o
       // jogador procurando o que não existe (achado em uso real).
-      temAliados: alvosDaCenaAtiva({ exceto: ator, soConectados: true }).length > 0,
-      temAlvosDeAtaque: alvosDaCenaAtiva({ exceto: ator, comNpcs: true }).length > 0,
+      temAliados: alvosMarcados({ exceto: ator, tipos: ["personagem"] }).length > 0
+        || alvosDaCenaAtiva({ exceto: ator }).length > 0,
+      temAlvosDeAtaque: alvosMarcados({ exceto: ator }).length > 0
+        || alvosDaCenaAtiva({ exceto: ator, comNpcs: true }).length > 0,
       temRecursos: ator.items.some((i) => ["habilidade", "equipamento", "ferramenta"].includes(i.type)),
       temLaser: temFerramenta(ator.items, "laser"),
       recapitularUsado: investigacao?.system.recapitularUsado ?? null,

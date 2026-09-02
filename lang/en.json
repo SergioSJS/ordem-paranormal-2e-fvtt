@@ -225,8 +225,8 @@
       "SemInvestigacao": "No investigation in play for this character. The GM needs to put one in play and add you as a participant.",
       "SemPOIs": "No points of interest available yet.",
       "SemDesafios": "No challenge available yet.",
-      "SemAliado": "No other character with a connected player to share the clue with.",
-      "SemAlvo": "Nobody else in the scene to attack."
+      "SemAliado": "Target someone on the map, or add another character to the investigation.",
+      "SemAlvo": "Target someone on the map, or add someone to the investigation."
     },
     "Investigacao": {
       "Examinar": "Examine",
@@ -598,10 +598,10 @@
     },
     "Ajuda": {
       "Titulo": "Help",
-      "Aliado": "Who you help",
+      "Aliado": "Who you help (target on the map to skip this)",
       "EscolhaAjuda": "Pick the skill you help with. It must fit the situation and be at least d6 — a d4 can't help. d6/d8 give +1 step; d10/d12 give +2.",
       "DadoPequeno": "Your {pericia} is {dado}: a d4 can't help (rule of the action).",
-      "SemAliados": "No other character with a connected player in this investigation.",
+      "SemAliados": "Target someone on the map, or add another character to the investigation.",
       "Card": "{ajudante} helps {alvo} with {pericia} ({dado}): +{passos} step(s) on the next check.",
       "NoDialogo": "Help from {de} ({pericia}): +{passos} step(s) already applied.",
       "Pendente": "Pending help from {de}: +{passos} step(s)."
@@ -609,7 +609,7 @@
     "Combate": {
       "Atacar": "Attack",
       "Defender": "Defend",
-      "Alvo": "Attack target",
+      "Alvo": "Attack target (target on the map to skip this)",
       "SemAlvos": "There is no other character or NPC in the investigation to attack.",
       "ArmadoPergunta": "Are you wielding a weapon? Armed, damage is HR; unarmed, LR.",
       "Armado": "Armed (HR)",

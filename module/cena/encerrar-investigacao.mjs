@@ -78,29 +78,39 @@ export function npcsDaCenaAtiva() {
  * existe (achado em uso real: "lista tudo, não faz sentido algum"). Quem chama diz se
  * NPC entra — Ajudar é entre personagens, Atacar não.
  *
- * Ajudar e Compartilhar são de jogador para jogador: só entram personagens cujo dono
- * está conectado — ajudar quem não está na mesa não é jogada, e o roster acumula gente
- * de sessões antigas (achado em uso real). Atacar aceita NPC, que não tem dono.
- *
  * @param {object} [opcoes]
- * @param {Actor}  [opcoes.exceto]     quem está agindo, fora da própria lista
- * @param {boolean} [opcoes.comNpcs]   inclui os NPCs do roster
- * @param {boolean} [opcoes.soConectados] exige dono conectado (não vale para NPC)
+ * @param {Actor}  [opcoes.exceto]   quem está agindo, fora da própria lista
+ * @param {boolean} [opcoes.comNpcs] inclui os NPCs do roster
  */
-export function alvosDaCenaAtiva({ exceto, comNpcs = false, soConectados = false } = {}) {
+export function alvosDaCenaAtiva({ exceto, comNpcs = false } = {}) {
   const investigacao = investigacaoAtiva();
   const ocultos = investigacao?.system.participantesOcultos ?? [];
   const roster = comNpcs
     ? [...personagensDaCenaAtiva(), ...npcsDaCenaAtiva()]
     : personagensDaCenaAtiva();
 
-  const temDonoNaMesa = (ator) => game.users.some((u) => u.active && !u.isGM
-    && ator.testUserPermission(u, "OWNER"));
-
   return roster
     .filter((ator) => !ocultos.includes(ator.uuid))
-    .filter((ator) => ator.id !== exceto?.id)
-    .filter((ator) => !soConectados || ator.type === "npc" || temDonoNaMesa(ator));
+    .filter((ator) => ator.id !== exceto?.id);
+}
+
+/**
+ * O alvo marcado no mapa (a mira do Foundry), que é como a mesa já diz "é nele".
+ *
+ * Quando existe um alvo marcado, ele manda: não faz sentido abrir uma lista para
+ * escolher de novo quem você já apontou, nem exigir que ele esteja no roster da
+ * investigação (achado em uso real). Só entram tipos que o sistema conhece.
+ *
+ * @param {object} [opcoes]
+ * @param {Actor}  [opcoes.exceto]   quem está agindo nunca é o próprio alvo
+ * @param {string[]} [opcoes.tipos]  tipos aceitos; default personagem e NPC
+ * @returns {Actor[]}
+ */
+export function alvosMarcados({ exceto, tipos = ["personagem", "npc"] } = {}) {
+  const marcados = [...(game.user?.targets ?? [])]
+    .map((token) => token.actor)
+    .filter((ator) => ator && tipos.includes(ator.type) && ator.id !== exceto?.id);
+  return [...new Set(marcados)];
 }
 
 function participantesDaInvestigacao(tipo) {

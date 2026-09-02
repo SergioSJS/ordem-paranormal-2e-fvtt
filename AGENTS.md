@@ -132,6 +132,10 @@ dos cards de chat e o `{{actor.name}}` vazio na ficha.
 Monta um mundo de demonstração no mesmo Foundry descartável e fotografa as telas em
 `docs/img/`. Nenhuma imagem do README é mockup; se a interface mudar, rode de novo.
 
+**Regra:** mexeu em ficha, painel, janela de ações, card de chat ou qualquer tela que o
+README mostra? Rode `capturar.mjs` e commite os prints junto com a mudança. README com
+print velho mente sobre o sistema — e é a primeira coisa que alguém vê.
+
 `module/tests/stub-foundry.mjs` tem stubs mínimos da API — o suficiente para carregar os
 módulos fora do Foundry. Não simula comportamento: lógica de regra fica em módulos puros
 (`dice/escada.mjs`, `dice/analise.mjs`) justamente para ser testável de verdade.

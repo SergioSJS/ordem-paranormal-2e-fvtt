@@ -11,7 +11,7 @@ import { SYSTEM_ID } from "../config.mjs";
 import { escolherPericia } from "../dice/pericia-dialog.mjs";
 import { rotuloDePericia, renderizar } from "../dice/teste.mjs";
 import { lerConfig } from "../settings/register.mjs";
-import { alvosDaCenaAtiva } from "./encerrar-investigacao.mjs";
+import { alvosDaCenaAtiva, alvosMarcados } from "./encerrar-investigacao.mjs";
 import { passosDeAjuda, podeAjudar } from "./ajuda.mjs";
 import { comoMestre, registrarAcaoDeMestre } from "../ui/socket.mjs";
 
@@ -20,13 +20,15 @@ import { comoMestre, registrarAcaoDeMestre } from "../ui/socket.mjs";
  * passos no aliado.
  */
 export async function ajudar(ator) {
-  const aliados = alvosDaCenaAtiva({ exceto: ator, soConectados: true });
+  // Marcou alguém no mapa? É ele. Ajuda é entre personagens.
+  const marcados = alvosMarcados({ exceto: ator, tipos: ["personagem"] });
+  const aliados = marcados.length ? marcados : alvosDaCenaAtiva({ exceto: ator });
   if (!aliados.length) {
     ui.notifications.warn(game.i18n.localize("OP2.Ajuda.SemAliados"));
     return null;
   }
 
-  const alvoId = await escolherAliado(aliados);
+  const alvoId = aliados.length === 1 ? aliados[0].id : await escolherAliado(aliados);
   if (!alvoId) return null;
 
   const chavePericia = await escolherPericia(ator, {

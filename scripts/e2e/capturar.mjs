@@ -44,7 +44,9 @@ const dados = await page.evaluate(async () => {
   };
   const alan = await importar("Alan");
   const edgar = await importar("Edgar");
-  await alan.update({ "system.impeto.preenchidos": 1, "system.recursos.pd.value": 12 });
+  await alan.update({ "system.recursos.pd.value": 12 });
+  // A barra de Ímpeto é a habilidade: o estado mora nela.
+  await alan.items.getName("Ímpeto")?.update({ "system.impeto.preenchidos": 1 });
 
   const npc = await Actor.create({ name: "Zelador", type: "npc" });
 

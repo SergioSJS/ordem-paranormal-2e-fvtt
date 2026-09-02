@@ -378,8 +378,34 @@ const relato = await page.evaluate(async () => {
     ok("quem age não aparece na própria lista", !paraAtacar.includes(ator.name));
     ok("NPC em cena é alvo de ataque", paraAtacar.includes(npcEmCena.name));
     ok("NPC não é alvo de Ajudar", !nomes({ exceto: ator }).includes(npcEmCena.name));
-    ok("personagem sem jogador conectado não é alvo de Ajudar",
-      !nomes({ exceto: ator, soConectados: true }).includes(naCena.name));
+    // A mira do Foundry manda: marcou o token, é nele — mesmo fora da investigação.
+    // Antes a lista era a única entrada, e marcar o alvo no mapa não fazia nada
+    // (achado em uso real).
+    {
+      const { alvosMarcados } = await import("/systems/ordem-paranormal-2e/module/cena/encerrar-investigacao.mjs");
+      const cena = game.scenes.find((c) => c.name === "Alvos") ?? await Scene.create({ name: "Alvos", width: 1000, height: 1000 });
+      await cena.activate();
+      const [token] = await cena.createEmbeddedDocuments("Token", [{
+        name: foraDaCena.name, actorId: foraDaCena.id, x: 500, y: 500, actorLink: true,
+      }]);
+      await esperar(700);
+      canvas.tokens.get(token.id)?.setTarget(true, { releaseOthers: true });
+      await esperar(400);
+
+      ok("alvo marcado no mapa vale mesmo fora da investigação",
+        alvosMarcados({ exceto: ator }).map((a) => a.name).includes(foraDaCena.name));
+      ok("quem age nunca é o próprio alvo marcado",
+        !alvosMarcados({ exceto: foraDaCena }).map((a) => a.name).includes(foraDaCena.name));
+
+      await game.op2.atacar(ator, { armado: false, rapido: true });
+      await esperar(800);
+      ok("com alvo marcado, atacar não pergunta em quem",
+        !document.querySelector("select[name='alvo']")
+        && (game.messages.contents.at(-1)?.content ?? "").includes(foraDaCena.name));
+
+      canvas.tokens.placeables.forEach((t) => t.setTarget(false, { releaseOthers: false }));
+      await cena.deleteEmbeddedDocuments("Token", [token.id]);
+    }
 
     for (const a of [naCena, oculto, npcEmCena, foraDaCena]) {
       await game.op2.removerParticipante(investigacao, a.uuid);
@@ -411,10 +437,15 @@ const relato = await page.evaluate(async () => {
   {
     const forasteiro = await Actor.create({ name: "Forasteiro", type: "personagem" });
     await forasteiro.update({ "system.estado.infosReveladas": [`${poi.uuid}:i1`] });
+    const antesDoAtor = [...ator.system.estado.infosReveladas];
+
     const limpos = await game.op2.limparRevelacao(poi.uuid, "i1");
     ok("limpar descoberta alcança quem está fora do roster",
       limpos.includes(forasteiro.name)
       && !forasteiro.system.estado.infosReveladas.has(`${poi.uuid}:i1`));
+
+    // Limpar é global por linha: devolve o que o roteiro seguinte espera encontrar.
+    await ator.update({ "system.estado.infosReveladas": antesDoAtor });
     await forasteiro.delete();
   }
 
