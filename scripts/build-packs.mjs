@@ -2,7 +2,7 @@
  * Compila os compêndios de `packs/sources/<nome>/` para `packs/<nome>/`.
  * Lê a lista do próprio `system.json`, então não há uma segunda fonte de verdade.
  */
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, rmSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname } from "node:path";
 
@@ -20,6 +20,18 @@ for (const pack of packs) {
     console.warn(`Pulando "${pack.name}": ${fonte} não existe.`);
     continue;
   }
+  // Apaga o banco antes: `pack` escreve por cima, então documento removido da fonte
+  // continuaria no compêndio, e um `unpack` errado deixa subpasta órfã lá dentro.
+  // Com o Foundry aberto o banco está travado — daí o aviso em vez do erro cru.
+  if (existsSync(pack.path)) {
+    try {
+      rmSync(pack.path, { recursive: true, force: true });
+    } catch (erro) {
+      console.error(`Não deu para limpar ${pack.path}: feche o Foundry e rode de novo.`);
+      throw erro;
+    }
+  }
+
   console.log(`Compilando ${pack.name}…`);
   // `--out` é a pasta PAI: o CLI cria `<out>/<name>` e é esse caminho que o
   // `system.json` declara em `path` (achado em uso real: apontar `--out` para o
