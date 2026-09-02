@@ -27,11 +27,19 @@ export class PericiaDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     corpo: { template: "systems/ordem-paranormal-2e/templates/dialog/pericia.hbs" },
   };
 
-  constructor(ator, { titulo, ajuda } = {}, opcoes = {}) {
+  /**
+   * @param {object} [config]
+   * @param {string} [config.titulo]
+   * @param {string} [config.ajuda]
+   * @param {boolean} [config.mostrarAtributo] mostra o par perícia+atributo — só
+   *   faz sentido quando a ação rola de verdade (Investigar não rola, spec §6.3)
+   */
+  constructor(ator, { titulo, ajuda, mostrarAtributo = false } = {}, opcoes = {}) {
     super(opcoes);
     this.ator = ator;
     this.titulo = titulo ?? null;
     this.ajuda = ajuda ?? null;
+    this.mostrarAtributo = mostrarAtributo;
     this.escolhida = null;
     this.resolver = null;
   }
@@ -49,17 +57,37 @@ export class PericiaDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   async _prepareContext() {
-    const linha = (chave) => {
-      const resolvido = this.ator.system.resolverChave(chave);
-      const dado = resolvido?.dado ?? "d4";
-      return { chave, rotulo: rotuloDePericia(chave), icone: iconeDado(dado), dado };
+    const sistema = this.ator.system;
+
+    // A mesma leitura da ficha: perícia, o dado dela, e o atributo pareado. Quem
+    // vai rolar precisa ver o par antes de escolher (a troca do atributo em si
+    // acontece no diálogo de teste, que abre em seguida — é lá que ela existe).
+    const linha = (chave, rotulo) => {
+      const resolvido = sistema.resolverChave(chave);
+      const chaveAtributo = sistema.atributoDe(chave) ?? "fisico";
+      const atributo = sistema.atributos[chaveAtributo];
+      return {
+        chave,
+        rotulo: rotulo ?? rotuloDePericia(chave),
+        icone: iconeDado(resolvido?.dado ?? "d4"),
+        atributoRotulo: game.i18n.localize(`OP2.Atributo.${chaveAtributo}`),
+        atributoIcone: iconeDado(atributo?.dadoEfetivo ?? "d4"),
+      };
     };
 
     return {
       ajuda: this.ajuda,
+      // O par só faz sentido quando a ação rola; Investigar compara o tamanho do
+      // dado sem rolar (spec §6.3), e aí atributo nenhum entra na conta.
+      mostrarAtributo: this.mostrarAtributo,
       // A lista completa, sempre: 19 perícias + as Aptidões que ESTE personagem tem.
-      pericias: Object.keys(PERICIAS).filter((chave) => !PERICIAS[chave].especializada).map(linha),
-      aptidoes: Object.keys(this.ator.system.aptidoes ?? {}).map((sub) => linha(`aptidao.${sub}`)),
+      pericias: Object.keys(PERICIAS).filter((chave) => !PERICIAS[chave].especializada).map((chave) => linha(chave)),
+      // Dentro do grupo "Aptidão" a linha mostra só o campo — repetir "Aptidão
+      // (Artes)" embaixo do título "APTIDÃO" é redundante (achado em uso real).
+      aptidoes: Object.entries(sistema.aptidoes ?? {}).map(([sub, dados]) => linha(
+        `aptidao.${sub}`,
+        dados?.rotulo?.trim() || game.i18n.localize(`OP2.Aptidao.${sub}`),
+      )),
     };
   }
 

@@ -247,7 +247,8 @@
       "FichaAjuda": "Rodada, sobrecarga, participantes e travas de Recapitular/Compartilhar ficam em flags desta investigação, geridos pelo Painel de investigação. Este campo é só para notas do mestre.",
       "Notas": "Notas",
       "SemPoisAjuda": "Nenhum ponto de interesse. Arraste um Item de Ponto de Interesse para cá.",
-      "SemDesafiosAjuda": "Nenhum desafio de acesso. Arraste um Item de Desafio de Acesso para cá."
+      "SemDesafiosAjuda": "Nenhum desafio de acesso. Arraste um Item de Desafio de Acesso para cá.",
+      "ExaminarEscolhaAjuda": "Examinar rola a perícia e compara a soma contra a DT. Custa 1 PD se não revelar nada novo."
     },
     "Dialog": {
       "Teste": {
@@ -269,7 +270,8 @@
         "Dica": "A soma máxima nem sempre é a melhor escolha: RA e RB alimentam dano, arrombamento e alcance."
       },
       "Pericia": {
-        "Titulo": "Escolha a perícia"
+        "Titulo": "Escolha a perícia",
+        "TrocaAtributo": "O atributo pareado é sugestão — dá para trocar no diálogo de teste, depois de escolher a perícia."
       }
     },
     "Passo": "passo",
@@ -491,7 +493,8 @@
       "HackTimerAjuda": "Cronômetro visual pro problema matemático do hack técnico — o mestre decide a dificuldade, o sistema só marca o tempo.",
       "Abordagens": "Abordagens possíveis",
       "AbordagensAjuda": "Marque só o que faz sentido neste objeto. Uma porta emperrada não se hackeia; um painel eletrônico não se arromba no braço.",
-      "SemAbordagem": "Nenhuma abordagem marcada neste desafio — o mestre precisa escolher pelo menos uma na ficha dele."
+      "SemAbordagem": "Nenhuma abordagem marcada neste desafio — o mestre precisa escolher pelo menos uma na ficha dele.",
+      "SenhaAjuda": "A senha em si é gerada e conferida pelo app de Destrancar, na hora de jogar."
     },
     "Ferramenta": {
       "Rotulo": "Ferramenta",

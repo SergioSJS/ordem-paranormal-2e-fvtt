@@ -26,6 +26,9 @@ export class DesafioAcessoSheet extends OP2ItemSheet {
       ...contexto,
       percentualProgresso: Math.min(100, Math.round((pontuacaoAtual / pontuacaoAlvo) * 100)),
       perguntasHack: this.item.system.hackSocial.perguntas.map((pergunta, indice) => ({ ...pergunta, indice })),
+      // Sem nenhuma abordagem marcada a ficha não tem o que configurar — o aviso
+      // substitui os blocos em vez de mostrar campos que não valem para nada.
+      temAlgumaAbordagem: Object.values(this.item.system.abordagens).some(Boolean),
     };
   }
 

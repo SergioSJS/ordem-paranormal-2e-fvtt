@@ -740,6 +740,15 @@ const relato = await page.evaluate(async () => {
       ok("stepper de tentativas desce", fechadura.system.tentativasUsadas === tentAntes + 1);
     }
 
+    // A ficha segue as abordagens: bloco de hack só existe se o mestre marcou a
+    // abordagem naquele obstáculo (achado em uso real — a ficha despejava tudo).
+    ok("ficha não mostra bloco de hack num desafio que não é de hackear",
+      !desafioEl.querySelector('[data-action="iniciarTimerHack"]')
+      && !desafioEl.querySelector('[data-action="adicionarPerguntaHack"]'));
+
+    await fechadura.update({ "system.abordagens.hackTecnico": true, "system.abordagens.hackSocial": true });
+    await esperar(600);
+
     // Hackear na ficha: banco de perguntas do hack social + timer visual do
     // hack técnico (spec §7.3 pede "ferramenta de GM: timer + banco de perguntas").
     {
@@ -791,11 +800,11 @@ const relato = await page.evaluate(async () => {
     // A 1ª `avancarRodada()` só liga a rodada 1 (mesma guarda `encerrada >= 1` da
     // sobrecarga) — a fadiga só entra a partir da rodada seguinte, quando uma
     // rodada de verdade se encerra.
-    await game.op2.avancarRodada();
+    await comDadosNoMaximo(() => game.op2.avancarRodada());
     await esperar(500);
     ok("1ª chamada só liga a rodada, sem testar fadiga ainda", ator.system.estado.sustentando.fadiga === 0);
 
-    await game.op2.avancarRodada();
+    await comDadosNoMaximo(() => game.op2.avancarRodada());
     await esperar(500);
     ok("fadiga com DT 0 continua sustentando", ator.system.estado.sustentando.ativo === true);
     ok("fadiga acumula a cada rodada", ator.system.estado.sustentando.fadiga === 1);

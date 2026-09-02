@@ -3,15 +3,20 @@
 // ações — não dava pra ver que tinha aberto (achado em uso real). Vermelho escuro
 // e borda vermelha separam o "pare e decida" do resto da tela.
 .op2-dialog {
+  // Vermelho bem escuro, quase marrom: o suficiente pra separar do resto da tela
+  // sem saturar. O primeiro tom era forte demais e brigava com o conteúdo
+  // (achado em uso real).
+  --op2-dialog-vinho: color-mix(in srgb, var(--op2-vermelho-escuro) 42%, #000);
+
   .window-content {
-    background: linear-gradient(180deg, var(--op2-vermelho-escuro) 0%, var(--op2-fundo) 55%);
-    border: 1px solid var(--op2-vermelho);
+    background: linear-gradient(180deg, var(--op2-dialog-vinho) 0%, var(--op2-fundo) 60%);
+    border: 1px solid color-mix(in srgb, var(--op2-vermelho) 55%, #000);
   }
 
   // O chrome da janela acompanha, senão a barra de título fica destoando.
   .window-header {
-    background: var(--op2-vermelho-escuro);
-    border-bottom: 1px solid var(--op2-vermelho);
+    background: var(--op2-dialog-vinho);
+    border-bottom: 1px solid color-mix(in srgb, var(--op2-vermelho) 55%, #000);
   }
 }
 
@@ -21,20 +26,31 @@
   flex-direction: column;
   gap: var(--op2-e2);
   padding: var(--op2-e3);
+  // Uma rolagem só, da janela. Com `max-height` em cada lista apareciam duas
+  // barras e os dois grupos ficavam com respiro diferente (achado em uso real).
+  max-height: 32rem;
+  overflow-y: auto;
 
+  // Uma coluna, com respiro: em duas colunas apertadas as Aptidões quebravam em
+  // três linhas e a tela virava um paredão (achado em uso real).
   &__lista {
-    display: grid;
-    gap: 2px;
-    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
   }
 
   &__linha {
-    display: flex;
+    // Mesma grade da linha de perícia da ficha: nome · dado · + · atributo.
+    display: grid;
     align-items: center;
-    justify-content: space-between;
     gap: var(--op2-e2);
+    grid-template-columns: minmax(0, 1fr) 1.7rem auto 1.7rem auto;
     width: 100%;
-    padding: 0.3rem 0.5rem;
+    // A linha precisa ser mais alta que o ícone do dado: com padding menor os
+    // dados de linhas vizinhas encostavam um no outro e o realce do hover ficava
+    // deslocado da linha (achado em uso real).
+    min-height: 2.1rem;
+    padding: 0.15rem 0.6rem;
     border: 1px solid transparent;
     border-radius: var(--op2-raio);
     background: transparent;
@@ -53,6 +69,18 @@
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__mais { color: var(--op2-texto-fraco); }
+
+  &__atributo {
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--op2-texto-fraco);
   }
 
   &__dado .op2-dado { width: 1.6rem; height: 1.6rem; }

@@ -8,6 +8,11 @@
       <button type="button" class="op2-pericia-escolha__linha" data-action="escolher" data-chave="{{chave}}">
         <span class="op2-pericia-escolha__nome">{{rotulo}}</span>
         <span class="op2-pericia-escolha__dado">{{{icone}}}</span>
+        {{#if @root.mostrarAtributo}}
+          <span class="op2-pericia-escolha__mais" aria-hidden="true">+</span>
+          <span class="op2-pericia-escolha__dado" data-tooltip="{{atributoRotulo}}">{{{atributoIcone}}}</span>
+          <span class="op2-pericia-escolha__atributo">{{atributoRotulo}}</span>
+        {{/if}}
       </button>
     {{/each}}
   </div>
@@ -19,8 +24,17 @@
         <button type="button" class="op2-pericia-escolha__linha" data-action="escolher" data-chave="{{chave}}">
           <span class="op2-pericia-escolha__nome">{{rotulo}}</span>
           <span class="op2-pericia-escolha__dado">{{{icone}}}</span>
+          {{#if @root.mostrarAtributo}}
+            <span class="op2-pericia-escolha__mais" aria-hidden="true">+</span>
+            <span class="op2-pericia-escolha__dado" data-tooltip="{{atributoRotulo}}">{{{atributoIcone}}}</span>
+            <span class="op2-pericia-escolha__atributo">{{atributoRotulo}}</span>
+          {{/if}}
         </button>
       {{/each}}
     </div>
+  {{/if}}
+
+  {{#if mostrarAtributo}}
+    <p class="op2-ajuda">{{localize "OP2.Dialog.Pericia.TrocaAtributo"}}</p>
   {{/if}}
 </div>

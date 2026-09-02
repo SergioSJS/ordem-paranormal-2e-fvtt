@@ -10,6 +10,7 @@
  * chamava — só o dono da ação mudou de lugar.
  */
 import { FERRAMENTAS_POI } from "../config.mjs";
+import { escolherPericia } from "../dice/pericia-dialog.mjs";
 import { investigacaoAtiva, investigacoesVisiveis, definirInvestigacaoAtiva } from "./investigacao-ativa.mjs";
 import { temFerramenta } from "./ferramentas.mjs";
 import {
@@ -151,7 +152,21 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
   static async #usarLaser() { await usarLaser(this.ator); }
 
   static async #investigar(_evento, alvo) { await dialogoInvestigar(this.ator, alvo.dataset.poiUuid); }
-  static async #examinar(_evento, alvo) { await examinar(this.ator, alvo.dataset.poiUuid, alvo.dataset.pericia); }
+
+  /**
+   * Examinar rola de verdade (spec §6.3.1), então a escolha da perícia mostra o
+   * par perícia+atributo — e a troca do atributo em si acontece no diálogo de
+   * teste que abre logo depois, que é onde ela sempre morou.
+   */
+  static async #examinar(_evento, alvo) {
+    const chave = alvo.dataset.pericia ?? await escolherPericia(this.ator, {
+      titulo: game.i18n.localize("OP2.Investigacao.Examinar"),
+      ajuda: game.i18n.localize("OP2.Investigacao.ExaminarEscolhaAjuda"),
+      mostrarAtributo: true,
+    });
+    if (!chave) return;
+    await examinar(this.ator, alvo.dataset.poiUuid, chave);
+  }
   static async #interagir(_evento, alvo) { await interagir(this.ator, alvo.dataset.poiUuid); }
 
   static async #usarFerramenta(_evento, alvo) {

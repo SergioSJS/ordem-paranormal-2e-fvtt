@@ -247,7 +247,8 @@
       "FichaAjuda": "Round, mental strain, participants and the Recap/Share locks live in this investigation's flags, managed by the Investigation Panel. This field is just for GM notes.",
       "Notas": "Notes",
       "SemPoisAjuda": "No points of interest. Drag a Point of Interest item here.",
-      "SemDesafiosAjuda": "No access challenges. Drag an Access Challenge item here."
+      "SemDesafiosAjuda": "No access challenges. Drag an Access Challenge item here.",
+      "ExaminarEscolhaAjuda": "Examine rolls the skill and compares the sum against the DT. Costs 1 DP if it reveals nothing new."
     },
     "Dialog": {
       "Teste": {
@@ -269,7 +270,8 @@
         "Dica": "The highest sum isn't always best: the High and Low Rolls drive damage, forcing and climbing."
       },
       "Pericia": {
-        "Titulo": "Pick the skill"
+        "Titulo": "Pick the skill",
+        "TrocaAtributo": "The paired attribute is a suggestion — you can swap it in the check dialog, after picking the skill."
       }
     },
     "Passo": "step",
@@ -491,7 +493,8 @@
       "HackTimerAjuda": "Visual countdown for the technical hack's math problem — the GM picks the difficulty, the system just keeps time.",
       "Abordagens": "Possible approaches",
       "AbordagensAjuda": "Check only what makes sense on this object. A jammed door can't be hacked; an electronic panel can't be forced open.",
-      "SemAbordagem": "No approach checked on this challenge — the GM needs to pick at least one on its sheet."
+      "SemAbordagem": "No approach checked on this challenge — the GM needs to pick at least one on its sheet.",
+      "SenhaAjuda": "The code itself is generated and checked by the Unlock app, at play time."
     },
     "Ferramenta": {
       "Rotulo": "Tool",
