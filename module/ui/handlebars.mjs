@@ -40,6 +40,7 @@ const TEMPLATES = [
   `${RAIZ}/cena/destrancar.hbs`,
   `${RAIZ}/cena/laboratorio.hbs`,
   `${RAIZ}/cena/radio.hbs`,
+  `${RAIZ}/actor/acoes-investigacao.hbs`,
 ];
 
 export function precarregarTemplates() {

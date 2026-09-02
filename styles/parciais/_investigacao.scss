@@ -475,6 +475,60 @@ summary.op2-painel-titulo { cursor: pointer; }
 // Botão flutuante do painel — não é controle de cena de propósito (veja o
 // comentário em criarBotaoFlutuante()). Fica acima da coluna de controles do
 // core, sempre clicável, independente de qual camada/tool está ativa.
+// Ações de investigação do personagem (abre pela ficha, `acoes-app.mjs`).
+.op2-acoes .window-content { overflow-y: auto; }
+
+.op2-acoes-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--op2-e3);
+  padding: var(--op2-e3);
+  font-family: var(--op2-fonte-corpo);
+}
+
+.op2-acoes {
+  &__topo { display: flex; align-items: center; gap: var(--op2-e2); }
+
+  &__grupo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--op2-e1);
+  }
+
+  &__alvo {
+    padding: var(--op2-e2);
+    border: 1px solid var(--op2-linha);
+    border-left: 3px solid var(--op2-vermelho);
+    border-radius: var(--op2-raio);
+    background: var(--op2-superficie);
+
+    & + & { margin-top: var(--op2-e2); }
+  }
+
+  &__alvo-topo {
+    display: flex;
+    align-items: center;
+    gap: var(--op2-e2);
+    margin-bottom: var(--op2-e2);
+
+    img { width: 1.8rem; height: 1.8rem; object-fit: cover; border-radius: var(--op2-raio); }
+    strong { font-family: var(--op2-fonte-display); letter-spacing: 0.03em; }
+  }
+}
+
+// Botão que abre as ações, no cabeçalho da ficha logo abaixo de Nível/NEX.
+.op2-acoes-investigacao {
+  width: 100%;
+  margin-top: var(--op2-e2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--op2-e1);
+}
+
+// Botão flutuante do painel — nada de círculo: a gramática do livro é tag rasgada
+// (docs/ESTILO-VISUAL.md, "se você se pegar arredondando cantos, parou de seguir o
+// livro"). Mesma família de `.op2-tag`, em tamanho de alvo de clique.
 .op2-botao-flutuante {
   position: fixed;
   top: 12px;
@@ -482,19 +536,37 @@ summary.op2-painel-titulo { cursor: pointer; }
   // uso real: um valor fixo em CSS ou fica embaixo da sidebar aberta, ou sobra
   // vazio com ela recolhida) — ver reposicionarBotaoFlutuante().
   right: 12px;
-  transition: right 0.2s ease;
   z-index: 20;
-  width: 2.6rem;
-  height: 2.6rem;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
   padding: 0;
-  border: 1px solid var(--op2-vermelho);
-  border-radius: 50%;
-  background: var(--op2-superficie-alta);
-  color: var(--op2-vermelho-claro);
-  font-size: 1.1rem;
+  border: 0;
+  background: linear-gradient(160deg, var(--op2-vermelho) 0%, var(--op2-vermelho-escuro) 100%);
+  color: #fff;
+  font-size: 1rem;
   cursor: pointer;
+  clip-path: polygon(0 7%, 100% 0, 96% 93%, 4% 100%);
+  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 55%));
+  transition: right 0.2s ease, filter 0.15s ease, transform 0.15s ease;
 
-  &:hover { background: var(--op2-vermelho); color: #fff; }
+  // A lupa fica um tico deslocada dentro do recorte torto — centralizar no
+  // retângulo deixa ela visualmente alta demais dentro do polígono.
+  i { transform: translateY(1px); }
+
+  &:hover {
+    background: linear-gradient(160deg, var(--op2-vermelho-claro) 0%, var(--op2-vermelho) 100%);
+    filter: drop-shadow(0 3px 7px rgb(200 50 30 / 55%));
+    transform: translateY(-1px);
+  }
+
+  &:active { transform: translateY(0); }
+
+  &:focus-visible {
+    outline: 2px solid var(--op2-tinta);
+    outline-offset: 2px;
+  }
 }
 
 }

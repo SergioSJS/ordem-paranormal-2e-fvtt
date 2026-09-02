@@ -202,6 +202,14 @@
         "termometro": "Differential Thermometer"
       }
     },
+    "Acoes": {
+      "Titulo": "Investigation actions",
+      "Ajuda": "Opens this character's investigation actions — investigate, examine, tools, challenges.",
+      "Livres": "Free actions",
+      "SemInvestigacao": "No investigation in play for this character. The GM needs to put one in play and add you as a participant.",
+      "SemPOIs": "No points of interest available yet.",
+      "SemDesafios": "No access challenges available yet."
+    },
     "Investigacao": {
       "Investigar": "Investigate",
       "Examinar": "Examine",

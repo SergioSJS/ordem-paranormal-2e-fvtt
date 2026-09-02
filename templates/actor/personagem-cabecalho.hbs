@@ -40,6 +40,16 @@
           {{#unless editavel}}disabled{{/unless}}>
       </label>
     </div>
+
+    {{!-- As ações de investigação moram aqui, não no painel: na ficha o personagem
+          que age é este, sem ambiguidade. No painel, um jogador com mais de um
+          personagem não teria como escolher por qual deles o botão agiria (achado
+          em uso real). --}}
+    <button type="button" class="op2-botao op2-acoes-investigacao" data-action="abrirAcoesInvestigacao"
+      data-tooltip="{{localize 'OP2.Acoes.Ajuda'}}">
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      {{localize "OP2.Acoes.Titulo"}}
+    </button>
   </div>
 
   <div class="op2-atributos">

@@ -102,10 +102,13 @@ const relato = await page.evaluate(async () => {
       { name: "i-poi", type: "ponto-interesse" },
       { name: "i-desafio", type: "desafio-acesso" },
     ]);
+    // Por tipo, nunca por índice: `createDocuments` não devolve na ordem de
+    // entrada (achado em uso real — a asserção por índice passava por sorte).
+    const imgPorTipo = Object.fromEntries(itensIcone.map((i) => [i.type, i.img]));
     ok("ferramenta/poi/desafio nascem com os ícones padrão dos tipos",
-      itensIcone[0]?.img === "icons/svg/clockwork.svg"
-      && itensIcone[1]?.img === "icons/svg/hanging-sign.svg"
-      && itensIcone[2]?.img === "icons/svg/padlock.svg");
+      imgPorTipo.ferramenta === "icons/svg/clockwork.svg"
+      && imgPorTipo["ponto-interesse"] === "icons/svg/hanging-sign.svg"
+      && imgPorTipo["desafio-acesso"] === "icons/svg/padlock.svg");
     await Item.deleteDocuments(itensIcone.map((i) => i.id));
   }
 
@@ -376,8 +379,15 @@ const relato = await page.evaluate(async () => {
     await game.op2.definirInvestigacaoAtiva(investigacao.uuid);
     await painel.render();
     await esperar(400);
-    ok("seletor do mestre lista as duas investigações",
-      painelEl.querySelectorAll("[data-seletor-investigacao] option[value]:not([value=''])").length === 2);
+    // Pelas duas DESTA rodada, não pelo total do mundo: o mundo descartável
+    // acumula investigações de execuções anteriores que morreram no meio, e uma
+    // contagem global vira falha fantasma (achado em uso real).
+    {
+      const valores = [...painelEl.querySelectorAll("[data-seletor-investigacao] option[value]:not([value=''])")]
+        .map((o) => o.value);
+      ok("seletor do mestre lista as duas investigações desta rodada",
+        valores.includes(investigacao.uuid) && valores.includes(delegacia.uuid));
+    }
 
     // Jogador com personagem participante das duas navega sozinho entre elas.
     Object.defineProperty(game.user, "isGM", { value: false, configurable: true });
@@ -385,8 +395,11 @@ const relato = await page.evaluate(async () => {
     await esperar(400);
     const seletorJogador = painelEl.querySelector("[data-seletor-investigacao]");
     ok("jogador participante também tem seletor", Boolean(seletorJogador));
-    ok("jogador vê as duas investigações em jogo em que participa",
-      seletorJogador?.querySelectorAll("option").length === 2);
+    {
+      const valoresJogador = [...(seletorJogador?.querySelectorAll("option") ?? [])].map((o) => o.value);
+      ok("jogador vê as duas investigações em jogo em que participa",
+        valoresJogador.includes(investigacao.uuid) && valoresJogador.includes(delegacia.uuid));
+    }
     // Marcar "em jogo" grava num setting de mundo — bastidor do mestre, como todo
     // o resto do painel; o checkbox nem renderiza para o jogador.
     ok("checkbox Em jogo não aparece para o jogador (mestre-only)",
@@ -450,7 +463,8 @@ const relato = await page.evaluate(async () => {
     await painel.render();
     await esperar(400);
     ok("investigação fora de jogo some do seletor do jogador",
-      painelEl.querySelectorAll("[data-seletor-investigacao] option").length === 1);
+      ![...painelEl.querySelectorAll("[data-seletor-investigacao] option")]
+        .map((o) => o.value).includes(delegacia.uuid));
     delete game.user.isGM;
 
     await delegacia.delete();
@@ -1338,6 +1352,72 @@ const relato = await page.evaluate(async () => {
   await page.click(botao);
   await page.waitForTimeout(800);
   relato.passos.push([await existeNoDOM(), "botão flutuante reabre o painel depois de fechado (não some após o 1º clique)"]);
+}
+
+// Ações de investigação na ficha do personagem + o diálogo de teste com DT 0.
+// Precisa de clique real: o `rapido: true` que o resto da suíte usa pula o
+// diálogo, e era justamente dentro dele que o bug morava.
+{
+  const alvo = await page.evaluate(async () => {
+    await globalThis.Tour?.activeTour?.exit();
+    const inv = await game.op2.criarInvestigacao("Ações e DT 0");
+    const ator = await Actor.create({ name: "Agente Ações", type: "personagem" });
+    await ator.update({ "system.recursos.pv": { value: 10, max: 10 } });
+    await game.op2.adicionarParticipante(inv, ator.uuid);
+    // DT 0: o objeto exige a ação, não a dificuldade.
+    const desafio = await Item.create({ name: "Painel DT 0", type: "desafio-acesso", system: { dtObjeto: 0 } });
+    await game.op2.vincularDesafio(inv, desafio.uuid);
+
+    await ator.sheet.render(true);
+    await new Promise((r) => setTimeout(r, 700));
+    return { atorId: ator.id, desafioId: desafio.id, invId: inv.id, pvAntes: ator.system.recursos.pv.value };
+  });
+
+  const fichaBotao = `[data-action="abrirAcoesInvestigacao"]`;
+  relato.passos.push([
+    await page.evaluate((sel) => Boolean(game.actors.get(sel.id).sheet.element.querySelector(sel.q)),
+      { id: alvo.atorId, q: fichaBotao }),
+    "ficha do personagem tem o botão de ações de investigação",
+  ]);
+
+  await page.click(`#PersonagemSheet-Actor-${alvo.atorId} ${fichaBotao}, .op2-ficha ${fichaBotao}`);
+  await page.waitForTimeout(900);
+  const appId = `#op2-acoes-${alvo.atorId}`;
+  relato.passos.push([await page.locator(appId).count() > 0, "botão da ficha abre as ações daquele personagem"]);
+
+  relato.passos.push([
+    await page.locator(`${appId} [data-action="arrombar"]`).count() > 0,
+    "ações listam o desafio vinculado com Arrombar",
+  ]);
+
+  await page.click(`${appId} [data-action="arrombar"]`);
+  await page.waitForTimeout(900);
+  relato.passos.push([await page.locator("#op2-teste-dialog").count() > 0, "Arrombar pela ficha abre o diálogo de teste"]);
+
+  // O bug: `min="1"` no campo DT fazia o navegador barrar o submit sem avisar —
+  // com DT 0 o botão Rolar não fazia nada, e nada nos testes pegava isso porque
+  // todos usavam `rapido: true` (achado em uso real).
+  await page.click("#op2-teste-dialog button[type='submit']");
+  await page.waitForTimeout(2500);
+  const depois = await page.evaluate(async ({ atorId, desafioId, invId }) => {
+    const ator = game.actors.get(atorId);
+    const desafio = game.items.get(desafioId);
+    const resultado = {
+      tentativas: desafio.system.tentativasUsadas,
+      pv: ator.system.recursos.pv.value,
+      dialogoAberto: Boolean(document.getElementById("op2-teste-dialog")),
+    };
+    await ator.sheet.close();
+    document.getElementById(`op2-acoes-${atorId}`)?.remove();
+    await desafio.delete();
+    await ator.delete();
+    await game.actors.get(invId)?.delete();
+    return resultado;
+  }, alvo);
+
+  relato.passos.push([depois.tentativas === 1, "DT 0 rola de verdade pelo diálogo (o botão Rolar não fica inerte)"]);
+  relato.passos.push([depois.pv === alvo.pvAntes - 1, "Arrombar pela ficha cobra 1 PV do personagem daquela ficha"]);
+  relato.passos.push([!depois.dialogoAberto, "diálogo fecha depois de rolar"]);
 }
 
 const falhas = relato.passos.filter(([ok]) => !ok);

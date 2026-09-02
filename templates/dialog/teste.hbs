@@ -49,7 +49,12 @@
     <div class="op2-teste__dificuldade">
       <label class="op2-campo">
         <span>{{localize "OP2.DT"}}</span>
-        <input type="number" name="dt" value="{{estado.dt}}" min="1" step="1" inputmode="numeric" autofocus>
+        {{!-- `min="0"`, não 1: um desafio de acesso pode ter DT 0 (objeto que só
+              exige a ação, sem dificuldade), e o DT do ambiente em Alcançar também.
+              Com `min="1"` o navegador bloqueava o submit por validação e o botão
+              Rolar não fazia absolutamente nada, sem mensagem nenhuma — achado em
+              uso real, invisível pros testes porque eles usam `rapido: true`. --}}
+        <input type="number" name="dt" value="{{estado.dt}}" min="0" step="1" inputmode="numeric" autofocus>
       </label>
       <label class="op2-campo op2-campo--inline">
         <input type="checkbox" name="oposto" {{#if estado.oposto}}checked{{/if}}>

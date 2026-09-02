@@ -12,6 +12,7 @@ import { iconeDado } from "../ui/dice-icons.mjs";
 import { lerConfig } from "../settings/register.mjs";
 import { encerrarCena } from "../cena/encerrar-investigacao.mjs";
 import { ligarRodaDoMouse } from "../ui/controle-dado.mjs";
+import { abrirAcoesInvestigacao } from "../cena/acoes-app.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -24,6 +25,7 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
       rolar: PersonagemSheet.#rolar,
+      abrirAcoesInvestigacao: PersonagemSheet.#abrirAcoesInvestigacao,
       abrirDialogoTeste: PersonagemSheet.#abrirDialogoTeste,
       definirRecurso: PersonagemSheet.#definirRecurso,
       passoDado: PersonagemSheet.#passoDado,
@@ -179,6 +181,15 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /* ---------------------------------------------------------------- ações -- */
+
+  /**
+   * Ações de investigação deste personagem. Ficam na ficha, não no painel: aqui
+   * quem age é este personagem, sem ambiguidade — no painel, um jogador com mais
+   * de um personagem não teria como escolher (achado em uso real).
+   */
+  static #abrirAcoesInvestigacao() {
+    abrirAcoesInvestigacao(this.actor);
+  }
 
   static async #rolar(evento, alvo) {
     const chave = alvo.dataset.chave;
