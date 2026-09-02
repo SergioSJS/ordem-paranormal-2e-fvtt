@@ -72,6 +72,27 @@
         value=recursos.pd.value max=recursos.pd.max tracos=recursos.pd.tracos critico=recursos.pd.critico}}
   </div>
 
+  {{!-- Barra de ímpeto (habilidade de perfil do Executor nas fichas do Ato I): três
+        espaços, um por falha. Só aparece para quem tem a barra. --}}
+  {{#if impeto.tem}}
+    <div class="op2-impeto op2-cabecalho__impeto">
+      <span class="op2-tag op2-tag--pequena">{{localize "OP2.Impeto.Titulo"}}</span>
+      <div class="op2-impeto__barra" role="group" aria-label="{{localize 'OP2.Impeto.Titulo'}}">
+        {{#each impeto.espacos}}
+          <button type="button" class="op2-impeto__espaco{{#if cheio}} op2-impeto__espaco--cheio{{/if}}"
+            data-action="definirImpeto" data-valor="{{n}}" {{#unless @root.editavel}}disabled{{/unless}}
+            data-tooltip="{{localize 'OP2.Impeto.Dica'}}" aria-label="{{n}}"></button>
+        {{/each}}
+      </div>
+      {{#if impeto.podeGastarPasso}}
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="gastarImpetoAtributo"
+          data-tooltip="{{localize 'OP2.Impeto.PassoDica'}}">
+          {{localize "OP2.Impeto.Passo"}}
+        </button>
+      {{/if}}
+    </div>
+  {{/if}}
+
   {{!-- Aparece só quando há redução ativa: explica o estado e oferece a saída dele. --}}
   {{#if temReducao}}
     <div class="op2-estado op2-cabecalho__estado">

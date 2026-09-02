@@ -29,9 +29,28 @@ export class PersonagemData extends foundry.abstract.TypeDataModel {
       // Sem fórmula publicada — vem preenchido nas fichas prontas (spec §11).
       recursos: new SchemaField({ pv: campoRecurso(0), pd: campoRecurso(0) }),
 
+      // Barra de ímpeto (fichas prontas do Ato I, habilidade de perfil do Executor):
+      // três espaços; cada falha em teste preenche um. Apagar 1 dá +d4 num teste;
+      // apagar 3 sobe um atributo em um passo até o fim da cena. `espacos: 0`
+      // significa "este personagem não tem a barra" — é o padrão, e é o que a
+      // maioria das fichas do playtest mostra.
+      impeto: new SchemaField({
+        espacos: new NumberField({ required: true, initial: 0, min: 0, max: 6, integer: true, nullable: false }),
+        preenchidos: new NumberField({ required: true, initial: 0, min: 0, max: 6, integer: true, nullable: false }),
+      }),
+
       estado: new SchemaField({
         testesFerimento: campoContador(),
         testesTrauma: campoContador(),
+        // Ajuda recebida e ainda não usada (spec §4.7). Fica no personagem, não em
+        // Active Effect: a escada não é aditiva, e passo pendente é exatamente o
+        // tipo de coisa que `prepareDerivedData` e o diálogo de teste já sabem
+        // resolver. Some no primeiro teste que a consome.
+        ajuda: new SchemaField({
+          passos: new NumberField({ required: true, initial: 0, min: 0, max: 2, integer: true, nullable: false }),
+          de: new StringField({ required: true, initial: "", blank: true }),
+          pericia: new StringField({ required: true, initial: "", blank: true }),
+        }),
         // Falhas críticas reduzem atributos "até o fim da cena": é um contador zerável
         // por evento, não um efeito com duração em rodadas (spec §2.4).
         reducoesTemporarias: new SchemaField({
@@ -86,6 +105,12 @@ export class PersonagemData extends foundry.abstract.TypeDataModel {
     }
 
     // DT escala 7 → 10 → 13 → 16… a cada teste já feito (spec §8.2/§8.3).
+    // Nunca mais preenchido do que a barra comporta — fichas importadas ou editadas
+    // na mão podem trazer valores fora da faixa.
+    this.impeto.preenchidos = Math.min(this.impeto.preenchidos, this.impeto.espacos);
+    this.impeto.tem = this.impeto.espacos > 0;
+    this.impeto.cheia = this.impeto.espacos > 0 && this.impeto.preenchidos >= this.impeto.espacos;
+
     this.estado.dtProximoFerimento = DT_FERIMENTO_BASE + DT_FERIMENTO_INCREMENTO * this.estado.testesFerimento;
     this.estado.dtProximoTrauma = DT_FERIMENTO_BASE + DT_FERIMENTO_INCREMENTO * this.estado.testesTrauma;
   }

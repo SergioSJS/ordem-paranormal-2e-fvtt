@@ -39,6 +39,8 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       adicionarAptidao: PersonagemSheet.#adicionarAptidao,
       removerAptidao: PersonagemSheet.#removerAptidao,
       encerrarCena: PersonagemSheet.#encerrarCena,
+      definirImpeto: PersonagemSheet.#definirImpeto,
+      gastarImpetoAtributo: PersonagemSheet.#gastarImpetoAtributo,
     },
   };
 
@@ -85,6 +87,15 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       equipamentos: this.actor.items.filter((i) => i.type === "equipamento"),
       ferramentas: this.actor.items.filter((i) => i.type === "ferramenta"),
       temReducao: Object.values(sistema.estado.reducoesTemporarias).some((n) => n > 0),
+      // Barra de ímpeto: mesma leitura dos traços de recurso — um espaço por
+      // clique, preenchidos primeiro.
+      impeto: {
+        tem: sistema.impeto.espacos > 0,
+        espacos: Array.from({ length: sistema.impeto.espacos }, (_, i) => ({
+          n: i + 1, cheio: i < sistema.impeto.preenchidos,
+        })),
+        podeGastarPasso: sistema.impeto.cheia,
+      },
       biografia: await enriquecer(sistema.biografia, this.actor),
     };
   }
@@ -290,6 +301,52 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /** Clicar no traço N define o recurso em N; clicar no atual zera de N para N-1. */
+  /**
+   * Barra de ímpeto: clicar num espaço preenche até ali; clicar no último
+   * preenchido apaga. Mesma interação dos traços de PV/PD, que a mesa já conhece.
+   */
+  static async #definirImpeto(_evento, alvo) {
+    const atual = this.actor.system.impeto.preenchidos;
+    const valor = Number(alvo.dataset.valor);
+    const novo = valor === atual ? valor - 1 : valor;
+    await this.actor.update({ "system.impeto.preenchidos": Math.max(0, novo) });
+  }
+
+  /**
+   * Apagar a barra cheia sobe um atributo em um passo até o fim da cena. O aumento
+   * usa o mesmo campo das reduções temporárias, com sinal invertido: a ficha já
+   * resolve `stepDie(die, -reducao)` em `prepareDerivedData`, e encerrar a cena já
+   * zera tudo — não precisa de um segundo caminho para desfazer.
+   */
+  static async #gastarImpetoAtributo() {
+    const { impeto } = this.actor.system;
+    if (!impeto.cheia) return;
+
+    const opcoes = Object.keys(ATRIBUTOS)
+      .map((chave) => `<option value="${chave}">${game.i18n.localize(`OP2.Atributo.${chave}`)}</option>`)
+      .join("");
+    const escolhido = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("OP2.Impeto.Passo") },
+      content: `
+        <div class="form-group">
+          <label>${game.i18n.localize("OP2.Impeto.QualAtributo")}</label>
+          <select name="atributo">${opcoes}</select>
+        </div>`,
+      ok: { callback: (_evento, botao) => botao.form.elements.atributo.value },
+      rejectClose: false,
+    });
+    if (!escolhido) return;
+
+    const atual = this.actor.system.estado.reducoesTemporarias[escolhido] ?? 0;
+    await this.actor.update({
+      "system.impeto.preenchidos": 0,
+      [`system.estado.reducoesTemporarias.${escolhido}`]: atual - 1,
+    });
+    ui.notifications.info(game.i18n.format("OP2.Impeto.PassoAplicado", {
+      atributo: game.i18n.localize(`OP2.Atributo.${escolhido}`),
+    }));
+  }
+
   static async #definirRecurso(_evento, alvo) {
     const { recurso, valor } = alvo.dataset;
     const atual = this.actor.system.recursos[recurso].value;
