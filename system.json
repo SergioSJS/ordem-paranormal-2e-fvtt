@@ -125,6 +125,28 @@
         "PLAYER": "NONE",
         "ASSISTANT": "OWNER"
       }
+    },
+    {
+      "name": "ato-i-cenas",
+      "label": "Ato I — Cenas",
+      "path": "packs/ato-i-cenas",
+      "type": "Scene",
+      "system": "ordem-paranormal-2e",
+      "ownership": {
+        "PLAYER": "NONE",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "ato-i-musicas",
+      "label": "Ato I — Trilha",
+      "path": "packs/ato-i-musicas",
+      "type": "Playlist",
+      "system": "ordem-paranormal-2e",
+      "ownership": {
+        "PLAYER": "NONE",
+        "ASSISTANT": "OWNER"
+      }
     }
   ]
 }

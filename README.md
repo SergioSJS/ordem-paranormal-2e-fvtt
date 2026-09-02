@@ -138,6 +138,19 @@ User Data, que é onde os compêndios os procuram. Depois é só importar:
 | Habilidades | Foco Mental, Ímpeto, Avaliação, Mentoria, Prontidão e as demais |
 | Ocupações | Cientista, Operário, Artista, Profissional de escritório e Professor |
 | Ferramentas da Ordo Realitas | as 10 do §9, com as cargas da regra |
+| Ato I — Cenas | o Porão numa cena só, com muros e portas secretas |
+| Ato I — Trilha | as duas faixas, prontas para tocar |
+
+**Os três mapas viram uma cena.** Os arquivos publicados são o mesmo desenho revelado em
+etapas — porão, porão + sala secreta, e completo com o duto. Trocar de mapa no meio da
+sessão perde tokens, luzes e névoa explorada, então a cena usa o mapa completo e esconde
+o resto com **portas secretas**: invisíveis para o jogador, abertas pelo mestre quando o
+grupo descobre a passagem. As paredes não foram desenhadas na mão — `scripts/ato-i/gerar-cena.py`
+compara os três arquivos e deriva a borda de cada área.
+
+O perímetro e as fronteiras entre as áreas estão murados; as divisórias internas do porão
+(o quarto do berço, por exemplo) não estão — se você quiser visão sala a sala, são alguns
+muros a mais no editor.
 
 Ocupação é texto livre na ficha e concede uma habilidade (spec §2.1). O Item de
 ocupação guarda as duas coisas juntas: **arraste a ocupação para a ficha** e ela

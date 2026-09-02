@@ -25,6 +25,8 @@ packs/ferramentas/
 packs/ocupacoes/
 packs/ato-i-personagens/
 packs/ato-i-handouts/
+packs/ato-i-cenas/
+packs/ato-i-musicas/
 
 .fvtt-config
 .vscode/settings.json

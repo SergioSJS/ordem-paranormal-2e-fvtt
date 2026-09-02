@@ -700,6 +700,40 @@ const relato = await page.evaluate(async () => {
       await recruta.delete();
     }
 
+    // Uma cena só, com muros, no lugar dos três mapas: trocar de mapa no meio da
+    // sessão perde tokens e estado. As paredes saem da diferença entre os arquivos.
+    const cenas = game.packs.get("ordem-paranormal-2e.ato-i-cenas");
+    ok("compêndio traz uma cena do Porão, não três", cenas?.index.size === 1);
+    if (cenas) {
+      const cena = await cenas.getDocument([...cenas.index][0]._id);
+      ok("a cena usa o mapa completo", cena.background.src.includes("completo"));
+      ok("a cena tem paredes", cena.walls.size > 50);
+      ok("e portas secretas na fronteira das áreas escondidas",
+        cena.walls.filter((p) => p.door === 2).length > 10);
+      // Com padding, o Foundry desloca o fundo e as paredes caem fora da arte.
+      ok("sem padding, para as paredes baterem com a arte", cena.padding === 0);
+      ok("visão por token ligada — é o que faz a parede valer", cena.tokenVision === true);
+
+      const importada = await Scene.create(cena.toObject());
+      const fora = importada.walls.filter((p) => {
+        const [x1, y1, x2, y2] = p.c;
+        return Math.min(x1, x2) < 0 || Math.min(y1, y2) < 0
+          || Math.max(x1, x2) > importada.width || Math.max(y1, y2) > importada.height;
+      });
+      ok("nenhuma parede cai fora do mapa", fora.length === 0);
+      await importada.delete();
+    }
+
+    // As duas faixas liberadas, como playlist pronta.
+    const musicas = game.packs.get("ordem-paranormal-2e.ato-i-musicas");
+    ok("compêndio traz a trilha do Ato I", musicas?.index.size === 1);
+    if (musicas) {
+      const trilha = await musicas.getDocument([...musicas.index][0]._id);
+      ok("a trilha tem as duas faixas", trilha.sounds.size === 2);
+      ok("as faixas apontam para arquivos instalados pelo `npm run ato-i`",
+        trilha.sounds.every((s) => s.path.startsWith("op2-ato-i/musicas/")));
+    }
+
     ok("compêndio de handouts do Ato I existe",
       game.packs.get("ordem-paranormal-2e.ato-i-handouts")?.index.size === 2);
 

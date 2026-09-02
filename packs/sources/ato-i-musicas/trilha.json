@@ -1,0 +1,46 @@
+{
+  "_id": "16fe49bef9a9ffd6",
+  "_key": "!playlists!16fe49bef9a9ffd6",
+  "name": "Ato I — Trilha",
+  "description": "<p>As duas faixas liberadas do Ato I. Tocam em loop, uma por vez.</p>",
+  "mode": 0,
+  "playing": false,
+  "fade": 2000,
+  "channel": "music",
+  "sounds": [
+    {
+      "_id": "2181ba1aba6bb578",
+      "_key": "!playlists.sounds!16fe49bef9a9ffd6.2181ba1aba6bb578",
+      "name": "Música 01 - O Porão",
+      "description": "Ambiente do porão: o fundo da cena de investigação inteira.",
+      "path": "op2-ato-i/musicas/musica-01-o-porao.mp3",
+      "channel": "music",
+      "playing": false,
+      "repeat": true,
+      "volume": 0.7,
+      "fade": 2000,
+      "sort": 100,
+      "flags": {}
+    },
+    {
+      "_id": "542e1ed028605819",
+      "_key": "!playlists.sounds!16fe49bef9a9ffd6.542e1ed028605819",
+      "name": "Música 02 - O Ídolo",
+      "description": "Entra quando o grupo alcança o Ídolo — troque a faixa para marcar a virada.",
+      "path": "op2-ato-i/musicas/musica-02-o-idolo.mp3",
+      "channel": "music",
+      "playing": false,
+      "repeat": true,
+      "volume": 0.7,
+      "fade": 2000,
+      "sort": 200,
+      "flags": {}
+    }
+  ],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

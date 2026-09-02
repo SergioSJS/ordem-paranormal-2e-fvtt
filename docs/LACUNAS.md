@@ -284,3 +284,20 @@ O texto trata ocupação como campo livre. **Decisão:** o campo da ficha contin
 o Item `ocupacao` é um atalho de catálogo — guarda a ocupação com a habilidade dela e,
 arrastado para um personagem, preenche o campo e traz a habilidade. Não vira item de
 inventário: ninguém carrega a própria profissão.
+
+
+## Grade da cena do Porão
+
+Os mapas do Ato I não vêm com a grade declarada. O duto de ventilação mede ~92px de
+largura no arquivo, o que o coloca em uma casa; as portas ficam na mesma ordem de
+grandeza. **Decisão:** grade de 100px, distância 1,5 m. Se a sua leitura da arte for
+outra, o alinhamento se ajusta na configuração da cena sem mexer nas paredes.
+
+## Paredes internas do Porão
+
+As paredes vêm da diferença entre os três arquivos publicados, então saem exatas no
+perímetro e na fronteira entre porão, sala secreta e duto. As divisórias *internas* do
+porão não aparecem nessa conta — os dois lados delas são a mesma área em todos os
+arquivos. **Decisão:** ficam de fora; detectá-las pela cor das vigas erra demais nesta
+arte, que tem piso iluminado em várias cores. O mestre que quiser visão sala a sala
+acrescenta esses muros no editor.
