@@ -17,8 +17,13 @@
     "abas      pericias"
     "painel    pericias";
   grid-template-columns: minmax(0, 1fr) minmax(250px, 300px);
-  grid-template-rows: auto auto minmax(0, 1fr);
-  overflow: hidden;
+  // Piso na faixa de conteúdo: com `minmax(0, 1fr)` ela cedia todo o espaço para o
+  // cabeçalho e sobravam duas linhas para Habilidades, Inventário e Notas — a ficha
+  // ficava impossível de usar em quem tem PV/PD altos, que quebram os traços em mais
+  // linhas (achado em uso real). Abaixo disso, quem rola é a coluna inteira.
+  grid-template-rows: auto auto minmax(15rem, 1fr);
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 // Nome em cima, ocupando a largura toda; retrato à esquerda; identidade e atributos
@@ -254,7 +259,11 @@
 .op2-impeto {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--op2-e2);
+
+  // Barra cheia: o botão entrava na mesma linha e espremia os espaços contra a tag.
+  &__gastar { white-space: nowrap; }
 
   &__barra {
     display: flex;
@@ -430,6 +439,9 @@
   padding: var(--op2-e3);
   overflow-y: auto;
   grid-area: painel;
+  // A faixa tem piso próprio; sem isto o painel ainda encolhia dentro dela quando o
+  // conteúdo era curto, e a lista de habilidades ficava colada nas abas.
+  align-self: stretch;
 
   &.active { display: block; }
 

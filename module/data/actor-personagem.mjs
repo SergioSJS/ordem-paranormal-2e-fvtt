@@ -56,6 +56,13 @@ export class PersonagemData extends foundry.abstract.TypeDataModel {
         reducoesTemporarias: new SchemaField({
           fisico: campoContador(), mente: campoContador(), emocao: campoContador(),
         }),
+        // O oposto da redução, e por isso um campo separado: `campoContador` trava em
+        // 0, então gravar um aumento como redução negativa era silenciosamente
+        // descartado — o Ímpeto cobrava os três espaços e o dado não mudava (achado
+        // em uso real). Zera junto com as reduções ao encerrar a cena.
+        aumentosTemporarios: new SchemaField({
+          fisico: campoContador(), mente: campoContador(), emocao: campoContador(),
+        }),
         // Recapitular e Compartilhar travam para o grupo após um sucesso (spec §6.4/§6.5).
         acoesUsadasNaCena: new foundry.data.fields.SetField(new StringField(), { initial: [] }),
 
@@ -85,11 +92,14 @@ export class PersonagemData extends foundry.abstract.TypeDataModel {
    */
   prepareDerivedData() {
     const reducoes = this.estado.reducoesTemporarias;
+    const aumentos = this.estado.aumentosTemporarios;
 
     for (const [chave, atributo] of Object.entries(this.atributos)) {
-      atributo.dadoEfetivo = stepDie(atributo.die, -(reducoes[chave] ?? 0));
+      const passos = (aumentos[chave] ?? 0) - (reducoes[chave] ?? 0);
+      atributo.dadoEfetivo = stepDie(atributo.die, passos);
       atributo.valor = faces(atributo.dadoEfetivo);
-      atributo.reduzido = atributo.dadoEfetivo !== atributo.die;
+      atributo.reduzido = passos < 0;
+      atributo.aumentado = passos > 0;
     }
 
     for (const [chave, pericia] of Object.entries(this.pericias)) {

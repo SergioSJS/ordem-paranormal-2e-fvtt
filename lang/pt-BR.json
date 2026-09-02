@@ -28,7 +28,8 @@
       "fisico": "Físico",
       "mente": "Mente",
       "emocao": "Emoção",
-      "Reduzido": "Atributo reduzido até o fim da cena"
+      "Reduzido": "Atributo reduzido até o fim da cena",
+      "Aumentado": "{atributo} {base} → {dado} até o fim da cena"
     },
     "Pericia": {
       "acrobacia": "Acrobacia",
@@ -277,7 +278,8 @@
         "Extras": "Habilidades aplicáveis",
         "Oposto": "Teste oposto (sem DT)",
         "AvisoSelecao": "Você vai rolar mais dados do que pode somar — escolherá quais 3 contam.",
-        "NoTeto": "Teto de 4 dados rolados atingido."
+        "NoTeto": "Teto de 4 dados rolados atingido.",
+        "CustoPD": "Custa {custo} PD, cobrados ao rolar."
       },
       "Selecao": {
         "Titulo": "Escolha os dados",
@@ -410,7 +412,8 @@
       "SemPermissao": "Este botão é de outro jogador ou do mestre.",
       "SemMestreOnline": "Nenhum mestre online para registrar o resultado. Chame o mestre e tente de novo.",
       "DesafioAusente": "Desafio de acesso não encontrado.",
-      "SemFerramenta": "Você não tem {ferramenta}."
+      "SemFerramenta": "Você não tem {ferramenta}.",
+      "SemPD": "PD insuficiente para {nome} (custa {custo})."
     },
     "Config": {
       "dtPadrao": {
@@ -620,7 +623,7 @@
     "Impeto": {
       "Titulo": "Ímpeto",
       "Dica": "Cada falha em um teste preenche um espaço. Apague um para receber +d4 em um teste.",
-      "Passo": "Gastar 3: +1 passo",
+      "Passo": "Gastar 3",
       "PassoDica": "Apaga a barra inteira e aumenta um atributo em um passo até o fim da cena.",
       "QualAtributo": "Qual atributo sobe um passo",
       "PassoAplicado": "{atributo} sobe um passo até o fim da cena.",

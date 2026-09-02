@@ -184,7 +184,8 @@
           ],
           "permitirD20": false
         },
-        "usoEmInvestigacao": ""
+        "usoEmInvestigacao": "",
+        "custoPD": 2
       },
       "effects": [],
       "folder": null,

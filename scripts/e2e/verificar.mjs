@@ -353,6 +353,47 @@ const relato = await page.evaluate(async () => {
     await bruto.delete();
   }
 
+  // Habilidade que vale por atributo, não por perícia: "quando faz um teste mental"
+  // (Foco Mental, ficha do Ato I). Casar só a chave da perícia fazia a habilidade
+  // nunca aparecer no diálogo (achado em uso real).
+  {
+    const dono = await Actor.create({ name: "Dono de Habilidade", type: "personagem" });
+    await dono.update({ "system.recursos.pd.max": 10, "system.recursos.pd.value": 10 });
+    await dono.createEmbeddedDocuments("Item", [{
+      name: "Foco Mental", type: "habilidade",
+      system: { custoPD: 2, efeito: { tipo: "dado-extra", dado: "d4", chaves: ["mente"] } },
+    }]);
+    const foco = dono.items.getName("Foco Mental");
+    ok("habilidade de atributo se oferece no teste daquele atributo",
+      foco.system.aplicavelA("percepcao", "mente") === true);
+    ok("e não se oferece quando o atributo pareado é outro",
+      foco.system.aplicavelA("atletismo", "fisico") === false);
+
+    const antes = dono.system.recursos.pd.value;
+    const roll = await game.op2.rolarTeste(dono, {
+      chavePericia: "percepcao", dt: 7, rapido: true,
+      // o modo rápido não passa pelo diálogo: o custo é cobrado por quem confirma
+    });
+    ok("teste rápido não cobra PD de habilidade não escolhida",
+      dono.system.recursos.pd.value === antes && Boolean(roll));
+
+    // Ímpeto: os três espaços viram um passo de atributo que o dado precisa sentir.
+    await dono.update({ "system.impeto": { espacos: 3, preenchidos: 3 } });
+    ok("barra cheia libera o gasto", dono.system.impeto.cheia === true);
+    await dono.update({
+      "system.impeto.preenchidos": 0,
+      "system.estado.aumentosTemporarios.mente": 1,
+    });
+    ok("aumento temporário sobe o dado do atributo (era descartado pelo min: 0)",
+      dono.system.atributos.mente.dadoEfetivo === "d8"
+      && dono.system.atributos.mente.aumentado === true);
+    const comAumento = await game.op2.rolarTeste(dono, { chavePericia: "percepcao", dt: 7, rapido: true });
+    ok("o dado aumentado entra na rolagem de verdade",
+      comAumento.dados.some((d) => (d.componente?.dado ?? d.dado) === "d8"));
+
+    await dono.delete();
+  }
+
   // Sobrecarga mental (spec §7.6): ao encerrar a rodada N vale a linha N da tabela.
   {
     const sobrecarga = investigacao.system.sobrecarga;
@@ -856,8 +897,12 @@ const relato = await page.evaluate(async () => {
   // Encerrar a investigação limpa revelações, travas e o contador de rodadas —
   // mas não o roster de participantes, nem os POIs/desafios vinculados, nem a
   // investigação em si (ela continua existindo, só "zerada" para a próxima sessão).
+  // O aumento do Ímpeto também vale "até o fim da cena": encerrar precisa zerar.
+  await ator.update({ "system.estado.aumentosTemporarios.mente": 1 });
   await game.op2.encerrarCena({ avisar: false });
   await esperar(500);
+  ok("encerrar investigação desfaz o aumento temporário do Ímpeto",
+    ator.system.estado.aumentosTemporarios.mente === 0);
   dados.encerrar = {
     infos: ator.system.estado.infosReveladas.size,
     rodada: investigacao.system.rodada,

@@ -62,6 +62,14 @@ export async function rolarTeste(ator, {
   const config = rapido ? configuracaoRapida(ator, base) : await TesteDialog.abrir({ ator, base });
   if (!config) return null;
 
+  // Habilidade com custo em PD ("gaste 2 PD para receber +d4"): cobra ao confirmar,
+  // não ao marcar — desmarcar ou fechar o diálogo não pode custar nada.
+  if (config.custoPD > 0) {
+    await ator.update({
+      "system.recursos.pd.value": Math.max(0, (ator.system.recursos?.pd?.value ?? 0) - config.custoPD),
+    });
+  }
+
   // O espaço de ímpeto só some depois de a rolagem ser confirmada.
   if (config.gastarImpeto) {
     await ator.update({

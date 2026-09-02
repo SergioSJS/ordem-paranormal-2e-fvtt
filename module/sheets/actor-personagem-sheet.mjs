@@ -20,7 +20,7 @@ const { ActorSheetV2 } = foundry.applications.sheets;
 export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["op2", "op2-ficha", "op2-ficha--personagem"],
-    position: { width: 860, height: 720 },
+    position: { width: 880, height: 860 },
     window: { resizable: true, icon: "fa-solid fa-user-secret" },
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
@@ -87,6 +87,16 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       equipamentos: this.actor.items.filter((i) => i.type === "equipamento"),
       ferramentas: this.actor.items.filter((i) => i.type === "ferramenta"),
       temReducao: Object.values(sistema.estado.reducoesTemporarias).some((n) => n > 0),
+      // O aumento precisa aparecer na ficha: sem isso o jogador gasta os três espaços
+      // do Ímpeto e não tem onde conferir que o dado subiu (achado em uso real).
+      aumentos: Object.entries(sistema.estado.aumentosTemporarios)
+        .filter(([, passos]) => passos > 0)
+        .map(([chave, passos]) => ({
+          chave, passos,
+          rotulo: game.i18n.localize(`OP2.Atributo.${chave}`),
+          dado: sistema.atributos[chave].dadoEfetivo,
+          base: sistema.atributos[chave].die,
+        })),
       // Barra de ímpeto: mesma leitura dos traços de recurso — um espaço por
       // clique, preenchidos primeiro.
       impeto: {
@@ -337,10 +347,10 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     });
     if (!escolhido) return;
 
-    const atual = this.actor.system.estado.reducoesTemporarias[escolhido] ?? 0;
+    const atual = this.actor.system.estado.aumentosTemporarios[escolhido] ?? 0;
     await this.actor.update({
       "system.impeto.preenchidos": 0,
-      [`system.estado.reducoesTemporarias.${escolhido}`]: atual - 1,
+      [`system.estado.aumentosTemporarios.${escolhido}`]: atual + 1,
     });
     ui.notifications.info(game.i18n.format("OP2.Impeto.PassoAplicado", {
       atributo: game.i18n.localize(`OP2.Atributo.${escolhido}`),

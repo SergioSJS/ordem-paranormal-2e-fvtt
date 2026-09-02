@@ -85,19 +85,33 @@
         {{/each}}
       </div>
       {{#if impeto.podeGastarPasso}}
-        <button type="button" class="op2-botao op2-botao--pequeno" data-action="gastarImpetoAtributo"
-          data-tooltip="{{localize 'OP2.Impeto.PassoDica'}}">
+        {{!-- Barra cheia: o rótulo longo em duas linhas estourava a faixa. Ícone mais
+              texto curto, e a explicação inteira no tooltip. --}}
+        <button type="button" class="op2-botao op2-botao--pequeno op2-impeto__gastar"
+          data-action="gastarImpetoAtributo" data-tooltip="{{localize 'OP2.Impeto.PassoDica'}}">
+          <i class="fa-solid fa-arrow-up-right-dots" aria-hidden="true"></i>
           {{localize "OP2.Impeto.Passo"}}
         </button>
       {{/if}}
     </div>
   {{/if}}
 
-  {{!-- Aparece só quando há redução ativa: explica o estado e oferece a saída dele. --}}
-  {{#if temReducao}}
+  {{!-- Estado ativo: redução da falha crítica e/ou aumento do Ímpeto, com a saída
+        dos dois no mesmo lugar (encerrar a cena zera ambos). --}}
+  {{#if (op2Ou temReducao aumentos.length)}}
     <div class="op2-estado op2-cabecalho__estado">
-      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-      <span class="op2-estado__texto">{{localize "OP2.Atributo.Reduzido"}}</span>
+      {{#if temReducao}}
+        <span class="op2-estado__texto">
+          <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+          {{localize "OP2.Atributo.Reduzido"}}
+        </span>
+      {{/if}}
+      {{#each aumentos}}
+        <span class="op2-estado__texto op2-estado__texto--aumento">
+          <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+          {{localize "OP2.Atributo.Aumentado" atributo=rotulo base=base dado=dado}}
+        </span>
+      {{/each}}
       <button type="button" class="op2-botao op2-botao--pequeno" data-action="encerrarCena">
         <i class="fa-solid fa-hourglass-end"></i> {{localize "OP2.Cena.Encerrar"}}
       </button>

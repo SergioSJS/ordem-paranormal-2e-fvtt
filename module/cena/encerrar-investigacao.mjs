@@ -26,6 +26,10 @@ export async function encerrarCena({ atores, avisar = true } = {}) {
     "system.estado.reducoesTemporarias.fisico": 0,
     "system.estado.reducoesTemporarias.mente": 0,
     "system.estado.reducoesTemporarias.emocao": 0,
+    // O aumento do Ímpeto também vale "até o fim da cena".
+    "system.estado.aumentosTemporarios.fisico": 0,
+    "system.estado.aumentosTemporarios.mente": 0,
+    "system.estado.aumentosTemporarios.emocao": 0,
     "system.estado.acoesUsadasNaCena": [],
     // A revelação é por investigação: encerrada, o que foi descoberto nela é
     // conhecimento da mesa, não estado do sistema.

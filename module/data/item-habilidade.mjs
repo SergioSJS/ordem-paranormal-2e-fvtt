@@ -21,6 +21,12 @@ export class HabilidadeData extends foundry.abstract.TypeDataModel {
       /** Perfil de origem, quando `origem === "perfil"`. */
       perfil: new StringField({ required: true, initial: "", blank: true }),
       custo: new StringField({ required: true, initial: "", blank: true }),
+      /**
+       * PD cobrados ao usar a habilidade num teste. `custo` é texto livre para a mesa
+       * ler; este é o número que o diálogo de teste desconta quando o jogador marca a
+       * habilidade — sem isso "gaste 2 PD para receber +d4" ficava só na descrição.
+       */
+      custoPD: new NumberField({ required: true, initial: 0, min: 0, integer: true, nullable: false }),
       descricao: new HTMLField({ required: true, initial: "", blank: true }),
 
       efeito: new SchemaField({
@@ -40,11 +46,22 @@ export class HabilidadeData extends foundry.abstract.TypeDataModel {
     };
   }
 
-  /** A habilidade se oferece neste teste? @param {string} chave */
-  aplicavelA(chave) {
+  /**
+   * A habilidade se oferece neste teste?
+   *
+   * Casa contra a perícia E contra o atributo pareado: "quando faz um teste mental"
+   * (Foco Mental, ficha do Ato I) é sobre o atributo, não sobre uma perícia
+   * específica. Comparar só a chave da perícia fazia a habilidade nunca aparecer
+   * (achado em uso real: "adiciona +d4 na rolagem, como fazer isso?").
+   *
+   * @param {string} chavePericia   ex.: "percepcao" ou "aptidao.artes"
+   * @param {string} [chaveAtributo] ex.: "mente" — o atributo que vai ser rolado junto
+   */
+  aplicavelA(chavePericia, chaveAtributo) {
     if (this.efeito.tipo === "nenhum") return false;
     if (!this.efeito.chaves.size) return true;
-    return this.efeito.chaves.has(chave);
+    return this.efeito.chaves.has(chavePericia)
+      || (Boolean(chaveAtributo) && this.efeito.chaves.has(chaveAtributo));
   }
 
   /** Chaves válidas para o seletor da ficha do item. */

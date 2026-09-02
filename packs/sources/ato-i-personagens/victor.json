@@ -210,7 +210,8 @@
           "chaves": [],
           "permitirD20": false
         },
-        "usoEmInvestigacao": ""
+        "usoEmInvestigacao": "",
+        "custoPD": 3
       },
       "effects": [],
       "folder": null,

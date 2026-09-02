@@ -56,6 +56,7 @@ export function registrarHelpers() {
   Handlebars.registerHelper("op2Concat", (...args) => args.slice(0, -1).join(""));
 
   Handlebars.registerHelper("op2Eq", (a, b) => a === b);
+  Handlebars.registerHelper("op2Ou", (...args) => args.slice(0, -1).some(Boolean));
   Handlebars.registerHelper("op2Maior", (a, b) => Number(a) > Number(b));
 
   /** Repete N vezes, para trilhas de pips. */

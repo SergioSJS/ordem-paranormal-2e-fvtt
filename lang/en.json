@@ -28,7 +28,8 @@
       "fisico": "Physical",
       "mente": "Mind",
       "emocao": "Emotion",
-      "Reduzido": "Attribute reduced until the end of the scene"
+      "Reduzido": "Attribute reduced until the end of the scene",
+      "Aumentado": "{atributo} {base} → {dado} until the end of the scene"
     },
     "Pericia": {
       "acrobacia": "Acrobatics",
@@ -277,7 +278,8 @@
         "Extras": "Applicable abilities",
         "Oposto": "Opposed check (no DT)",
         "AvisoSelecao": "You'll roll more dice than you can add — you'll pick which 3 count.",
-        "NoTeto": "Cap of 4 rolled dice reached."
+        "NoTeto": "Cap of 4 rolled dice reached.",
+        "CustoPD": "Costs {custo} DP, charged when you roll."
       },
       "Selecao": {
         "Titulo": "Pick your dice",
@@ -410,7 +412,8 @@
       "SemPermissao": "This button belongs to another player or to the GM.",
       "SemMestreOnline": "No GM online to record the result. Call the GM and try again.",
       "DesafioAusente": "Access challenge not found.",
-      "SemFerramenta": "You don't have {ferramenta}."
+      "SemFerramenta": "You don't have {ferramenta}.",
+      "SemPD": "Not enough DP for {nome} (costs {custo})."
     },
     "Config": {
       "dtPadrao": {
@@ -620,7 +623,7 @@
     "Impeto": {
       "Titulo": "Momentum",
       "Dica": "Each failed check fills one slot. Erase one to get +d4 on a check.",
-      "Passo": "Spend 3: +1 step",
+      "Passo": "Spend 3",
       "PassoDica": "Erases the whole bar and raises one attribute by one step until the end of the scene.",
       "QualAtributo": "Which attribute goes up one step",
       "PassoAplicado": "{atributo} goes up one step until the end of the scene.",

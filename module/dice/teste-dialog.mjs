@@ -76,10 +76,16 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     return `${this.ator.name} — ${this.base.rotuloPericia}`;
   }
 
-  /** Habilidades do ator que se oferecem para esta chave (spec §4.5/§6.6). */
+  /**
+   * Habilidades do ator que se oferecem para este teste (spec §4.5/§6.6). O atributo
+   * pareado entra na conta: "quando faz um teste mental" é sobre o atributo, e o
+   * jogador pode ter trocado o par no próprio diálogo.
+   */
   get extrasDisponiveis() {
+    const pd = this.ator.system.recursos?.pd?.value ?? 0;
     return this.ator.items
-      .filter((i) => i.type === "habilidade" && i.system.aplicavelA?.(this.base.chavePericia))
+      .filter((i) => i.type === "habilidade"
+        && i.system.aplicavelA?.(this.base.chavePericia, this.estado.chaveAtributo))
       .map((i) => ({
         id: i.id,
         nome: i.name,
@@ -87,8 +93,19 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
         tipo: i.system.efeito.tipo,
         passos: i.system.efeito.passos,
         dado: i.system.efeito.dado,
+        custoPD: i.system.custoPD ?? 0,
+        // Sem PD suficiente a habilidade aparece, mas não deixa marcar: esconder
+        // faria parecer que ela não existe naquele teste.
+        semPD: (i.system.custoPD ?? 0) > pd,
         ativo: this.estado.extras.has(i.id),
       }));
+  }
+
+  /** PD que as habilidades marcadas vão cobrar nesta rolagem. */
+  get custoDeExtras() {
+    let total = 0;
+    for (const id of this.estado.extras) total += this.ator.items.get(id)?.system.custoPD ?? 0;
+    return total;
   }
 
   /** Os dados que serão rolados com a configuração atual. */
@@ -194,7 +211,12 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static #alternarExtra(_evento, alvo) {
     const id = alvo.dataset.itemId;
+    const item = this.ator.items.get(id);
+    const custo = item?.system.custoPD ?? 0;
     if (this.estado.extras.has(id)) this.estado.extras.delete(id);
+    else if (custo > (this.ator.system.recursos?.pd?.value ?? 0) - this.custoDeExtras) {
+      ui.notifications.warn(game.i18n.format("OP2.Aviso.SemPD", { nome: item.name, custo }));
+    }
     else if (this.componentes().length < MAX_DADOS_ROLADOS) this.estado.extras.add(id);
     else ui.notifications.warn(game.i18n.format("OP2.Aviso.TetoDeDados", { max: MAX_DADOS_ROLADOS }));
     this.render();
@@ -208,6 +230,7 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       dt: (oposto || this.estado.semDT) ? null : Number(dt),
       oposto: Boolean(oposto),
       gastarImpeto: this.estado.gastarImpeto,
+      custoPD: this.custoDeExtras,
     });
     this.#resolver = null;
   }

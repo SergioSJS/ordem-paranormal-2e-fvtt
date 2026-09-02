@@ -48,14 +48,17 @@
     <fieldset class="op2-extras">
       <legend>{{localize "OP2.Dialog.Teste.Extras"}}</legend>
       {{#each extras}}
-        <button type="button" class="op2-extra{{#if ativo}} ativo{{/if}}" data-action="alternarExtra" data-item-id="{{id}}"
-          aria-pressed="{{ativo}}">
+        <button type="button" class="op2-extra{{#if ativo}} ativo{{/if}}{{#if semPD}} op2-extra--sem-pd{{/if}}"
+          data-action="alternarExtra" data-item-id="{{id}}" aria-pressed="{{ativo}}"
+          {{#if custoPD}}data-tooltip="{{localize 'OP2.Dialog.Teste.CustoPD' custo=custoPD}}"{{/if}}>
           <img src="{{img}}" alt="">
           <span class="op2-extra__nome">{{nome}}</span>
           <span class="op2-extra__efeito">
             {{#if (op2Eq tipo "passo")}}{{#if (op2Eq passos 1)}}+1{{else}}{{passos}}{{/if}} {{localize "OP2.Passo"}}{{/if}}
             {{#if (op2Eq tipo "dado-extra")}}+{{dado}}{{/if}}
           </span>
+          {{!-- O custo fica no próprio botão: marcar já é aceitar pagar. --}}
+          {{#if custoPD}}<span class="op2-extra__custo">−{{custoPD}} PD</span>{{/if}}
         </button>
       {{/each}}
     </fieldset>
