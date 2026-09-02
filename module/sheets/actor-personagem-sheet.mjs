@@ -11,6 +11,7 @@ import { rolarTeste } from "../dice/teste.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
 import { lerConfig } from "../settings/register.mjs";
 import { encerrarCena } from "../cena/encerrar-investigacao.mjs";
+import { enriquecerHtml as enriquecer } from "../ui/enriquecer.mjs";
 import { ligarRodaDoMouse } from "../ui/controle-dado.mjs";
 import { abrirAcoesInvestigacao } from "../cena/acoes-app.mjs";
 
@@ -105,6 +106,11 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           n: i + 1, cheio: i < sistema.impeto.preenchidos,
         })),
         podeGastarPasso: sistema.impeto.cheia,
+        // A barra vive dentro da habilidade que a declara. Personagem importado antes
+        // do campo existir — ou barra criada na mão, sem habilidade — não tem quem a
+        // hospede: aí ela aparece no topo da aba, para nunca ficar invisível.
+        semHospedeiro: sistema.impeto.espacos > 0
+          && !this.actor.items.some((i) => i.type === "habilidade" && i.system.barraImpeto),
       },
       biografia: await enriquecer(sistema.biografia, this.actor),
     };
@@ -418,7 +424,4 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 }
 
-function enriquecer(html, ator) {
-  const editor = foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
-  return editor.enrichHTML(html, { relativeTo: ator, secrets: ator.isOwner });
-}
+

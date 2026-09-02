@@ -353,6 +353,38 @@ const relato = await page.evaluate(async () => {
     await bruto.delete();
   }
 
+  // Dice So Nice: quando os dados já rolaram em 3D antes da escolha (4 rolados → 3
+  // contados), a mensagem não pode animar de novo. O DSN decide pela flag `skip` —
+  // `dsnHide` nas opções do `toMessage` não existe e era ignorada em silêncio, então
+  // a animação rodava duas vezes (achado em uso real).
+  {
+    const { enviarParaChat } = await import("/systems/ordem-paranormal-2e/module/dice/teste.mjs");
+    const { OP2Roll } = await import("/systems/ordem-paranormal-2e/module/dice/op2-roll.mjs");
+    const r = OP2Roll.paraComponentes(
+      [{ chave: "pericia.percepcao", rotulo: "Percepção", tipo: "pericia", dado: "d8" }],
+      { dt: 7, escopoCritico: "todos", rotulo: "Teste", atorId: ator.id },
+    );
+    await r.evaluate();
+    const jaRolou = await enviarParaChat(r, ator, { pularDados3D: true });
+    const primeiraVez = await enviarParaChat(r, ator);
+    ok("card de dados já animados marca `skip` para o Dice So Nice",
+      jaRolou.flags?.["dice-so-nice"]?.skip === true);
+    ok("card comum não pede skip — a animação dele é a única",
+      primeiraVez.flags?.["dice-so-nice"] === undefined);
+  }
+
+  // Editor `toggled` fechado mostra o HTML enriquecido: sem passar `enriched`, o texto
+  // salvava e a ficha aparecia vazia (achado em uso real, nas notas do NPC).
+  {
+    const npc = await Actor.create({ name: "NPC de Notas", type: "npc" });
+    await npc.update({ "system.notas": "<p>Chave do porão no bolso.</p>" });
+    await npc.sheet.render(true);
+    await esperar(900);
+    ok("notas do NPC aparecem na ficha depois de salvas",
+      (npc.sheet.element.textContent ?? "").includes("Chave do porão"));
+    await npc.delete();
+  }
+
   // Layout da ficha: o cabeçalho não pode comer a faixa de conteúdo, e a barra de
   // Ímpeto pertence à habilidade que a concede — no cabeçalho ela aparecia até para
   // quem não tem Ímpeto nenhum (achado em uso real).
@@ -371,6 +403,17 @@ const relato = await page.evaluate(async () => {
     ok("barra de Ímpeto sai do cabeçalho", !el.querySelector(".op2-cabecalho .op2-impeto"));
     ok("barra de Ímpeto mora na habilidade que a concede",
       el.querySelectorAll(".op2-item--com-barra .op2-impeto__espaco").length === 3);
+
+    // Ficha importada antes de `barraImpeto` existir não tem quem hospede a barra:
+    // ela não pode simplesmente sumir.
+    const orfao = await Actor.create({ name: "Ímpeto Órfão", type: "personagem" });
+    await orfao.update({ "system.impeto": { espacos: 3, preenchidos: 1 } });
+    await orfao.createEmbeddedDocuments("Item", [{ name: "Sem barra", type: "habilidade" }]);
+    await orfao.sheet.render(true);
+    await esperar(900);
+    ok("barra sem habilidade hospedeira aparece no topo da aba, não some",
+      orfao.sheet.element.querySelectorAll(".op2-impeto--solta .op2-impeto__espaco").length === 3);
+    await orfao.delete();
 
     const npc = await Actor.create({ name: "NPC de Layout", type: "npc" });
     await npc.sheet.render(true);

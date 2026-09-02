@@ -8,6 +8,28 @@
     {{/if}}
   </div>
 
+  {{!-- Sem habilidade que declare a barra (ficha importada antes do campo existir),
+        ela aparece aqui em cima — invisível é pior do que fora de lugar. --}}
+  {{#if impeto.semHospedeiro}}
+    <div class="op2-impeto op2-impeto--solta">
+      <span class="op2-tag op2-tag--pequena">{{localize "OP2.Impeto.Titulo"}}</span>
+      <div class="op2-impeto__barra" role="group" aria-label="{{localize 'OP2.Impeto.Titulo'}}">
+        {{#each impeto.espacos}}
+          <button type="button" class="op2-impeto__espaco{{#if cheio}} op2-impeto__espaco--cheio{{/if}}"
+            data-action="definirImpeto" data-valor="{{n}}" {{#unless @root.editavel}}disabled{{/unless}}
+            data-tooltip="{{localize 'OP2.Impeto.Dica'}}" aria-label="{{n}}"></button>
+        {{/each}}
+      </div>
+      {{#if impeto.podeGastarPasso}}
+        <button type="button" class="op2-botao op2-botao--pequeno op2-impeto__gastar"
+          data-action="gastarImpetoAtributo" data-tooltip="{{localize 'OP2.Impeto.PassoDica'}}">
+          <i class="fa-solid fa-arrow-up-right-dots" aria-hidden="true"></i>
+          {{localize "OP2.Impeto.Passo"}}
+        </button>
+      {{/if}}
+    </div>
+  {{/if}}
+
   {{#if habilidades.length}}
     <ul class="op2-lista-itens">
       {{#each habilidades}}

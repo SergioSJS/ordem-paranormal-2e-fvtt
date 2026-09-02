@@ -67,6 +67,7 @@
 
   <section class="op2-npc-secao op2-npc-secao--notas op2-moldura">
     <span class="op2-tag op2-tag--secao">{{localize "OP2.Secao.Notas"}}</span>
-    {{formInput fields.notas value=sistema.notas toggled=true editable=editavel name="system.notas"}}
+    {{formInput fields.notas value=sistema.notas enriched=notasEnriquecidas
+      toggled=true editable=editavel name="system.notas"}}
   </section>
 </div>

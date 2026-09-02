@@ -182,9 +182,16 @@ export async function enviarParaChat(roll, ator, { pularDados3D = false } = {}) 
     {
       speaker: ChatMessage.getSpeaker({ actor: ator }),
       content: conteudo,
-      flags: { [SYSTEM_ID]: { tipo: "teste", atorId: ator.id, desfecho: roll.desfecho } },
+      flags: {
+        [SYSTEM_ID]: { tipo: "teste", atorId: ator.id, desfecho: roll.desfecho },
+        // Quando os dados já rolaram em 3D antes da escolha (4 rolados → 3 contados),
+        // a mensagem não pode animar de novo. O Dice So Nice decide isso pela flag
+        // `skip` — `dsnHide` nas opções do `toMessage` não existe e era ignorada em
+        // silêncio, então a animação acontecia duas vezes (achado em uso real).
+        ...(pularDados3D ? { "dice-so-nice": { skip: true } } : {}),
+      },
     },
-    { rollMode: game.settings.get("core", "rollMode"), create: true, ...(pularDados3D ? { dsnHide: true } : {}) },
+    { rollMode: game.settings.get("core", "rollMode"), create: true },
   );
 }
 

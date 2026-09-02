@@ -262,6 +262,12 @@
 
 // Barra de ímpeto: mesma gramática do traço — retângulos inclinados, sem canto
 // arredondado —, mas maiores e em fileira própria, como na ficha do Ato I.
+.op2-impeto--solta {
+  margin-bottom: var(--op2-e2);
+  padding: var(--op2-e2);
+  border: 1px dashed var(--op2-linha-forte);
+}
+
 .op2-impeto {
   display: flex;
   align-items: center;

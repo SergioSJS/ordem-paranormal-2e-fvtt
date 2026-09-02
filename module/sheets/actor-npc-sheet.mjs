@@ -5,6 +5,7 @@ import { iconeDado } from "../ui/dice-icons.mjs";
 import { ligarRodaDoMouse } from "../ui/controle-dado.mjs";
 import { rolarTeste } from "../dice/teste.mjs";
 import { lerConfig } from "../settings/register.mjs";
+import { enriquecerHtml } from "../ui/enriquecer.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -38,6 +39,9 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       sistema,
       // `fields` alimenta o {{formInput}}; sem ele o editor de texto rico não sobe.
       fields: this.actor.system.schema.fields,
+      // O editor `toggled` mostra o HTML enriquecido quando está fechado. Sem passar
+      // `enriched`, o texto salvava e a ficha aparecia vazia (achado em uso real).
+      notasEnriquecidas: await enriquecerHtml(sistema.notas, this.actor),
       editavel: this.isEditable,
       recursos: {
         pv: this.#recurso(sistema.recursos.pv),
