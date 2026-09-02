@@ -136,6 +136,12 @@ User Data, que é onde os compêndios os procuram. Depois é só importar:
 | Ato I — Pré-gerados | Alan, Edgar, Eloísa, Kênia e Victor, com habilidades e tokens |
 | Ato I — Handouts | os 18 handouts e os 5 históricos de personagem |
 | Habilidades | Foco Mental, Ímpeto, Avaliação, Mentoria, Prontidão e as demais |
+| Ocupações | Cientista, Operário, Artista, Profissional de escritório e Professor |
+| Ferramentas da Ordo Realitas | as 10 do §9, com as cargas da regra |
+
+Ocupação é texto livre na ficha e concede uma habilidade (spec §2.1). O Item de
+ocupação guarda as duas coisas juntas: **arraste a ocupação para a ficha** e ela
+preenche o campo e traz a habilidade dela, já marcada como de ocupação.
 
 ## Em português
 

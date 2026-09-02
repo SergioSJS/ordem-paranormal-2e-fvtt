@@ -662,6 +662,44 @@ const relato = await page.evaluate(async () => {
     }
     ok("compêndio de habilidades tem as oito do Ato I",
       game.packs.get("ordem-paranormal-2e.habilidades")?.index.size === 8);
+    // Ocupação é texto livre na ficha e concede uma habilidade (spec §2.1): o Item é o
+    // atalho que guarda as duas coisas juntas.
+    const ocupacoes = game.packs.get("ordem-paranormal-2e.ocupacoes");
+    ok("compêndio traz as ocupações das fichas do Ato I", ocupacoes?.index.size === 5);
+    if (ocupacoes) {
+      const entrada = [...ocupacoes.index].find((i) => i.name === "Operário");
+      const ocupacao = entrada && await ocupacoes.getDocument(entrada._id);
+      ok("a ocupação declara a habilidade que concede",
+        ocupacao?.system.habilidade === "Esforço e Suor");
+      ok("e aponta para ela no compêndio de habilidades",
+        Boolean(await fromUuid(ocupacao?.system.habilidadeUuid ?? "")));
+
+      const recruta = await Actor.create({ name: "Recruta de Teste", type: "personagem" });
+      await recruta.sheet.render(true);
+      await esperar(700);
+
+      // Drop de verdade na ficha, com o payload que o Foundry monta ao arrastar do
+      // compêndio — chamar `_onDropItem` direto não provaria que o arraste chega lá.
+      const soltar = () => {
+        const dados = new DataTransfer();
+        dados.setData("text/plain", JSON.stringify({ type: "Item", uuid: ocupacao.uuid }));
+        recruta.sheet.element.dispatchEvent(
+          new DragEvent("drop", { dataTransfer: dados, bubbles: true, cancelable: true }),
+        );
+      };
+      soltar();
+      await esperar(1000);
+      ok("arrastar a ocupação preenche o campo da ficha", recruta.system.ocupacao === "Operário");
+      ok("e traz a habilidade dela, marcada como de ocupação",
+        recruta.items.getName("Esforço e Suor")?.system.origem === "ocupacao");
+      ok("a ocupação não vira item solto no inventário", recruta.items.size === 1);
+
+      soltar();
+      await esperar(900);
+      ok("arrastar de novo não duplica a habilidade", recruta.items.size === 1);
+      await recruta.delete();
+    }
+
     ok("compêndio de handouts do Ato I existe",
       game.packs.get("ordem-paranormal-2e.ato-i-handouts")?.index.size === 2);
 

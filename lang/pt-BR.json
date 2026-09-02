@@ -10,7 +10,8 @@
       "equipamento": "Equipamento",
       "ponto-interesse": "Ponto de Interesse",
       "desafio-acesso": "Desafio",
-      "ferramenta": "Ferramenta"
+      "ferramenta": "Ferramenta",
+      "ocupacao": "Ocupação"
     }
   },
   "OP2": {
@@ -637,6 +638,16 @@
       "Preenchido": "{ator} preencheu um espaço de ímpeto ({preenchidos}/{espacos}).",
       "Cheia": "A barra de ímpeto já está cheia.",
       "Gastar": "Gastar 1 ímpeto: +d4"
+    },
+    "Ocupacao": {
+      "Ajuda": "Ocupação é texto livre na ficha e concede uma habilidade (spec §2.1). Arraste esta ocupação para um personagem: ela preenche o campo e traz a habilidade junto.",
+      "Habilidade": "Habilidade concedida",
+      "HabilidadePlaceholder": "Nome da habilidade",
+      "HabilidadeUuid": "De onde puxar a habilidade",
+      "Aplicada": "{ator} agora é {ocupacao}.",
+      "HabilidadeAdicionada": "Habilidade {habilidade} adicionada.",
+      "JaTinha": "{ator} já tem a habilidade {habilidade}.",
+      "Descricao": "Descrição"
     }
   }
 }

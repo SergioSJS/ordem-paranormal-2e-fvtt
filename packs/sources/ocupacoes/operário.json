@@ -1,0 +1,19 @@
+{
+  "_id": "3bba3f42a9aa3636",
+  "_key": "!items!3bba3f42a9aa3636",
+  "name": "Operário",
+  "type": "ocupacao",
+  "img": "systems/ordem-paranormal-2e/assets/icons/tipos/ocupacao.svg",
+  "system": {
+    "descricao": "<p>Obra, fábrica, oficina. O corpo é a ferramenta, e o cansaço faz parte do dia.</p>",
+    "habilidade": "Esforço e Suor",
+    "habilidadeUuid": "Compendium.ordem-paranormal-2e.habilidades.Item.b9ecb5d04c164e91"
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

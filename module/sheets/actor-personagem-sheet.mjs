@@ -320,6 +320,38 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   /** Clicar no traço N define o recurso em N; clicar no atual zera de N para N-1. */
   /**
+   * Ocupação arrastada para a ficha: preenche o campo de texto e traz a habilidade
+   * que ela concede (spec §2.1), em vez de virar um Item solto no inventário — o
+   * personagem não "carrega" a própria profissão.
+   */
+  async _onDropItem(evento, item) {
+    if (item.type !== "ocupacao") return super._onDropItem(evento, item);
+    if (!this.actor.isOwner) return null;
+
+    await this.actor.update({ "system.ocupacao": item.name });
+    ui.notifications.info(game.i18n.format("OP2.Ocupacao.Aplicada", {
+      ator: this.actor.name, ocupacao: item.name,
+    }));
+
+    const nome = item.system.habilidade?.trim();
+    if (!nome) return null;
+    if (this.actor.items.getName(nome)) {
+      ui.notifications.info(game.i18n.format("OP2.Ocupacao.JaTinha", {
+        ator: this.actor.name, habilidade: nome,
+      }));
+      return null;
+    }
+
+    // A habilidade vem do compêndio quando a ocupação diz de onde; senão fica só o
+    // nome, e a mesa preenche o efeito à mão.
+    const modelo = item.system.habilidadeUuid ? await fromUuid(item.system.habilidadeUuid) : null;
+    const dados = modelo?.toObject() ?? { name: nome, type: "habilidade", system: { origem: "ocupacao" } };
+    await this.actor.createEmbeddedDocuments("Item", [dados]);
+    ui.notifications.info(game.i18n.format("OP2.Ocupacao.HabilidadeAdicionada", { habilidade: nome }));
+    return null;
+  }
+
+  /**
    * Barra de Ímpeto: clicar num espaço preenche até ali; clicar no último preenchido
    * apaga. Mesma interação dos traços de PV/PD, que a mesa já conhece. O estado é do
    * item — apagar a habilidade leva a barra junto.

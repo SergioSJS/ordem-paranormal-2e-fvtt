@@ -10,6 +10,7 @@ import { EquipamentoData } from "./data/item-equipamento.mjs";
 import { FerramentaData } from "./data/item-ferramenta.mjs";
 import { PontoInteresseData } from "./data/item-ponto-interesse.mjs";
 import { DesafioAcessoData } from "./data/item-desafio-acesso.mjs";
+import { OcupacaoData } from "./data/item-ocupacao.mjs";
 import { InvestigacaoData } from "./data/actor-investigacao.mjs";
 import { PersonagemSheet } from "./sheets/actor-personagem-sheet.mjs";
 import { NpcSheet } from "./sheets/actor-npc-sheet.mjs";
@@ -64,6 +65,7 @@ Hooks.once("init", () => {
   CONFIG.Item.dataModels.ferramenta = FerramentaData;
   CONFIG.Item.dataModels["ponto-interesse"] = PontoInteresseData;
   CONFIG.Item.dataModels["desafio-acesso"] = DesafioAcessoData;
+  CONFIG.Item.dataModels.ocupacao = OcupacaoData;
 
   CONFIG.Dice.rolls.unshift(OP2Roll);
 
@@ -223,7 +225,7 @@ function registrarSheets() {
 
   Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
   Items.registerSheet(SYSTEM_ID, OP2ItemSheet, {
-    types: ["habilidade", "equipamento", "ferramenta"], makeDefault: true, label: "OP2.Ficha.Item",
+    types: ["habilidade", "equipamento", "ferramenta", "ocupacao"], makeDefault: true, label: "OP2.Ficha.Item",
   });
   Items.registerSheet(SYSTEM_ID, PontoInteresseSheet, {
     types: ["ponto-interesse"], makeDefault: true, label: "OP2.Ficha.PontoInteresse",

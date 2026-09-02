@@ -1,0 +1,19 @@
+{
+  "_id": "7809c44d1c9adb77",
+  "_key": "!items!7809c44d1c9adb77",
+  "name": "Artista",
+  "type": "ocupacao",
+  "img": "systems/ordem-paranormal-2e/assets/icons/tipos/ocupacao.svg",
+  "system": {
+    "descricao": "<p>Palco, tela, instrumento. Lê a sala antes de qualquer um e sabe o que a plateia sente.</p>",
+    "habilidade": "Foco Emocional",
+    "habilidadeUuid": "Compendium.ordem-paranormal-2e.habilidades.Item.8070e44f0bfc2e2d"
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

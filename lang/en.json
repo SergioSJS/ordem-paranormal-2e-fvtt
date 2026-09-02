@@ -10,7 +10,8 @@
       "equipamento": "Equipment",
       "ponto-interesse": "Point of Interest",
       "desafio-acesso": "Challenge",
-      "ferramenta": "Tool"
+      "ferramenta": "Tool",
+      "ocupacao": "Occupation"
     }
   },
   "OP2": {
@@ -637,6 +638,16 @@
       "Preenchido": "{ator} filled one momentum slot ({preenchidos}/{espacos}).",
       "Cheia": "The momentum bar is already full.",
       "Gastar": "Spend 1 momentum: +d4"
+    },
+    "Ocupacao": {
+      "Ajuda": "Occupation is free text on the sheet and grants one ability (spec §2.1). Drag this occupation onto a character: it fills the field and brings the ability along.",
+      "Habilidade": "Granted ability",
+      "HabilidadePlaceholder": "Ability name",
+      "HabilidadeUuid": "Where to pull the ability from",
+      "Aplicada": "{ator} is now a {ocupacao}.",
+      "HabilidadeAdicionada": "Ability {habilidade} added.",
+      "JaTinha": "{ator} already has the {habilidade} ability.",
+      "Descricao": "Description"
     }
   }
 }

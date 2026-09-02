@@ -157,6 +157,7 @@ export const ICONES_PADRAO = {
     ferramenta: `${ICONES}/tipos/ferramenta.svg`,
     "ponto-interesse": `${ICONES}/tipos/ponto-interesse.svg`,
     "desafio-acesso": `${ICONES}/tipos/desafio.svg`,
+    ocupacao: `${ICONES}/tipos/ocupacao.svg`,
   },
 };
 

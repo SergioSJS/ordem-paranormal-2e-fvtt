@@ -22,6 +22,7 @@ e2e-foundry.png
 # Packs compilados (fonte fica em packs/sources/)
 packs/habilidades/
 packs/ferramentas/
+packs/ocupacoes/
 packs/ato-i-personagens/
 packs/ato-i-handouts/
 

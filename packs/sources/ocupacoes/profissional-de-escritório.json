@@ -1,0 +1,19 @@
+{
+  "_id": "aa1b07d5481d79c5",
+  "_key": "!items!aa1b07d5481d79c5",
+  "name": "Profissional de escritório",
+  "type": "ocupacao",
+  "img": "systems/ordem-paranormal-2e/assets/icons/tipos/ocupacao.svg",
+  "system": {
+    "descricao": "<p>Processo, planilha, sistema. Conhece a burocracia por dentro e sabe onde a informação fica guardada.</p>",
+    "habilidade": "Conhecimento Técnico",
+    "habilidadeUuid": "Compendium.ordem-paranormal-2e.habilidades.Item.9153ca58fa939f41"
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

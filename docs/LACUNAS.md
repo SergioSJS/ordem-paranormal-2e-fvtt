@@ -263,3 +263,24 @@ editora, liberado de graça para o playtest. **Decisão:** não vão no reposit�
 pacote do sistema — mesma política do PDF. Os compêndios trazem só os dados e apontam
 para `op2-ato-i/` no User Data; `npm run ato-i` copia os arquivos para lá na máquina de
 quem já os tem.
+
+
+## Quais habilidades são de perfil e quais de ocupação
+
+A spec diz que perfil concede uma habilidade e ocupação concede outra (§2.1), mas não
+publica o mapa. As fichas do Ato I resolvem por repetição: os dois Executores dividem
+**Ímpeto**, as duas Analistas dividem **Avaliação** — essas são de perfil, e a habilidade
+restante de cada um é da ocupação (Cientista → Foco Mental, Operário → Esforço e Suor,
+Artista → Foco Emocional, Profissional de escritório → Conhecimento Técnico).
+
+Victor é o único Vigilante, então não há repetição que decida entre **Prontidão** e
+**Mentoria**. **Decisão:** Prontidão é do perfil (agir antes de todos combina com
+vigilância) e Mentoria é do Professor (ensinar é fazer o outro acertar). Se o playtest
+publicar outra coisa, é trocar `origem` nas duas habilidades do compêndio.
+
+## Ocupação como Item
+
+O texto trata ocupação como campo livre. **Decisão:** o campo da ficha continua texto, e
+o Item `ocupacao` é um atalho de catálogo — guarda a ocupação com a habilidade dela e,
+arrastado para um personagem, preenche o campo e traz a habilidade. Não vira item de
+inventário: ninguém carrega a própria profissão.

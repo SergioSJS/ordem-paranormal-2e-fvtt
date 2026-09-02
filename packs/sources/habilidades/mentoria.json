@@ -4,8 +4,8 @@
   "type": "habilidade",
   "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/mentoria.svg",
   "system": {
-    "origem": "perfil",
-    "perfil": "vigilante",
+    "origem": "ocupacao",
+    "perfil": "",
     "custo": "",
     "descricao": "<p>Quando <strong>ajuda</strong> outro personagem, você pode fazer um teste da perícia que usou para ajudar contra <strong>DT 7</strong>. Se passar, o personagem ajudado pode substituir um dos dados rolados por ele pela sua <strong>rolagem alta</strong>.</p>",
     "efeito": {

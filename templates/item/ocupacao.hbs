@@ -1,0 +1,30 @@
+<div class="op2-item-ficha">
+  <header class="op2-item-ficha__topo">
+    <img src="{{item.img}}" alt="" data-action="editImage" data-edit="img">
+    <input type="text" class="op2-nome" name="name" value="{{item.name}}" {{#unless editavel}}disabled{{/unless}}>
+  </header>
+
+  {{!-- Ocupação é texto livre na ficha (spec §2.1); este Item é o atalho que guarda a
+        habilidade junto, para não recriar as duas na mão a cada personagem. --}}
+  <p class="op2-ajuda">{{localize "OP2.Ocupacao.Ajuda"}}</p>
+
+  <div class="op2-grade-campos">
+    <label class="op2-campo">
+      <span>{{localize "OP2.Ocupacao.Habilidade"}}</span>
+      <input type="text" name="system.habilidade" value="{{sistema.habilidade}}"
+        placeholder="{{localize 'OP2.Ocupacao.HabilidadePlaceholder'}}" {{#unless editavel}}disabled{{/unless}}>
+    </label>
+
+    <label class="op2-campo">
+      <span>{{localize "OP2.Ocupacao.HabilidadeUuid"}}</span>
+      <input type="text" name="system.habilidadeUuid" value="{{sistema.habilidadeUuid}}"
+        placeholder="Compendium.ordem-paranormal-2e.habilidades.Item.…" {{#unless editavel}}disabled{{/unless}}>
+    </label>
+  </div>
+
+  <label class="op2-campo">
+    <span>{{localize "OP2.Ocupacao.Descricao"}}</span>
+    {{formInput fields.descricao value=sistema.descricao enriched=descricao
+      toggled=true editable=editavel name="system.descricao"}}
+  </label>
+</div>

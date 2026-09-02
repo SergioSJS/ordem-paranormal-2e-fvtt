@@ -1,0 +1,19 @@
+{
+  "_id": "1eef495918a534b7",
+  "_key": "!items!1eef495918a534b7",
+  "name": "Professor",
+  "type": "ocupacao",
+  "img": "systems/ordem-paranormal-2e/assets/icons/tipos/ocupacao.svg",
+  "system": {
+    "descricao": "<p>Sala de aula, orientação, paciência. Ensinar é fazer o outro acertar — e é isso que leva para o campo.</p>",
+    "habilidade": "Mentoria",
+    "habilidadeUuid": "Compendium.ordem-paranormal-2e.habilidades.Item.b0ead045e11212ed"
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

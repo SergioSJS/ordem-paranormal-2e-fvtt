@@ -41,7 +41,8 @@
       "equipamento": {},
       "ferramenta": {},
       "ponto-interesse": {},
-      "desafio-acesso": {}
+      "desafio-acesso": {},
+      "ocupacao": {}
     }
   },
   "relationships": {
@@ -85,6 +86,17 @@
       "name": "ferramentas",
       "label": "Ferramentas da Ordo Realitas",
       "path": "packs/ferramentas",
+      "type": "Item",
+      "system": "ordem-paranormal-2e",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "ocupacoes",
+      "label": "Ocupações",
+      "path": "packs/ocupacoes",
       "type": "Item",
       "system": "ordem-paranormal-2e",
       "ownership": {

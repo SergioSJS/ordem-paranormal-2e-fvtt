@@ -4,8 +4,8 @@
   "type": "habilidade",
   "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/foco-mental.svg",
   "system": {
-    "origem": "perfil",
-    "perfil": "executor",
+    "origem": "ocupacao",
+    "perfil": "",
     "custo": "2 PD",
     "descricao": "<p>Quando faz um <strong>teste mental</strong>, você pode gastar <strong>2 PD</strong> para receber <strong>+d4</strong> no teste.</p>",
     "efeito": {
