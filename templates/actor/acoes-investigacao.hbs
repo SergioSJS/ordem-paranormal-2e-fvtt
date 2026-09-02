@@ -3,7 +3,18 @@
     <p class="op2-ajuda">{{localize "OP2.Acoes.SemInvestigacao"}}</p>
   {{else}}
     <header class="op2-acoes__topo">
-      <span class="op2-tag op2-tag--pequena">{{nomeInvestigacao}}</span>
+      {{#if (op2Maior investigacoes.length 1)}}
+        <label class="op2-campo op2-campo--inline">
+          <span>{{localize "OP2.Investigacao.Visualizando"}}</span>
+          <select data-seletor-investigacao>
+            {{#each investigacoes}}
+              <option value="{{uuid}}" {{#if (op2Eq uuid @root.investigacaoAtualUuid)}}selected{{/if}}>{{nome}}</option>
+            {{/each}}
+          </select>
+        </label>
+      {{else}}
+        <span class="op2-tag op2-tag--pequena">{{nomeInvestigacao}}</span>
+      {{/if}}
     </header>
 
     <section class="op2-painel-secao">
@@ -61,14 +72,21 @@
               data-poi-uuid="{{uuid}}">
               {{localize "OP2.Investigacao.Interagir"}}
             </button>
-            {{#each ferramentas}}
-              <button type="button" class="op2-botao op2-botao--pequeno"
-                data-action="{{#if (op2Eq chave 'laboratorio')}}usarLaboratorio{{else if (op2Eq chave 'radio')}}usarRadio{{else}}usarFerramenta{{/if}}"
-                data-poi-uuid="{{../uuid}}" data-ferramenta="{{chave}}">
-                {{rotulo}}
-              </button>
-            {{/each}}
           </div>
+          {{#if ferramentas.length}}
+            <div class="op2-acoes__ferramentas">
+              <span class="op2-acoes__subtitulo">{{localize "OP2.Secao.Ferramentas"}}</span>
+              <div class="op2-acoes__grupo">
+                {{#each ferramentas}}
+                  <button type="button" class="op2-botao op2-botao--pequeno"
+                    data-action="{{#if (op2Eq chave 'laboratorio')}}usarLaboratorio{{else if (op2Eq chave 'radio')}}usarRadio{{else}}usarFerramenta{{/if}}"
+                    data-poi-uuid="{{../uuid}}" data-ferramenta="{{chave}}">
+                    {{rotulo}}
+                  </button>
+                {{/each}}
+              </div>
+            </div>
+          {{/if}}
         </div>
       {{/each}}
     </section>
@@ -85,23 +103,35 @@
             {{#if quebrado}}<span class="op2-painel-trava">· {{localize "OP2.Desafio.Quebrado"}}</span>{{/if}}
             {{#if destrancado}}<span class="op2-painel-trava">· {{localize "OP2.Desafio.Destrancou"}}</span>{{/if}}
           </div>
+          {{!-- Só as abordagens que o mestre marcou neste obstáculo. --}}
           <div class="op2-acoes__grupo">
-            <button type="button" class="op2-botao op2-botao--pequeno" data-action="arrombar"
-              data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}>
-              {{localize "OP2.Desafio.Arrombar"}}
-            </button>
-            <button type="button" class="op2-botao op2-botao--pequeno" data-action="destrancar"
-              data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}>
-              {{localize "OP2.Desafio.Destrancar"}}
-            </button>
-            <button type="button" class="op2-botao op2-botao--pequeno" data-action="hackTecnico"
-              data-desafio-uuid="{{uuid}}" {{#if hackTecnicoResolvido}}disabled{{/if}}>
-              {{localize "OP2.Desafio.HackTecnico"}}
-            </button>
-            <button type="button" class="op2-botao op2-botao--pequeno" data-action="hackSocial"
-              data-desafio-uuid="{{uuid}}" {{#if hackSocialResolvido}}disabled{{/if}}>
-              {{localize "OP2.Desafio.HackSocial"}}
-            </button>
+            {{#if abordagens.arrombar}}
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="arrombar"
+                data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}>
+                {{localize "OP2.Desafio.Arrombar"}}
+              </button>
+            {{/if}}
+            {{#if abordagens.destrancar}}
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="destrancar"
+                data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}>
+                {{localize "OP2.Desafio.Destrancar"}}
+              </button>
+            {{/if}}
+            {{#if abordagens.hackTecnico}}
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="hackTecnico"
+                data-desafio-uuid="{{uuid}}" {{#if hackTecnicoResolvido}}disabled{{/if}}>
+                {{localize "OP2.Desafio.HackTecnico"}}
+              </button>
+            {{/if}}
+            {{#if abordagens.hackSocial}}
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="hackSocial"
+                data-desafio-uuid="{{uuid}}" {{#if hackSocialResolvido}}disabled{{/if}}>
+                {{localize "OP2.Desafio.HackSocial"}}
+              </button>
+            {{/if}}
+            {{#unless temAlgumaAbordagem}}
+              <span class="op2-ajuda">{{localize "OP2.Desafio.SemAbordagem"}}</span>
+            {{/unless}}
           </div>
         </div>
       {{/each}}

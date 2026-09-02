@@ -14,6 +14,17 @@ export class DesafioAcessoData extends foundry.abstract.TypeDataModel {
     } = foundry.data.fields;
 
     return {
+      // Nem todo obstáculo aceita toda abordagem: uma porta emperrada não se
+      // hackeia, um painel eletrônico não se arromba no braço (achado em uso
+      // real — os quatro botões apareciam em todo desafio, sem sentido). O
+      // mestre liga o que faz sentido naquele objeto.
+      abordagens: new SchemaField({
+        arrombar: new BooleanField({ required: true, initial: true }),
+        destrancar: new BooleanField({ required: true, initial: true }),
+        hackTecnico: new BooleanField({ required: true, initial: false }),
+        hackSocial: new BooleanField({ required: true, initial: false }),
+      }),
+
       dtObjeto: new NumberField({ required: true, initial: 7, min: 0, integer: true, nullable: false }),
       pontuacaoAlvo: new NumberField({ required: true, initial: 10, min: 1, integer: true, nullable: false }),
       pontuacaoAtual: new NumberField({ required: true, initial: 0, min: 0, integer: true, nullable: false }),

@@ -22,6 +22,7 @@ const TEMPLATES = [
   `${RAIZ}/partials/trilha-recurso.hbs`,
   `${RAIZ}/partials/abrir-dialogo.hbs`,
   `${RAIZ}/dialog/teste.hbs`,
+  `${RAIZ}/dialog/pericia.hbs`,
   `${RAIZ}/dialog/selecao-dados.hbs`,
   `${RAIZ}/chat/teste.hbs`,
   `${RAIZ}/chat/falha-critica.hbs`,
@@ -55,6 +56,7 @@ export function registrarHelpers() {
   Handlebars.registerHelper("op2Concat", (...args) => args.slice(0, -1).join(""));
 
   Handlebars.registerHelper("op2Eq", (a, b) => a === b);
+  Handlebars.registerHelper("op2Maior", (a, b) => Number(a) > Number(b));
 
   /** Repete N vezes, para trilhas de pips. */
   Handlebars.registerHelper("op2Vezes", (n, opcoes) => {

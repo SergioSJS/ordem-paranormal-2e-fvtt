@@ -21,8 +21,24 @@ import { stepDie } from "../dice/escada.mjs";
 import { OP2Roll } from "../dice/op2-roll.mjs";
 import { lerConfig } from "../settings/register.mjs";
 import { rodadaAtual } from "./rodada.mjs";
+import { comoMestre, registrarAcaoDeMestre } from "../ui/socket.mjs";
 
 const CHAT = "systems/ordem-paranormal-2e/templates/chat";
+
+/**
+ * O obstáculo é documento de mundo: o teste é do personagem, mas gravar o
+ * resultado nele é escrita que o jogador não tem permissão de fazer (achado em
+ * uso real: rolava e estourava "lacks permission to update Item"). O mestre
+ * grava por ele.
+ */
+registrarAcaoDeMestre("atualizarDesafio", async ({ uuid, dados }) => {
+  const desafio = await fromUuid(uuid);
+  if (desafio?.type === "desafio-acesso") await desafio.update(dados);
+});
+
+function gravarNoDesafio(desafio, dados) {
+  return comoMestre("atualizarDesafio", { uuid: desafio.uuid, dados });
+}
 
 /** @returns {Promise<Item|null>} */
 export async function carregarDesafio(desafioUuid) {
@@ -85,7 +101,7 @@ export async function arrombar(ator, desafioUuid, { rapido = false } = {}) {
   const conseguiu = arrombou(estadoAtualizado);
   const quebrado = !conseguiu && excedeuTentativas(estadoAtualizado);
 
-  await desafio.update({
+  await gravarNoDesafio(desafio, {
     "system.pontuacaoAtual": pontuacaoAtual,
     "system.tentativasUsadas": tentativasUsadas,
     "system.quebrado": quebrado,
@@ -263,7 +279,7 @@ export async function gerarSenhaDestrancar(desafioUuid, { tamanho, facesSenha } 
   const roll = await new Roll(`${tam}d${faces}`).evaluate();
   const senha = roll.dice[0].results.map((r) => r.result);
 
-  await desafio.update({
+  await gravarNoDesafio(desafio, {
     "system.tamanhoSenha": tam,
     "system.facesSenha": faces,
     "system.senha": senha,
@@ -307,7 +323,7 @@ export async function tentarDestrancar(ator, desafioUuid, palpite) {
   });
   const historicoDestrancar = [...desafio.system.historicoDestrancar, { palpite, resultado }];
 
-  await desafio.update({
+  await gravarNoDesafio(desafio, {
     "system.destrancarTentativas": destrancarTentativas,
     "system.destrancado": venceu,
     "system.quebrado": quebrado,
@@ -353,7 +369,7 @@ export async function hackTecnico(ator, desafioUuid, { rapido = false } = {}) {
   });
   if (!roll) return null;
 
-  await desafio.update({
+  await gravarNoDesafio(desafio, {
     "system.hackTecnico.ultimaTentativaRodada": rodada,
     "system.hackTecnico.resolvido": roll.sucesso,
   });
@@ -399,7 +415,7 @@ export async function hackSocial(ator, desafioUuid, { rapido = false } = {}) {
 
   const chancesDeErro = roll.sucesso ? chancesDeErroHackSocial(roll.total, desafio.system.dtObjeto) : 0;
 
-  await desafio.update({ "system.hackSocial.ultimaTentativaRodada": rodada });
+  await gravarNoDesafio(desafio, { "system.hackSocial.ultimaTentativaRodada": rodada });
 
   await enviarCard(ator, "hackear", {
     titulo: game.i18n.localize("OP2.Desafio.HackSocial"),
@@ -423,5 +439,5 @@ export async function hackSocial(ator, desafioUuid, { rapido = false } = {}) {
 export async function marcarHackSocialResolvido(desafioUuid) {
   const desafio = await carregarDesafio(desafioUuid);
   if (!desafio) return null;
-  await desafio.update({ "system.hackSocial.resolvido": true });
+  await gravarNoDesafio(desafio, { "system.hackSocial.resolvido": true });
 }

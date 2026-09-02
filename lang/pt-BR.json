@@ -267,6 +267,9 @@
         "Intro": "Rolam-se até 4 dados, mas só 3 entram no resultado.",
         "Incompleto": "Escolha mais dados para completar o resultado.",
         "Dica": "A soma máxima nem sempre é a melhor escolha: RA e RB alimentam dano, arrombamento e alcance."
+      },
+      "Pericia": {
+        "Titulo": "Escolha a perícia"
       }
     },
     "Passo": "passo",
@@ -383,6 +386,7 @@
       "AtorAusente": "O personagem deste card não existe mais.",
       "POIAusente": "Ponto de interesse não encontrado.",
       "SemPermissao": "Este botão é de outro jogador ou do mestre.",
+      "SemMestreOnline": "Nenhum mestre online para registrar o resultado. Chame o mestre e tente de novo.",
       "DesafioAusente": "Desafio de acesso não encontrado.",
       "SemFerramenta": "Você não tem {ferramenta}."
     },
@@ -484,7 +488,10 @@
       "HackAdicionarPergunta": "Nova pergunta",
       "HackRemoverPergunta": "Remover pergunta",
       "HackTimerIniciar": "Iniciar timer (10s)",
-      "HackTimerAjuda": "Cronômetro visual pro problema matemático do hack técnico — o mestre decide a dificuldade, o sistema só marca o tempo."
+      "HackTimerAjuda": "Cronômetro visual pro problema matemático do hack técnico — o mestre decide a dificuldade, o sistema só marca o tempo.",
+      "Abordagens": "Abordagens possíveis",
+      "AbordagensAjuda": "Marque só o que faz sentido neste objeto. Uma porta emperrada não se hackeia; um painel eletrônico não se arromba no braço.",
+      "SemAbordagem": "Nenhuma abordagem marcada neste desafio — o mestre precisa escolher pelo menos uma na ficha dele."
     },
     "Ferramenta": {
       "Rotulo": "Ferramenta",

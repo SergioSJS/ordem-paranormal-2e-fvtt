@@ -1,0 +1,26 @@
+<div class="op2-pericia-escolha">
+  {{#if ajuda}}
+    <p class="op2-ajuda">{{ajuda}}</p>
+  {{/if}}
+
+  <div class="op2-pericia-escolha__lista">
+    {{#each pericias}}
+      <button type="button" class="op2-pericia-escolha__linha" data-action="escolher" data-chave="{{chave}}">
+        <span class="op2-pericia-escolha__nome">{{rotulo}}</span>
+        <span class="op2-pericia-escolha__dado">{{{icone}}}</span>
+      </button>
+    {{/each}}
+  </div>
+
+  {{#if aptidoes.length}}
+    <span class="op2-tag op2-tag--secao op2-tag--pequena">{{localize "OP2.Pericia.aptidao"}}</span>
+    <div class="op2-pericia-escolha__lista">
+      {{#each aptidoes}}
+        <button type="button" class="op2-pericia-escolha__linha" data-action="escolher" data-chave="{{chave}}">
+          <span class="op2-pericia-escolha__nome">{{rotulo}}</span>
+          <span class="op2-pericia-escolha__dado">{{{icone}}}</span>
+        </button>
+      {{/each}}
+    </div>
+  {{/if}}
+</div>

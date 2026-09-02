@@ -1,6 +1,61 @@
 @layer system {
+// O diálogo abria com o mesmo fundo escuro de tudo e sumia por cima da janela de
+// ações — não dava pra ver que tinha aberto (achado em uso real). Vermelho escuro
+// e borda vermelha separam o "pare e decida" do resto da tela.
 .op2-dialog {
-  .window-content { background: var(--op2-fundo); }
+  .window-content {
+    background: linear-gradient(180deg, var(--op2-vermelho-escuro) 0%, var(--op2-fundo) 55%);
+    border: 1px solid var(--op2-vermelho);
+  }
+
+  // O chrome da janela acompanha, senão a barra de título fica destoando.
+  .window-header {
+    background: var(--op2-vermelho-escuro);
+    border-bottom: 1px solid var(--op2-vermelho);
+  }
+}
+
+// Escolha de perícia: a mesma leitura da ficha — nome à esquerda, dado à direita.
+.op2-pericia-escolha {
+  display: flex;
+  flex-direction: column;
+  gap: var(--op2-e2);
+  padding: var(--op2-e3);
+
+  &__lista {
+    display: grid;
+    gap: 2px;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  }
+
+  &__linha {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--op2-e2);
+    width: 100%;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid transparent;
+    border-radius: var(--op2-raio);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+
+    &:hover {
+      border-color: var(--op2-vermelho);
+      background: color-mix(in srgb, var(--op2-vermelho) 18%, transparent);
+    }
+  }
+
+  &__nome {
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  &__dado .op2-dado { width: 1.6rem; height: 1.6rem; }
 }
 
 .op2-teste {

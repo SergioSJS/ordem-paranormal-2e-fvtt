@@ -24,6 +24,7 @@ import { registrarSettings, lerConfig } from "./settings/register.mjs";
 import { registrarHelpersDeDado } from "./ui/dice-icons.mjs";
 import { registrarHelpers, precarregarTemplates } from "./ui/handlebars.mjs";
 import { registrarChat } from "./ui/chat.mjs";
+import { registrarSocket } from "./ui/socket.mjs";
 import { encerrarCena } from "./cena/encerrar-investigacao.mjs";
 import { registrarPainelInvestigacao, abrirPainelInvestigacao } from "./cena/painel-investigacao.mjs";
 import { avancarRodada } from "./cena/rodada.mjs";
@@ -77,6 +78,7 @@ Hooks.once("init", () => {
   registrarHelpers();
   registrarSheets();
   registrarChat();
+  registrarSocket();
   registrarPainelInvestigacao();
 
   // Sem iniciativa rolada: os jogadores decidem a ordem entre si (spec §5.2).

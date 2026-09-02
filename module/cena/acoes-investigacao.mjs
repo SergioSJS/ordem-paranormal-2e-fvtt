@@ -8,10 +8,12 @@
  * mestre no chat — o texto exige que ele julgue a interpretação antes.
  */
 import { SYSTEM_ID, DT_RECAPITULAR, DT_COMPARTILHAR, CUSTO_PD_EXAMINAR } from "../config.mjs";
-import { resolverInvestigacao, resolverExaminar, periciasDoQuadro, chaveInfo } from "./investigacao.mjs";
+import { resolverInvestigacao, resolverExaminar, chaveInfo } from "./investigacao.mjs";
 import { personagensDaCenaAtiva } from "./encerrar-investigacao.mjs";
 import { investigacaoAtiva } from "./investigacao-ativa.mjs";
 import { rolarTeste, rotuloDePericia, renderizar } from "../dice/teste.mjs";
+import { escolherPericia } from "../dice/pericia-dialog.mjs";
+import { comoMestre, registrarAcaoDeMestre } from "../ui/socket.mjs";
 import { lerConfig } from "../settings/register.mjs";
 
 const CHAT = "systems/ordem-paranormal-2e/templates/chat";
@@ -38,8 +40,15 @@ export async function alternarInfoOculta(poiUuid, infoId) {
   const informacoes = poi.system.informacoes.map((info) => (
     info.id === infoId ? { ...info, oculta: !info.oculta } : info
   ));
-  await poi.update({ "system.informacoes": informacoes });
+  // Botão de mestre, mas POI é documento de mundo: passa pela ponte por
+  // segurança, do mesmo jeito que o resultado do desafio.
+  await comoMestre("atualizarPoi", { uuid: poi.uuid, dados: { "system.informacoes": informacoes } });
 }
+
+registrarAcaoDeMestre("atualizarPoi", async ({ uuid, dados }) => {
+  const poi = await fromUuid(uuid);
+  if (poi?.type === "ponto-interesse") await poi.update(dados);
+});
 
 /** Ids das infos deste POI que este personagem já revelou. */
 export function idsRevelados(ator, poiUuid) {
@@ -324,27 +333,9 @@ export async function dialogoInvestigar(ator, poiUuid) {
   const poi = await carregarPoi(poiUuid);
   if (!poi) return null;
 
-  const pericias = periciasDoQuadro(poi.system.informacoes);
-  if (!pericias.length) {
-    ui.notifications.warn(game.i18n.localize("OP2.Investigacao.POIVazio"));
-    return null;
-  }
-
-  const opcoes = pericias.map((chave) => {
-    const valor = ator.system.resolverChave(chave)?.valor ?? 0;
-    return `<option value="${chave}">${rotuloDePericia(chave)} — d${valor}</option>`;
-  }).join("");
-
-  const chavePericia = await foundry.applications.api.DialogV2.prompt({
-    window: { title: `${game.i18n.localize("OP2.Investigacao.Investigar")} — ${poi.name}` },
-    content: `
-      <div class="form-group">
-        <label>${game.i18n.localize("OP2.Investigacao.EscolherPericia")}</label>
-        <select name="pericia">${opcoes}</select>
-      </div>
-      <p class="op2-ajuda">${game.i18n.localize("OP2.Investigacao.EscolherPericiaAjuda")}</p>`,
-    ok: { callback: (_evento, botao) => botao.form.elements.pericia.value },
-    rejectClose: false,
+  const chavePericia = await escolherPericia(ator, {
+    titulo: `${game.i18n.localize("OP2.Investigacao.Investigar")} — ${poi.name}`,
+    ajuda: game.i18n.localize("OP2.Investigacao.EscolherPericiaAjuda"),
   });
   if (!chavePericia) return null;
   return investigar(ator, poiUuid, chavePericia);

@@ -10,7 +10,7 @@
  * chamava — só o dono da ação mudou de lugar.
  */
 import { FERRAMENTAS_POI } from "../config.mjs";
-import { investigacaoAtiva } from "./investigacao-ativa.mjs";
+import { investigacaoAtiva, investigacoesVisiveis, definirInvestigacaoAtiva } from "./investigacao-ativa.mjs";
 import { temFerramenta } from "./ferramentas.mjs";
 import {
   dialogoInvestigar, examinar, interagir, recapitular, compartilhar,
@@ -29,7 +29,9 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
   static DEFAULT_OPTIONS = {
     classes: ["op2", "op2-acoes"],
     window: { title: "OP2.Acoes.Titulo", icon: "fa-solid fa-magnifying-glass", resizable: true },
-    position: { width: 460, height: 620 },
+    // Larga: é a mesa de ações do personagem, e vai receber mais grupos além dos
+    // de investigação.
+    position: { width: 620, height: 680 },
     actions: {
       recapitular: AcoesInvestigacaoApp.#recapitular,
       compartilhar: AcoesInvestigacaoApp.#compartilhar,
@@ -64,6 +66,18 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     return `${game.i18n.localize("OP2.Acoes.Titulo")} — ${this.ator.name}`;
   }
 
+  _onRender(contexto, opcoes) {
+    super._onRender(contexto, opcoes);
+    // `data-action` num <select> reage ao próprio clique de abrir e fecha o menu
+    // nativo no meio (achado em uso real, no painel) — listener manual, como todo
+    // outro <select> do sistema.
+    const seletor = this.element.querySelector("[data-seletor-investigacao]");
+    seletor?.addEventListener("change", async () => {
+      await definirInvestigacaoAtiva(seletor.value);
+      this.render();
+    });
+  }
+
   async _prepareContext() {
     const investigacao = investigacaoAtiva();
     const ator = this.ator;
@@ -92,20 +106,32 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       .filter((uuid) => !ocultosDesafio.includes(uuid))
       .map((uuid) => fromUuidSync(uuid))
       .filter((desafio) => desafio?.type === "desafio-acesso")
-      .map((desafio) => ({
-        uuid: desafio.uuid,
-        nome: desafio.name,
-        img: desafio.img,
-        quebrado: desafio.system.quebrado,
-        destrancado: desafio.system.destrancado,
-        hackTecnicoResolvido: desafio.system.hackTecnico.resolvido,
-        hackSocialResolvido: desafio.system.hackSocial.resolvido,
-      }));
+      .map((desafio) => {
+        // Só as abordagens que o mestre ligou naquele objeto: porta emperrada não
+        // se hackeia, painel eletrônico não se arromba no braço (achado em uso
+        // real — os quatro botões apareciam em todo desafio).
+        const { abordagens } = desafio.system;
+        return {
+          uuid: desafio.uuid,
+          nome: desafio.name,
+          img: desafio.img,
+          quebrado: desafio.system.quebrado,
+          destrancado: desafio.system.destrancado,
+          hackTecnicoResolvido: desafio.system.hackTecnico.resolvido,
+          hackSocialResolvido: desafio.system.hackSocial.resolvido,
+          abordagens,
+          temAlgumaAbordagem: Object.values(abordagens).some(Boolean),
+        };
+      });
 
     return {
       atorNome: ator.name,
       temInvestigacao: Boolean(investigacao),
       nomeInvestigacao: investigacao?.name ?? "",
+      // O grupo pode estar em mais de uma investigação ao mesmo tempo — dá pra
+      // trocar aqui sem voltar pro painel.
+      investigacoes: investigacoesVisiveis().map((i) => ({ uuid: i.uuid, nome: i.name })),
+      investigacaoAtualUuid: investigacao?.uuid ?? "",
       sustentando: ator.system.estado.sustentando?.ativo ?? false,
       temLaser: temFerramenta(ator.items, "laser"),
       recapitularUsado: investigacao?.system.recapitularUsado ?? null,

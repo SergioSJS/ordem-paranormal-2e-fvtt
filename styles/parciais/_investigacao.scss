@@ -102,7 +102,12 @@
 // que ele pode rolar, sem impor um teto próprio que brigue com o resize.
 .op2-painel-investigacao .window-content {
   overflow-y: auto;
+  // Opaco: o core deixa a janela translúcida e o mapa atravessava o painel, o
+  // que embaralhava a leitura das listas (achado em uso real).
+  background: var(--op2-fundo);
 }
+
+.op2-painel-investigacao .window-header { background: var(--op2-superficie-alta); }
 
 .op2-painel-corpo {
   display: flex;
@@ -484,8 +489,15 @@ summary.op2-painel-titulo { cursor: pointer; }
 // Botão flutuante do painel — não é controle de cena de propósito (veja o
 // comentário em criarBotaoFlutuante()). Fica acima da coluna de controles do
 // core, sempre clicável, independente de qual camada/tool está ativa.
-// Ações de investigação do personagem (abre pela ficha, `acoes-app.mjs`).
-.op2-acoes .window-content { overflow-y: auto; }
+// Ações de investigação do personagem (abre pela ficha, `acoes-app.mjs`). Este
+// modal centraliza TODAS as ações do personagem — as de investigação e as que
+// vierem depois — então nasce largo e opaco.
+.op2-acoes .window-content {
+  overflow-y: auto;
+  background: var(--op2-fundo);
+}
+
+.op2-acoes .window-header { background: var(--op2-superficie-alta); }
 
 .op2-acoes-corpo {
   display: flex;
@@ -535,9 +547,39 @@ summary.op2-painel-titulo { cursor: pointer; }
   align-items: center;
   justify-content: center;
   gap: var(--op2-e1);
+  padding: 0.3em 0.7em;
+  border: 0;
+  background: linear-gradient(160deg, var(--op2-vermelho) 0%, var(--op2-vermelho-escuro) 100%);
+  color: #fff;
+  font-family: var(--op2-fonte-display);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  // Tag rasgada, como todo rótulo do livro (docs/ESTILO-VISUAL.md).
+  clip-path: polygon(0 8%, 100% 0, 99% 90%, 1% 100%);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  &:hover {
+    background: linear-gradient(160deg, var(--op2-vermelho-claro) 0%, var(--op2-vermelho) 100%);
+  }
+}
+
+.op2-acoes__subtitulo {
+  font-family: var(--op2-fonte-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--op2-texto-fraco);
+}
+
+.op2-acoes__ferramentas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--op2-e1);
+  margin-top: var(--op2-e2);
+  padding-top: var(--op2-e2);
+  border-top: 1px dashed var(--op2-linha);
 }
 
 // Botão flutuante do painel — nada de círculo: a gramática do livro é tag rasgada

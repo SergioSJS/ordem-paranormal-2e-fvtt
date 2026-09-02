@@ -40,6 +40,17 @@ const relato = await page.evaluate(async () => {
   const ok = (titulo, condicao) => passos.push([Boolean(condicao), titulo]);
   const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
 
+  // DT 0 não garante sucesso: dois 1 são falha crítica, e falha crítica ignora a
+  // DT (spec §4.4). Isso fazia os testes "com DT 0 sempre passa" falharem ~1 em 16
+  // execuções — flake real, que já enganou mais de uma sessão. `randomUniform`
+  // alimenta todo dado do core (`mapRandomFace`), então travar o gerador é o jeito
+  // honesto de testar a regra sem depender de sorte.
+  const aleatorioOriginal = CONFIG.Dice.randomUniform;
+  const comDadosNoMaximo = async (fn) => {
+    CONFIG.Dice.randomUniform = () => 0; // face máxima em qualquer dado
+    try { return await fn(); } finally { CONFIG.Dice.randomUniform = aleatorioOriginal; }
+  };
+
   /* ---------------------------------------------------------- carregamento -- */
 
   ok("system carregado", game.system.id === "ordem-paranormal-2e");
@@ -595,7 +606,7 @@ const relato = await page.evaluate(async () => {
     ok("desafio criado com data model próprio", fechadura?.system.constructor.name === "DesafioAcessoData");
 
     const pvAntes = ator.system.recursos.pv.value;
-    const arrombou1 = await game.op2.arrombar(ator, fechadura.uuid, { rapido: true });
+    const arrombou1 = await comDadosNoMaximo(() => game.op2.arrombar(ator, fechadura.uuid, { rapido: true }));
     await esperar(500);
     ok("arrombar cobra 1 PV por tentativa", ator.system.recursos.pv.value === pvAntes - 1);
     ok("DT 0 e PA 1 arrombam na primeira tentativa", arrombou1?.arrombou === true);
@@ -756,7 +767,7 @@ const relato = await page.evaluate(async () => {
 
     // ALCANÇAR: DT 0 sempre passa nas duas ações do modo seguro; DT 999 nunca
     // alcança no arriscado e nunca aplica dano sozinho — só oferece o botão.
-    const seguroOk = await game.op2.alcancar(ator, { modo: "seguro", dt: 0, rapido: true });
+    const seguroOk = await comDadosNoMaximo(() => game.op2.alcancar(ator, { modo: "seguro", dt: 0, rapido: true }));
     ok("alcançar seguro com DT 0 passa nas duas ações em sequência", seguroOk?.sucesso === true);
 
     const arriscadoFalha = await game.op2.alcancar(ator, { modo: "arriscado", dt: 999, rapido: true });
@@ -773,7 +784,7 @@ const relato = await page.evaluate(async () => {
     const dtOriginal = game.settings.get("ordem-paranormal-2e", "dtPadrao");
     await game.settings.set("ordem-paranormal-2e", "dtPadrao", 0);
 
-    const iniciou = await game.op2.sustentar(ator, { rapido: true });
+    const iniciou = await comDadosNoMaximo(() => game.op2.sustentar(ator, { rapido: true }));
     ok("sustentar com DT 0 sempre começa", iniciou?.sustentando === true);
     ok("sustentar liga a flag no ator", ator.system.estado.sustentando.ativo === true);
 
@@ -930,8 +941,40 @@ const relato = await page.evaluate(async () => {
   // automatizados (docs/LACUNAS.md) — o problema matemático e conferir as
   // respostas exigem input humano, a spec é explícita sobre isso.
   {
-    const painelFacil = await Item.create({ name: "Painel Fácil", type: "desafio-acesso", system: { dtObjeto: 0 } });
-    const hackOk = await game.op2.hackTecnico(ator, painelFacil.uuid, { rapido: true });
+    // Abordagens: nem todo obstáculo aceita toda abordagem (achado em uso real —
+    // "e se a porra do desafio não for sobre hackear?"). Hackear nasce desligado.
+    {
+      const porta = await Item.create({ name: "Porta Emperrada", type: "desafio-acesso" });
+      ok("desafio novo já vem com hackear desligado e arrombar ligado",
+        porta.system.abordagens.hackTecnico === false
+        && porta.system.abordagens.hackSocial === false
+        && porta.system.abordagens.arrombar === true);
+
+      await game.op2.vincularDesafio(investigacao, porta.uuid);
+      const app = game.op2.acoesInvestigacao(ator);
+      await esperar(700);
+      const el = document.getElementById(`op2-acoes-${ator.id}`);
+      ok("ações não mostram Hackear num desafio que não é de hackear",
+        !el.querySelector('[data-action="hackTecnico"]') && !el.querySelector('[data-action="hackSocial"]'));
+      ok("ações mostram Arrombar nesse mesmo desafio", Boolean(el.querySelector('[data-action="arrombar"]')));
+
+      await porta.update({ "system.abordagens.hackTecnico": true, "system.abordagens.arrombar": false });
+      await esperar(400);
+      await app.render();
+      await esperar(500);
+      const el2 = document.getElementById(`op2-acoes-${ator.id}`);
+      ok("ligar hackear no obstáculo faz o botão aparecer", Boolean(el2.querySelector('[data-action="hackTecnico"]')));
+      ok("desligar arrombar tira o botão dele", !el2.querySelector('[data-action="arrombar"]'));
+      await app.close();
+      await game.op2.removerDesafio(investigacao, porta.uuid);
+      await porta.delete();
+    }
+
+    const painelFacil = await Item.create({
+      name: "Painel Fácil", type: "desafio-acesso",
+      system: { dtObjeto: 0, abordagens: { hackTecnico: true, hackSocial: true } },
+    });
+    const hackOk = await comDadosNoMaximo(() => game.op2.hackTecnico(ator, painelFacil.uuid, { rapido: true }));
     ok("hack técnico com DT 0 sempre passa", hackOk?.sucesso === true);
     ok("sucesso marca resolvido no Item", painelFacil.system.hackTecnico.resolvido === true);
     ok("hack técnico já resolvido recusa nova tentativa",
@@ -968,7 +1011,7 @@ const relato = await page.evaluate(async () => {
         },
       },
     });
-    const resultadoSocial = await game.op2.hackSocial(ator, segurancaSocial.uuid, { rapido: true });
+    const resultadoSocial = await comDadosNoMaximo(() => game.op2.hackSocial(ator, segurancaSocial.uuid, { rapido: true }));
     ok("hack social com DT 0 sempre passa", resultadoSocial?.sucesso === true);
     ok("chances de erro calculadas (base 1 ou mais)", resultadoSocial.chancesDeErro >= 1);
 
@@ -984,7 +1027,11 @@ const relato = await page.evaluate(async () => {
     await segurancaSocial.delete();
 
     // Painel: os dois botões de Hackear aparecem junto de Arrombar/Destrancar.
-    const desafioComPainel = await Item.create({ name: "Cofre com Painel", type: "desafio-acesso" });
+    // Hackear só aparece se o mestre marcar a abordagem naquele obstáculo.
+    const desafioComPainel = await Item.create({
+      name: "Cofre com Painel", type: "desafio-acesso",
+      system: { abordagens: { hackTecnico: true, hackSocial: true } },
+    });
     await game.op2.vincularDesafio(investigacao, desafioComPainel.uuid);
     {
       const app = game.op2.acoesInvestigacao(ator);

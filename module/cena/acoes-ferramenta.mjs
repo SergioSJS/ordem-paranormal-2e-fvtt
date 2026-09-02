@@ -8,6 +8,13 @@ import { SYSTEM_ID } from "../config.mjs";
 import { podeUsarCarga, temReacaoFerramenta, conjuntosFalsosRemovidos, conjuntosRestantes } from "./ferramentas.mjs";
 import { investigacaoAtiva } from "./investigacao-ativa.mjs";
 import { rolarTeste, renderizar } from "../dice/teste.mjs";
+import { comoMestre, registrarAcaoDeMestre } from "../ui/socket.mjs";
+
+// POI é documento de mundo: o jogador não tem permissão de marcar o selo do laser.
+registrarAcaoDeMestre("marcarReveladoPorLaser", async ({ uuid }) => {
+  const poi = await fromUuid(uuid);
+  if (poi?.type === "ponto-interesse") await poi.update({ "system.reveladoPorLaser": true });
+});
 
 const CHAT = "systems/ordem-paranormal-2e/templates/chat";
 
@@ -107,7 +114,7 @@ export async function usarLaser(ator) {
     if (poi?.type !== "ponto-interesse" || poi.system.reveladoPorLaser) continue;
     const reage = Object.values(poi.system.ferramentas).some(temReacaoFerramenta);
     if (!reage) continue;
-    await poi.update({ "system.reveladoPorLaser": true });
+    await comoMestre("marcarReveladoPorLaser", { uuid: poi.uuid });
     marcados.push(poi.name);
   }
 
