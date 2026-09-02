@@ -37,7 +37,7 @@
   grid-area: cabecalho;
   align-items: start;
   gap: var(--op2-e2) var(--op2-e3);
-  grid-template-columns: 116px minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: 104px minmax(0, 1fr) minmax(0, 1fr);
   grid-template-areas:
     "nome       nome        nome"
     "retrato    identidade  atributos"
@@ -49,7 +49,11 @@
   &__retrato {
     position: relative;
     overflow: hidden;
-    align-self: stretch;
+    // `stretch` fazia o retrato acompanhar a altura de identidade + atributos: numa
+    // ficha de nível 2 ele passava de 300px e empurrava tudo para baixo, deixando
+    // Habilidades/Inventário/Notas sem espaço (achado em uso real).
+    align-self: start;
+    max-height: 150px;
     border: 1px solid var(--op2-linha-forte);
     border-radius: var(--op2-raio);
     background: color-mix(in srgb, var(--op2-preto) 60%, transparent);
@@ -93,6 +97,8 @@
 }
 
 .op2-nome {
+  width: 100%;
+  min-width: 0;
   height: 2.4rem;
   border: 0;
   border-bottom: 2px solid var(--op2-vermelho);
@@ -261,6 +267,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: var(--op2-e2);
+  margin-top: var(--op2-e1);
 
   // Barra cheia: o botão entrava na mesma linha e espremia os espaços contra a tag.
   &__gastar { white-space: nowrap; }
@@ -734,4 +741,13 @@
   background: color-mix(in srgb, var(--op2-fundo) 70%, transparent);
 }
 
+}
+
+
+// O NPC reaproveita `.op2-cabecalho`, mas só tem retrato e identidade: com a grade de
+// três colunas do personagem, a identidade caía na coluna do meio e o campo de nome
+// ficava com um terço da largura (achado em uso real).
+.op2-ficha-npc .op2-cabecalho {
+  grid-template-columns: 96px minmax(0, 1fr);
+  grid-template-areas: "retrato identidade";
 }

@@ -41,6 +41,13 @@ export class HabilidadeData extends foundry.abstract.TypeDataModel {
         permitirD20: new BooleanField({ required: true, initial: false }),
       }),
 
+      /**
+       * Esta habilidade É a barra de Ímpeto (fichas do Ato I). A barra aparece dentro
+       * dela, na aba de habilidades — e não no cabeçalho: ela pertence a quem tem a
+       * habilidade, não a todo personagem (achado em uso real).
+       */
+      barraImpeto: new BooleanField({ required: true, initial: false }),
+
       /** Habilidades podem ter uso próprio em cenas de investigação (spec §6.6). */
       usoEmInvestigacao: new HTMLField({ required: true, initial: "", blank: true }),
     };

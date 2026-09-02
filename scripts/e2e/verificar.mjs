@@ -353,6 +353,39 @@ const relato = await page.evaluate(async () => {
     await bruto.delete();
   }
 
+  // Layout da ficha: o cabeçalho não pode comer a faixa de conteúdo, e a barra de
+  // Ímpeto pertence à habilidade que a concede — no cabeçalho ela aparecia até para
+  // quem não tem Ímpeto nenhum (achado em uso real).
+  {
+    const pack = game.packs.get("ordem-paranormal-2e.ato-i-personagens");
+    const entrada = [...pack.index].find((i) => i.name === "Alan");
+    const alan = await Actor.create((await pack.getDocument(entrada._id)).toObject());
+    await alan.update({ "system.impeto.preenchidos": 2 });
+    await alan.sheet.render(true);
+    await esperar(900);
+    const el = alan.sheet.element;
+    const altura = (sel) => Math.round(el.querySelector(sel)?.getBoundingClientRect().height ?? 0);
+
+    ok("retrato não estica com a coluna inteira", altura(".op2-cabecalho__retrato") <= 160);
+    ok("a faixa de habilidades/inventário/notas tem espaço de uso", altura(".op2-painel.active") >= 240);
+    ok("barra de Ímpeto sai do cabeçalho", !el.querySelector(".op2-cabecalho .op2-impeto"));
+    ok("barra de Ímpeto mora na habilidade que a concede",
+      el.querySelectorAll(".op2-item--com-barra .op2-impeto__espaco").length === 3);
+
+    const npc = await Actor.create({ name: "NPC de Layout", type: "npc" });
+    await npc.sheet.render(true);
+    await esperar(900);
+    const elNpc = npc.sheet.element;
+    const larguraNome = elNpc.querySelector(".op2-nome")?.getBoundingClientRect().width ?? 0;
+    const larguraFicha = elNpc.querySelector(".window-content")?.getBoundingClientRect().width ?? 1;
+    // A grade de três colunas do personagem jogava a identidade na coluna do meio.
+    ok("campo de nome do NPC ocupa a linha, não um terço dela",
+      larguraNome / larguraFicha > 0.55);
+
+    await alan.delete();
+    await npc.delete();
+  }
+
   // Habilidade que vale por atributo, não por perícia: "quando faz um teste mental"
   // (Foco Mental, ficha do Ato I). Casar só a chave da perícia fazia a habilidade
   // nunca aparecer no diálogo (achado em uso real).

@@ -213,7 +213,8 @@
           "chaves": [],
           "permitirD20": false
         },
-        "usoEmInvestigacao": ""
+        "usoEmInvestigacao": "",
+        "barraImpeto": true
       },
       "effects": [],
       "folder": null,
