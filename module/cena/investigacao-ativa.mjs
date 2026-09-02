@@ -95,8 +95,10 @@ export async function definirOrdemParticipantes(investigacao, ordem) {
 
 /**
  * Sobe (`-1`) ou desce (`+1`) um UUID dentro de uma lista — pura, sem Foundry, pra
- * dar pra testar offline. Personagens e NPCs cada um tem a própria pilha de setinhas
- * (NPCs continuam agindo por último — spec §5.2 — só a ordem deles entre si muda).
+ * dar pra testar offline. Uma lista só, com personagens e NPCs misturados: a mesa
+ * decide a ordem inteira. (A spec §5.2 sugere NPCs por último; prender o grupo de
+ * NPCs no fim deixava a linha deles imóvel na prática — decisão de mesa, não do
+ * sistema.)
  * @returns {string[]} nova ordem, ou a mesma se o UUID não estiver na lista ou já
  *   estiver na ponta pra onde `direcao` aponta.
  */
@@ -111,18 +113,13 @@ export function ordemAposMover(ordemAtual, uuid, direcao) {
 
 /**
  * Alternativa ao drag-and-drop, mais fácil de acertar numa lista curta (achado em
- * uso real: mestre errando o alvo do drop). Personagens e NPCs reordenam cada um
- * dentro do próprio grupo (NPCs continuam agindo por último — spec §5.2 — só a
- * ordem deles entre si muda); `ordemDoGrupo`/`ordemDoOutroGrupo` são as ordens de
- * EXIBIÇÃO de cada grupo (roster + `ordemParticipantes` gravada, com quem entrou de
- * novo no fim) — não o campo cru, que começa vazio até o primeiro drag-and-drop, e
- * mover a primeira linha nunca acharia o UUID nele. O campo gravado é uma lista só,
- * então a escrita leva os dois grupos — a ordem entre eles não importa, cada leitura
- * volta a separar por tipo.
+ * uso real: mestre errando o alvo do drop). `ordem` é a ordem de EXIBIÇÃO da lista
+ * inteira (roster + `ordemParticipantes` gravada, com quem entrou de novo no fim),
+ * não o campo cru: esse começa vazio até o primeiro movimento, e aí mover a
+ * primeira linha nunca acharia o UUID nele.
  */
-export async function moverParticipante(investigacao, ordemDoGrupo, ordemDoOutroGrupo, atorUuid, direcao) {
-  const nova = ordemAposMover(ordemDoGrupo, atorUuid, direcao);
-  await definirOrdemParticipantes(investigacao, [...nova, ...ordemDoOutroGrupo]);
+export async function moverParticipante(investigacao, ordem, atorUuid, direcao) {
+  await definirOrdemParticipantes(investigacao, ordemAposMover(ordem, atorUuid, direcao));
 }
 
 /**
