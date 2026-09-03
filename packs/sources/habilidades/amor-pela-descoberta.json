@@ -14,7 +14,8 @@
       "passos": 1,
       "dado": "d6",
       "chaves": [],
-      "permitirD20": false
+      "permitirD20": false,
+      "pdAoDescobrir": 1
     },
     "usoEmInvestigacao": "<p>Examinar que revela informação nova devolve 1 PD.</p>",
     "custoPD": 0

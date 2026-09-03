@@ -146,7 +146,10 @@
       },
       "CustoPD": "DP cost",
       "ImpetoEspacos": "Momentum bar (slots)",
-      "ImpetoAjuda": "The bar shows on this ability's card in the sheet. Deleting the ability deletes the bar with it."
+      "ImpetoAjuda": "The bar shows on this ability's card in the sheet. Deleting the ability deletes the bar with it.",
+      "PdAoDescobrir": "PD recovered on discovery",
+      "PdAoDescobrirAjuda": "When Examine reveals new information, the character recovers this many PD (\"Amor pela Descoberta\"). Zero = it does not.",
+      "PdRecuperado": "{ator} recovers {pd} PD ({habilidade})."
     },
     "Equipamento": {
       "Adicionar": "New item",

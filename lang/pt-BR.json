@@ -146,7 +146,10 @@
       },
       "CustoPD": "Custo em PD",
       "ImpetoEspacos": "Barra de ímpeto (espaços)",
-      "ImpetoAjuda": "A barra aparece no card desta habilidade, na ficha. Apagar a habilidade apaga a barra junto."
+      "ImpetoAjuda": "A barra aparece no card desta habilidade, na ficha. Apagar a habilidade apaga a barra junto.",
+      "PdAoDescobrir": "PD recuperados ao descobrir",
+      "PdAoDescobrirAjuda": "Quando Examinar revela informação nova, o personagem recupera esta quantidade de PD (\"Amor pela Descoberta\"). Zero = não faz isso.",
+      "PdRecuperado": "{ator} recupera {pd} PD ({habilidade})."
     },
     "Equipamento": {
       "Adicionar": "Novo item",

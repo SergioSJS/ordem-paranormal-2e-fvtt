@@ -386,6 +386,13 @@ lado.
   e Técnica Medicinal são da ocupação por óbvio; Linha de Tiro e Para Bellum foram lidas
   como da ocupação (Policial, Militar) e o resto — Olhar Infalível, Amor pela Descoberta,
   Incansável, Estoico, Varredura Ampla — como de nível. É rótulo, não mecânica.
+- **Habilidades dos agentes no motor.** Avaliação, Foco Mental, Linha de Tiro e Estoico
+  são dados extras no diálogo de teste; Amor pela Descoberta devolve PD quando Examinar
+  revela algo novo (`efeito.pdAoDescobrir`, aplicado em `examinar()`); Prontidão e
+  Mentoria já existiam. Olhar Infalível (rerrolar um dado por 2 PD), Varredura Ampla
+  (duas perícias ao investigar), Incansável, Para Bellum e Técnica Medicinal ficam no
+  texto: a mesa aplica — o mestre libera a segunda perícia no painel, rerrola o dado à
+  mão.
 - **Ímpeto de cinco espaços (Heitor).** A barra mostra cinco pips; "2 espaços → +d10" e
   "5 espaços → ação extra" ficam no texto, a mesa aplica.
 - **Rádio Modificado em peças.** O livro dá blocos ("PENSE NA", "SUA FILHA,") e marca os

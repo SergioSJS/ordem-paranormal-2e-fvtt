@@ -75,6 +75,13 @@
       </label>
       <p class="op2-ajuda">{{localize "OP2.Habilidade.PermitirD20Ajuda"}}</p>
     {{/unless}}
+
+    <label class="op2-campo op2-campo--inline">
+      <span>{{localize "OP2.Habilidade.PdAoDescobrir"}}</span>
+      <input type="number" name="system.efeito.pdAoDescobrir" value="{{sistema.efeito.pdAoDescobrir}}" min="0" max="9"
+        {{#unless editavel}}disabled{{/unless}}>
+    </label>
+    <p class="op2-ajuda">{{localize "OP2.Habilidade.PdAoDescobrirAjuda"}}</p>
   </fieldset>
 
   <label class="op2-campo">

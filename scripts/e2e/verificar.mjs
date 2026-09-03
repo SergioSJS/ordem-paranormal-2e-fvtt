@@ -287,6 +287,31 @@ const relato = await page.evaluate(async () => {
   // por quê, em vez de só "nenhuma informação nova" (achado em uso real).
   const semNada = await game.op2.examinar(ator, poi.uuid, "luta", { rapido: true });
   ok("examinar com perícia sem correspondência custa 1 PD", semNada?.perdePD === true);
+
+  // "Amor pela Descoberta" (Antônio, Ato II): informação nova ao Examinar devolve 1 PD,
+  // sem passar do máximo. Ponto novo, com uma linha que o dado alcança sem rolar.
+  {
+    const [amor] = await ator.createEmbeddedDocuments("Item", [{
+      name: "Amor pela Descoberta", type: "habilidade",
+      system: { efeito: { tipo: "nenhum", pdAoDescobrir: 1 } },
+    }]);
+    const poiAmor = await Item.create({
+      name: "Quadro do Amor", type: "ponto-interesse",
+      system: { informacoes: [{ id: "a1", pericia: "percepcao", dt: 5, texto: "<p>Nova.</p>" }] },
+    });
+    const pdAntes = ator.system.recursos.pd.value;
+    const pdMax = ator.system.recursos.pd.max;
+    await ator.update({ "system.recursos.pd.value": pdMax - 1 });
+    const achou = await game.op2.examinar(ator, poiAmor.uuid, "percepcao", { rapido: true });
+    ok("informação nova ao Examinar devolve 1 PD a quem tem Amor pela Descoberta",
+      achou?.pdRecuperado === 1 && ator.system.recursos.pd.value === pdMax);
+    const deNovo = await game.op2.examinar(ator, poiAmor.uuid, "percepcao", { rapido: true });
+    ok("sem informação nova, nada volta (e o PD não passa do máximo)",
+      (deNovo?.pdRecuperado ?? 0) === 0 && ator.system.recursos.pd.value <= pdMax);
+    await ator.update({ "system.recursos.pd.value": pdAntes });
+    await amor.delete();
+    await poiAmor.delete();
+  }
   await esperar(600);
   ok("o card de custo explica o motivo",
     [...document.querySelectorAll(".op2-card--falha")].some((c) => c.querySelector(".op2-ajuda")));
@@ -1029,6 +1054,17 @@ const relato = await page.evaluate(async () => {
         && porNome("Depósito B").system.informacoes.filter((l) => l.oculta).length === 2);
       ok("o Depósito A recebe a descrição do Ato I no lugar da do Símbolo repetida",
         /grade divisória/.test(porNome("Depósito A").system.descricaoBasica));
+      // A caixa do painel vem colada na descrição, e a nota de Edgar vem colada e recuada:
+      // nem uma nem outra podem sumir ou vazar para o jogador.
+      ok("o Painel Elétrico tem descrição, e a nota de Edgar fica com o mestre",
+        /painel de luz antigo/.test(porNome("Depósito A, Painel Elétrico").system.descricaoBasica)
+        && porNome("Pertences de Edgar").system.descricaoBasica.length < 80
+        && /Não há nenhuma informação relevante/.test(porNome("Pertences de Edgar").system.descricaoContextual));
+      // "Todos os jogadores têm livre acesso a todas as informações dos agentes" (p. 73).
+      const agentes = [...aventura.actors].filter((a) => a.type === "personagem");
+      ok("os cinco agentes vêm legíveis por todo jogador, e Antônio recupera PD ao descobrir",
+        agentes.length === 5 && agentes.every((a) => a.ownership.default === 2)
+        && agentes.find((a) => a.name === "Antônio")?.items.find((i) => i.name === "Amor pela Descoberta")?.system.efeito.pdAoDescobrir === 1);
       const painel = desafios.find((d) => d.name.includes("Painel"));
       const computador = desafios.find((d) => d.name.includes("Computador"));
       const duto = desafios.find((d) => d.name.includes("Duto"));
@@ -2720,6 +2756,25 @@ const relato = await page.evaluate(async () => {
         && app.pecas.every((p) => p.texto !== "MATAR" && p.texto !== "ELE " )
         && verdadeiras.includes("FAZER ISSO");
       await app.close();
+
+      // A tela do mestre com a mesa inteira: o painel lista os 25 pontos, e a ficha do
+      // Ídolo mostra o setor com as sete ferramentas e o rádio em texto.
+      const painel = game.op2.painelInvestigacao();
+      await painel.render(true);
+      await new Promise((res) => setTimeout(res, 1500));
+      // Duas listas com o mesmo cartão: a primeira é a dos pontos, a segunda a dos desafios.
+      const listas = painel.element?.querySelectorAll(".op2-painel-pois") ?? [];
+      r.painel = listas[0]?.querySelectorAll(".op2-poi-card").length === 25
+        && listas[1]?.querySelectorAll(".op2-poi-card").length === 3;
+      const idolo = game.items.getName("O Ídolo de Pedra");
+      await idolo.sheet.render(true);
+      await new Promise((res) => setTimeout(res, 1200));
+      const fichaIdolo = idolo.sheet.element;
+      r.fichaIdolo = fichaIdolo?.querySelectorAll(".op2-poi__ferramenta").length === 8
+        && fichaIdolo.querySelector('textarea[name="system.ferramentas.radio.texto"]')?.value.includes("gritos")
+        && fichaIdolo.querySelector('input[name="system.laboratorioDados"]')?.value === "6";
+      await idolo.sheet.close();
+
       await game.settings.set("ordem-paranormal-2e", "investigacoesAtivasUuids", ativaAntes);
       await agente.delete();
       return r;
@@ -2736,6 +2791,8 @@ const relato = await page.evaluate(async () => {
     relato.passos.push([mundo.investigacao, "a investigação do Ato II resolve 25 pontos, 3 desafios e 5 agentes no mundo"]);
     relato.passos.push([mundo.laser, "o laser marca exatamente os dez pontos da lista do livro"]);
     relato.passos.push([mundo.radio, "o rádio do Depósito B joga em blocos, como o livro"]);
+    relato.passos.push([mundo.painel, "o painel do mestre lista os 25 pontos e os 3 desafios do Ato II"]);
+    relato.passos.push([mundo.fichaIdolo, "a ficha do Ídolo mostra as sete ferramentas mais o laser, o rádio em texto e os 6 dados do Laboratório"]);
 
     // Segunda importação, com os arquivos já no lugar: nada de pedir o zip de novo.
     await limparAtoII();

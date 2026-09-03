@@ -8,6 +8,12 @@
     <div class="op2-card__texto">{{{descricaoBasica}}}</div>
   {{/if}}
 
+  {{#if pdRecuperado.pd}}
+    <p class="op2-card__desfecho op2-card__desfecho--sucesso">
+      <i class="fa-solid fa-heart-pulse" aria-hidden="true"></i> {{pdRecuperado.texto}}
+    </p>
+  {{/if}}
+
   {{!-- Os dados vivem no card da própria ação: Examinar rola sem DT, então o card
         genérico de teste não tinha desfecho para mostrar. --}}
   {{#if componentes}}

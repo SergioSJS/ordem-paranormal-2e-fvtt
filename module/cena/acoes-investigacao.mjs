@@ -236,6 +236,10 @@ export async function examinar(ator, poiUuid, chavePericia, { rapido = false } =
   const marcar = (ids, semRolar) => infosPorId(poi, ids)
     .map((info) => ({ ...info, rotuloPericia: rotuloDePericia(info.pericia), semRolar }));
 
+  // "Quando examina um ponto de interesse e recebe uma informação nova, você recupera
+  // 1 PD" (Amor pela Descoberta): houve informação nova, de graça ou pelo teste.
+  const pdRecuperado = await recuperarPdAoDescobrir(ator);
+
   await enviarCard(ator, "revelacao", {
     titulo: `${game.i18n.localize("OP2.Investigacao.Examinar")} — ${rotuloDePericia(chavePericia)}`,
     poiNome: poi.name,
@@ -252,9 +256,28 @@ export async function examinar(ator, poiUuid, chavePericia, { rapido = false } =
     desfechoTeste: revelaveis.length ? "sucesso" : "falha",
     quantidadeTeste: revelaveis.length,
     quantidadeGratis: gratis.length,
+    pdRecuperado,
   }, { whisper: sussurroPara(ator) });
 
-  return { roll, revelaveis: [...gratis, ...revelaveis], perdePD: false };
+  return { roll, revelaveis: [...gratis, ...revelaveis], perdePD: false, pdRecuperado: pdRecuperado?.pd ?? 0 };
+}
+
+/**
+ * Habilidades que devolvem PD ao descobrir (`efeito.pdAoDescobrir`): soma o que todas
+ * concedem, respeitando o máximo. Devolve o que foi recuperado para o card, ou null.
+ */
+async function recuperarPdAoDescobrir(ator) {
+  const habilidades = ator.items.filter((i) => i.type === "habilidade" && (i.system.efeito?.pdAoDescobrir ?? 0) > 0);
+  if (!habilidades.length) return null;
+  const { value, max } = ator.system.recursos.pd;
+  const pd = Math.min(habilidades.reduce((n, h) => n + h.system.efeito.pdAoDescobrir, 0), Math.max(0, max - value));
+  if (pd > 0) await ator.update({ "system.recursos.pd.value": value + pd });
+  return {
+    pd,
+    texto: game.i18n.format("OP2.Habilidade.PdRecuperado", {
+      ator: ator.name, pd, habilidade: habilidades.map((h) => h.name).join(", "),
+    }),
+  };
 }
 
 export async function interagir(ator, poiUuid) {

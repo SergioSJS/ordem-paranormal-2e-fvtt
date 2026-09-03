@@ -315,12 +315,18 @@ def separar_caixa(linhas):
     tabela (o símbolo no teto, a grade do duto) ou logo antes dela (o painel, o
     computador). Devolve (linhas sem a caixa, linhas da caixa)."""
     caixa, resto = [], list(linhas)
-    for a, b in reversed(blocos_por_linha_vazia(linhas)):
+    blocos = blocos_por_linha_vazia(linhas)
+    for a, b in reversed(blocos):
         bloco = linhas[a:b]
         if any(ABRE_CAIXA.search(l) for l in bloco):
-            # O cabeçalho do quadro pode vir grudado no bloco: ele fica.
-            fica = [l for l in bloco if CABECALHO.match(l)]
-            caixa = [l for l in bloco if not CABECALHO.match(l)] + caixa
+            # No primeiro bloco do ponto a descrição pode vir colada acima da caixa (o
+            # painel elétrico) e fica; nos outros, tudo antes do marcador é da caixa (a
+            # frase do símbolo alto, impressa dentro da tabela). O cabeçalho do quadro
+            # fica sempre.
+            inicio = next(k for k, l in enumerate(bloco) if ABRE_CAIXA.search(l)) if (a, b) == blocos[0] else 0
+            antes, dentro = bloco[:inicio], bloco[inicio:]
+            fica = antes + [l for l in dentro if CABECALHO.match(l)]
+            caixa = [l for l in dentro if not CABECALHO.match(l)] + caixa
             resto[a:b] = fica
     return resto, caixa
 
@@ -582,7 +588,14 @@ def montar_ponto(p, legenda):
     i_cab = next((k for k, l in enumerate(linhas) if CABECALHO.match(l)), None)
     i_fer = [k for k, l in enumerate(linhas) if l.strip() == "FERRAMENTAS"]
     fim_desc = min([k for k in [i_cab, *i_fer] if k is not None] or [len(linhas)])
-    p["descricao"] = limpo(" ".join(l.strip() for l in linhas[:fim_desc]))
+    # A descrição é o primeiro bloco de linhas, na margem do ponto. Texto de mestre
+    # antes do quadro vem depois de uma linha em branco, ou recuado para dentro
+    # (Pertences de Edgar, sem quadro nem setor: a nota vem colada, 2 colunas adiante).
+    margem = recuo(linhas[0]) if linhas and linhas[0].strip() else 0
+    fim_bloco = next((k for k in range(fim_desc) if not linhas[k].strip() and any(l.strip() for l in linhas[:k])), fim_desc)
+    corte = next((k for k in range(1, fim_bloco) if linhas[k].strip() and recuo(linhas[k]) >= margem + 2), fim_bloco)
+    notas_antes = linhas[corte:fim_desc]
+    p["descricao"] = limpo(" ".join(l.strip() for l in linhas[:corte]))
 
     infos, sobras = [], []
     p["celulasDT"] = 0
@@ -617,6 +630,7 @@ def montar_ponto(p, legenda):
             notas += sobra
     else:
         notas = linhas[fim_desc:] if i_cab is None else []
+    notas = notas_antes + notas
     p["leituraNormal"] = leitura_normal
     # O livro imprime "Laboratório" nos quatro rótulos do freezer; a leitura diz qual
     # ferramenta é cada uma (a matriz da p. 75 confirma: Câmera, Laboratório, Lanterna,

@@ -39,6 +39,12 @@ export class HabilidadeData extends foundry.abstract.TypeDataModel {
         chaves: new SetField(new StringField(), { initial: [] }),
         /** Efeitos paranormais raros podem levar d12 → d20; precisa ser declarado (spec §3). */
         permitirD20: new BooleanField({ required: true, initial: false }),
+        /**
+         * PD recuperados quando Examinar revela informação nova ("Amor pela Descoberta",
+         * ficha do Antônio, Ato II). Zero = a habilidade não faz isso. Aplicado em
+         * `examinar()`, que é quem sabe se houve informação nova.
+         */
+        pdAoDescobrir: new NumberField({ required: true, initial: 0, min: 0, integer: true, nullable: false }),
       }),
 
       /**
