@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   acumularArrombar, arrombou, excedeuTentativas, danoDeAlcancar, avaliarPalpite, venceuDestrancar,
   podeTentarHackNestaRodada, chancesDeErroHackSocial,
-  linhaDaTabelaDeHack,
+  linhaDaTabelaDeHack, tentativasPorRodadaDeDestrancar, tentativasDeDestrancarNaRodada,
 } from "../cena/desafios.mjs";
 
 test("arrombar acumula RA na pontuação, sem passar da PA (spec §7.2)", () => {
@@ -82,4 +82,20 @@ test("tabela do hack: abaixo da menor faixa o painel não devolve nada", () => {
 test("sem tabela não há linha — é hack comum, resolvido pela DT", () => {
   assert.equal(linhaDaTabelaDeHack([], 12), null);
   assert.equal(linhaDaTabelaDeHack(undefined, 12), null);
+});
+
+test("tentativas por rodada de Destrancar seguem o dado de Crime (spec §7.1)", () => {
+  assert.deepEqual(["d4", "d6", "d8", "d10", "d12"].map(tentativasPorRodadaDeDestrancar), [1, 2, 3, 4, 5]);
+  assert.equal(tentativasPorRodadaDeDestrancar(undefined), 1);
+});
+
+test("a contagem da rodada é o histórico do desafio, por ator e rodada", () => {
+  const historico = [
+    { atorId: "a", rodada: 2 }, { atorId: "a", rodada: 2 },
+    { atorId: "b", rodada: 2 }, { atorId: "a", rodada: 1 },
+  ];
+  assert.equal(tentativasDeDestrancarNaRodada(historico, "a", 2), 2);
+  assert.equal(tentativasDeDestrancarNaRodada(historico, "b", 2), 1);
+  assert.equal(tentativasDeDestrancarNaRodada(historico, "a", 3), 0);
+  assert.equal(tentativasDeDestrancarNaRodada(undefined, "a", 1), 0);
 });

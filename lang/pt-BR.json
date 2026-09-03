@@ -542,7 +542,9 @@
       "HackTabelaAjuda": "Com a tabela preenchida, o teste não abre nada: o total escolhe a faixa e o problema vai para o card. Quem confere a resposta é o mestre.",
       "SustentarAoFalhar": "O que acontece ao falhar",
       "HackTecnicoSegundos": "{segundos} segundos",
-      "HackTabelaSegundos": "Segundos"
+      "HackTabelaSegundos": "Segundos",
+      "DestrancarTetoRodada": "Já foram as {teto} tentativa(s) desta rodada (Crime {dado}). Espere a próxima.",
+      "DestrancarNaRodada": "{usadas}/{teto} tentativas nesta rodada (Crime {dado})."
     },
     "Ferramenta": {
       "Rotulo": "Ferramenta",

@@ -15,4 +15,7 @@
   {{else}}
     <p class="op2-ajuda">{{localize "OP2.Desafio.DestrancarTentativa"}}</p>
   {{/if}}
+  {{#if tetoRodada}}
+    <p class="op2-ajuda">{{localize "OP2.Desafio.DestrancarNaRodada" usadas=naRodada teto=tetoRodada dado=dadoCrime}}</p>
+  {{/if}}
 </div>

@@ -28,11 +28,9 @@ Manifesto, tooling, testes, docs, símbolo do projeto. Sem conteúdo de jogo.
 trocando o atributo, ver RA/RB e crítico no chat, e o mestre aplicar falha crítica com
 um clique — em v13 e v14.
 
-**Sem compêndio de habilidades, e é intencional.** O playtest não publica uma lista de
-habilidades: elas aparecem só nas fichas dos personagens prontos, que são conteúdo da
-aventura *A Maldição do Ídolo de Pedra* — fora de escopo deste repositório. O tipo de
-Item `habilidade` existe e é funcional; o conteúdo é criado pela mesa, ou vem de um
-*adventure module* separado. Ver `docs/LACUNAS.md`.
+**Habilidades.** O playtest não publica uma lista fechada: elas aparecem nas fichas dos
+pré-gerados. O tipo de Item `habilidade` é funcional e o compêndio traz as do Ato I com
+a origem (perfil ou ocupação); a mesa cria o resto. Ver `docs/LACUNAS.md`.
 
 ## Fase 2 — Investigação → `0.2.0` ✅
 

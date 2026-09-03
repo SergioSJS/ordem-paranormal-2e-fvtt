@@ -98,3 +98,23 @@ export function linhaDaTabelaDeHack(tabela, total) {
   }
   return null;
 }
+
+
+/**
+ * Tentativas de Destrancar por rodada, pelo dado de Crime (spec §7.1):
+ * d4 = 1, d6 = 2, d8 = 3, d10 = 4, d12 = 5.
+ * @param {string} dadoCrime  "d4" … "d12"
+ */
+export function tentativasPorRodadaDeDestrancar(dadoCrime) {
+  const faces = Number(String(dadoCrime ?? "d4").replace(/^d/, ""));
+  return Math.max(1, Math.min(5, Math.round(faces / 2) - 1));
+}
+
+/**
+ * Quantas tentativas este ator já gastou nesta rodada, contando pelo histórico do
+ * desafio — não há contador à parte para dessincronizar.
+ * @param {{atorId?: string, rodada?: number}[]} historico
+ */
+export function tentativasDeDestrancarNaRodada(historico, atorId, rodada) {
+  return (historico ?? []).filter((h) => h.atorId === atorId && h.rodada === rodada).length;
+}

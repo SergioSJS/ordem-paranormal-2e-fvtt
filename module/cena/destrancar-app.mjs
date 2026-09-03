@@ -9,6 +9,8 @@
  * usa para segredos de POI — ver docs/ARQUITETURA.md).
  */
 import { gerarSenhaDestrancar, tentarDestrancar, carregarDesafio } from "./acoes-desafio.mjs";
+import { tentativasPorRodadaDeDestrancar, tentativasDeDestrancarNaRodada } from "./desafios.mjs";
+import { rodadaAtual } from "./rodada.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -49,8 +51,17 @@ export class DestrancarApp extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 
     const encerrado = sistema.quebrado || sistema.destrancado;
+
+    // Teto por rodada pelo dado de Crime de quem vai tentar (spec §7.1).
+    const ator = game.user.character;
+    const dadoCrime = ator?.system?.pericias?.crime?.dadoEfetivo ?? "d4";
+    const tetoRodada = tentativasPorRodadaDeDestrancar(dadoCrime);
+    const naRodada = tentativasDeDestrancarNaRodada(sistema.historicoDestrancar, ator?.id, rodadaAtual());
+
     return {
       existe: true,
+      naRodada, tetoRodada, dadoCrime,
+      esgotouRodada: naRodada >= tetoRodada,
       ehGM: game.user.isGM,
       nome: desafio.name,
       temSenha,

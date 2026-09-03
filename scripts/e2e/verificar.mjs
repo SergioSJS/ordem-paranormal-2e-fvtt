@@ -1867,6 +1867,28 @@ const relato = await page.evaluate(async () => {
     ok("sem senha, tentar recusa (mestre precisa gerar antes)",
       await game.op2.tentarDestrancar(ator, fechadura.uuid, [1, 1, 1]) === null);
 
+    // Teto por rodada pelo dado de Crime (spec §7.1): com d4, uma tentativa por
+    // rodada. Testado num ator próprio para não travar o fluxo abaixo, que precisa de
+    // duas tentativas seguidas — o `ator` do teste sobe para d12 (cinco por rodada).
+    {
+      const ladrao = await Actor.create({
+        name: "Ladrão de d4", type: "personagem", system: { pericias: { crime: { die: "d4" } } },
+      });
+      const cadeadinho = await Item.create({ name: "Cadeadinho", type: "desafio-acesso" });
+      await game.op2.gerarSenhaDestrancar(cadeadinho.uuid, { tamanho: 2, facesSenha: 6 });
+      const primeira = await game.op2.tentarDestrancar(ladrao, cadeadinho.uuid, [7, 7]);
+      ok("Crime d4 dá uma tentativa por rodada, e a primeira passa",
+        primeira?.tetoRodada === 1 && primeira.naRodada === 1);
+      ok("a segunda na mesma rodada é recusada",
+        await game.op2.tentarDestrancar(ladrao, cadeadinho.uuid, [7, 7]) === null);
+      ok("o histórico guarda quem tentou e em que rodada",
+        cadeadinho.system.historicoDestrancar.length === 1
+        && cadeadinho.system.historicoDestrancar[0].atorId === ladrao.id);
+      await cadeadinho.delete();
+      await ladrao.delete();
+    }
+    await ator.update({ "system.pericias.crime.die": "d12" });
+
     const senha = await game.op2.gerarSenhaDestrancar(fechadura.uuid, { tamanho: 3, facesSenha: 6 });
     ok("gerar senha grava 3 posições de 1 a 6", senha.length === 3 && senha.every((v) => v >= 1 && v <= 6));
     ok("a senha gerada é a mesma gravada no Item", fechadura.system.senha.join(",") === senha.join(","));

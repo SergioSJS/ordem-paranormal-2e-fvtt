@@ -57,6 +57,10 @@ export class DesafioAcessoData extends foundry.abstract.TypeDataModel {
       historicoDestrancar: new ArrayField(new SchemaField({
         palpite: new ArrayField(new NumberField({ required: true, integer: true })),
         resultado: new ArrayField(new StringField({ required: true, choices: ["exato", "alto", "baixo"] })),
+        // Quem tentou e em que rodada: é o que dá o teto de tentativas por rodada pelo
+        // dado de Crime (spec §7.1) sem contador novo — o histórico já é a contagem.
+        atorId: new StringField({ required: true, initial: "", blank: true }),
+        rodada: new NumberField({ required: true, initial: 0, integer: true, nullable: false }),
       }), { initial: [] }),
 
       // HACKEAR (spec §7.3): duas abordagens independentes, cada uma com o próprio

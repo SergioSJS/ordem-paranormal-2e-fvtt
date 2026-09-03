@@ -542,7 +542,9 @@
       "HackTabelaAjuda": "With the table filled in, the test opens nothing: the total picks the range and the problem goes to the card. The GM checks the answer.",
       "SustentarAoFalhar": "What happens on a failure",
       "HackTecnicoSegundos": "{segundos} seconds",
-      "HackTabelaSegundos": "Seconds"
+      "HackTabelaSegundos": "Seconds",
+      "DestrancarTetoRodada": "That's all {teto} attempt(s) for this round (Crime {dado}). Wait for the next one.",
+      "DestrancarNaRodada": "{usadas}/{teto} attempts this round (Crime {dado})."
     },
     "Ferramenta": {
       "Rotulo": "Tool",

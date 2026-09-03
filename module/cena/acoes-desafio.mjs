@@ -14,6 +14,7 @@ import { SYSTEM_ID, CUSTO_PV_ARROMBAR, CUSTO_PV_SUSTENTAR, BONUS_DT_ALCANCAR_ARR
 import {
   acumularArrombar, arrombou, excedeuTentativas, danoDeAlcancar, avaliarPalpite, venceuDestrancar,
   podeTentarHackNestaRodada, chancesDeErroHackSocial, linhaDaTabelaDeHack,
+  tentativasPorRodadaDeDestrancar, tentativasDeDestrancarNaRodada,
 } from "./desafios.mjs";
 import { rolarTeste, renderizar, enviarParaChat, rotuloDePericia } from "../dice/teste.mjs";
 import { aplicarDano } from "../dice/falha-critica.mjs";
@@ -326,13 +327,27 @@ export async function tentarDestrancar(ator, desafioUuid, palpite) {
     return null;
   }
 
+  // Teto por rodada pelo dado de Crime (spec §7.1): d4 = 1 … d12 = 5. O histórico do
+  // desafio guarda quem tentou em que rodada, então a contagem é ele mesmo.
+  const rodada = rodadaAtual();
+  const dadoCrime = ator?.system?.pericias?.crime?.dadoEfetivo ?? "d4";
+  const tetoRodada = tentativasPorRodadaDeDestrancar(dadoCrime);
+  const naRodada = tentativasDeDestrancarNaRodada(desafio.system.historicoDestrancar, ator?.id, rodada);
+  if (naRodada >= tetoRodada) {
+    ui.notifications.warn(game.i18n.format("OP2.Desafio.DestrancarTetoRodada", {
+      teto: tetoRodada, dado: dadoCrime,
+    }));
+    return null;
+  }
+
   const resultado = avaliarPalpite(desafio.system.senha, palpite);
   const venceu = venceuDestrancar(resultado);
   const destrancarTentativas = desafio.system.destrancarTentativas + 1;
   const quebrado = !venceu && excedeuTentativas({
     maxTentativas: desafio.system.maxTentativas, tentativasUsadas: destrancarTentativas,
   });
-  const historicoDestrancar = [...desafio.system.historicoDestrancar, { palpite, resultado }];
+  const historicoDestrancar = [...desafio.system.historicoDestrancar,
+    { palpite, resultado, atorId: ator?.id ?? "", rodada }];
 
   await gravarNoDesafio(desafio, {
     "system.destrancarTentativas": destrancarTentativas,
@@ -346,9 +361,12 @@ export async function tentarDestrancar(ator, desafioUuid, palpite) {
     desafioNome: desafio.name,
     venceu,
     quebrado,
+    naRodada: naRodada + 1,
+    tetoRodada,
+    dadoCrime,
   }, { whisper: sussurroPara(ator) });
 
-  return { resultado, venceu, quebrado };
+  return { resultado, venceu, quebrado, naRodada: naRodada + 1, tetoRodada };
 }
 
 /**

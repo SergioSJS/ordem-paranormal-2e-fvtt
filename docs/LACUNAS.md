@@ -179,16 +179,14 @@ faixa pequena e fixa de valores.
 **Default:** d6 por posição (`facesSenha`, configurável por desafio no Item — o
 mestre pode subir para d8/d10/d12 numa fechadura mais complexa).
 
-### Teto de tentativas por rodada de Destrancar não implementado (spec §7.1)
+### Teto de tentativas por rodada de Destrancar (spec §7.1)
 
-A spec liga tentativas-por-rodada ao valor de Crime (d4=1 … d12=5). Isso exige
-saber, por ator, quantas tentativas já gastou *nesta rodada específica* — um
-contador a mais, cruzando ator × desafio × rodada, que o tracker de rodadas atual
-não modela em lugar nenhum.
-
-**Decisão M3:** só o teto global (`maxTentativas`/`quebrado`, o mesmo de Arrombar)
-é aplicado. O teto por rodada fica de fora até haver necessidade real de jogo —
-registrar aqui se algum playtest sentir falta.
+A spec liga tentativas-por-rodada ao dado de Crime (d4 = 1 … d12 = 5). Ficou de fora na
+M3 por exigir um contador ator × desafio × rodada. Não exige: o histórico de palpites
+do desafio passou a guardar `atorId` e `rodada`, e a contagem é o próprio histórico.
+`tentarDestrancar()` recusa a tentativa além do teto e avisa; o card e o app mostram
+"x/y nesta rodada". A rodada vem do tracker da investigação ativa — sem investigação
+em jogo, tudo conta como rodada 0, e o teto vale do mesmo jeito até o mestre avançar.
 
 ### Modelo de conteúdo do Rádio Modificado não publicado (spec §9.2)
 
