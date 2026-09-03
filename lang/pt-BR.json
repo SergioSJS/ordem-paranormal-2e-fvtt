@@ -530,7 +530,16 @@
       "GenericoRotulo": "Nome da ação",
       "GenericoRotuloExemplo": "Ex.: Arrancar as tábuas",
       "GenericoPericia": "Perícia testada",
-      "GenericoJaResolvido": "Este desafio já foi vencido por essa abordagem."
+      "GenericoJaResolvido": "Este desafio já foi vencido por essa abordagem.",
+      "HackTecnicoFaixa": "O painel respondeu na faixa {faixa}:",
+      "HackTecnicoSemFaixa": "O painel não devolveu nada — dá para tentar de novo na próxima rodada.",
+      "HackTabelaFaixa": "Faixa",
+      "HackTabelaProblema": "O que o painel devolve",
+      "HackTabelaAdicionar": "Nova faixa",
+      "HackTabelaAjuda": "Com a tabela preenchida, o teste não abre nada: o total escolhe a faixa e o problema vai para o card. Quem confere a resposta é o mestre.",
+      "SustentarAoFalhar": "O que acontece ao falhar",
+      "HackTecnicoSegundos": "{segundos} segundos",
+      "HackTabelaSegundos": "Segundos"
     },
     "Ferramenta": {
       "Rotulo": "Ferramenta",

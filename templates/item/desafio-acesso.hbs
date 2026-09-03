@@ -33,6 +33,11 @@
         <span>{{localize "OP2.Desafio.HackSocial"}}</span>
       </label>
       <label class="op2-campo op2-campo--inline">
+        <input type="checkbox" name="system.abordagens.sustentar" {{#if sistema.abordagens.sustentar}}checked{{/if}}
+          {{#unless editavel}}disabled{{/unless}}>
+        <span>{{localize "OP2.Desafio.Sustentar"}}</span>
+      </label>
+      <label class="op2-campo op2-campo--inline">
         <input type="checkbox" name="system.abordagens.generico" {{#if sistema.abordagens.generico}}checked{{/if}}
           {{#unless editavel}}disabled{{/unless}}>
         <span>{{localize "OP2.Desafio.Generico"}}</span>
@@ -143,8 +148,34 @@
           {{#unless editavel}}disabled{{/unless}}>
         <span>{{localize "OP2.Desafio.HackSucesso"}}</span>
       </label>
+      {{!-- Painel que devolve um problema em vez de abrir: cada faixa de rolagem tem
+            o seu (spec §7.3 não modela o problema; o livro imprime). --}}
+      <div class="op2-desafio-hack__tabela">
+        {{#each sistema.hackTecnico.tabela}}
+          <div class="op2-campo op2-campo--inline">
+            <input type="text" name="system.hackTecnico.tabela.{{@index}}.rolagem" value="{{rolagem}}"
+              aria-label="{{localize 'OP2.Desafio.HackTabelaFaixa'}}" size="5"
+              {{#unless @root.editavel}}disabled{{/unless}}>
+            <input type="text" name="system.hackTecnico.tabela.{{@index}}.desafio" value="{{desafio}}"
+              aria-label="{{localize 'OP2.Desafio.HackTabelaProblema'}}"
+              {{#unless @root.editavel}}disabled{{/unless}}>
+            <input type="number" name="system.hackTecnico.tabela.{{@index}}.segundos" value="{{segundos}}"
+              min="0" step="1" size="3" aria-label="{{localize 'OP2.Desafio.HackTabelaSegundos'}}"
+              {{#unless @root.editavel}}disabled{{/unless}}>
+          </div>
+        {{/each}}
+        {{#if editavel}}
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="adicionarLinhaHack">
+            <i class="fa-solid fa-plus"></i> {{localize "OP2.Desafio.HackTabelaAdicionar"}}
+          </button>
+          <p class="op2-ajuda">{{localize "OP2.Desafio.HackTabelaAjuda"}}</p>
+        {{/if}}
+      </div>
+
       {{#if editavel}}
         <div class="op2-desafio-hack__timer">
+          <input type="number" class="op2-desafio-hack__segundos" data-timer-segundos
+            value="10" min="1" step="1" aria-label="{{localize 'OP2.Desafio.HackTabelaSegundos'}}">
           <button type="button" class="op2-botao op2-botao--pequeno" data-action="iniciarTimerHack">
             {{localize "OP2.Desafio.HackTimerIniciar"}}
           </button>
@@ -191,6 +222,22 @@
           </button>
         {{/if}}
       </div>
+    </fieldset>
+  {{/if}}
+
+  {{#if sistema.abordagens.sustentar}}
+    <fieldset class="op2-desafio-hack">
+      <legend>{{localize "OP2.Desafio.Sustentar"}}</legend>
+      <label class="op2-campo">
+        <span>{{localize "OP2.Desafio.DtObjeto"}}</span>
+        <input type="number" name="system.sustentar.dt" value="{{sistema.sustentar.dt}}" min="0" step="1"
+          {{#unless editavel}}disabled{{/unless}}>
+      </label>
+      <label class="op2-campo">
+        <span>{{localize "OP2.Desafio.SustentarAoFalhar"}}</span>
+        <input type="text" name="system.sustentar.aoFalhar" value="{{sistema.sustentar.aoFalhar}}"
+          {{#unless editavel}}disabled{{/unless}}>
+      </label>
     </fieldset>
   {{/if}}
 

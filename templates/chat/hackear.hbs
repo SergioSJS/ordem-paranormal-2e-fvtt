@@ -16,7 +16,21 @@
   {{/if}}
 
   {{#if tecnico}}
-    {{#if sucesso}}
+    {{!-- Painel com tabela: o teste não abre nada, entrega o problema a resolver. --}}
+    {{#if problema}}
+      <p class="op2-card__desfecho">
+        <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+        {{localize "OP2.Desafio.HackTecnicoFaixa" faixa=faixa}}
+        {{#if segundos}}<strong>· {{localize "OP2.Desafio.HackTecnicoSegundos" segundos=segundos}}</strong>{{/if}}
+      </p>
+      <p class="op2-card__infos"><strong>{{problema}}</strong></p>
+      <button type="button" class="op2-botao op2-botao--pequeno" data-op2-gm
+        data-op2-acao="marcar-hack-tecnico-resolvido" data-ator-id="{{atorId}}" data-desafio-uuid="{{desafioUuid}}">
+        {{localize "OP2.Desafio.HackMarcarResolvido"}}
+      </button>
+    {{else if semResposta}}
+      <p class="op2-ajuda">{{localize "OP2.Desafio.HackTecnicoSemFaixa"}}</p>
+    {{else if sucesso}}
       <p class="op2-ajuda" data-op2-gm>{{localize "OP2.Desafio.HackTecnicoAjudaMestre"}}</p>
     {{/if}}
   {{/if}}

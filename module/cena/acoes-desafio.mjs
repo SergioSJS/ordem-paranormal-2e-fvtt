@@ -13,7 +13,7 @@
 import { SYSTEM_ID, CUSTO_PV_ARROMBAR, CUSTO_PV_SUSTENTAR, BONUS_DT_ALCANCAR_ARRISCADO } from "../config.mjs";
 import {
   acumularArrombar, arrombou, excedeuTentativas, danoDeAlcancar, avaliarPalpite, venceuDestrancar,
-  podeTentarHackNestaRodada, chancesDeErroHackSocial,
+  podeTentarHackNestaRodada, chancesDeErroHackSocial, linhaDaTabelaDeHack,
 } from "./desafios.mjs";
 import { rolarTeste, renderizar, enviarParaChat, rotuloDePericia } from "../dice/teste.mjs";
 import { aplicarDano } from "../dice/falha-critica.mjs";
@@ -191,13 +191,23 @@ async function publicarAlcancar(ator, modo, rolls, sucesso) {
  * no ator; o desgaste de cada rodada é aplicado por `avancarRodada()`. O "efeito
  * final" (o que se solta ao falhar) não é modelado — descrição textual, mesa resolve.
  */
-export async function sustentar(ator, { rapido = false } = {}) {
+export async function sustentar(ator, { rapido = false, desafioUuid = null } = {}) {
   if (ator.system.estado.sustentando?.ativo) {
     ui.notifications.warn(game.i18n.localize("OP2.Desafio.JaSustentando"));
     return null;
   }
 
-  const roll = await rolarTeste(ator, { chavePericia: "atletismo", rapido, contexto: game.i18n.localize("OP2.Desafio.Sustentar") });
+  // Sustentar um obstáculo concreto (a estante-porta do Ato I) usa a DT dele; solto,
+  // é a DT padrão da mesa.
+  const desafio = desafioUuid ? await carregarDesafio(desafioUuid) : null;
+  const contexto = desafio
+    ? `${game.i18n.localize("OP2.Desafio.Sustentar")} — ${desafio.name}`
+    : game.i18n.localize("OP2.Desafio.Sustentar");
+
+  const roll = await rolarTeste(ator, {
+    chavePericia: "atletismo", rapido, contexto,
+    ...(desafio ? { dt: desafio.system.sustentar.dt } : {}),
+  });
   if (!roll) return null;
 
   // Custo inicial de 1 PV — só depois de o teste rodar, nunca por um diálogo
@@ -206,8 +216,9 @@ export async function sustentar(ator, { rapido = false } = {}) {
 
   if (!roll.sucesso) {
     await enviarCard(ator, "acao-cena", {
-      titulo: game.i18n.localize("OP2.Desafio.Sustentar"),
-      texto: game.i18n.format("OP2.Desafio.SustentarFalhouInicio", { ator: ator.name }),
+      titulo: contexto,
+      texto: [game.i18n.format("OP2.Desafio.SustentarFalhouInicio", { ator: ator.name }),
+        desafio?.system.sustentar.aoFalhar].filter(Boolean).join(" "),
       atorId: ator.id,
     });
     return { roll, sustentando: false };
@@ -215,7 +226,7 @@ export async function sustentar(ator, { rapido = false } = {}) {
 
   await ator.update({ "system.estado.sustentando": { ativo: true, fadiga: 0 } });
   await enviarCard(ator, "acao-cena", {
-    titulo: game.i18n.localize("OP2.Desafio.Sustentar"),
+    titulo: contexto,
     texto: game.i18n.format("OP2.Desafio.SustentarSucesso", { ator: ator.name }),
     atorId: ator.id,
   });
@@ -369,19 +380,39 @@ export async function hackTecnico(ator, desafioUuid, { rapido = false } = {}) {
   });
   if (!roll) return null;
 
+  // Painel com tabela (o do Ato I) não abre pelo teste: o total escolhe a faixa, e a
+  // faixa entrega o problema. Quem resolve é o jogador, na mesa — então o desafio só
+  // fica resolvido quando o mestre marca (mesmo caminho do hack social).
+  const linha = linhaDaTabelaDeHack(desafio.system.hackTecnico.tabela, roll.total);
+  const temTabela = desafio.system.hackTecnico.tabela.length > 0;
+
   await gravarNoDesafio(desafio, {
     "system.hackTecnico.ultimaTentativaRodada": rodada,
-    "system.hackTecnico.resolvido": roll.sucesso,
+    "system.hackTecnico.resolvido": temTabela ? false : roll.sucesso,
   });
 
   await enviarCard(ator, "hackear", {
     titulo: game.i18n.localize("OP2.Desafio.HackTecnico"),
     desafioNome: desafio.name,
-    sucesso: roll.sucesso,
+    sucesso: temTabela ? Boolean(linha) : roll.sucesso,
     tecnico: true,
+    desafioUuid: desafio.uuid,
+    // Sem faixa alcançada o painel não devolveu nada — nem por isso o hack falhou de
+    // vez: dá para tentar de novo na rodada seguinte.
+    problema: linha?.desafio ?? "",
+    faixa: linha?.rolagem ?? "",
+    segundos: linha?.segundos ?? 0,
+    semResposta: temTabela && !linha,
   }, { whisper: sussurroPara(ator) });
 
-  return { roll, sucesso: roll.sucesso };
+  return { roll, sucesso: temTabela ? Boolean(linha) : roll.sucesso, linha };
+}
+
+/** O painel abriu: quem confere a resposta do jogador é o mestre (spec §7.3). */
+export async function marcarHackTecnicoResolvido(desafioUuid) {
+  const desafio = await carregarDesafio(desafioUuid);
+  if (!desafio) return null;
+  await gravarNoDesafio(desafio, { "system.hackTecnico.resolvido": true });
 }
 
 /**

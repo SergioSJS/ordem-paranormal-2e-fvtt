@@ -20,14 +20,24 @@ PDFTOTEXT = "/opt/homebrew/bin/pdftotext"
 INICIO = re.compile(r"^PONTOS DE INTERESSE\s*$")
 FIM = re.compile(r"^NARRAÇÃO FINAL\s*$")
 
+# Os colchetes do "[EVIDÊNCIA-CHAVE]" fazem parte do título no livro — sem eles na
+# classe, o Celular e o Computador de Gustavo não eram ponto nenhum.
+# O recuo vai longe: numa página de duas colunas, o título da direita começa perto da
+# coluna 55. E "“ALTAR” DE MADEIRA" abre com aspa — sem ela, o altar não era ponto.
 TITULO = re.compile(
-    r"^(\s{0,24})([A-ZÁÂÃÉÊÍÓÔÕÚÇ][A-ZÁÂÃÉÊÍÓÔÕÚÇ0-9 ,:–'-]{4,50}?)"
+    r"^(\s{0,60})([“\"]?[A-ZÁÂÃÉÊÍÓÔÕÚÇ][A-ZÁÂÃÉÊÍÓÔÕÚÇ0-9 ,:\[\]“”\"–'-]{4,50}?)"
     r"(\s{2,}\(([^)]{4,60})\))?\s*$")
 CABECALHO = re.compile(r"^(\s*)Perícia\s+DT\s+Informação\s*$")
 RUIDO = re.compile(r"^\s*\d{1,3}\s*$|^\s*$")
 # Começo de frase: o que separa um título de ponto de um rótulo de caixa lateral.
 FRASE = re.compile(r"^\s*[A-ZÁÂÃÉÊÍÓÔÕÚÇ“\"][a-záâãéêíóôõúçà]")
 
+
+# Cabeçalhos de caixa e de quadro do livro. Parecem título (caixa alta, linha própria),
+# mas o que vem depois deles é conteúdo de outro ponto: "CONTEÚDO" abre o que há dentro
+# do armário, "A DÍVIDA PRECISA SER PAGA" é a tabela da maldição.
+NAO_E_TITULO = re.compile(r"^(CONTEÚDO|FERRAMENTAS|NOVAS DESCOBERTAS|A DÍVIDA PRECISA SER PAGA"
+                          r"|PONTOS DE INTERESSE|O PORÃO)$")
 
 # Rótulos das caixas de desafio ao lado do ponto — nunca são títulos.
 DESAFIO_NA_CAIXA = re.compile(r"\(DT\s|\bPA\s|\b(ARROMBAR|DESTRANCAR|ALCANÇAR|HACKEAR|ITEM)\b")
@@ -47,7 +57,7 @@ def eh_titulo(linhas, i):
     frase em caixa normal; um rótulo de caixa é seguido de outro rótulo.
     """
     m = TITULO.match(linhas[i])
-    if not m or DESAFIO_NA_CAIXA.search(m.group(2)):
+    if not m or DESAFIO_NA_CAIXA.search(m.group(2)) or NAO_E_TITULO.match(m.group(2).strip()):
         return False
     for proxima in linhas[i + 1:i + 4]:
         if RUIDO.match(proxima):
@@ -179,12 +189,85 @@ def nome_do_obstaculo(linhas, nome_do_ponto=""):
             continue
         palavras += [p for p in esquerda.split()
                      if p not in COLA_DA_CAIXA and not p.isdigit()]
+    # "(HACK SOCIAL)" no rótulo é a abordagem, que já vira campo — fora do nome.
     nome = " ".join(dict.fromkeys(palavras)).title()
+    nome = re.sub(r"\(?\s*Hack\s+(Social|Técnico)\s*\)?", "", nome, flags=re.I).strip()
     return re.sub(r"\b(Do|Da|De|Dos|Das|E)\b", lambda m: m.group(1).lower(), nome)
 
 
-# Tabela do Hack Técnico: faixa de rolagem à esquerda, equação à direita.
+# Tabela do Hack Técnico. Duas formas no livro: faixa → equação (o painel do depósito)
+# e faixa → tempo, com uma equação só impressa no cabeçalho (o computador).
 LINHA_DA_TABELA = re.compile(r"(\d+\s*\+|\d+\s*-\s*\d+)\s+(.+?=\s*[\d.,]+)\s*$")
+LINHA_COM_TEMPO = re.compile(r"(\d+\s*\+|\d+\s*-\s*\d+|\d+\s*ou\s*$|menos)\s*(\d+)s\s*$")
+EQUACAO_NO_TOPO = re.compile(r"EQUAÇÃO\s+(.+?=\s*[\d.,]+)\s*$")
+
+
+def ler_tabela_de_hack(linhas):
+    """Faixa de rolagem → o que o painel devolve.
+
+    O painel do depósito devolve uma equação por faixa. O computador devolve TEMPO: a
+    equação é uma só, impressa no alto da caixa, e a faixa diz quantos segundos o
+    jogador tem para resolvê-la.
+    """
+    equacao_unica = next((m.group(1).strip() for l in linhas
+                          if (m := EQUACAO_NO_TOPO.search(l.strip()))), "")
+    tabela, pendente = [], None
+    for linha in linhas:
+        crua = linha.strip()
+        if (m := LINHA_DA_TABELA.search(crua)):
+            tabela.append({"rolagem": re.sub(r"\s+", "", m.group(1)),
+                           "equacao": re.sub(r"\s+", " ", m.group(2)).strip(), "segundos": 0})
+            continue
+        # "6 ou / menos    10s": a faixa quebra em duas linhas.
+        if (m := re.search(r"(\d+)\s*ou\s*$", crua)):
+            pendente = m.group(1)
+            continue
+        if (m := re.search(r"(\d+)s\s*$", crua)) and pendente:
+            tabela.append({"rolagem": f"1-{pendente}", "equacao": equacao_unica,
+                           "segundos": int(m.group(1))})
+            pendente = None
+            continue
+        if (m := LINHA_COM_TEMPO.search(crua)):
+            tabela.append({"rolagem": re.sub(r"\s+", "", m.group(1)),
+                           "equacao": equacao_unica, "segundos": int(m.group(2))})
+    return tabela
+
+
+# O banco do hack social: pergunta numa linha, resposta na seguinte; ou "rótulo: valor".
+PERGUNTA = re.compile(r"^(.+\?)$")
+ROTULO_VALOR = re.compile(r"^([A-ZÁÂÃÉÊÍÓÔÕÚÇ][^:]{4,60}):\s+(.+)$")
+
+
+def ler_banco_de_perguntas(linhas):
+    """Perguntas e respostas do hack social, como o livro imprime.
+
+    Três formas na mesma caixa: pergunta numa linha e resposta na seguinte; "rótulo:
+    valor" na mesma linha; e um cabeçalho que termina em ":" seguido de uma lista solta
+    ("Nomes importantes para essa pessoa:" → Olívia, Laura). O rótulo da caixa fica na
+    coluna da esquerda, então cada linha é lida pelo último pedaço.
+    """
+    banco, esperando, cabecalho = [], None, None
+    for linha in linhas:
+        pedacos = [p for p in re.split(r"\s{2,}", linha.strip()) if p]
+        if not pedacos:
+            continue
+        crua = pedacos[-1]
+        if crua.isupper() or crua.startswith("("):
+            continue
+        if esperando:
+            banco.append({"pergunta": esperando, "resposta": crua})
+            esperando = None
+            continue
+        if PERGUNTA.match(crua):
+            esperando = crua
+            cabecalho = None
+        elif (m := ROTULO_VALOR.match(crua)):
+            banco.append({"pergunta": m.group(1).strip(), "resposta": m.group(2).strip()})
+        elif crua.endswith(":"):
+            cabecalho = crua.rstrip(":").strip()
+        elif cabecalho and not re.search(r"respostas?\s+corretas?", crua, re.I):
+            banco.append({"pergunta": cabecalho, "resposta": crua})
+    return banco
 
 
 def ler_desafio(linhas, nome_do_ponto=""):
@@ -203,14 +286,13 @@ def ler_desafio(linhas, nome_do_ponto=""):
     if (m := ALCANCAR.search(texto)):
         d["alcancar"] = {"dt": int(m.group(1))}
     if re.search(r"HACK\s+TÉCNICO", texto, re.I):
-        tabela = []
-        for linha in linhas:
-            if (m := LINHA_DA_TABELA.search(linha.strip())):
-                tabela.append({"rolagem": re.sub(r"\s+", "", m.group(1)),
-                               "equacao": re.sub(r"\s+", " ", m.group(2)).strip()})
-        d["hackTecnico"] = {"tabela": tabela}
+        d["hackTecnico"] = {"tabela": ler_tabela_de_hack(linhas)}
     if re.search(r"HACK\s+SOCIAL", texto, re.I):
-        d["hackSocial"] = True
+        respostas = re.search(r"(\d+)\s+respostas?\s+corretas?", texto, re.I)
+        d["hackSocial"] = {
+            "respostasNecessarias": int(respostas.group(1)) if respostas else 3,
+            "perguntas": ler_banco_de_perguntas(linhas),
+        }
     # A estante: enigma + Sustentar, uma pessoa por rodada.
     if (m := re.search(r"SUSTENTAR\s*\(DT\s*(\d+)\)", texto, re.I)):
         d["sustentar"] = {"dt": int(m.group(1))}
@@ -257,8 +339,15 @@ def extrair():
             pontos.append(atual)
         elif atual is not None and not RUIDO.match(linha) and not atual["informacoes"]:
             texto = linha.strip()
+            recuo = len(linha) - len(linha.lstrip())
+            # A coluna da direita da caixa às vezes é impressa ANTES do rótulo (o banco
+            # de perguntas do celular). Descrição do ponto nunca começa tão à direita.
             if ABRE_CAIXA.search(texto) or DESAFIO_NA_CAIXA.search(texto):
                 atual["na_caixa"] = True
+            elif recuo >= 28 and atual["descricao"]:
+                atual["caixa"].append(linha.rstrip())
+                i += 1
+                continue
             if atual["na_caixa"] or texto.isupper():
                 # Guarda a linha COM o recuo: é ele que diz qual coluna da caixa é qual.
                 atual["caixa"].append(linha.rstrip())

@@ -147,6 +147,12 @@
                 {{localize "OP2.Desafio.HackSocial"}}
               </button>
             {{/if}}
+            {{#if abordagens.sustentar}}
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="sustentarDesafio"
+                data-desafio-uuid="{{uuid}}">
+                {{localize "OP2.Desafio.Sustentar"}} (DT {{sustentarDt}})
+              </button>
+            {{/if}}
             {{#if abordagens.generico}}
               <button type="button" class="op2-botao op2-botao--pequeno" data-action="desafioGenerico"
                 data-desafio-uuid="{{uuid}}" {{#if genericoResolvido}}disabled{{/if}}>

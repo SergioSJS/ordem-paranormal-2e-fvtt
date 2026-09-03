@@ -759,7 +759,7 @@ const relato = await page.evaluate(async () => {
       // O quadro sai do PDF: perícia, DT e o texto da pista.
       const comQuadro = [...aventura.items].filter((i) => i.type === "ponto-interesse"
         && i.system.informacoes.length);
-      ok("os pontos trazem o quadro de informações preenchido", comQuadro.length >= 15);
+      ok("os pontos trazem o quadro de informações preenchido", comQuadro.length >= 20);
       const linhas = comQuadro.flatMap((i) => i.system.informacoes);
       ok("com perícia válida e DT em toda linha",
         linhas.length >= 60 && linhas.every((l) => l.pericia && Number.isInteger(l.dt) && l.dt > 0));
@@ -772,10 +772,10 @@ const relato = await page.evaluate(async () => {
       const idsDeAtores = new Set([...aventura.actors].map((a) => a.id));
       const resolve = (uuids, conjunto) => uuids.every((u) => conjunto.has(u.split(".").pop()));
       ok("a investigação já vem com os pontos de interesse vinculados",
-        investigacao.system.pois.length >= 15
+        investigacao.system.pois.length >= 28
         && resolve(investigacao.system.pois, idsDeItens));
       ok("com os desafios vinculados",
-        investigacao.system.desafios.length >= 7
+        investigacao.system.desafios.length >= 9
         && resolve(investigacao.system.desafios, idsDeItens));
 
       // As caixas laterais do PDF trazem os números prontos — nada é chutado aqui.
@@ -799,7 +799,7 @@ const relato = await page.evaluate(async () => {
       const comHandout = [...aventura.items].filter((i) => i.type === "ponto-interesse"
         && i.system.descricaoContextual.includes("systems/ordem-paranormal-2e/assets/ato-i/handouts/"));
       ok("os pontos que citam handout trazem a imagem na descrição do mestre",
-        comHandout.length >= 5);
+        comHandout.length >= 10);
 
       /* ---- o import de verdade: o compêndio certo não garante mundo certo ---- */
       // Importar é o único jeito de saber se os UUIDs sobrevivem à travessia: no
@@ -826,7 +826,7 @@ const relato = await page.evaluate(async () => {
       await limpar();
       await aventura.import({ dialog: false });
       ok("importar a aventura cria tudo no mundo",
-        noMundo("Actor").length === 6 && noMundo("Item").length === 30
+        noMundo("Actor").length === 6 && noMundo("Item").length === 37
         && noMundo("Scene").length === 1 && noMundo("JournalEntry").length === 2
         && noMundo("Playlist").length === 1);
 
@@ -842,8 +842,8 @@ const relato = await page.evaluate(async () => {
         return noMundo("Item").concat(noMundo("Actor")).filter((d) => d.folder?.id === alvo?.id);
       };
       ok("com pontos, desafios e pré-gerados cada um na sua",
-        naPasta("Pontos de Interesse").length === 23
-        && naPasta("Desafios de Acesso").length === 7
+        naPasta("Pontos de Interesse").length === 28
+        && naPasta("Desafios de Acesso").length === 9
         && naPasta("Pré-gerados").length === 5);
       ok("e nada solto fora de pasta",
         [...noMundo("Actor"), ...noMundo("Item"), ...noMundo("Scene"),
@@ -852,21 +852,40 @@ const relato = await page.evaluate(async () => {
       const pontosNoMundo = noMundo("Item").filter((i) => i.type === "ponto-interesse");
       const linhasNoMundo = pontosNoMundo.flatMap((i) => i.system.informacoes);
       ok("os pontos chegam ao mundo com o quadro preenchido",
-        pontosNoMundo.length === 23 && linhasNoMundo.length === 73
+        pontosNoMundo.length === 28 && linhasNoMundo.length === 73
         && linhasNoMundo.every((l) => l.pericia && l.dt > 0 && l.texto.length > 10));
       ok("e com as três visibilidades no padrão descobrível",
         linhasNoMundo.every((l) => l.oculta === false && l.aberta === false));
 
       const desafiosNoMundo = noMundo("Item").filter((i) => i.type === "desafio-acesso");
-      ok("os sete desafios de acesso chegam com os números do livro",
-        desafiosNoMundo.length === 7
+      ok("os nove desafios de acesso chegam com os números do livro",
+        desafiosNoMundo.length === 9
         && desafiosNoMundo.every((d) => d.system.dtObjeto > 0 && d.system.pontuacaoAlvo > 0
           && Object.values(d.system.abordagens).some(Boolean)));
+      // Os dois pontos-chave têm "[EVIDÊNCIA-CHAVE]" no título: sem colchete no regex
+      // do extrator, eles não existiam e o quadro deles caía no ponto anterior.
+      ok("as duas evidências-chave do porão estão entre os pontos",
+        ["Celular de Gustavo", "Computador"].every((n) => pontosNoMundo.some((p) => p.name.includes(n))));
+
+      const celular = desafiosNoMundo.find((d) => d.name.includes("Celular"));
+      ok("o celular chega como Hack Social, com o banco de perguntas do livro",
+        celular?.system.abordagens.hackSocial === true
+        && celular.system.hackSocial.respostasNecessarias === 4
+        && celular.system.hackSocial.perguntas.length === 6
+        && celular.system.hackSocial.perguntas.some((p) => /Gustavo Alves de Campos/.test(p.resposta)));
+
+      const computador = desafiosNoMundo.find((d) => d.name.includes("Computador"));
+      ok("e o computador, com a faixa dizendo quantos segundos o jogador tem",
+        computador?.system.hackTecnico.tabela.length === 3
+        && computador.system.hackTecnico.tabela[0].segundos === 20
+        && computador.system.hackTecnico.tabela.every((l) => /23 x 4 - 25 = 67/.test(l.desafio)));
+
       // A estante é enigma + Sustentar: abordagem genérica, não arrombamento.
       const estante = desafiosNoMundo.find((d) => d.name.startsWith("Estante"));
-      ok("a estante entra como abordagem genérica, com o rótulo do Sustentar",
-        estante?.system.abordagens.generico === true
-        && /Sustentar/.test(estante.system.generico.rotulo));
+      ok("a estante entra como obstáculo de Sustentar, com DT e consequência",
+        estante?.system.abordagens.sustentar === true
+        && estante.system.sustentar.dt === 7
+        && /1d4 PV/.test(estante.system.sustentar.aoFalhar));
 
       // A senha impressa do painel da saída é informação de mestre, não minigame.
       const saida = pontosNoMundo.find((p) => p.name === "Porta de Saída");
@@ -876,10 +895,11 @@ const relato = await page.evaluate(async () => {
 
       // O painel do Depósito A é Hack Técnico, não arrombamento — a caixa do livro diz.
       const painel = desafiosNoMundo.find((d) => d.name.includes("Painel"));
-      ok("e o painel elétrico chega como Hack Técnico, com a tabela na nota do mestre",
+      ok("e o painel elétrico chega como Hack Técnico, com a tabela do livro em dado",
         painel?.system.abordagens.hackTecnico === true
         && !painel.system.abordagens.arrombar
-        && /16 x 5 = 80/.test(painel.flags["ordem-paranormal-2e"]?.notaDoMestre ?? ""));
+        && painel.system.hackTecnico.tabela.length === 4
+        && painel.system.hackTecnico.tabela[0].desafio === "16 x 5 = 80");
 
       const investigacaoNoMundo = noMundo("Actor").find((a) => a.type === "investigacao");
       const links = [
@@ -1591,6 +1611,31 @@ const relato = await page.evaluate(async () => {
       await esperar(200);
       ok("timer começa em 10 e desabilita o botão (evita reiniciar no meio)",
         desafioEl.querySelector("[data-timer-hack]")?.textContent === "10" && botaoTimer.disabled === true);
+
+      // Painel com tabela: a ficha edita as faixas, e o teste devolve o problema em vez
+      // de abrir sozinho.
+      desafioEl.querySelector('[data-action="adicionarLinhaHack"]')?.click();
+      await esperar(500);
+      ok("ficha edita a tabela do painel (faixa e problema)",
+        Boolean(desafioEl.querySelector("input[name='system.hackTecnico.tabela.0.rolagem']"))
+        && Boolean(desafioEl.querySelector("input[name='system.hackTecnico.tabela.0.desafio']")));
+      await fechadura.update({
+        "system.hackTecnico.tabela": [{ rolagem: "1+", desafio: "16 x 5 = 80" }],
+        "system.hackTecnico.ultimaTentativaRodada": -1,
+      });
+      const hack = await comDadosNoMaximo(() => game.op2.hackTecnico(ator, fechadura.uuid, { rapido: true }));
+      ok("com tabela, o hack devolve a linha da faixa alcançada",
+        hack?.linha?.desafio === "16 x 5 = 80");
+      ok("e o desafio NÃO se resolve sozinho: quem confere a conta é o mestre",
+        fechadura.system.hackTecnico.resolvido === false);
+      const cardHack = game.messages.contents.at(-1);
+      ok("o card traz o problema e o botão de marcar resolvido",
+        /16 x 5 = 80/.test(cardHack?.content ?? "")
+        && /marcar-hack-tecnico-resolvido/.test(cardHack?.content ?? ""));
+      await game.op2.marcarHackTecnicoResolvido(fechadura.uuid);
+      ok("marcar resolvido fecha o painel", fechadura.system.hackTecnico.resolvido === true);
+      await fechadura.update({ "system.hackTecnico.tabela": [], "system.hackTecnico.resolvido": false });
+
     }
     await fechadura.sheet.close();
 
@@ -1619,6 +1664,24 @@ const relato = await page.evaluate(async () => {
     const iniciou = await comDadosNoMaximo(() => game.op2.sustentar(ator, { rapido: true }));
     ok("sustentar com DT 0 sempre começa", iniciou?.sustentando === true);
     ok("sustentar liga a flag no ator", ator.system.estado.sustentando.ativo === true);
+
+    // Sustentar um obstáculo (a estante-porta do Ato I): a DT vem do desafio.
+    await game.op2.pararDeSustentar(ator);
+    const estanteE2E = await Item.create({
+      name: "Estante-porta", type: "desafio-acesso",
+      system: {
+        abordagens: { arrombar: false, destrancar: false, hackTecnico: false, hackSocial: false, sustentar: true, generico: false },
+        sustentar: { dt: 0, aoFalhar: "Quem passa perde 1d4 PV." },
+      },
+    });
+    const segurou = await comDadosNoMaximo(() => game.op2.sustentar(ator, { rapido: true, desafioUuid: estanteE2E.uuid }));
+    ok("sustentar aceita a DT do obstáculo e começa", segurou?.sustentando === true);
+    ok("e o card nomeia o obstáculo, não só a ação",
+      /Estante-porta/.test(game.messages.contents.at(-1)?.content ?? ""));
+    await game.op2.pararDeSustentar(ator);
+    await estanteE2E.delete();
+    // Devolve o estado: as verificações de fadiga logo abaixo contam com ele sustentando.
+    await comDadosNoMaximo(() => game.op2.sustentar(ator, { rapido: true }));
 
     // A 1ª `avancarRodada()` só liga a rodada 1 (mesma guarda `encerrada >= 1` da
     // sobrecarga) — a fadiga só entra a partir da rodada seguinte, quando uma

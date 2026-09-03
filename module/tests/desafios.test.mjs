@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   acumularArrombar, arrombou, excedeuTentativas, danoDeAlcancar, avaliarPalpite, venceuDestrancar,
   podeTentarHackNestaRodada, chancesDeErroHackSocial,
+  linhaDaTabelaDeHack,
 } from "../cena/desafios.mjs";
 
 test("arrombar acumula RA na pontuação, sem passar da PA (spec §7.2)", () => {
@@ -52,4 +53,33 @@ test("chancesDeErroHackSocial: 1 base + 1 a cada 3 pontos de excedente sobre a D
   assert.equal(chancesDeErroHackSocial(10, 7), 2, "excedente 3");
   assert.equal(chancesDeErroHackSocial(16, 7), 4, "excedente 9 = +3 chances");
   assert.equal(chancesDeErroHackSocial(5, 7), 1, "abaixo da DT não desconta a base");
+});
+
+// A tabela do painel do Ato I, como o livro imprime.
+const TABELA_DO_PAINEL = [
+  { rolagem: "10+", desafio: "16 x 5 = 80" },
+  { rolagem: "7-9", desafio: "192 ÷ 8 = 24" },
+  { rolagem: "5-6", desafio: "13² = 169" },
+  { rolagem: "1-4", desafio: "√2209 = 47" },
+];
+
+test("tabela do hack: faixa aberta pega tudo dali para cima", () => {
+  assert.equal(linhaDaTabelaDeHack(TABELA_DO_PAINEL, 10).desafio, "16 x 5 = 80");
+  assert.equal(linhaDaTabelaDeHack(TABELA_DO_PAINEL, 23).desafio, "16 x 5 = 80");
+});
+
+test("tabela do hack: faixa fechada pega os dois extremos", () => {
+  assert.equal(linhaDaTabelaDeHack(TABELA_DO_PAINEL, 7).desafio, "192 ÷ 8 = 24");
+  assert.equal(linhaDaTabelaDeHack(TABELA_DO_PAINEL, 9).desafio, "192 ÷ 8 = 24");
+  assert.equal(linhaDaTabelaDeHack(TABELA_DO_PAINEL, 5).desafio, "13² = 169");
+  assert.equal(linhaDaTabelaDeHack(TABELA_DO_PAINEL, 4).desafio, "√2209 = 47");
+});
+
+test("tabela do hack: abaixo da menor faixa o painel não devolve nada", () => {
+  assert.equal(linhaDaTabelaDeHack(TABELA_DO_PAINEL, 0), null);
+});
+
+test("sem tabela não há linha — é hack comum, resolvido pela DT", () => {
+  assert.equal(linhaDaTabelaDeHack([], 12), null);
+  assert.equal(linhaDaTabelaDeHack(undefined, 12), null);
 });

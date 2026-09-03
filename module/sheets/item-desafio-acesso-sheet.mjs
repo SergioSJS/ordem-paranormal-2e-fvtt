@@ -20,6 +20,7 @@ export class DesafioAcessoSheet extends OP2ItemSheet {
       adicionarPerguntaHack: DesafioAcessoSheet.#adicionarPerguntaHack,
       removerPerguntaHack: DesafioAcessoSheet.#removerPerguntaHack,
       iniciarTimerHack: DesafioAcessoSheet.#iniciarTimerHack,
+      adicionarLinhaHack: DesafioAcessoSheet.#adicionarLinhaHack,
     },
   };
 
@@ -75,6 +76,12 @@ export class DesafioAcessoSheet extends OP2ItemSheet {
   }
 
   /** Banco de perguntas do hack social — mestre cadastra pergunta + gabarito. */
+  /** Uma faixa a mais na tabela do painel ("10+ → 16 x 5 = 80"). */
+  static async #adicionarLinhaHack() {
+    const tabela = [...this.item.system.hackTecnico.tabela, { rolagem: "", desafio: "" }];
+    await this.item.update({ "system.hackTecnico.tabela": tabela });
+  }
+
   static async #adicionarPerguntaHack() {
     const perguntas = [...this.item.system.hackSocial.perguntas, { pergunta: "", resposta: "" }];
     await this.item.update({ "system.hackSocial.perguntas": perguntas });
@@ -97,7 +104,9 @@ export class DesafioAcessoSheet extends OP2ItemSheet {
     const mostrador = this.element.querySelector("[data-timer-hack]");
     if (!mostrador) return;
 
-    let restante = 10;
+    // A faixa da tabela pode dar mais (ou menos) tempo que os 10s padrão.
+    const escolhido = Number(this.element.querySelector("[data-timer-segundos]")?.value);
+    let restante = Number.isInteger(escolhido) && escolhido > 0 ? escolhido : 10;
     alvo.disabled = true;
     mostrador.textContent = restante;
     this.#timerId = setInterval(() => {

@@ -8,7 +8,7 @@ import { SYSTEM_ID, CUSTO_PD_EXAMINAR } from "../config.mjs";
 import { rolarFalhaCritica, aplicarFalhaCritica, aplicarDano } from "../dice/falha-critica.mjs";
 import { testarCompartilhamento, registrarTravaDeCena } from "../cena/acoes-investigacao.mjs";
 import { rolarSobrecarga } from "../cena/rodada.mjs";
-import { marcarHackSocialResolvido } from "../cena/acoes-desafio.mjs";
+import { marcarHackSocialResolvido, marcarHackTecnicoResolvido } from "../cena/acoes-desafio.mjs";
 import { rolarTesteDeQueda } from "../cena/ferimentos.mjs";
 import { defender } from "../cena/acoes-combate.mjs";
 import { concederPasso } from "../cena/acoes-recurso.mjs";
@@ -121,6 +121,11 @@ const ACOES = {
   async "marcar-hack-social-resolvido"(_ator, dataset) {
     await marcarHackSocialResolvido(dataset.desafioUuid);
   },
+
+  async "marcar-hack-tecnico-resolvido"(_ator, dataset) {
+    await marcarHackTecnicoResolvido(dataset.desafioUuid);
+  },
+
 };
 
 /**

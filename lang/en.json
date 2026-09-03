@@ -530,7 +530,16 @@
       "GenericoRotulo": "Action name",
       "GenericoRotuloExemplo": "e.g. Pry the boards off",
       "GenericoPericia": "Skill tested",
-      "GenericoJaResolvido": "This challenge was already beaten with that approach."
+      "GenericoJaResolvido": "This challenge was already beaten with that approach.",
+      "HackTecnicoFaixa": "The panel answered in range {faixa}:",
+      "HackTecnicoSemFaixa": "The panel gave nothing back — you can try again next round.",
+      "HackTabelaFaixa": "Range",
+      "HackTabelaProblema": "What the panel returns",
+      "HackTabelaAdicionar": "New range",
+      "HackTabelaAjuda": "With the table filled in, the test opens nothing: the total picks the range and the problem goes to the card. The GM checks the answer.",
+      "SustentarAoFalhar": "What happens on a failure",
+      "HackTecnicoSegundos": "{segundos} seconds",
+      "HackTabelaSegundos": "Seconds"
     },
     "Ferramenta": {
       "Rotulo": "Tool",

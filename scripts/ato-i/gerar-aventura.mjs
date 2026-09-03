@@ -162,7 +162,9 @@ function desafioDoPonto(ponto) {
   const d = ponto.desafio;
   // Alcançar é ação avulsa (spec §7.4) e a senha impressa do painel da saída não é
   // minigame nenhum: nem toda caixa do livro vira desafio de acesso.
-  if (!d?.arrombar && !d?.destrancar && !d?.hackTecnico && !d?.sustentar) return null;
+  if (!d?.arrombar && !d?.destrancar && !d?.hackTecnico && !d?.hackSocial && !d?.sustentar) {
+    return null;
+  }
 
   // "Freezer — Cadeado do Freezer" repete: quando o rótulo já diz de que objeto se
   // trata, ele basta sozinho.
@@ -180,11 +182,8 @@ function desafioDoPonto(ponto) {
       ? "<p>A senha ainda não foi sorteada: use <em>Gerar senha</em> na ficha do desafio.</p>" : "",
     // O painel do Depósito A: o que a rolagem entrega é uma conta para o jogador resolver.
     d.sustentar
-      ? "<p>Uma pessoa passa por rodada. Quem sustenta pode passar junto; se falhar na "
-        + "rodada em que alguém está passando, essa pessoa é esmagada e perde 1d4 PV.</p>" : "",
-    d.hackTecnico?.tabela?.length
-      ? `<p>Tabela do painel:</p><ul>${d.hackTecnico.tabela
-        .map((l) => `<li><strong>${l.rolagem}</strong> — ${l.equacao}</li>`).join("")}</ul>` : "",
+      ? "<p>Uma pessoa passa por rodada. Quem sustenta pode passar junto — e o enigma da "
+        + "estante precisa ser resolvido antes.</p>" : "",
   ].filter(Boolean).join("\n");
 
   return {
@@ -195,14 +194,28 @@ function desafioDoPonto(ponto) {
       abordagens: {
         arrombar: Boolean(d.arrombar), destrancar: Boolean(d.destrancar),
         hackTecnico: Boolean(d.hackTecnico), hackSocial: Boolean(d.hackSocial),
-        // A estante é enigma + Sustentar: entra como abordagem genérica, que é o que o
-        // sistema tem para "teste de perícia contra o obstáculo".
-        generico: Boolean(d.sustentar),
+        sustentar: Boolean(d.sustentar),
+        generico: false,
       },
-      generico: {
-        pericia: "atletismo",
-        rotulo: d.sustentar ? `Sustentar a estante (DT ${d.sustentar.dt})` : "",
-        resolvido: false,
+      generico: { pericia: "atletismo", rotulo: "", resolvido: false },
+      sustentar: {
+        dt: d.sustentar?.dt ?? 7,
+        aoFalhar: d.sustentar
+          ? "Quem estiver passando é esmagado pela estante e perde 1d4 PV." : "",
+      },
+      hackTecnico: {
+        // A tabela do livro entra como dado: o total do teste escolhe a faixa, e ela diz
+        // qual conta o painel devolve — ou quanto tempo o jogador tem para a conta.
+        tabela: (d.hackTecnico?.tabela ?? []).map((l) => ({
+          rolagem: l.rolagem, desafio: l.equacao, segundos: l.segundos ?? 0,
+        })),
+        ultimaTentativaRodada: -1, resolvido: false,
+      },
+      hackSocial: {
+        respostasNecessarias: d.hackSocial?.respostasNecessarias ?? 3,
+        // O banco de perguntas do celular de Gustavo, direto do livro.
+        perguntas: d.hackSocial?.perguntas ?? [],
+        ultimaTentativaRodada: -1, resolvido: false,
       },
       dtObjeto: d.arrombar?.dt ?? d.sustentar?.dt ?? 7,
       pontuacaoAlvo: d.arrombar?.pa ?? 10,

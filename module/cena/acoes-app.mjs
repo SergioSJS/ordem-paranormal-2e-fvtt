@@ -44,6 +44,7 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       compartilhar: AcoesInvestigacaoApp.#compartilhar,
       alcancar: AcoesInvestigacaoApp.#alcancar,
       sustentar: AcoesInvestigacaoApp.#sustentar,
+      sustentarDesafio: AcoesInvestigacaoApp.#sustentarDesafio,
       pararDeSustentar: AcoesInvestigacaoApp.#pararDeSustentar,
       usarLaser: AcoesInvestigacaoApp.#usarLaser,
       examinar: AcoesInvestigacaoApp.#examinar,
@@ -143,6 +144,7 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
           hackTecnicoResolvido: desafio.system.hackTecnico.resolvido,
           hackSocialResolvido: desafio.system.hackSocial.resolvido,
           genericoResolvido: desafio.system.generico.resolvido,
+          sustentarDt: desafio.system.sustentar.dt,
           genericoRotulo: desafio.system.generico.rotulo?.trim()
             || game.i18n.localize("OP2.Desafio.Generico"),
           abordagens,
@@ -183,6 +185,12 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
   static async #compartilhar() { await compartilhar(this.ator); }
   static async #alcancar(_evento, alvo) { await alcancar(this.ator, { modo: alvo.dataset.modo }); }
   static async #sustentar() { await sustentar(this.ator); this.render(); }
+
+  /** Sustentar um obstáculo da cena: a DT é a dele (a estante-porta do Ato I). */
+  static async #sustentarDesafio(_evento, alvo) {
+    await sustentar(this.ator, { desafioUuid: alvo.dataset.desafioUuid });
+    this.render();
+  }
   static async #pararDeSustentar() { await pararDeSustentar(this.ator); this.render(); }
   static async #usarLaser() { await usarLaser(this.ator); }
 

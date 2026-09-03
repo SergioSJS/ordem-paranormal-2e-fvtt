@@ -75,3 +75,26 @@ export function podeTentarHackNestaRodada(ultimaTentativaRodada, rodadaAtual) {
 export function chancesDeErroHackSocial(total, dt) {
   return 1 + Math.max(0, Math.floor((total - dt) / 3));
 }
+
+/**
+ * Linha da tabela de um hack que não abre sozinho (o painel do Ato I): o total do teste
+ * escolhe a faixa, e a faixa entrega o problema que o jogador tem que resolver.
+ *
+ * As faixas vêm como o livro imprime: `10+`, `7-9`, `5-6`, `1-4`. Nada abaixo da menor
+ * faixa devolve nada — o painel não deu resposta nenhuma.
+ * @param {{rolagem: string, desafio: string}[]} tabela
+ * @param {number} total  o total do teste
+ * @returns {{rolagem: string, desafio: string}|null}
+ */
+export function linhaDaTabelaDeHack(tabela, total) {
+  for (const linha of tabela ?? []) {
+    const texto = String(linha.rolagem ?? "").replace(/\s/g, "");
+    const aberta = /^(\d+)\+$/.exec(texto);
+    if (aberta && total >= Number(aberta[1])) return linha;
+    const faixa = /^(\d+)-(\d+)$/.exec(texto);
+    if (faixa && total >= Number(faixa[1]) && total <= Number(faixa[2])) return linha;
+    const exato = /^(\d+)$/.exec(texto);
+    if (exato && total === Number(exato[1])) return linha;
+  }
+  return null;
+}

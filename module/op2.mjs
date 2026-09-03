@@ -40,7 +40,7 @@ import {
 } from "./cena/acoes-investigacao.mjs";
 import {
   arrombar, alcancar, sustentar, pararDeSustentar, gerarSenhaDestrancar, tentarDestrancar,
-  hackTecnico, hackSocial, marcarHackSocialResolvido, desafioGenerico,
+  hackTecnico, hackSocial, marcarHackSocialResolvido, marcarHackTecnicoResolvido, desafioGenerico,
 } from "./cena/acoes-desafio.mjs";
 import { usarFerramenta, usarLaser, usarRadio } from "./cena/acoes-ferramenta.mjs";
 import { abrirDestrancar } from "./cena/destrancar-app.mjs";
@@ -97,7 +97,7 @@ Hooks.once("init", () => {
   limparRevelacao,
     painelInvestigacao: abrirPainelInvestigacao, acoesInvestigacao: abrirAcoesInvestigacao, avancarRodada,
     arrombar, alcancar, sustentar, pararDeSustentar,
-    hackTecnico, hackSocial, marcarHackSocialResolvido, desafioGenerico,
+    hackTecnico, hackSocial, marcarHackSocialResolvido, marcarHackTecnicoResolvido, desafioGenerico,
     gerarSenhaDestrancar, tentarDestrancar, abrirDestrancar,
     usarFerramenta, usarLaser, abrirLaboratorio, usarRadio, abrirRadio,
     rolarTesteDeQueda, zerarContadoresDeQueda, ajudar, atacar, defender,

@@ -311,17 +311,23 @@ cena. Compêndio não carrega esses registros: testado com id próprio e com
 branco. **Decisão:** a fonte do compêndio guarda o campo legado `background` no registro
 da cena, que o v14 migra para o nível ao carregar. É o único caminho que funciona hoje.
 
-## Caixas do Ato I que o sistema não modela inteiras
+## Caixas do Ato I: o que virou dado e o que é decisão
 
-O livro do Ato I traz três caixas de acesso que não cabem redondas no `desafio-acesso`:
+Todas as caixas de acesso do porão têm campo no `desafio-acesso`:
 
-- **Painel Elétrico (Hack Técnico)** — a caixa traz uma tabela `rolagem → equação` que o
-  jogador resolve de cabeça. O modelo tem a abordagem, mas não o campo da tabela: ela vai
-  na nota do mestre, que lê a conta em voz alta.
-- **Estante de Livros** — pede *enigma* + *Sustentar (DT 7)* em sequência, com 1d4 PV em
-  quem for esmagado. Entra como abordagem genérica com o rótulo do Sustentar; a regra da
-  rodada fica na nota. Sustentar em si é ação avulsa (spec §7.5), não abordagem.
-- **Porta de Saída** — a senha é impressa no livro (160322), não sorteada. Não é o
-  minigame de Destrancar: vira informação na descrição de mestre do ponto.
+- **Painel Elétrico e Computador (Hack Técnico)** — `hackTecnico.tabela` guarda a tabela
+  do livro. O total do teste escolhe a faixa; a faixa diz qual conta o painel devolve
+  (o painel) ou quantos segundos o jogador tem para resolver a conta impressa (o
+  computador). Com tabela, o teste não resolve o desafio sozinho: quem confere a
+  resposta é o mestre, pelo botão do card.
+- **Celular de Gustavo (Hack Social)** — as seis perguntas e respostas do livro entram
+  em `hackSocial.perguntas`, com `respostasNecessarias: 4`.
+- **Estante de Livros** — abordagem `sustentar`, com a DT do obstáculo e o texto do que
+  acontece a quem falhar. O enigma dos livros continua sendo mesa: o sistema não modela
+  "puxar os livros certos".
+- **Porta de Saída** — **decisão, não lacuna**: a senha é impressa no livro (160322).
+  Não é o minigame de Destrancar, que sorteia; vira informação na descrição de mestre do
+  ponto, e o desafio não existe.
 
-Se o playtest publicar campos para isso, os três viram dados de verdade.
+O que segue fora: o Ato II (outro capítulo do playtest, com os próprios pontos e as
+reações de ferramenta) não é gerado — o compêndio cobre o Ato I.
