@@ -40,6 +40,19 @@ export class InvestigacaoData extends foundry.abstract.TypeDataModel {
         }), { initial: () => TABELA_SOBRECARGA_PADRAO.map((linha) => ({ ...linha })) }),
       }),
 
+      /**
+       * Roteiro da cena: o que acontece no começo de certas rodadas.
+       *
+       * A sobrecarga é dano por tabela; isto é o resto — a narração que o mestre lê e o
+       * efeito que ele aplica ("A Dívida Precisa Ser Paga", do Ato I: rodadas 4, 7, 10,
+       * 13 e 14). Só texto: o efeito é decisão de mesa, o sistema avisa na hora certa.
+       */
+      eventos: new ArrayField(new SchemaField({
+        rodada: new NumberField({ required: true, initial: 1, min: 0, integer: true, nullable: false }),
+        narracao: new HTMLField({ required: true, initial: "", blank: true }),
+        efeito: new HTMLField({ required: true, initial: "", blank: true }),
+      }), { initial: [] }),
+
       // Quem participa — não quem tem token numa Scene específica.
       participantes: new ArrayField(new StringField(), { initial: [] }),
       ordemParticipantes: new ArrayField(new StringField(), { initial: [] }),

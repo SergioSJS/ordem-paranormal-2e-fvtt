@@ -14,6 +14,8 @@ import re, subprocess, json, pathlib, sys
 PDF = pathlib.Path("docs/Ordem-Paranormal-RPG-2-Playtest-Alpha-agentes.pdf")
 # Fora de `packs/sources/`: ali dentro todo .json é documento de compêndio.
 SAIDA = pathlib.Path("build/ato-i-pontos.json")
+SAIDA_MALDICAO = pathlib.Path("build/ato-i-maldicao.json")
+SAIDA_ITENS = pathlib.Path("build/ato-i-itens.json")
 PDFTOTEXT = "/opt/homebrew/bin/pdftotext"
 
 # O trecho do porão: da lista de pontos até a narração final.
@@ -149,7 +151,8 @@ def ler_tabela(linhas, i, col_dt, col_info):
 
 # As caixas de desafio ao lado do ponto trazem os números prontos.
 ARROMBAR = re.compile(r"ARROMBAR\s*(?:-\s*DT\s*Acumulada\s*(\d+)|\(DT\s*(\d+),\s*PA\s*(\d+)\))", re.I)
-DESTRANCAR = re.compile(r"DESTRANCAR\s*\(senha:\s*(\d+)d(\d+)\s*(?:,\s*(\d+)\s*tentativas)?", re.I)
+# Na caixa vem "DESTRANCAR (senha: 3d6, 3 tentativas)"; na prosa, sem os dois pontos.
+DESTRANCAR = re.compile(r"DESTRANCAR\s*\(senha:?\s*(\d+)d(\d+)\s*(?:,\s*(\d+)\s*tentativas)?", re.I)
 ALCANCAR = re.compile(r"ALCANÇAR\s*\(DT\s*(\d+)\)", re.I)
 
 
@@ -270,6 +273,28 @@ def ler_banco_de_perguntas(linhas):
     return banco
 
 
+# Nem todo desafio está em caixa: as correntes de Edgar aparecem no texto de mestre.
+ABERTO_COM = re.compile(
+    r"(?:^|\.)\s*(?:A|As|O|Os)\s+([a-zà-ú]+(?:\s+[a-zà-ú]+){0,2}?)\s+"
+    r"(?:pode|podem)\s+ser\s+(?:aberta|abertas|aberto|abertos)\s+com\b", re.I)
+
+
+def desafio_na_prosa(linhas):
+    """Desafio descrito no meio do texto, em caixa baixa, sem quadro lateral."""
+    texto = re.sub(r"\s{2,}", " ", " ".join(l.strip() for l in linhas))
+    m = ABERTO_COM.search(texto)
+    if not m:
+        return None
+    d = ler_desafio([texto])
+    if not d:
+        return None
+    d["rotulo"] = m.group(1).strip().capitalize()
+    d.pop("item", None)          # "molho de chaves 1" aqui não vem entre parênteses
+    if (chave := re.search(r"molho de chaves\s*(\d)", texto, re.I)):
+        d["item"] = f"molho de chaves {chave.group(1)}"
+    return d
+
+
 def ler_desafio(linhas, nome_do_ponto=""):
     """Lê a caixa de desafio de acesso que vem antes da tabela do ponto."""
     texto = " ".join(linhas)
@@ -306,6 +331,162 @@ def ler_desafio(linhas, nome_do_ponto=""):
         if (m := re.search(r"ITEM\s*\(([^)]+)\)", texto, re.I)):
             d["item"] = re.sub(r"\s+", " ", m.group(1)).strip()
     return d or None
+
+
+# "A DÍVIDA PRECISA SER PAGA": o que acontece no começo de cada rodada da cena.
+INICIO_MALDICAO = re.compile(r"^\s*A DÍVIDA PRECISA SER PAGA\s*$")
+FIM_MALDICAO = re.compile(r"^\s*(FERRAMENTAS|PONTOS DE INTERESSE)\s*$")
+LINHA_DE_RODADA = re.compile(r"^\s{0,12}(\d{1,2})(?:\s+em)?\s*$")
+
+
+INICIO_REGRAS = re.compile(r"A Maldição do Ídolo de Pedra é uma mecânica especial")
+CAIXA_LATERAL = re.compile(r"^(A DÍVIDA|ÍDOLO QUEBRADO)")
+
+
+def ler_regras_da_maldicao(linhas):
+    """O que vem antes da tabela: a narração de ativação, o teste e as duas caixas.
+
+    As caixas "A DÍVIDA FOI PAGA" e "ÍDOLO QUEBRADO" são impressas lado a lado, com a
+    segunda começando na coluna 41 — daí o corte por posição.
+    """
+    try:
+        ini = next(i for i, l in enumerate(linhas) if INICIO_REGRAS.search(l))
+        fim = next(i for i, l in enumerate(linhas) if i > ini and INICIO_MALDICAO.match(l))
+    except StopIteration:
+        return {}
+
+    bloco = linhas[ini:fim]
+    texto = re.sub(r"\s{2,}", " ", " ".join(l.strip() for l in bloco))
+    falas = re.findall(r"[“\"]?(Ao observarem o Ídolo.+?chamado\.)", texto)
+    ativacao = re.search(r"(Ao terminar a narração.+?)(?=A partir disso|$)", texto)
+
+    esquerda, direita = [], []
+    dentro = False
+    for linha in bloco:
+        if CAIXA_LATERAL.match(linha.strip()):
+            dentro = True
+        if not dentro:
+            continue
+        esquerda.append(linha[:41].strip())
+        direita.append(linha[41:].strip())
+
+    def limpar(partes):
+        texto = re.sub(r"\s{2,}", " ", " ".join(p for p in partes if p)).strip()
+        # Coluna estreita quebra palavra no meio: "ape- nas" volta a ser "apenas".
+        texto = re.sub(r"(\w)-\s+(\w)", r"\1\2", texto)
+        # O título da caixa vem em caixa alta na primeira linha; ele já é o `titulo`.
+        return re.sub(r"^[A-ZÁÂÃÉÊÍÓÔÕÚÇ ]{4,40}\s+(?=[A-ZÁ][a-zà-ú])", "", texto).strip()
+    return {
+        "narracao": " ".join(f.strip() for f in falas),
+        "ativacao": (ativacao.group(1).strip() if ativacao else ""),
+        "caixas": [c for c in ({"titulo": "A Dívida Foi Paga", "texto": limpar(esquerda)},
+                               {"titulo": "Ídolo Quebrado", "texto": limpar(direita)}) if c["texto"]],
+    }
+
+
+def ler_maldicao(linhas):
+    """A tabela da maldição: rodada → narração para ler + efeito de regra.
+
+    Mesma geometria do quadro dos pontos: o número da rodada é centralizado
+    VERTICALMENTE sobre o bloco, então pode aparecer no meio dele. Blocos são separados
+    por linha em branco, e rodada sem texto (a maioria) não vira evento.
+    """
+    try:
+        ini = next(i for i, l in enumerate(linhas) if INICIO_MALDICAO.match(l))
+    except StopIteration:
+        return []
+
+    blocos, atual = [], []
+    for linha in linhas[ini + 1:]:
+        if FIM_MALDICAO.match(linha):
+            break
+        if not linha.strip():
+            if atual:
+                blocos.append(atual)
+                atual = []
+            continue
+        if linha.strip().startswith("Rodada"):
+            continue
+        atual.append(linha)
+    if atual:
+        blocos.append(atual)
+
+    eventos = []
+    for bloco in blocos:
+        rodada, partes = None, []
+        for linha in bloco:
+            resto = linha
+            if (m := LINHA_DE_RODADA.match(linha)):
+                rodada = int(m.group(1))
+                continue
+            # O número pode dividir a linha com o texto ("  4       marcada. A dívida…").
+            if (m := re.match(r"^\s{0,12}(\d{1,2})(?:\s+em)?\s{2,}(.+)$", linha)):
+                rodada, resto = int(m.group(1)), m.group(2)
+            if (texto := re.sub(r"\s{2,}", " ", resto.strip())):
+                partes.append(texto)
+        if rodada is None or not partes:
+            continue
+        # O que está entre aspas é o que o mestre lê em voz alta; o resto é regra.
+        inteiro = " ".join(partes)
+        falas = re.findall(r"[“\"]([^”\"]+)[”\"]", inteiro)
+        efeito = re.sub(r"[“\"][^”\"]+[”\"]", " ", inteiro)
+        eventos.append({
+            "rodada": rodada,
+            "narracao": " ".join(f.strip() for f in falas).strip(),
+            "efeito": re.sub(r"\s{2,}", " ", efeito).strip(),
+        })
+    return eventos
+
+
+# Itens que o livro descreve no meio da prosa: a faca de churrasco (arma) e os dois
+# molhos de chaves, que dispensam desafios.
+ITEM_NA_PROSA = re.compile(r"^([A-ZÁÂÃÉÊÍÓÔÕÚÇ][A-ZÁÂÃÉÊÍÓÔÕÚÇ ]{4,40}):\s+(.+)$")
+ENIGMA_DA_ESTANTE = re.compile(r"^PRATELEIRA\s+(\d)\s*[-–]\s*(.+)$")
+
+
+def ler_itens(linhas, nomes_de_pontos=()):
+    """Itens descritos no texto e o enigma da estante (qual livro puxar)."""
+    pontos = {n.upper() for n in nomes_de_pontos}
+    itens, livros = [], []
+    for i, linha in enumerate(linhas):
+        texto = re.sub(r"\s{2,}", " ", linha.strip())
+        if (m := ENIGMA_DA_ESTANTE.match(texto)):
+            livros.append({"prateleira": int(m.group(1)), "livro": m.group(2).strip()})
+        elif (m := ITEM_NA_PROSA.match(texto)) and not any(
+                m.group(1).strip().upper() in n or n.startswith(m.group(1).strip().upper())
+                for n in pontos):
+            corpo = [m.group(2)]
+            for proxima in linhas[i + 1:i + 4]:
+                seguinte = re.sub(r"\s{2,}", " ", proxima.strip())
+                if not seguinte or seguinte.isupper() or ITEM_NA_PROSA.match(seguinte):
+                    break
+                corpo.append(seguinte)
+            descricao = " ".join(corpo).strip()
+            itens.append({"nome": m.group(1).title(),
+                          "descricao": descricao[0].upper() + descricao[1:]})
+    # Os molhos de chaves: o livro lista o que cada um abre logo depois de "As chaves
+    # abrem:", uma fechadura por linha, com o número do molho na frase anterior.
+    for i, linha in enumerate(linhas):
+        if "As chaves abrem" not in linha:
+            continue
+        contexto = " ".join(l.strip() for l in linhas[max(0, i - 3):i + 1])
+        if not (m := re.search(r"molho de chaves\s*(\d)", contexto)):
+            continue
+        abre = []
+        for proxima in linhas[i + 1:i + 9]:
+            seguinte = re.sub(r"[\ue000-\uf8ff•]", " ", proxima)
+            seguinte = re.sub(r"\s{2,}", " ", seguinte.strip())
+            if not seguinte:
+                continue
+            if seguinte.isupper() or seguinte.endswith(":") or len(seguinte) > 60:
+                break
+            if re.fullmatch(r"\d{1,3}", seguinte):     # número de página na margem
+                continue
+            abre.append(seguinte.strip())
+        nome = f"Molho de Chaves {m.group(1)}"
+        if abre and not any(it["nome"] == nome for it in itens):
+            itens.append({"nome": nome, "descricao": "Abre: " + "; ".join(abre) + "."})
+    return {"itens": itens, "enigmaDaEstante": livros}
 
 
 def extrair():
@@ -363,6 +544,10 @@ def extrair():
         p["descricao"] = re.sub(r"\s{2,}", " ", texto).strip()
         p.pop("na_caixa", None)
         p["desafio"] = ler_desafio(p.pop("caixa"), p["nome"])
+        # Sem caixa, o desafio ainda pode estar no texto ("As correntes podem ser
+        # abertas com arrombar (DT 10, PA 10)…").
+        if not p["desafio"]:
+            p["desafio"] = desafio_na_prosa(p["bruto"])
         # "Mostre o HANDOUT 06 - ESTANTE DE LIVROS" aparece tanto na pista quanto na
         # prosa do mestre — o ponto leva os dois.
         p["handouts"] = sorted({int(n) for n in
@@ -411,7 +596,14 @@ if __name__ == "__main__":
             info["chave"], info["condicao"] = chave_de_pericia(info["pericia"])
     SAIDA.parent.mkdir(parents=True, exist_ok=True)
     SAIDA.write_text(json.dumps(pontos, ensure_ascii=False, indent=2))
+    porao = trecho_do_porao(texto_do_pdf())
+    maldicao = {"regras": ler_regras_da_maldicao(porao), "eventos": ler_maldicao(porao)}
+    SAIDA_MALDICAO.write_text(json.dumps(maldicao, ensure_ascii=False, indent=2))
     print(f"{len(pontos)} ponto(s) com quadro → {SAIDA}")
+    print(f"{len(maldicao['eventos'])} evento(s) de rodada (a maldição) → {SAIDA_MALDICAO}")
+    extras = ler_itens(trecho_do_porao(texto_do_pdf()), [p["nome"] for p in pontos])
+    SAIDA_ITENS.write_text(json.dumps(extras, ensure_ascii=False, indent=2))
+    print(f"{len(extras['itens'])} item(ns) e {len(extras['enigmaDaEstante'])} livro(s) do enigma → {SAIDA_ITENS}")
     for p in pontos:
         pericias = {i["pericia"] for i in p["informacoes"]}
         print(f"  {p['nome'][:42]:44} {len(p['informacoes']):2} linhas  {sorted(pericias)}")

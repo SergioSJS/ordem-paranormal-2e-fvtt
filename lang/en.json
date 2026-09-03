@@ -407,7 +407,8 @@
       "Titulo": "Round {rodada}",
       "Sobrecarga": "Mental overload",
       "SobrecargaTexto": "End of round {encerrada}: {dano} emotional damage (DP). Each player rolls their own.",
-      "SemDano": "End of round {encerrada}: no overload damage."
+      "SemDano": "End of round {encerrada}: no overload damage.",
+      "EventoEfeito": "Round effect:"
     },
     "Aviso": {
       "TetoDeDados": "At most {max} dice rolled per check.",

@@ -407,7 +407,8 @@
       "Titulo": "Rodada {rodada}",
       "Sobrecarga": "Sobrecarga mental",
       "SobrecargaTexto": "Fim da rodada {encerrada}: {dano} de dano emocional (PD). Cada jogador rola o seu.",
-      "SemDano": "Fim da rodada {encerrada}: sem dano de sobrecarga."
+      "SemDano": "Fim da rodada {encerrada}: sem dano de sobrecarga.",
+      "EventoEfeito": "Efeito da rodada:"
     },
     "Aviso": {
       "TetoDeDados": "Máximo de {max} dados rolados por teste.",

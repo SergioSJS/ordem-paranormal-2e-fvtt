@@ -58,9 +58,13 @@ export async function avancarRodada() {
     }
   }
 
+  // O roteiro da cena: se a rodada que começa tem evento, ele entra no mesmo card.
+  const evento = (investigacao.system.eventos ?? []).find((e) => e.rodada === nova) ?? null;
+
   const conteudo = await renderizar("systems/ordem-paranormal-2e/templates/chat/rodada.hbs", {
     nova,
     encerrada,
+    evento,
     dano,
     temDano: dano !== "0",
     personagens: personagensDaCenaAtiva().map((a) => ({ id: a.id, nome: a.name })),

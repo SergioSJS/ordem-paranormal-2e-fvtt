@@ -152,3 +152,15 @@
 }
 
 }
+
+// Roteiro da cena no card de rodada: a narração é para ler em voz alta.
+.op2-card__evento {
+  margin-top: var(--op2-e2);
+  padding-left: var(--op2-e2);
+  border-left: 2px solid var(--op2-vermelho);
+}
+
+.op2-card__narracao {
+  margin: 0 0 var(--op2-e1);
+  font-style: italic;
+}

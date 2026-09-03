@@ -3,6 +3,19 @@
     <span class="op2-tag op2-tag--pequena">{{localize "OP2.Rodada.Titulo" rodada=nova}}</span>
   </header>
 
+  {{!-- Roteiro da cena: a narração é para ler em voz alta, o efeito é do mestre. --}}
+  {{#if evento}}
+    <div class="op2-card__evento">
+      {{#if evento.narracao}}
+        <p class="op2-card__narracao">{{evento.narracao}}</p>
+      {{/if}}
+      {{#if evento.efeito}}
+        <p class="op2-ajuda" data-op2-gm><strong>{{localize "OP2.Rodada.EventoEfeito"}}</strong>
+          {{evento.efeito}}</p>
+      {{/if}}
+    </div>
+  {{/if}}
+
   {{#if temDano}}
     <p class="op2-card__texto">{{localize "OP2.Rodada.SobrecargaTexto" encerrada=encerrada dano=dano}}</p>
     <div class="op2-card__acoes">

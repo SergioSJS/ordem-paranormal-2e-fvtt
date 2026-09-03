@@ -43,6 +43,8 @@ function cenaCompleta() {
 const semChave = ({ _key, ...resto }) => resto;
 
 const EXTRAIDOS = "build/ato-i-pontos.json";
+const MALDICAO = "build/ato-i-maldicao.json";
+const EXTRAS = "build/ato-i-itens.json";
 
 /** Handout pelo número que o texto cita ("Mostre o HANDOUT 02 - …"). */
 const HANDOUTS = readdirSync("docs/Arquivos para o público - Ato I/Handouts")
@@ -183,7 +185,7 @@ function desafioDoPonto(ponto) {
     // O painel do Depósito A: o que a rolagem entrega é uma conta para o jogador resolver.
     d.sustentar
       ? "<p>Uma pessoa passa por rodada. Quem sustenta pode passar junto — e o enigma da "
-        + "estante precisa ser resolvido antes.</p>" : "",
+        + `estante precisa ser resolvido antes.</p>${enigmaDaEstante()}` : "",
   ].filter(Boolean).join("\n");
 
   return {
@@ -260,10 +262,76 @@ pastas.desafios = pasta("Item", "Desafios de Acesso", pastas.itens._id, 200);
 /** Põe o documento na pasta e devolve ele — o import respeita o campo `folder`. */
 const em = (destino) => (doc) => ({ ...doc, folder: destino._id });
 
+/** A faca de churrasco e os dois molhos de chaves, do texto do livro. */
+function itensDoPorao() {
+  if (!existsSync(EXTRAS)) return [];
+  return JSON.parse(readFileSync(EXTRAS, "utf8")).itens.map((item) => ({
+    _id: ident(`item-ato-i-${item.nome}`),
+    name: tituloLegivel(item.nome), type: "equipamento",
+    img: "systems/ordem-paranormal-2e/assets/icons/tipos/equipamento.svg",
+    system: {
+      quantidade: 1, equipado: false,
+      descricao: `<p>${item.descricao}</p>`,
+      // "Se acertar um ataque com ela, você causa dano igual à sua RA +2": é arma.
+      arma: /pode ser usada como arma/i.test(item.descricao),
+      cargas: { usa: false, value: 0, max: 0 },
+    },
+    effects: [], folder: null, sort: 0, ownership: { default: 0 }, flags: {},
+  }));
+}
+
+function regrasDaMaldicao() {
+  if (!existsSync(MALDICAO)) return null;
+  return JSON.parse(readFileSync(MALDICAO, "utf8")).regras ?? null;
+}
+
+/** As regras da maldição que não cabem em campo nenhum: um diário só do mestre. */
+function diarioDaMaldicao() {
+  if (!existsSync(MALDICAO)) return null;
+  const { regras, eventos } = JSON.parse(readFileSync(MALDICAO, "utf8"));
+  if (!regras?.ativacao) return null;
+
+  const pagina = (nome, texto, ordem) => ({
+    _id: ident(`pagina-maldicao-${nome}`),
+    name: nome, type: "text", title: { show: true, level: 1 },
+    text: { format: 1, content: texto },
+    image: {}, video: {}, src: null, system: {},
+    sort: ordem * 100, ownership: { default: -1 }, flags: {},
+  });
+
+  const linhas = eventos.map((e) => `<tr><td>${e.rodada}</td><td>${
+    [e.narracao && `<em>“${e.narracao}”</em>`, e.efeito].filter(Boolean).join("<br>")}</td></tr>`).join("");
+
+  return {
+    _id: ident("diario-maldicao"),
+    name: "A Maldição do Ídolo de Pedra",
+    // Só o mestre: é a mecânica que ele dispara, não material de jogador.
+    ownership: { default: 0 },
+    pages: [
+      pagina("Ativação", `<p><em>“${regras.narracao}”</em></p><p>${regras.ativacao}</p>`, 1),
+      pagina("Rodada a rodada", `<table><thead><tr><th>Rodada</th><th>O que acontece</th></tr></thead>`
+        + `<tbody>${linhas}</tbody></table>`, 2),
+      ...(regras.caixas ?? []).map((c, i) => pagina(c.titulo, `<p>${c.texto}</p>`, 3 + i)),
+    ],
+    folder: null, sort: 0, flags: {},
+  };
+}
+
+/** O enigma da estante: quais livros abrem a passagem. */
+function enigmaDaEstante() {
+  if (!existsSync(EXTRAS)) return "";
+  const livros = JSON.parse(readFileSync(EXTRAS, "utf8")).enigmaDaEstante ?? [];
+  if (!livros.length) return "";
+  return `<p><strong>Livros que abrem a passagem:</strong></p><ul>${livros
+    .map((l) => `<li>Prateleira ${l.prateleira} — ${l.livro}</li>`).join("")}</ul>`;
+}
+
 const pontos = pontosDoPorao().map(em(pastas.pontos));
 const desafios = pontosBrutos().map(desafioDoPonto).filter(Boolean).map(em(pastas.desafios));
+const itens = itensDoPorao().map(em(pastas.itens));
 const pregerados = ler("ato-i-personagens").map(semChave).map(em(pastas.pregerados));
-const diarios = ler("ato-i-handouts").map(semChave).map(em(pastas.diarios));
+const diarios = [...ler("ato-i-handouts").map(semChave), diarioDaMaldicao()]
+  .filter(Boolean).map(em(pastas.diarios));
 const trilha = ler("ato-i-musicas").map(semChave).map(em(pastas.trilhas));
 const cena = em(pastas.cenas)(cenaCompleta());
 
@@ -281,6 +349,18 @@ const investigacao = {
     // "Progressão de referência (a do porão do Ato I/II)" — spec §7.6. A tabela padrão
     // do schema é exatamente essa, então basta ligar.
     sobrecarga: { ativa: true },
+    // "A Dívida Precisa Ser Paga": o que o mestre lê e aplica em cada rodada marcada.
+    eventos: existsSync(MALDICAO)
+      ? JSON.parse(readFileSync(MALDICAO, "utf8")).eventos.map((e) => ({
+        rodada: e.rodada,
+        narracao: e.narracao ? `<p>${e.narracao}</p>` : "",
+        // A rodada 0 é a ativação: o efeito completo está no texto que vem antes da
+        // tabela ("teste de Disciplina (DT 7)…"), não na célula.
+        efeito: e.rodada === 0 && regrasDaMaldicao()?.ativacao
+          ? `<p>${regrasDaMaldicao().ativacao}</p>`
+          : (e.efeito ? `<p>${e.efeito}</p>` : ""),
+      }))
+      : [],
   },
   effects: [], folder: pastas.atores._id, sort: 0, ownership: { default: 0 }, flags: {},
 };
@@ -306,7 +386,7 @@ const aventura = {
     "vista dos jogadores: abra a ficha do desafio e use <em>Gerar senha</em>.</p>",
   ].join("\n"),
   actors: [...pregerados, investigacao],
-  items: [...pontos, ...desafios],
+  items: [...pontos, ...desafios, ...itens],
   journal: diarios,
   scenes: [cena],
   playlists: trilha,
@@ -317,6 +397,6 @@ const aventura = {
 writeFileSync(DESTINO, `${JSON.stringify(aventura, null, 2)}\n`);
 console.log(`${aventura.name} → ${DESTINO}`);
 console.log(`  atores ${aventura.actors.length} (${pregerados.length} pré-gerados + investigação)`);
-console.log(`  itens ${aventura.items.length} (${pontos.length} pontos, ${desafios.length} desafios)`);
+console.log(`  itens ${aventura.items.length} (${pontos.length} pontos, ${desafios.length} desafios, ${itens.length} de mesa)`);
 console.log(`  cenas ${aventura.scenes.length}, diários ${aventura.journal.length}, trilhas ${aventura.playlists.length}`);
 console.log(`  pastas ${aventura.folders.length} (${RAIZ} em cada diretório)`);

@@ -743,7 +743,7 @@ const relato = await page.evaluate(async () => {
       const aventura = await aventuras.getDocument([...aventuras.index][0]._id);
       ok("a aventura traz cena, trilha, handouts, pré-gerados e a investigação",
         aventura.scenes.size === 1 && aventura.playlists.size === 1
-        && aventura.journal.size === 2 && aventura.actors.size === 6);
+        && aventura.journal.size === 3 && aventura.actors.size === 6);
       ok("e os pontos de interesse e desafios do porão", aventura.items.size >= 10);
 
       // A descrição é a primeira coisa que o mestre lê ao importar: ela não pode
@@ -775,7 +775,7 @@ const relato = await page.evaluate(async () => {
         investigacao.system.pois.length >= 28
         && resolve(investigacao.system.pois, idsDeItens));
       ok("com os desafios vinculados",
-        investigacao.system.desafios.length >= 9
+        investigacao.system.desafios.length >= 10
         && resolve(investigacao.system.desafios, idsDeItens));
 
       // As caixas laterais do PDF trazem os números prontos — nada é chutado aqui.
@@ -826,8 +826,8 @@ const relato = await page.evaluate(async () => {
       await limpar();
       await aventura.import({ dialog: false });
       ok("importar a aventura cria tudo no mundo",
-        noMundo("Actor").length === 6 && noMundo("Item").length === 37
-        && noMundo("Scene").length === 1 && noMundo("JournalEntry").length === 2
+        noMundo("Actor").length === 6 && noMundo("Item").length === 41
+        && noMundo("Scene").length === 1 && noMundo("JournalEntry").length === 3
         && noMundo("Playlist").length === 1);
 
       // Sem pastas o import despeja 28 itens soltos na raiz do diretório.
@@ -843,7 +843,7 @@ const relato = await page.evaluate(async () => {
       };
       ok("com pontos, desafios e pré-gerados cada um na sua",
         naPasta("Pontos de Interesse").length === 28
-        && naPasta("Desafios de Acesso").length === 9
+        && naPasta("Desafios de Acesso").length === 10
         && naPasta("Pré-gerados").length === 5);
       ok("e nada solto fora de pasta",
         [...noMundo("Actor"), ...noMundo("Item"), ...noMundo("Scene"),
@@ -858,8 +858,8 @@ const relato = await page.evaluate(async () => {
         linhasNoMundo.every((l) => l.oculta === false && l.aberta === false));
 
       const desafiosNoMundo = noMundo("Item").filter((i) => i.type === "desafio-acesso");
-      ok("os nove desafios de acesso chegam com os números do livro",
-        desafiosNoMundo.length === 9
+      ok("os dez desafios de acesso chegam com os números do livro",
+        desafiosNoMundo.length === 10
         && desafiosNoMundo.every((d) => d.system.dtObjeto > 0 && d.system.pontuacaoAlvo > 0
           && Object.values(d.system.abordagens).some(Boolean)));
       // Os dois pontos-chave têm "[EVIDÊNCIA-CHAVE]" no título: sem colchete no regex
@@ -880,10 +880,25 @@ const relato = await page.evaluate(async () => {
         && computador.system.hackTecnico.tabela[0].segundos === 20
         && computador.system.hackTecnico.tabela.every((l) => /23 x 4 - 25 = 67/.test(l.desafio)));
 
+      // Itens que o livro descreve na prosa, não em quadro nenhum.
+      const itensDeMesa = noMundo("Item").filter((i) => i.type === "equipamento");
+      const faca = itensDeMesa.find((i) => i.name.includes("Faca"));
+      ok("a faca de churrasco e os dois molhos de chaves viram itens",
+        itensDeMesa.length === 3 && faca?.system.arma === true
+        && itensDeMesa.filter((i) => i.name.startsWith("Molho")).length === 2);
+
+      // As correntes de Edgar: desafio que o livro descreve em caixa baixa, no texto.
+      const correntes = desafiosNoMundo.find((d) => d.name.includes("Correntes"));
+      ok("as correntes de Edgar viram desafio, mesmo sem caixa no livro",
+        correntes?.system.dtObjeto === 10 && correntes.system.pontuacaoAlvo === 10
+        && correntes.system.tamanhoSenha === 4 && correntes.system.facesSenha === 4
+        && correntes.system.maxTentativas === 2);
+
       // A estante é enigma + Sustentar: abordagem genérica, não arrombamento.
       const estante = desafiosNoMundo.find((d) => d.name.startsWith("Estante"));
-      ok("a estante entra como obstáculo de Sustentar, com DT e consequência",
-        estante?.system.abordagens.sustentar === true
+      ok("a estante entra como obstáculo de Sustentar, com DT, consequência e o enigma",
+        /Prateleira 2/.test(estante?.flags["ordem-paranormal-2e"]?.notaDoMestre ?? "")
+        && estante?.system.abordagens.sustentar === true
         && estante.system.sustentar.dt === 7
         && /1d4 PV/.test(estante.system.sustentar.aoFalhar));
 
@@ -911,6 +926,23 @@ const relato = await page.evaluate(async () => {
       ok("a investigação importada resolve pontos, desafios e participantes no mundo",
         links.length === pontosNoMundo.length + desafiosNoMundo.length + 5
         && alvosDoLink.every((d) => d && !d.pack));
+
+      // O roteiro da cena: "A Dívida Precisa Ser Paga" avisa o mestre na rodada certa.
+      const diarioMaldicao = noMundo("JournalEntry").find((j) => j.name.includes("Maldição"));
+      ok("o diário da maldição vem com ativação, tabela e as duas caixas do livro",
+        diarioMaldicao?.pages.size === 4
+        && /teste de Disciplina \(DT 7\)/.test(diarioMaldicao.pages.contents
+          .map((pg) => pg.text.content).join(" "))
+        && ["A Dívida Foi Paga", "Ídolo Quebrado"].every((n) => diarioMaldicao.pages.getName(n)));
+
+      ok("a investigação traz os eventos de rodada da maldição",
+        investigacaoNoMundo.system.eventos.length === 6
+        && investigacaoNoMundo.system.eventos.map((e) => e.rodada).join() === "0,4,7,10,13,14"
+        && investigacaoNoMundo.system.eventos.every((e) => e.narracao || e.efeito)
+        // A rodada 0 é a ativação: o texto completo, não a célula "efeitos descritos acima".
+        && /teste de Disciplina \(DT 7\)/.test(
+          investigacaoNoMundo.system.eventos.find((e) => e.rodada === 0)?.efeito ?? ""));
+
 
       const cenaNoMundo = noMundo("Scene")[0];
       ok("a cena importada tem mapa e as paredes do porão",
@@ -1664,6 +1696,32 @@ const relato = await page.evaluate(async () => {
     const iniciou = await comDadosNoMaximo(() => game.op2.sustentar(ator, { rapido: true }));
     ok("sustentar com DT 0 sempre começa", iniciou?.sustentando === true);
     ok("sustentar liga a flag no ator", ator.system.estado.sustentando.ativo === true);
+
+    // Roteiro da cena: a rodada que começa com evento entra no card.
+    {
+      const invEvento = await Actor.create({
+        name: "Cena com roteiro", type: "investigacao",
+        system: {
+          eventos: [{ rodada: 2, narracao: "<p>O símbolo pulsa.</p>", efeito: "<p>Todos perdem 1 PD.</p>" }],
+          sobrecarga: { ativa: false },
+        },
+      });
+      const { alternarAtiva, definirInvestigacaoAtiva } =
+        await import("/systems/ordem-paranormal-2e/module/cena/investigacao-ativa.mjs");
+      const antiga = game.settings.get("ordem-paranormal-2e", "investigacaoVisualizandoUuid");
+      await alternarAtiva(invEvento);
+      await definirInvestigacaoAtiva(invEvento.uuid);
+      await game.op2.avancarRodada();          // rodada 1: nada
+      const semEvento = game.messages.contents.at(-1)?.content ?? "";
+      await game.op2.avancarRodada();          // rodada 2: o evento
+      const comEvento = game.messages.contents.at(-1)?.content ?? "";
+      ok("card da rodada sem evento não inventa nada", !/símbolo pulsa/i.test(semEvento));
+      ok("e a rodada com evento traz narração e efeito no card",
+        /O símbolo pulsa/.test(comEvento) && /Todos perdem 1 PD/.test(comEvento));
+      await alternarAtiva(invEvento);
+      await definirInvestigacaoAtiva(antiga);
+      await invEvento.delete();
+    }
 
     // Sustentar um obstáculo (a estante-porta do Ato I): a DT vem do desafio.
     await game.op2.pararDeSustentar(ator);
