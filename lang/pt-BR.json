@@ -680,7 +680,7 @@
       "Cancelar": "Cancelar",
       "Enviando": "Descompactando e enviando para a pasta do mundo…",
       "Pronto": "{enviados} arquivo(s) em {pasta}.",
-      "Faltando": "O zip não trazia estes arquivos (a aventura vai apontar para eles mesmo assim):",
+      "Faltando": "Não localizados no zip (nem pelo nome exato, nem por aproximação):",
       "Concluir": "Importar a aventura",
       "ErroEnvio": "O Foundry recusou o envio de {arquivo}.",
       "ErroGeral": "Não deu para preparar os arquivos da aventura: {erro}",
@@ -692,7 +692,13 @@
       "MenuIntro": "Aventuras do sistema cujas artes vêm do zip da editora. O envio vai para a pasta deste mundo.",
       "MenuVazio": "Nenhuma aventura com arquivos externos.",
       "MenuEstado": "{presentes} de {total} arquivo(s) em {pasta}",
-      "MenuEnviar": "Enviar zip"
+      "MenuEnviar": "Enviar zip",
+      "Aproximados": "Encontrados com outro nome — confira se é o arquivo certo:",
+      "Falhas": "Não puderam ser enviados:",
+      "ComoCompletar": "A aventura vai apontar para esses arquivos mesmo assim. Quando os tiver, reenvie pelo menu Configurações → Arquivos das aventuras.",
+      "NenhumArquivo": "Nenhum dos {total} arquivos esperados está em {arquivo} ({entradas} arquivo(s) dentro dele). É o zip certo?",
+      "RecusadoPeloServidor": "o Foundry recusou o envio",
+      "AvisoIncompleto": "Arquivos da aventura: {enviados} de {total} enviados. Veja a lista na janela."
     }
   }
 }

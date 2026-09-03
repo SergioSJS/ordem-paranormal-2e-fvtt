@@ -31,11 +31,26 @@
   {{#if (op2Eq fase "pronto")}}
     <p class="op2-extras__ok"><i class="fa-solid fa-check" aria-hidden="true"></i>
       {{localize "OP2.Extras.Pronto" enviados=enviados pasta=pasta}}</p>
+    {{#if aproximados.length}}
+      <p class="op2-ajuda">{{localize "OP2.Extras.Aproximados"}}</p>
+      <ul class="op2-extras__lista">
+        {{#each aproximados}}<li>{{esperado.nome}} ← <em>{{noZip}}</em></li>{{/each}}
+      </ul>
+    {{/if}}
     {{#if faltando.length}}
       <p class="op2-extras__erro">{{localize "OP2.Extras.Faltando"}}</p>
       <ul class="op2-extras__lista">
         {{#each faltando}}<li>{{nome}}</li>{{/each}}
       </ul>
+    {{/if}}
+    {{#if falhas.length}}
+      <p class="op2-extras__erro">{{localize "OP2.Extras.Falhas"}}</p>
+      <ul class="op2-extras__lista">
+        {{#each falhas}}<li>{{esperado.nome}} — <em>{{motivo}}</em></li>{{/each}}
+      </ul>
+    {{/if}}
+    {{#if (op2Ou faltando.length falhas.length)}}
+      <p class="op2-ajuda">{{localize "OP2.Extras.ComoCompletar"}}</p>
     {{/if}}
     <footer class="op2-extras__botoes">
       <button type="button" class="op2-botao" data-action="concluir">{{localize "OP2.Extras.Concluir"}}</button>

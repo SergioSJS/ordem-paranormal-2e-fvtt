@@ -113,21 +113,31 @@ export async function enviarDoZip(zip, extras, esperados, progresso = () => {}) 
   const { encontrados, faltando } = casarEntradas(entradas, esperados);
   const raiz = pastaDosExtras(extras);
   const enviados = [];
+  const aproximados = [];
+  const falhas = [];
   let n = 0;
-  for (const { esperado, entrada } of encontrados) {
+  for (const { esperado, entrada, aproximado } of encontrados) {
     const [pasta, nome] = [esperado.destino.split("/").slice(0, -1).join("/"), esperado.destino.split("/").pop()];
-    const bytes = await extrairEntrada(zip, entrada);
-    const ext = nome.slice(nome.lastIndexOf(".")).toLowerCase();
-    const arquivo = new File([bytes], nome, { type: MIME[ext] ?? "application/octet-stream" });
     const destino = pasta ? `${raiz}/${pasta}` : raiz;
-    await garantirPasta(destino);
-    const resposta = await filePicker().upload("data", destino, arquivo, {}, { notify: false });
-    if (!resposta?.path) throw new Error(game.i18n.format("OP2.Extras.ErroEnvio", { arquivo: esperado.nome }));
-    enviados.push(esperado.destino);
+    // Um arquivo que falha (corrompido no zip, recusado pelo servidor) não segura os
+    // outros: entra na lista de falhas e o envio segue.
+    try {
+      const bytes = await extrairEntrada(zip, entrada);
+      const ext = nome.slice(nome.lastIndexOf(".")).toLowerCase();
+      const arquivo = new File([bytes], nome, { type: MIME[ext] ?? "application/octet-stream" });
+      await garantirPasta(destino);
+      const resposta = await filePicker().upload("data", destino, arquivo, {}, { notify: false });
+      if (!resposta?.path) throw new Error(game.i18n.localize("OP2.Extras.RecusadoPeloServidor"));
+      enviados.push(esperado.destino);
+      if (aproximado) aproximados.push({ esperado, noZip: entrada.nome });
+    } catch (erro) {
+      console.warn(`${SYSTEM_ID} | extras: ${esperado.nome} não subiu`, erro);
+      falhas.push({ esperado, noZip: entrada.nome, motivo: erro.message });
+    }
     n += 1;
     progresso(n, encontrados.length, esperado.nome);
   }
-  return { enviados, faltando };
+  return { enviados, aproximados, faltando, falhas, encontrados: encontrados.length, entradas: entradas.length };
 }
 
 /**
@@ -162,7 +172,10 @@ export class ExtrasApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.extras = extras;
     this.faltam = faltam;
     this.permitirPular = permitirPular;
-    this.estado = { fase: "pedir", feito: 0, total: 0, atual: "", erro: "", faltando: [], enviados: 0 };
+    this.estado = {
+      fase: "pedir", feito: 0, total: 0, atual: "", erro: "",
+      enviados: 0, aproximados: [], faltando: [], falhas: [],
+    };
     this.#resolver = null;
   }
 
@@ -202,11 +215,28 @@ export class ExtrasApp extends HandlebarsApplicationMixin(ApplicationV2) {
     await this.render();
     try {
       const zip = await arquivo.arrayBuffer();
-      const { enviados, faltando } = await enviarDoZip(zip, this.extras, this.faltam, (feito, total, atual) => {
+      const resultado = await enviarDoZip(zip, this.extras, this.faltam, (feito, total, atual) => {
         this.estado = { ...this.estado, feito, total, atual };
         this.#atualizarProgresso();
       });
-      this.estado = { ...this.estado, fase: "pronto", enviados: enviados.length, faltando };
+      // Zip errado: nada do que a aventura espera está nele. Volta a pedir, dizendo isso.
+      if (resultado.encontrados === 0) {
+        this.estado = {
+          ...this.estado, fase: "pedir",
+          erro: game.i18n.format("OP2.Extras.NenhumArquivo", { arquivo: arquivo.name, total: this.faltam.length, entradas: resultado.entradas }),
+        };
+      } else {
+        this.estado = {
+          ...this.estado, fase: "pronto",
+          enviados: resultado.enviados.length, aproximados: resultado.aproximados,
+          faltando: resultado.faltando, falhas: resultado.falhas,
+        };
+        if (resultado.faltando.length || resultado.falhas.length) {
+          ui.notifications.warn(game.i18n.format("OP2.Extras.AvisoIncompleto", {
+            enviados: resultado.enviados.length, total: this.faltam.length,
+          }));
+        }
+      }
     } catch (erro) {
       console.error(`${SYSTEM_ID} | extras`, erro);
       this.estado = { ...this.estado, fase: "pedir", erro: erro.message };

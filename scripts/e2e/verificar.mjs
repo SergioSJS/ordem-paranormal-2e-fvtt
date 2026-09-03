@@ -11,8 +11,9 @@
  *   node scripts/e2e/verificar.mjs [url] [pasta-de-saida]
  */
 import { chromium } from "playwright";
-import { existsSync, rmSync } from "node:fs";
+import { existsSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { montarZip } from "../../module/tests/zip-fixture.mjs";
 
 const URL = process.argv[2] ?? "http://localhost:30099";
 const SAIDA = process.argv[3] ?? ".";
@@ -2623,13 +2624,33 @@ const relato = await page.evaluate(async () => {
     relato.passos.push([primeira.cancelou, "importar o Ato II sem os arquivos no mundo segura a importação e pede o zip"]);
 
     await page.waitForSelector(".op2-extras input[type=file]", { timeout: 20000 });
+
+    // O zip errado primeiro: nada do que a aventura espera está nele, e a janela tem
+    // que dizer isso e continuar pedindo — não importar às cegas nem travar.
+    const zipErrado = join(SAIDA, "zip-errado.zip");
+    writeFileSync(zipErrado, Buffer.from(montarZip([
+      { nome: "Leia-me.txt", conteudo: new TextEncoder().encode("não é o pacote da editora") },
+      { nome: "Fotos/Ferias 2024.png", conteudo: new TextEncoder().encode("png falso") },
+    ])));
+    await page.setInputFiles(".op2-extras input[type=file]", zipErrado);
+    await page.waitForSelector(".op2-extras__erro", { timeout: 60000 });
+    const errado = await page.evaluate(() => ({
+      mensagem: document.querySelector(".op2-extras__erro")?.textContent ?? "",
+      aindaPede: Boolean(document.querySelector(".op2-extras input[type=file]")),
+      concluir: Boolean(document.querySelector('.op2-extras [data-action="concluir"]')),
+    }));
+    relato.passos.push([/Nenhum dos 31 arquivos/.test(errado.mensagem) && /2 arquivo/.test(errado.mensagem) && errado.aindaPede && !errado.concluir,
+      "zip errado: a janela diz que nenhum arquivo esperado está nele e continua pedindo"]);
+
     await page.setInputFiles(".op2-extras input[type=file]", zipPath);
     await page.waitForSelector('.op2-extras [data-action="concluir"]', { timeout: 300000 });
     const envio = await page.evaluate(() => ({
       ok: Boolean(document.querySelector(".op2-extras__ok")),
-      faltando: document.querySelectorAll(".op2-extras__lista li").length,
+      listas: document.querySelectorAll(".op2-extras__lista li").length,
+      texto: document.querySelector(".op2-extras__ok")?.textContent ?? "",
     }));
-    relato.passos.push([envio.ok && envio.faltando === 0, "o zip da editora traz todos os 31 arquivos que a aventura espera"]);
+    relato.passos.push([envio.ok && envio.listas === 0 && /31 arquivo/.test(envio.texto),
+      "o zip da editora traz todos os 31 arquivos que a aventura espera — nada aproximado, faltando ou recusado"]);
     await page.click('.op2-extras [data-action="concluir"]');
     // O import cria as pastas por último: esperar só pelos documentos deixava o filtro
     // por pasta vazio (achado ao escrever este mesmo bloco).

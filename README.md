@@ -248,8 +248,14 @@ handouts, mapa, áudios, o PDF do Compêndio) vão para a pasta **do seu mundo**
 não apaga nada. Importou num segundo mundo? Ele pede o zip de novo. Perdeu os arquivos
 ou importou sem eles? *Configurações → Arquivos das aventuras* reenvia.
 
-O casamento com o zip é pelo nome do arquivo, sem acento: tanto faz como o seu
-descompactador grava os nomes.
+O casamento com o zip é pelo nome do arquivo, sem acento e sem a pasta: tanto faz
+como o seu descompactador grava os nomes ou como a editora organiza as pastas. Se a
+editora renumerar um handout ou reescrever um nome, o importador tenta por aproximação
+(mesmo tipo de arquivo, mesmas palavras) e **marca** o que casou assim, para você
+conferir. O que não for localizado, ou que o Foundry recusar, vem listado no fim — o
+resto é importado mesmo assim, e você reenvia depois por *Configurações → Arquivos das
+aventuras*. Zip errado (nenhum arquivo esperado dentro) é avisado, e a janela continua
+pedindo.
 
 ### O que o livro imprime errado, e como entra
 

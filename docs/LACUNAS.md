@@ -269,6 +269,14 @@ um prefixo que não existe (`assets/ato-ii/`); na importação, o sistema pede o
 descompacta no navegador e guarda os arquivos em `worlds/<mundo>/ato-ii/` — pasta do
 mundo, não do sistema, para sobreviver a atualização. Nada da editora entra no pacote.
 
+O casamento é pelo nome sem acento e sem pasta; o que não casa exato tenta por
+aproximação (mesma família de arquivo, todas as palavras do nome esperado presentes,
+numeração de handout ignorada) e vem marcado para o mestre conferir; empate entre dois
+candidatos não é adivinhado. Falha em um arquivo não segura os outros. A janela termina
+com três listas (aproximados, não localizados, recusados) e a importação segue com o
+que houver — reenvio pelo menu de configurações. Zip sem nenhum arquivo esperado é
+recusado com aviso.
+
 
 ## Quais habilidades são de perfil e quais de ocupação
 

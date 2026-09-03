@@ -680,7 +680,7 @@
       "Cancelar": "Cancel",
       "Enviando": "Unpacking and uploading to the world folder…",
       "Pronto": "{enviados} file(s) in {pasta}.",
-      "Faltando": "The zip did not contain these files (the adventure will point to them anyway):",
+      "Faltando": "Not found in the zip (neither by exact name nor by approximation):",
       "Concluir": "Import the adventure",
       "ErroEnvio": "Foundry refused the upload of {arquivo}.",
       "ErroGeral": "Could not prepare the adventure files: {erro}",
@@ -692,7 +692,13 @@
       "MenuIntro": "System adventures whose art comes from the publisher's zip. Uploads go to this world's folder.",
       "MenuVazio": "No adventure with external files.",
       "MenuEstado": "{presentes} of {total} file(s) in {pasta}",
-      "MenuEnviar": "Upload zip"
+      "MenuEnviar": "Upload zip",
+      "Aproximados": "Found under a different name — check it is the right file:",
+      "Falhas": "Could not be uploaded:",
+      "ComoCompletar": "The adventure will point to those files anyway. When you have them, re-upload through Settings → Adventure files.",
+      "NenhumArquivo": "None of the {total} expected files is in {arquivo} ({entradas} file(s) inside it). Is it the right zip?",
+      "RecusadoPeloServidor": "Foundry refused the upload",
+      "AvisoIncompleto": "Adventure files: {enviados} of {total} uploaded. See the list in the window."
     }
   }
 }

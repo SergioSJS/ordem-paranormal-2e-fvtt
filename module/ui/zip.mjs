@@ -145,22 +145,57 @@ export function slugDeArquivo(nome) {
 }
 
 /**
- * Casa o que o zip traz com o que a aventura espera. O casamento é pelo slug do nome
- * do arquivo, então tanto faz a codificação do nome no zip ou a pasta onde a editora
- * o guardou.
+ * Palavras que identificam um arquivo dentro do slug — sem a numeração de handout, que
+ * é o que a editora mais troca entre versões ("Handout 04" vira "Handout 06").
+ * @param {string} slug "handout-06-foto-do-freezer.png"
+ */
+export function palavrasDoSlug(slug) {
+  const semExt = slug.replace(/\.[a-z0-9]+$/, "");
+  const cola = new Set(["de", "do", "da", "dos", "das", "e", "o", "a", "os", "as"]);
+  return semExt.replace(/^handout-\d+[a-z]?-/, "").split("-").filter((w) => w && !cola.has(w));
+}
+
+const FAMILIA = { png: "imagem", jpg: "imagem", jpeg: "imagem", webp: "imagem", gif: "imagem",
+  mp3: "audio", ogg: "audio", wav: "audio", pdf: "pdf", webm: "video", mp4: "video" };
+const familiaDe = (nome) => FAMILIA[nome.split(".").pop().toLowerCase()] ?? "outro";
+
+/**
+ * Casa o que o zip traz com o que a aventura espera. Primeiro pelo slug exato do nome
+ * do arquivo (pasta e codificação não importam); o que sobrar, por aproximação: mesma
+ * família (imagem, áudio, PDF) e todas as palavras do nome esperado presentes no nome
+ * do zip — "Handout 04 - Foto do Freezer" ainda é a foto do freezer se virar "Handout
+ * 06". Quem casou por aproximação vem marcado, para o mestre conferir.
  * @param {EntradaZip[]} entradas
  * @param {Array<{destino: string}>} esperados `destino` é "pasta/slug.ext"
- * @returns {{encontrados: Array<{esperado: object, entrada: EntradaZip}>, faltando: object[], ignorados: EntradaZip[]}}
+ * @returns {{encontrados: Array<{esperado: object, entrada: EntradaZip, aproximado: boolean}>,
+ *   faltando: object[], ignorados: EntradaZip[]}}
  */
 export function casarEntradas(entradas, esperados) {
-  const porSlug = new Map(entradas.map((e) => [slugDeArquivo(e.nome), e]));
+  const slugs = entradas.map((e) => ({ entrada: e, slug: slugDeArquivo(e.nome) }));
   const usados = new Set();
   const encontrados = [];
-  const faltando = [];
+  const semExato = [];
   for (const esperado of esperados) {
     const slug = esperado.destino.split("/").pop();
-    const entrada = porSlug.get(slug);
-    if (entrada) { encontrados.push({ esperado, entrada }); usados.add(entrada); } else faltando.push(esperado);
+    const exato = slugs.find((s) => s.slug === slug && !usados.has(s.entrada));
+    if (exato) { encontrados.push({ esperado, entrada: exato.entrada, aproximado: false }); usados.add(exato.entrada); }
+    else semExato.push(esperado);
+  }
+  const faltando = [];
+  for (const esperado of semExato) {
+    const slug = esperado.destino.split("/").pop();
+    const palavras = palavrasDoSlug(slug);
+    const candidatos = slugs
+      .filter((s) => !usados.has(s.entrada) && familiaDe(s.slug) === familiaDe(slug))
+      .map((s) => ({ ...s, dele: palavrasDoSlug(s.slug) }))
+      .filter((s) => palavras.every((w) => s.dele.includes(w)))
+      // Quanto menos palavra sobrando, melhor o casamento.
+      .sort((a, b) => (a.dele.length - palavras.length) - (b.dele.length - palavras.length) || a.slug.localeCompare(b.slug));
+    const melhor = candidatos[0];
+    // Empate no melhor casamento é ambiguidade: não adivinha.
+    const ambiguo = candidatos.length > 1 && candidatos[1].dele.length === melhor?.dele.length;
+    if (melhor && !ambiguo) { encontrados.push({ esperado, entrada: melhor.entrada, aproximado: true }); usados.add(melhor.entrada); }
+    else faltando.push(esperado);
   }
   return { encontrados, faltando, ignorados: entradas.filter((e) => !usados.has(e)) };
 }
