@@ -246,6 +246,15 @@ npm run pack:build   # compila os compêndios de packs/sources/
 npm run e2e          # roda o sistema num Foundry de verdade
 ```
 
+Se os compêndios aparecerem soltos na barra lateral, em vez de dentro de
+`Ordem Paranormal 2 → Regras / Ato I`, é o mundo que perdeu as pastas: elas são
+documentos `Folder` do próprio mundo, e o Foundry só as materializa a partir do
+manifesto quando a lista de packs muda. Com o Foundry **fechado**:
+
+```bash
+npm run reparar-pastas -- <mundo>
+```
+
 `npm run check` roda o lint, os testes offline (`node --test`, sem runner externo) e o
 build do CSS. `npm run e2e` sobe o sistema num Foundry descartável e confere o que os
 testes offline não alcançam — sanitização dos cards de chat, contexto real das fichas,

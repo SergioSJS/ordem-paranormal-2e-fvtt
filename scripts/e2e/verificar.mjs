@@ -751,8 +751,11 @@ const relato = await page.evaluate(async () => {
       ok("a descrição da aventura bate com o que ela traz",
         aventura.description.includes(`${[...aventura.items].filter((i) => i.type === "desafio-acesso").length} desafios`)
         && !/quadro de informações de cada ponto vem vazio/i.test(aventura.description));
-      ok("e avisa que `npm run ato-i` instala mapa, handouts e trilha",
-        aventura.description.includes("npm run ato-i"));
+      // Quem lê essa tela é o mestre, dentro do Foundry: comando de terminal ali não
+      // serve para nada — o que ele precisa é do caminho onde as artes moram.
+      ok("e diz onde instalar as artes, sem comando de terminal",
+        aventura.description.includes("Data/op2-ato-i/")
+        && !/npm run|<code>/i.test(aventura.description));
 
       // O quadro sai do PDF: perícia, DT e o texto da pista.
       const comQuadro = [...aventura.items].filter((i) => i.type === "ponto-interesse"

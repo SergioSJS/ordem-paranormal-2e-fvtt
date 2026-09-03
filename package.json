@@ -19,7 +19,8 @@
     "ato-i:cena": "node scripts/ato-i/importar-cena.mjs",
     "ato-i:gerar-cena": "node scripts/ato-i/gerar-cena.mjs",
     "ato-i:gerar-aventura": "node scripts/ato-i/gerar-aventura.mjs",
-    "ato-i:extrair": "python3 scripts/ato-i/extrair-aventura.py"
+    "ato-i:extrair": "python3 scripts/ato-i/extrair-aventura.py",
+    "reparar-pastas": "node scripts/reparar-pastas-compendio.mjs"
   },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^2.0.0",

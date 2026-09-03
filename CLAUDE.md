@@ -64,6 +64,7 @@ npm run pack:build   # compila os compêndios de packs/sources/
 npm run ato-i        # instala os arquivos públicos do Ato I no User Data
 npm run ato-i:gerar-cena  # deriva as paredes do Porão comparando os três mapas
 npm run ato-i:cena   # traz a cena do seu mundo de volta para packs/sources/
+npm run reparar-pastas -- <mundo>   # refaz as pastas de compêndio de um mundo
 ```
 
 No Foundry: **Configurações → Configurar Aplicação → Hot Reload**. Com isso, `F5`
