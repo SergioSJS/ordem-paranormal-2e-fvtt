@@ -753,8 +753,8 @@ const relato = await page.evaluate(async () => {
         && !/quadro de informações de cada ponto vem vazio/i.test(aventura.description));
       // Quem lê essa tela é o mestre, dentro do Foundry: nada de comando de terminal, e
       // nada de mandar instalar arte — ela viaja no sistema.
-      ok("e não manda o mestre instalar nada",
-        !/npm run|<code>|instale/i.test(aventura.description));
+      ok("e não manda o mestre instalar nem baixar nada",
+        !/npm run|<code>|instal|baix|User Data/i.test(aventura.description));
 
       // O quadro sai do PDF: perícia, DT e o texto da pista.
       const comQuadro = [...aventura.items].filter((i) => i.type === "ponto-interesse"
@@ -775,7 +775,7 @@ const relato = await page.evaluate(async () => {
         investigacao.system.pois.length >= 15
         && resolve(investigacao.system.pois, idsDeItens));
       ok("com os desafios vinculados",
-        investigacao.system.desafios.length >= 5
+        investigacao.system.desafios.length >= 6
         && resolve(investigacao.system.desafios, idsDeItens));
 
       // As caixas laterais do PDF trazem os números prontos — nada é chutado aqui.
@@ -826,7 +826,7 @@ const relato = await page.evaluate(async () => {
       await limpar();
       await aventura.import({ dialog: false });
       ok("importar a aventura cria tudo no mundo",
-        noMundo("Actor").length === 6 && noMundo("Item").length === 28
+        noMundo("Actor").length === 6 && noMundo("Item").length === 29
         && noMundo("Scene").length === 1 && noMundo("JournalEntry").length === 2
         && noMundo("Playlist").length === 1);
 
@@ -843,7 +843,7 @@ const relato = await page.evaluate(async () => {
       };
       ok("com pontos, desafios e pré-gerados cada um na sua",
         naPasta("Pontos de Interesse").length === 23
-        && naPasta("Desafios de Acesso").length === 5
+        && naPasta("Desafios de Acesso").length === 6
         && naPasta("Pré-gerados").length === 5);
       ok("e nada solto fora de pasta",
         [...noMundo("Actor"), ...noMundo("Item"), ...noMundo("Scene"),
@@ -858,19 +858,27 @@ const relato = await page.evaluate(async () => {
         linhasNoMundo.every((l) => l.oculta === false && l.aberta === false));
 
       const desafiosNoMundo = noMundo("Item").filter((i) => i.type === "desafio-acesso");
-      ok("os cinco desafios de acesso chegam com os números do livro",
-        desafiosNoMundo.length === 5
+      ok("os seis desafios de acesso chegam com os números do livro",
+        desafiosNoMundo.length === 6
         && desafiosNoMundo.every((d) => d.system.dtObjeto > 0 && d.system.pontuacaoAlvo > 0
-          && (d.system.abordagens.arrombar || d.system.abordagens.destrancar)));
+          && Object.values(d.system.abordagens).some(Boolean)));
+      // O painel do Depósito A é Hack Técnico, não arrombamento — a caixa do livro diz.
+      const painel = desafiosNoMundo.find((d) => d.name.includes("Painel"));
+      ok("e o painel elétrico chega como Hack Técnico, com a tabela na nota do mestre",
+        painel?.system.abordagens.hackTecnico === true
+        && !painel.system.abordagens.arrombar
+        && /16 x 5 = 80/.test(painel.flags["ordem-paranormal-2e"]?.notaDoMestre ?? ""));
 
       const investigacaoNoMundo = noMundo("Actor").find((a) => a.type === "investigacao");
-      const alvosDoLink = await Promise.all([
+      const links = [
         ...investigacaoNoMundo.system.pois,
         ...investigacaoNoMundo.system.desafios,
         ...investigacaoNoMundo.system.participantes,
-      ].map((uuid) => fromUuid(uuid)));
+      ];
+      const alvosDoLink = await Promise.all(links.map((uuid) => fromUuid(uuid)));
       ok("a investigação importada resolve pontos, desafios e participantes no mundo",
-        alvosDoLink.length === 23 + 5 + 5 && alvosDoLink.every((d) => d && !d.pack));
+        links.length === pontosNoMundo.length + desafiosNoMundo.length + 5
+        && alvosDoLink.every((d) => d && !d.pack));
 
       const cenaNoMundo = noMundo("Scene")[0];
       ok("a cena importada tem mapa e as paredes do porão",

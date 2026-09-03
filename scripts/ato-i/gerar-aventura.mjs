@@ -153,20 +153,26 @@ function tituloLegivel(nome) {
  */
 function desafioDoPonto(ponto) {
   const d = ponto.desafio;
-  if (!d?.arrombar && !d?.destrancar) return null;
+  if (!d?.arrombar && !d?.destrancar && !d?.hackTecnico) return null;
 
-  // "Freezer — Cadeado do Freezer" repete: quando o rótulo já cita o ponto, ele basta.
+  // "Freezer — Cadeado do Freezer" repete: quando o rótulo já diz de que objeto se
+  // trata, ele basta sozinho.
   const ponto_ = tituloLegivel(ponto.nome);
   const rotulo = d.rotulo || "Acesso";
-  const nome = rotulo.toLowerCase().includes(ponto_.toLowerCase())
-    ? rotulo : `${ponto_} — ${rotulo}`;
+  const repete = [...palavras(rotulo)].some((w) => palavras(ponto_).has(w));
+  const nome = repete ? rotulo : `${ponto_} — ${rotulo}`;
   const notas = [
     `<p>${ponto.descricao}</p>`,
     d.item ? `<p>Dispensa o desafio: <em>${d.item}</em>.</p>` : "",
     d.alcancar ? `<p>Antes de arrombar é preciso <strong>Alcançar (DT ${d.alcancar.dt})</strong>.</p>` : "",
     d.destrancar?.tentativas
       ? `<p>Estourar as ${d.destrancar.tentativas} tentativas quebra a fechadura.</p>` : "",
-    "<p>A senha ainda não foi sorteada: use <em>Gerar senha</em> na ficha do desafio.</p>",
+    d.destrancar
+      ? "<p>A senha ainda não foi sorteada: use <em>Gerar senha</em> na ficha do desafio.</p>" : "",
+    // O painel do Depósito A: o que a rolagem entrega é uma conta para o jogador resolver.
+    d.hackTecnico?.tabela?.length
+      ? `<p>Tabela do painel:</p><ul>${d.hackTecnico.tabela
+        .map((l) => `<li><strong>${l.rolagem}</strong> — ${l.equacao}</li>`).join("")}</ul>` : "",
   ].filter(Boolean).join("\n");
 
   return {
@@ -176,7 +182,8 @@ function desafioDoPonto(ponto) {
     system: {
       abordagens: {
         arrombar: Boolean(d.arrombar), destrancar: Boolean(d.destrancar),
-        hackTecnico: false, hackSocial: false, generico: false,
+        hackTecnico: Boolean(d.hackTecnico), hackSocial: Boolean(d.hackSocial),
+        generico: false,
       },
       generico: { pericia: "atletismo", rotulo: "", resolvido: false },
       dtObjeto: d.arrombar?.dt ?? 7,
@@ -260,14 +267,12 @@ const aventura = {
     "trilha, os cinco pré-gerados, os handouts, os pontos de interesse com o quadro",
     `preenchido, os ${desafios.length} desafios de acesso e uma investigação vinculando tudo.</p>`,
     `<p><strong>${pontos.length} pontos de interesse, ${linhasDeQuadro} linhas de quadro.</strong> Perícia, DT e`,
-    "texto de cada pista saem do seu PDF do playtest. As três visibilidades por linha",
+    "texto de cada pista saem do livro do playtest. As três visibilidades por linha",
     "(rascunho, descobrível, aberta) vêm no padrão: só a descobrível, que é o que",
     "Examinar acha.</p>",
     "<p>Os desafios trazem os números das caixas do livro — DT do objeto, pontuação alvo",
     "e o tamanho da senha. <strong>A senha não vem sorteada</strong>, senão viajaria à",
     "vista dos jogadores: abra a ficha do desafio e use <em>Gerar senha</em>.</p>",
-    "<p>O mapa do porão, os handouts, os tokens e as duas faixas da trilha vêm dentro do",
-    "sistema: não há nada para instalar antes.</p>",
   ].join("\n"),
   actors: [...pregerados, investigacao],
   items: [...pontos, ...desafios],
