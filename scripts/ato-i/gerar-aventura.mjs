@@ -45,6 +45,7 @@ const semChave = ({ _key, ...resto }) => resto;
 const EXTRAIDOS = "build/ato-i-pontos.json";
 const MALDICAO = "build/ato-i-maldicao.json";
 const EXTRAS = "build/ato-i-itens.json";
+const ROTEIRO = "build/ato-i-roteiro.json";
 
 /** Handout pelo número que o texto cita ("Mostre o HANDOUT 02 - …"). */
 const HANDOUTS = readdirSync("docs/Arquivos para o público - Ato I/Handouts")
@@ -97,6 +98,10 @@ function pontosDoPorao() {
   return extraidos
     .map((ponto) => {
       const _id = ident(`poi-ato-i-${ponto.nome}`);
+      // "FREEZER, O CORPO (requer ter destrancado o freezer)": a condição do ponto
+      // inteiro, que o livro imprime ao lado do título.
+      const condicaoDoPonto = ponto.condicao
+        ? `<p><strong>Requer:</strong> ${ponto.condicao}.</p>` : "";
       // "Mostre o HANDOUT 02 - …" no texto da informação vira a imagem na descrição
       // de mestre, que é onde o mestre a encontra na hora de entregar.
       // A citação pode cair no ponto vizinho: a página põe dois pôsteres lado a lado.
@@ -120,6 +125,9 @@ function pontosDoPorao() {
       // grupo pode concluir. É leitura de mestre, então vai na descrição contextual.
       const notas = ponto.notas ? `<p>${ponto.notas}</p>` : "";
 
+      // A lista completa dos livros só faz sentido na estante.
+      const prateleiras = /estante de livros/i.test(ponto.nome) ? prateleirasDaEstante() : "";
+
       // Alcançar não vira desafio de acesso (spec §7.4), mas a caixa dele explica o que
       // a mesa precisa saber ("subir no altar molhado e escorregadio") — e essa
       // explicação não pode morrer com a caixa.
@@ -138,7 +146,7 @@ function pontosDoPorao() {
         img: "systems/ordem-paranormal-2e/assets/icons/tipos/ponto-interesse.svg",
         system: {
           descricaoBasica: `<p>${ponto.descricao}</p>`,
-          descricaoContextual: [daCaixa, notas, conteudo, senha, ...imagens]
+          descricaoContextual: [condicaoDoPonto, daCaixa, notas, prateleiras, conteudo, senha, ...imagens]
             .filter(Boolean).join("\n"),
           informacoes: ponto.informacoes.map((info, indice) => ({
             id: `i${indice + 1}`,
@@ -148,7 +156,12 @@ function pontosDoPorao() {
             // campo no sistema: fica no começo do texto, onde o mestre lê antes de
             // liberar a linha.
             texto: info.condicao ? `<p><em>(${info.condicao})</em> ${info.texto}</p>` : `<p>${info.texto}</p>`,
-            oculta: false, aberta: false,
+            // "Só pode ser acessada após cumprir uma condição" (o símbolo do livro):
+            // entra como rascunho, que é o estado que Examinar não alcança — o mestre
+            // libera quando a condição acontecer. "ou Tecnologia" não é condição de
+            // acesso: é perícia alternativa, e a linha segue descobrível.
+            oculta: Boolean(info.condicao) && !/^ou /i.test(info.condicao),
+            aberta: false,
           })),
         },
         effects: [], folder: null, sort: 0, ownership: { default: 0 }, flags: {},
@@ -307,6 +320,49 @@ function regrasDaMaldicao() {
   return JSON.parse(readFileSync(MALDICAO, "utf8")).regras ?? null;
 }
 
+/**
+ * O roteiro do ato — o que o mestre lê para abrir e para fechar a sessão, e como
+ * começar. Fica fora de "Pontos de Interesse" no livro, e ficava fora do compêndio.
+ */
+function diarioDoRoteiro() {
+  if (!existsSync(ROTEIRO)) return null;
+  const r = JSON.parse(readFileSync(ROTEIRO, "utf8"));
+  if (!r.introducao && !r.cenaInicial && !r.narracaoFinal) return null;
+
+  // O texto vem com uma linha por linha do PDF; parágrafo é o que o livro separa.
+  const html = (texto) => texto.split(/\n/).map((l) => l.trim()).filter(Boolean)
+    .reduce((ps, linha) => {
+      // Linha em CAIXA ALTA curta é subtítulo ("PERSONAGENS ESCAPAM", "TODOS MORREM").
+      if (/^[A-ZÁÂÃÉÊÍÓÔÕÚÇ ]{4,40}$/.test(linha)) return [...ps, `<h3>${linha}</h3>`];
+      const ultimo = ps[ps.length - 1];
+      if (ultimo && !ultimo.startsWith("<h3") && !/[.!?…”:]$/.test(ultimo.replace(/<\/p>$/, ""))) {
+        ps[ps.length - 1] = ultimo.replace(/<\/p>$/, ` ${linha}</p>`);
+        return ps;
+      }
+      return [...ps, `<p>${linha}</p>`];
+    }, []).join("");
+
+  const pagina = (nome, texto, ordem) => ({
+    _id: ident(`pagina-roteiro-${nome}`),
+    name: nome, type: "text", title: { show: true, level: 1 },
+    text: { format: 1, content: html(texto) },
+    image: {}, video: {}, src: null, system: {},
+    sort: ordem * 100, ownership: { default: -1 }, flags: {},
+  });
+
+  return {
+    _id: ident("diario-roteiro"),
+    name: "Roteiro do Ato I",
+    ownership: { default: 0 },
+    pages: [
+      r.introducao && pagina("Introdução", r.introducao, 1),
+      r.cenaInicial && pagina("O Ídolo de Pedra, Ato I", r.cenaInicial, 2),
+      r.narracaoFinal && pagina("Narração final", r.narracaoFinal, 3),
+    ].filter(Boolean),
+    folder: null, sort: 0, flags: {},
+  };
+}
+
 /** As regras da maldição que não cabem em campo nenhum: um diário só do mestre. */
 function diarioDaMaldicao() {
   if (!existsSync(MALDICAO)) return null;
@@ -339,6 +395,16 @@ function diarioDaMaldicao() {
   };
 }
 
+/** As cinco prateleiras inteiras — a lista que o mestre lê em voz alta. */
+function prateleirasDaEstante() {
+  if (!existsSync(EXTRAS)) return "";
+  const prateleiras = JSON.parse(readFileSync(EXTRAS, "utf8")).prateleiras ?? [];
+  if (!prateleiras.length) return "";
+  return `<p><strong>Os livros de cada prateleira:</strong></p>${prateleiras
+    .map((p) => `<p><em>Prateleira ${p.prateleira}</em></p><ul>${p.livros
+      .map((l) => `<li>${l}</li>`).join("")}</ul>`).join("")}`;
+}
+
 /** O enigma da estante: quais livros abrem a passagem. */
 function enigmaDaEstante() {
   if (!existsSync(EXTRAS)) return "";
@@ -352,7 +418,7 @@ const pontos = pontosDoPorao().map(em(pastas.pontos));
 const desafios = pontosBrutos().map(desafioDoPonto).filter(Boolean).map(em(pastas.desafios));
 const itens = itensDoPorao().map(em(pastas.itens));
 const pregerados = ler("ato-i-personagens").map(semChave).map(em(pastas.pregerados));
-const diarios = [...ler("ato-i-handouts").map(semChave), diarioDaMaldicao()]
+const diarios = [...ler("ato-i-handouts").map(semChave), diarioDoRoteiro(), diarioDaMaldicao()]
   .filter(Boolean).map(em(pastas.diarios));
 const trilha = ler("ato-i-musicas").map(semChave).map(em(pastas.trilhas));
 const cena = em(pastas.cenas)(cenaCompleta());

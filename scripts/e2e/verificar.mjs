@@ -743,7 +743,7 @@ const relato = await page.evaluate(async () => {
       const aventura = await aventuras.getDocument([...aventuras.index][0]._id);
       ok("a aventura traz cena, trilha, handouts, pré-gerados e a investigação",
         aventura.scenes.size === 1 && aventura.playlists.size === 1
-        && aventura.journal.size === 3 && aventura.actors.size === 6);
+        && aventura.journal.size === 4 && aventura.actors.size === 6);
       ok("e os pontos de interesse e desafios do porão", aventura.items.size >= 10);
 
       // A descrição é a primeira coisa que o mestre lê ao importar: ela não pode
@@ -776,7 +776,7 @@ const relato = await page.evaluate(async () => {
       const idsDeAtores = new Set([...aventura.actors].map((a) => a.id));
       const resolve = (uuids, conjunto) => uuids.every((u) => conjunto.has(u.split(".").pop()));
       ok("a investigação já vem com os pontos de interesse vinculados",
-        investigacao.system.pois.length >= 30
+        investigacao.system.pois.length >= 31
         && resolve(investigacao.system.pois, idsDeItens));
       ok("com os desafios vinculados",
         investigacao.system.desafios.length >= 10
@@ -830,8 +830,8 @@ const relato = await page.evaluate(async () => {
       await limpar();
       await aventura.import({ dialog: false });
       ok("importar a aventura cria tudo no mundo",
-        noMundo("Actor").length === 6 && noMundo("Item").length === 43
-        && noMundo("Scene").length === 1 && noMundo("JournalEntry").length === 3
+        noMundo("Actor").length === 6 && noMundo("Item").length === 44
+        && noMundo("Scene").length === 1 && noMundo("JournalEntry").length === 4
         && noMundo("Playlist").length === 1);
 
       // Sem pastas o import despeja 28 itens soltos na raiz do diretório.
@@ -846,7 +846,7 @@ const relato = await page.evaluate(async () => {
         return noMundo("Item").concat(noMundo("Actor")).filter((d) => d.folder?.id === alvo?.id);
       };
       ok("com pontos, desafios e pré-gerados cada um na sua",
-        naPasta("Pontos de Interesse").length === 30
+        naPasta("Pontos de Interesse").length === 31
         && naPasta("Desafios de Acesso").length === 10
         && naPasta("Pré-gerados").length === 5);
       ok("e nada solto fora de pasta",
@@ -856,10 +856,14 @@ const relato = await page.evaluate(async () => {
       const pontosNoMundo = noMundo("Item").filter((i) => i.type === "ponto-interesse");
       const linhasNoMundo = pontosNoMundo.flatMap((i) => i.system.informacoes);
       ok("os pontos chegam ao mundo com o quadro preenchido",
-        pontosNoMundo.length === 30 && linhasNoMundo.length === 73
+        pontosNoMundo.length === 31 && linhasNoMundo.length === 86
         && linhasNoMundo.every((l) => l.pericia && l.dt > 0 && l.texto.length > 10));
-      ok("e com as três visibilidades no padrão descobrível",
-        linhasNoMundo.every((l) => l.oculta === false && l.aberta === false));
+      // Linha com condição no livro ("apenas Victor", "se o ídolo for quebrado") entra
+      // como rascunho: Examinar não alcança, o mestre libera quando a condição acontece.
+      ok("e as linhas condicionais entram como rascunho, o resto descobrível",
+        linhasNoMundo.filter((l) => l.oculta).length === 6
+        && linhasNoMundo.every((l) => l.aberta === false)
+        && linhasNoMundo.filter((l) => l.oculta).every((l) => /<em>\(/.test(l.texto)));
 
       const desafiosNoMundo = noMundo("Item").filter((i) => i.type === "desafio-acesso");
       ok("os dez desafios de acesso chegam com os números do livro",
@@ -899,6 +903,12 @@ const relato = await page.evaluate(async () => {
         && correntes.system.maxTentativas === 2);
 
       // A estante é enigma + Sustentar: abordagem genérica, não arrombamento.
+      // Os vinte livros das cinco prateleiras: é neles que os jogadores caçam os quatro.
+      const estantePonto = pontosNoMundo.find((p) => p.name === "Estante de Livros");
+      ok("a estante traz as cinco prateleiras com os vinte livros",
+        (estantePonto?.system.descricaoContextual.match(/<li>/g) ?? []).length === 20
+        && /Prateleira 5/.test(estantePonto.system.descricaoContextual));
+
       const estante = desafiosNoMundo.find((d) => d.name.startsWith("Estante"));
       ok("a estante entra como obstáculo de Sustentar, com DT, consequência e o enigma",
         /Prateleira 2/.test(estante?.flags["ordem-paranormal-2e"]?.notaDoMestre ?? "")
@@ -932,6 +942,14 @@ const relato = await page.evaluate(async () => {
         && alvosDoLink.every((d) => d && !d.pack));
 
       // O roteiro da cena: "A Dívida Precisa Ser Paga" avisa o mestre na rodada certa.
+      // O que o mestre lê para abrir e fechar o ato ficava fora do compêndio.
+      const roteiro = noMundo("JournalEntry").find((j) => j.name.startsWith("Roteiro"));
+      ok("o roteiro do ato traz introdução, cena inicial e narração final",
+        roteiro?.pages.size === 3
+        && /O Paranormal não vem para nossa Realidade/.test(roteiro.pages.getName("Introdução")?.text.content ?? "")
+        && /Alan, Victor e Eloísa acordam/.test(roteiro.pages.getName("O Ídolo de Pedra, Ato I")?.text.content ?? "")
+        && /TODOS MORREM/.test(roteiro.pages.getName("Narração final")?.text.content ?? ""));
+
       const diarioMaldicao = noMundo("JournalEntry").find((j) => j.name.includes("Maldição"));
       ok("o diário da maldição vem com ativação, tabela e as duas caixas do livro",
         diarioMaldicao?.pages.size === 4

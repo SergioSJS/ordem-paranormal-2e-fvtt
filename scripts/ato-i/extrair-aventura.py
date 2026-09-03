@@ -16,6 +16,7 @@ PDF = pathlib.Path("docs/Ordem-Paranormal-RPG-2-Playtest-Alpha-agentes.pdf")
 SAIDA = pathlib.Path("build/ato-i-pontos.json")
 SAIDA_MALDICAO = pathlib.Path("build/ato-i-maldicao.json")
 SAIDA_ITENS = pathlib.Path("build/ato-i-itens.json")
+SAIDA_ROTEIRO = pathlib.Path("build/ato-i-roteiro.json")
 PDFTOTEXT = "/opt/homebrew/bin/pdftotext"
 
 # O trecho do porão: da lista de pontos até a narração final.
@@ -76,15 +77,145 @@ def texto_do_pdf():
     return saida.stdout.splitlines()
 
 
+def linearizar_duas_colunas(linhas, coluna_minima=44):
+    """Reescreve as páginas de duas colunas como texto em uma coluna só.
+
+    Algumas páginas do porão põem dois assuntos lado a lado — a Sala Secreta à esquerda
+    e a Mesa de Poker, um ponto INTEIRO com quadro próprio, à direita. Lido linha a
+    linha, o ponto da direita não existia e o da esquerda vinha embaralhado.
+
+    O vão entre as colunas é uma faixa de espaços que atravessa todas as linhas do
+    trecho. Só conta como duas colunas se o vão estiver bem à direita (a partir da
+    coluna 44) e os dois lados tiverem corpo — senão é a tabela do quadro, cujo vão
+    entre "Perícia" e "DT" fica bem antes disso.
+    """
+    saida, i = [], 0
+    while i < len(linhas):
+        # Junta o trecho até duas linhas em branco seguidas (fim de bloco na página).
+        fim, brancas = i, 0
+        while fim < len(linhas):
+            if not linhas[fim].strip():
+                brancas += 1
+                if brancas >= 3:
+                    break
+            else:
+                brancas = 0
+            fim += 1
+
+        bloco = linhas[i:fim]
+        corpo = [l for l in bloco if l.strip()]
+        vao = None
+        if len(corpo) >= 10:
+            largura = max(len(l) for l in corpo)
+            cheias = [l.ljust(largura) for l in corpo]
+            atual = None
+            for coluna in range(coluna_minima, min(largura, 78)):
+                if all(l[coluna] == " " for l in cheias):
+                    atual = (atual[0], coluna) if atual else (coluna, coluna)
+                    if not vao or (atual[1] - atual[0]) > (vao[1] - vao[0]):
+                        vao = atual
+                else:
+                    atual = None
+            if vao and vao[1] - vao[0] < 3:
+                vao = None
+            if vao:
+                corte = vao[0]
+                esquerda = [l for l in bloco if l[:corte].strip()]
+                direita = [l for l in bloco if len(l) > corte and l[corte:].strip()]
+                if len(esquerda) < 5 or len(direita) < 5:
+                    vao = None
+
+        if vao:
+            corte = vao[0]
+            saida += [l[:corte].rstrip() for l in bloco if l[:corte].strip()]
+            saida.append("")
+            saida.append("")
+            # A coluna da direita mantém o recuo relativo dela, não o da página.
+            saida += [l[corte:].rstrip() for l in bloco if len(l) > corte and l[corte:].strip()]
+            saida.append("")
+            saida.append("")
+        else:
+            saida += bloco
+        i = fim
+    return saida
+
+
+# O roteiro do ato: a narração de abertura, as instruções de como começar e a narração
+# final. Fica fora de "PONTOS DE INTERESSE", que é só o miolo da investigação.
+def juntar_hifenizacao(texto):
+    """Coluna estreita quebra palavra no fim da linha: "ilu- minada" volta a ser uma."""
+    return re.sub(r"(\w)-\s*\n\s*(\w)", r"\1\2", texto)
+
+
+ABERTURA = re.compile(r"^INTRODUÇÃO\s*$")
+CENA_INICIAL = re.compile(r"^O ÍDOLO DE PEDRA, ATO I\s*$")
+NARRACAO_FINAL = re.compile(r"^NARRAÇÃO FINAL\s*$")
+DEPOIS_DO_FIM = re.compile(r"^\s*DEPOIS DO FIM\s*$")
+
+
+def ler_roteiro(linhas):
+    """Abertura, instruções de início e narração final, na ordem em que o mestre usa."""
+    def bloco(inicio, fim):
+        try:
+            a = next(i for i, l in enumerate(linhas) if inicio.match(l))
+            b = next(i for i, l in enumerate(linhas) if i > a and fim.match(l))
+        except StopIteration:
+            return ""
+        cru = linearizar_duas_colunas(linhas[a + 1:b], coluna_minima=38)
+        # Fora números de página soltos e a contagem de jogadores em ícones.
+        texto = [re.sub(r"\s{2,}", " ", l.strip()) for l in cru if l.strip()]
+        texto = [t for t in texto if not re.fullmatch(r"[\d\s]{1,6}", t)]
+        return juntar_hifenizacao("\n".join(texto).strip())
+
+    # A introdução do Ato I é a SEGUNDA do PDF (a primeira abre o livro inteiro).
+    inicios = [i for i, l in enumerate(linhas) if ABERTURA.match(l)]
+    ini_ato = inicios[1] if len(inicios) > 1 else inicios[0]
+    resto = linhas[ini_ato:]
+    def bloco_relativo(inicio, fim, coluna_minima=38, corte_fixo=None):
+        try:
+            a = next(i for i, l in enumerate(resto) if inicio.match(l))
+            b = next(i for i, l in enumerate(resto) if i > a and fim.match(l))
+        except StopIteration:
+            return ""
+        bruto = resto[a + 1:b]
+        if corte_fixo:
+            # Caixa lateral sem vão perfeito (a dica da trilha na abertura): corta por
+            # posição, lendo a página primeiro e a caixa depois.
+            esquerda = [l[:corte_fixo].rstrip() for l in bruto if l[:corte_fixo].strip()]
+            direita = [l[corte_fixo:].rstrip() for l in bruto if len(l) > corte_fixo and l[corte_fixo:].strip()]
+            bruto = esquerda + ["", ""] + direita
+        # Página de narração: duas colunas mais estreitas que as do miolo.
+        cru = linearizar_duas_colunas(bruto, coluna_minima=coluna_minima)
+        texto = [re.sub(r"\s{2,}", " ", l.strip()) for l in cru if l.strip()]
+        return juntar_hifenizacao(
+            "\n".join(t for t in texto if not re.fullmatch(r"[\d\s]{1,6}", t)).strip())
+
+    return {
+        # Na abertura, a segunda "coluna" é uma caixinha lateral estreita ("use como
+        # trilha de fundo a música O Porão") — ela começa bem mais à direita.
+        "introducao": bloco_relativo(ABERTURA, CENA_INICIAL, corte_fixo=60),
+        "cenaInicial": bloco_relativo(CENA_INICIAL, INICIO),
+        "narracaoFinal": bloco(NARRACAO_FINAL, DEPOIS_DO_FIM),
+    }
+
+
 def trecho_do_porao(linhas):
     ini = next(i for i, l in enumerate(linhas) if INICIO.match(l))
     fim = next(i for i, l in enumerate(linhas) if i > ini and FIM.match(l))
-    return linhas[ini:fim]
+    return linearizar_duas_colunas(linhas[ini:fim])
 
 
 def colunas(cabecalho):
     """Onde começam DT e Informação, para fatiar as linhas da tabela."""
     return cabecalho.index("DT"), cabecalho.index("Informação")
+
+
+# Os nomes que a coluna da esquerda pode trazer — é o que separa rótulo de prosa.
+NOMES_DE_PERICIA = ("(" + "|".join([
+    "Acrobacia", "Aptidão", "Atletismo", "Crime", "Disciplina", "Enganação", "Furtividade",
+    "Intimidar", "Intuição", "Luta", "Máquinas", "Medicina", "Ocultismo", "Percepção",
+    "Persuasão", "Pesquisar", "Pontaria", "Sobrevivência", "Tecnologia", "Vigor",
+]) + ")")
 
 
 def ler_tabela(linhas, i, col_dt, col_info):
@@ -98,7 +229,7 @@ def ler_tabela(linhas, i, col_dt, col_info):
     ACIMA dela, já que a centralização pode colocá-la no meio. Ler linha a linha
     prendia cada informação à perícia errada.
     """
-    blocos, atual, vazias = [], [], 0
+    blocos, atual, vazias, prosa = [], [], 0, []
     while i < len(linhas):
         linha = linhas[i]
         if eh_titulo(linhas, i) or CABECALHO.match(linha):
@@ -117,27 +248,99 @@ def ler_tabela(linhas, i, col_dt, col_info):
             continue
 
         vazias = 0
-        # A linha crua vai junto: fora da tabela, o texto atravessa as colunas e fatiar
-        # por posição parte palavra no meio ("O fe rimento").
+        # Numa linha de tabela, a coluna do meio só tem a DT. Se ela tem LETRAS, o texto
+        # está atravessando as colunas: é prosa de mestre que a coluna estreita empurrou
+        # para dentro da tabela (a Mesa de Poker, impressa ao lado da Sala Secreta).
+        if re.search(r"[A-Za-zÀ-ÿ]", meio):
+            if atual:
+                blocos.append(atual)
+                atual = []
+            prosa.append(linha.strip())
+            i += 1
+            continue
+
         atual.append((pericia, meio, info, linha))
         i += 1
 
     if atual: blocos.append(atual)
 
-    # Cada bloco vira uma informação; a perícia se espalha para os blocos sem nome.
-    # Bloco sem DT não é linha de quadro: é o texto de mestre que vem depois da tabela,
-    # e ele não pode ser jogado fora.
-    infos, sobras = [], []
+    # Um bloco pode conter MAIS DE UMA linha do quadro: o livro só separa com linha em
+    # branco quando muda de perícia, então "Percepção 6 …" e "Percepção 10 …" vêm
+    # coladas. Cada célula de DT é uma linha; o texto sem DT vai para a célula mais
+    # próxima (empate fica com a de cima, que é onde o livro começa a frase).
+    # Bloco sem DT nenhuma não é quadro: é o texto de mestre que vem depois da tabela.
+    infos, sobras, pendente = [], [re.sub(r"\s{2,}", " ", " ".join(prosa)).strip()] if prosa else [], []
     for bloco in blocos:
-        nome = " ".join(p for p, _, _, _ in bloco if p).strip()
-        dts = [m for _, m, _, _ in bloco if m.isdigit()]
-        texto = " ".join(t for _, _, t, _ in bloco if t).strip()
+        indices_dt = [k for k, (_, meio, _, _) in enumerate(bloco) if meio.isdigit()]
         inteiro = re.sub(r"\s{2,}", " ", " ".join(crua.strip() for _, _, _, crua in bloco)).strip()
-        if not dts or not texto:
-            if inteiro:
+        if not indices_dt:
+            # Sem DT e escrito SÓ na coluna de informação: é continuação da linha
+            # anterior do quadro, um parágrafo a mais dela (o chat de grupo no celular
+            # de Gustavo). Texto que invade a coluna da perícia é nota de mestre, que
+            # vem depois da tabela.
+            so_informacao = all(not pericia and not meio for pericia, meio, _, _ in bloco)
+            texto_extra = " ".join(info for _, _, info, _ in bloco if info).strip()
+            if so_informacao and texto_extra:
+                # Fica pendente para a PRÓXIMA linha do quadro: a DT é centralizada
+                # sobre o grupo inteiro, então o parágrafo que vem antes do número
+                # ainda é dela (o chat de grupo no celular de Gustavo).
+                pendente.append(texto_extra)
+            elif inteiro:
                 sobras.append(inteiro)
             continue
-        infos.append({"pericia": nome, "dt": int(dts[0]), "texto": texto})
+
+        # O rótulo da perícia quebra em duas linhas ("Aptidão" / "(Humanas)",
+        # "Percepção" / "(apenas se o ídolo for quebrado)"). Juntar antes de distribuir:
+        # senão cada pedaço ia para uma linha do quadro diferente, e sobrava "(Humanas)"
+        # como se fosse perícia.
+        rotulos = {}
+        inicio = None
+        prosa_na_coluna = []
+        for k, (pericia, meio, info, crua) in enumerate(bloco):
+            if not pericia:
+                continue
+            # Em coluna estreita (a Mesa de Poker), o texto de mestre invade a coluna da
+            # perícia. O que não tem nome de perícia nem é continuação entre parênteses
+            # não é rótulo: é prosa, e vai para as notas em vez de sumir.
+            eh_rotulo = bool(re.search(NOMES_DE_PERICIA, pericia, re.I))
+            aberto = inicio is not None and rotulos[inicio].count("(") > rotulos[inicio].count(")")
+            # "(exclusivo" numa linha e "Alan)" na outra: enquanto o parêntese não fecha,
+            # o que vem é continuação do rótulo.
+            continuacao = pericia.startswith("(") or aberto or (inicio is not None and pericia.islower())
+            if eh_rotulo:
+                inicio = k
+                rotulos[k] = pericia
+            elif continuacao and inicio is not None and len(pericia) < 40:
+                rotulos[inicio] = f"{rotulos[inicio]} {pericia}".strip()
+            else:
+                prosa_na_coluna.append(pericia)
+        if prosa_na_coluna:
+            sobras.append(re.sub(r"\s{2,}", " ", " ".join(prosa_na_coluna)).strip())
+
+        linhas_por_dt = {k: [] for k in indices_dt}
+        rotulos_por_dt = {k: [] for k in indices_dt}
+        for k, (_, _, info, _) in enumerate(bloco):
+            alvo = min(indices_dt, key=lambda d: (abs(d - k), d > k))
+            if info:
+                linhas_por_dt[alvo].append(info)
+        for k, rotulo in rotulos.items():
+            alvo = min(indices_dt, key=lambda d: (abs(d - k), d > k))
+            rotulos_por_dt[alvo].append(rotulo)
+
+        for k in indices_dt:
+            texto = " ".join(linhas_por_dt[k]).strip()
+            if not texto:
+                continue
+            infos.append({"pericia": " ".join(rotulos_por_dt[k]).strip(),
+                          "dt": int(bloco[k][1])})
+            infos[-1]["texto"] = " ".join([*pendente, texto]).strip()
+            pendente = []
+
+    # Sobrou parágrafo depois da última linha do quadro: é continuação dela.
+    if pendente and infos:
+        infos[-1]["texto"] = f"{infos[-1]['texto']} {' '.join(pendente)}".strip()
+    elif pendente:
+        sobras.extend(pendente)
 
     # A etiqueta vale para a própria linha e para as de BAIXO, até a próxima etiqueta.
     # As linhas acima da primeira etiqueta são dela — a centralização vertical pode
@@ -519,6 +722,49 @@ def desempilhar_colunas(cruas):
             re.sub(r"\s{2,}", " ", " ".join(direita))]
 
 
+PRATELEIRA = re.compile(r"^\s*PRATELEIRA\s+(\d)\s*$")
+
+
+def ler_prateleiras(linhas):
+    """A lista completa dos livros de cada prateleira, para o mestre ler em voz alta.
+
+    Não é só a solução do enigma: são cerca de vinte títulos, e é neles que os jogadores
+    procuram os quatro certos. Cada livro pode ocupar duas linhas (o autor desce), e a
+    continuação vem mais recuada que o item.
+    """
+    prateleiras, atual, item = [], None, None
+    for linha in linhas:
+        if (m := PRATELEIRA.match(linha)):
+            atual = {"prateleira": int(m.group(1)), "livros": []}
+            prateleiras.append(atual)
+            item = None
+            continue
+        if atual is None:
+            continue
+        # O marcador de lista do PDF é um glifo de fonte de ícones (área privativa) ou
+        # um byte solto de controle; fora os dois.
+        texto = re.sub(r"[\ue000-\uf8ff\u0080-\u009f•]", " ", linha)
+        texto = re.sub(r"\s{2,}", " ", texto).strip()
+        recuo = len(linha) - len(linha.lstrip())
+        if not texto:
+            continue
+        # Título novo começa mais à esquerda; a linha mais recuada continua o anterior.
+        if item is not None and recuo > item["recuo"]:
+            item["texto"] += f" {texto}"
+            continue
+        # A prateleira 5 é a última: a lista acaba quando a página vira (número de
+        # página solto, título em caixa alta ou cabeçalho de quadro).
+        if len(prateleiras) == 5 and (texto.isupper() or CABECALHO.match(linha)
+                                      or re.fullmatch(r"\d{1,3}", texto)
+                                      or len(atual["livros"]) >= 4):
+            break
+        item = {"texto": texto, "recuo": recuo}
+        atual["livros"].append(item)
+    return [{"prateleira": p["prateleira"],
+             "livros": [re.sub(r"\s{2,}", " ", l["texto"]).strip() for l in p["livros"]]}
+            for p in prateleiras if p["livros"]]
+
+
 def ler_itens(linhas, nomes_de_pontos=()):
     """Itens descritos no texto e o enigma da estante (qual livro puxar)."""
     pontos = {n.upper() for n in nomes_de_pontos}
@@ -561,7 +807,7 @@ def ler_itens(linhas, nomes_de_pontos=()):
         nome = f"Molho de Chaves {m.group(1)}"
         if abre and not any(it["nome"] == nome for it in itens):
             itens.append({"nome": nome, "descricao": "Abre: " + "; ".join(abre) + "."})
-    return {"itens": itens, "enigmaDaEstante": livros}
+    return {"itens": itens, "enigmaDaEstante": livros, "prateleiras": ler_prateleiras(linhas)}
 
 
 def extrair():
@@ -583,6 +829,13 @@ def extrair():
         if atual is not None:
             atual["bruto"].append(linha)
 
+        # A seção da maldição vem logo depois do Ídolo de Pedra e não é nota dele:
+        # tem extração própria (regras + tabela por rodada).
+        if atual is not None and (INICIO_REGRAS.search(linha) or INICIO_MALDICAO.match(linha)):
+            atual = None
+            i += 1
+            continue
+
         if eh_titulo(linhas, i):
             m = TITULO.match(linha)
             nome, condicao = m.group(2).strip(), (m.group(4) or "").strip()
@@ -595,6 +848,7 @@ def extrair():
             atual = {"nome": nome, "condicao": condicao, "descricao": [],
                      "informacoes": [], "caixa": [], "bruto": [], "conteudo": [], "notas": [],
                      "descricao_cruas": [], "recuo": recuo_do_titulo,
+                     "depois_da_caixa": False,
                      "na_caixa": False, "no_conteudo": False}
             pontos.append(atual)
         elif atual is not None and not RUIDO.match(linha) and atual["informacoes"]:
@@ -618,9 +872,14 @@ def extrair():
             # de perguntas do celular). Descrição do ponto nunca começa tão à direita.
             if ABRE_CAIXA.search(texto) or DESAFIO_NA_CAIXA.search(texto):
                 atual["na_caixa"] = True
-            elif atual["na_caixa"] and recuo < 20 and len(texto) > 60 and texto[0].isupper():
-                # Linha longa na margem: a caixa acabou e o texto do ponto voltou.
+            elif atual["na_caixa"] and abs(recuo - atual["recuo"]) <= 4 \
+                    and len(texto) > 60 and texto[0].isupper():
+                # Linha longa alinhada com o TÍTULO: a caixa acabou e o texto do ponto
+                # voltou. Medir contra a margem da página deixava passar a coluna da
+                # caixa, que é ainda mais à esquerda (a estante engolia "ACESSO PORTA
+                # Apenas uma pessoa pode passar por rodada").
                 atual["na_caixa"] = False
+                atual["depois_da_caixa"] = True
             # Recuo MUITO maior que o do título é coluna da direita de caixa. Medir em
             # absoluto quebrava os pontos impressos na coluna da direita da página, cujo
             # texto inteiro começa lá pela coluna 51.
@@ -631,6 +890,10 @@ def extrair():
             if atual["na_caixa"] or texto.isupper():
                 # Guarda a linha COM o recuo: é ele que diz qual coluna da caixa é qual.
                 atual["caixa"].append(linha.rstrip())
+            elif atual["depois_da_caixa"]:
+                # Ponto sem quadro (o duto): o que vem depois da caixa já é texto de
+                # mestre, não a descrição do que se vê.
+                atual["notas"].append(texto)
             else:
                 atual["descricao"].append(texto)
                 atual["descricao_cruas"].append(linha.rstrip())
@@ -643,6 +906,7 @@ def extrair():
         texto = re.sub(r"\s+\d{1,2}\s*$", "", texto)
         p["descricao"] = re.sub(r"\s{2,}", " ", texto).strip()
         p.pop("recuo", None)
+        p.pop("depois_da_caixa", None)
         p.pop("na_caixa", None)
         p.pop("no_conteudo", None)
         # O conteúdo revelado é texto de mestre, não descrição do que se vê.
@@ -678,9 +942,28 @@ PERICIAS = {
 }
 
 
+def limpar_rotulo(rotulo):
+    """Fica só com a perícia (e a condição entre parênteses) dentro do rótulo lido.
+
+    Em página de coluna estreita — a Mesa de Poker, impressa ao lado da Sala Secreta —
+    o texto de mestre invade a coluna da perícia e vem grudado no rótulo. Como a lista
+    de perícias é fechada, dá para recortar o rótulo de verdade.
+    """
+    texto = re.sub(r"\s{2,}", " ", rotulo).strip()
+    nomes = sorted(PERICIAS, key=len, reverse=True)
+    m = re.search(rf"({'|'.join(re.escape(n) for n in nomes)})", texto, re.I)
+    if not m:
+        return texto
+    inicio = m.start()
+    resto = texto[m.end():]
+    # Mantém o que completa o rótulo: "(Humanas)", "ou Sobrevivência", "(apenas Victor)".
+    cauda = re.match(r"^(\s*\([^)]*\)|\s+ou\s+\w+)+", resto)
+    return (texto[inicio:m.end()] + (cauda.group(0) if cauda else "")).strip()
+
+
 def chave_de_pericia(rotulo):
     """Devolve (chave, condição). "Aptidão (Humanas)" vira aptidao.humanas."""
-    texto = rotulo.strip()
+    texto = limpar_rotulo(rotulo)
     condicao = ""
     m = re.match(r"^([^(]+?)\s*\(([^)]+)\)\s*$", texto)
     if m:
@@ -712,6 +995,9 @@ if __name__ == "__main__":
     extras = ler_itens(trecho_do_porao(texto_do_pdf()), [p["nome"] for p in pontos])
     SAIDA_ITENS.write_text(json.dumps(extras, ensure_ascii=False, indent=2))
     print(f"{len(extras['itens'])} item(ns) e {len(extras['enigmaDaEstante'])} livro(s) do enigma → {SAIDA_ITENS}")
+    roteiro = ler_roteiro(texto_do_pdf())
+    SAIDA_ROTEIRO.write_text(json.dumps(roteiro, ensure_ascii=False, indent=2))
+    print(f"roteiro: {', '.join(f'{k} {len(v)} chars' for k, v in roteiro.items())} → {SAIDA_ROTEIRO}")
     for p in pontos:
         pericias = {i["pericia"] for i in p["informacoes"]}
         print(f"  {p['nome'][:42]:44} {len(p['informacoes']):2} linhas  {sorted(pericias)}")
