@@ -2,7 +2,7 @@
   "_id": "bbe9275fb65541b3",
   "name": "Eloísa",
   "type": "personagem",
-  "img": "op2-ato-i/tokens/personagem-eloisa.png",
+  "img": "systems/ordem-paranormal-2e/assets/ato-i/tokens/personagem-eloisa.png",
   "system": {
     "tipo": "sobrevivente",
     "perfil": "analista",
@@ -225,7 +225,7 @@
   "prototypeToken": {
     "name": "Eloísa",
     "texture": {
-      "src": "op2-ato-i/tokens/token-eloisa.png"
+      "src": "systems/ordem-paranormal-2e/assets/ato-i/tokens/token-eloisa.png"
     },
     "actorLink": true,
     "disposition": 1,

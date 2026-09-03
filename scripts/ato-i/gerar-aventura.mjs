@@ -104,7 +104,7 @@ function pontosDoPorao() {
         return meu >= melhor;
       }));
       const imagens = numeros.flatMap((n) => HANDOUTS[n] ?? [])
-        .map((a) => `<p><img src="op2-ato-i/handouts/${arquivoPublico(a)}" alt="${a}"></p>`);
+        .map((a) => `<p><img src="systems/ordem-paranormal-2e/assets/ato-i/handouts/${arquivoPublico(a)}" alt="${a}"></p>`);
 
       return {
         _id, name: tituloLegivel(ponto.nome), type: "ponto-interesse",
@@ -253,7 +253,7 @@ const _id = ident("aventura-ato-i");
 const aventura = {
   _id, _key: `!adventures!${_id}`,
   name: "Ato I — O Porão",
-  img: "op2-ato-i/handouts/handout-02-simbolo-no-teto.jpg",
+  img: "systems/ordem-paranormal-2e/assets/ato-i/handouts/handout-02-simbolo-no-teto.jpg",
   caption: "<p>A cena do porão montada: mapa, trilha, pré-gerados, handouts e a investigação já vinculada.</p>",
   description: [
     "<p>Importa a mesa inteira do Ato I: a cena do porão com muros e portas secretas, a",
@@ -266,14 +266,8 @@ const aventura = {
     "<p>Os desafios trazem os números das caixas do livro — DT do objeto, pontuação alvo",
     "e o tamanho da senha. <strong>A senha não vem sorteada</strong>, senão viajaria à",
     "vista dos jogadores: abra a ficha do desafio e use <em>Gerar senha</em>.</p>",
-    "<p><strong>Antes de importar, instale as artes.</strong> O mapa, os handouts e as duas",
-    "faixas são arquivos do pacote gratuito do playtest, que não podem ser redistribuídos",
-    "dentro do sistema. Baixe o pacote e copie as pastas para",
-    "<strong>Data/op2-ato-i/</strong> do seu Foundry, com estes nomes:",
-    "<em>handouts</em>, <em>mapas</em>, <em>musicas</em>, <em>tokens</em>,",
-    "<em>historicos</em> e <em>fichas</em> (tudo em minúsculas, sem acento — os arquivos",
-    "também). Sem esse passo a cena e os handouts entram sem imagem e a trilha aponta para",
-    "faixas que não existem.</p>",
+    "<p>O mapa do porão, os handouts, os tokens e as duas faixas da trilha vêm dentro do",
+    "sistema: não há nada para instalar antes.</p>",
   ].join("\n"),
   actors: [...pregerados, investigacao],
   items: [...pontos, ...desafios],

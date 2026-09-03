@@ -2,7 +2,7 @@
   "_id": "6387ce1f4c3813f2",
   "name": "Kênia",
   "type": "personagem",
-  "img": "op2-ato-i/tokens/personagem-kenia.png",
+  "img": "systems/ordem-paranormal-2e/assets/ato-i/tokens/personagem-kenia.png",
   "system": {
     "tipo": "sobrevivente",
     "perfil": "analista",
@@ -222,7 +222,7 @@
   "prototypeToken": {
     "name": "Kênia",
     "texture": {
-      "src": "op2-ato-i/tokens/token-kenia.png"
+      "src": "systems/ordem-paranormal-2e/assets/ato-i/tokens/token-kenia.png"
     },
     "actorLink": true,
     "disposition": 1,

@@ -136,7 +136,7 @@ def main():
         # Sem padding: com ele o Foundry desloca o fundo e as paredes, calculadas em
         # coordenada da imagem, caem fora da arte (achado ao conferir a cena rodando).
         "padding": 0, "backgroundColor": "#000000",
-        "background": {"src": "op2-ato-i/mapas/mapa-03-o-porao-sala-secreta-duto-de-ventilacao-completo.jpg"},
+        "background": {"src": "systems/ordem-paranormal-2e/assets/ato-i/mapas/mapa-03-o-porao-sala-secreta-duto-de-ventilacao-completo.jpg"},
         "grid": {"type": 1, "size": GRADE, "distance": 1.5, "units": "m", "alpha": 0.15},
         # Visão por token e névoa ligadas: é o que faz as paredes valerem alguma coisa.
         # A escuridão fica em 0 — importar uma cena toda preta parece defeito, e subir

@@ -15,12 +15,12 @@
     "check": "npm run lint && npm test && npm run build:css",
     "preview": "npm run build:css && node scripts/preview.mjs",
     "e2e": "node scripts/e2e/verificar.mjs",
-    "ato-i": "node scripts/instalar-ato-i.mjs",
     "ato-i:cena": "node scripts/ato-i/importar-cena.mjs",
     "ato-i:gerar-cena": "node scripts/ato-i/gerar-cena.mjs",
     "ato-i:gerar-aventura": "node scripts/ato-i/gerar-aventura.mjs",
     "ato-i:extrair": "python3 scripts/ato-i/extrair-aventura.py",
-    "reparar-pastas": "node scripts/reparar-pastas-compendio.mjs"
+    "reparar-pastas": "node scripts/reparar-pastas-compendio.mjs",
+    "ato-i:assets": "node scripts/ato-i/copiar-assets.mjs"
   },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^2.0.0",

@@ -62,7 +62,7 @@ npm run setup        # symlink -> ~/Library/Application Support/FoundryVTT/Data/
 npm run watch:css    # sass em watch
 npm run check        # lint + testes + build do CSS — rode antes de commitar
 npm run pack:build   # compila os compêndios de packs/sources/
-npm run ato-i        # instala os arquivos públicos do Ato I no User Data
+npm run ato-i:assets # recopia as artes do Ato I para assets/ato-i/
 npm run ato-i:gerar-cena  # deriva as paredes do Porão comparando os três mapas
 npm run ato-i:cena   # traz a cena do seu mundo de volta para packs/sources/
 npm run reparar-pastas -- <mundo>   # refaz as pastas de compêndio de um mundo

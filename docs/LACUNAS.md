@@ -261,7 +261,7 @@ automático, pela mesma regra de sempre: a mesa às vezes reinterpreta o que foi
 Os arquivos públicos do Ato I (handouts, mapas, tokens, músicas) são material da
 editora, liberado de graça para o playtest. **Decisão:** não vão no repositório nem no
 pacote do sistema — mesma política do PDF. Os compêndios trazem só os dados e apontam
-para `op2-ato-i/` no User Data; `npm run ato-i` copia os arquivos para lá na máquina de
+para `systems/ordem-paranormal-2e/assets/ato-i/` no User Data; `npm run ato-i` copia os arquivos para lá na máquina de
 quem já os tem.
 
 

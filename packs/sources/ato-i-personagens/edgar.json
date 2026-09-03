@@ -2,7 +2,7 @@
   "_id": "09a0a0ccac4eafe3",
   "name": "Edgar",
   "type": "personagem",
-  "img": "op2-ato-i/tokens/personagem-edgar.png",
+  "img": "systems/ordem-paranormal-2e/assets/ato-i/tokens/personagem-edgar.png",
   "system": {
     "tipo": "sobrevivente",
     "perfil": "executor",
@@ -225,7 +225,7 @@
   "prototypeToken": {
     "name": "Edgar",
     "texture": {
-      "src": "op2-ato-i/tokens/token-edgar.png"
+      "src": "systems/ordem-paranormal-2e/assets/ato-i/tokens/token-edgar.png"
     },
     "actorLink": true,
     "disposition": 1,

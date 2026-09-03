@@ -2,7 +2,7 @@
   "_id": "49b01f26785d0eec",
   "name": "Victor",
   "type": "personagem",
-  "img": "op2-ato-i/tokens/personagem-victor.png",
+  "img": "systems/ordem-paranormal-2e/assets/ato-i/tokens/personagem-victor.png",
   "system": {
     "tipo": "sobrevivente",
     "perfil": "vigilante",
@@ -222,7 +222,7 @@
   "prototypeToken": {
     "name": "Victor",
     "texture": {
-      "src": "op2-ato-i/tokens/token-victor.png"
+      "src": "systems/ordem-paranormal-2e/assets/ato-i/tokens/token-victor.png"
     },
     "actorLink": true,
     "disposition": 1,

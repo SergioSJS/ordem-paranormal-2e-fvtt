@@ -118,18 +118,14 @@ próprio texto avisa que vai mudar.
 
 ## Compêndios do Ato I
 
-O sistema traz os dados dos cinco pré-gerados do Ato I e das habilidades deles, prontos
-para importar. **As imagens não vêm junto** — são material da editora, liberado de graça
-para o playtest, mas não nosso para redistribuir. Quem já tem a pasta pública instala
-com um comando:
+O sistema traz o Ato I inteiro: os cinco pré-gerados, os handouts, os tokens, o mapa do
+porão e as duas faixas da trilha. **As artes viajam junto**, em `assets/ato-i/` — o
+material do Ato I é liberado para uso, então não há passo de instalação: importou,
+funcionou.
 
-```bash
-# a pasta liberada vai em docs/Arquivos para o público - Ato I/
-npm run ato-i
-```
-
-Isso copia handouts, tokens, mapas, músicas e históricos para `op2-ato-i/` dentro do seu
-User Data, que é onde os compêndios os procuram. Depois é só importar:
+O pacote da editora tem nomes com acento e três versões do mesmo mapa; o que entra no
+sistema é a versão em slug e só o que algum compêndio referencia. Quando a editora
+atualizar o pacote, `npm run ato-i:assets` refaz a cópia.
 
 Os compêndios ficam em pastas, não soltos na lista:
 

@@ -2,7 +2,7 @@
   "_id": "64c7214a56150285",
   "name": "Alan",
   "type": "personagem",
-  "img": "op2-ato-i/tokens/personagem-alan.png",
+  "img": "systems/ordem-paranormal-2e/assets/ato-i/tokens/personagem-alan.png",
   "system": {
     "tipo": "sobrevivente",
     "perfil": "executor",
@@ -228,7 +228,7 @@
   "prototypeToken": {
     "name": "Alan",
     "texture": {
-      "src": "op2-ato-i/tokens/token-alan.png"
+      "src": "systems/ordem-paranormal-2e/assets/ato-i/tokens/token-alan.png"
     },
     "actorLink": true,
     "disposition": 1,

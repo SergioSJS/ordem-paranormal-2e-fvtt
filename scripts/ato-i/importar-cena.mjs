@@ -24,7 +24,7 @@ import { tmpdir, homedir } from "node:os";
 import { ClassicLevel } from "classic-level";
 
 const DESTINO = "packs/sources/ato-i-cenas/porao.json";
-const FUNDO = "op2-ato-i/mapas/mapa-03-o-porao-sala-secreta-duto-de-ventilacao-completo.jpg";
+const FUNDO = "systems/ordem-paranormal-2e/assets/ato-i/mapas/mapa-03-o-porao-sala-secreta-duto-de-ventilacao-completo.jpg";
 
 /** Coleções embutidas que fazem sentido num compêndio. */
 const LEVAR = ["walls", "lights", "sounds", "tiles", "drawings", "regions", "templates"];

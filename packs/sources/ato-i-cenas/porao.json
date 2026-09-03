@@ -112,7 +112,7 @@
   "folder": null,
   "background": {
     "color": "#000000",
-    "src": "op2-ato-i/mapas/mapa-03-o-porao-sala-secreta-duto-de-ventilacao-completo.jpg",
+    "src": "systems/ordem-paranormal-2e/assets/ato-i/mapas/mapa-03-o-porao-sala-secreta-duto-de-ventilacao-completo.jpg",
     "tint": "#ffffff",
     "alphaThreshold": 0.75
   }

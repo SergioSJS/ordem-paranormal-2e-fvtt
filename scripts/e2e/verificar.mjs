@@ -751,11 +751,10 @@ const relato = await page.evaluate(async () => {
       ok("a descrição da aventura bate com o que ela traz",
         aventura.description.includes(`${[...aventura.items].filter((i) => i.type === "desafio-acesso").length} desafios`)
         && !/quadro de informações de cada ponto vem vazio/i.test(aventura.description));
-      // Quem lê essa tela é o mestre, dentro do Foundry: comando de terminal ali não
-      // serve para nada — o que ele precisa é do caminho onde as artes moram.
-      ok("e diz onde instalar as artes, sem comando de terminal",
-        aventura.description.includes("Data/op2-ato-i/")
-        && !/npm run|<code>/i.test(aventura.description));
+      // Quem lê essa tela é o mestre, dentro do Foundry: nada de comando de terminal, e
+      // nada de mandar instalar arte — ela viaja no sistema.
+      ok("e não manda o mestre instalar nada",
+        !/npm run|<code>|instale/i.test(aventura.description));
 
       // O quadro sai do PDF: perícia, DT e o texto da pista.
       const comQuadro = [...aventura.items].filter((i) => i.type === "ponto-interesse"
@@ -798,7 +797,7 @@ const relato = await page.evaluate(async () => {
 
       // "Mostre o HANDOUT 02" no texto da pista vira a imagem na descrição de mestre.
       const comHandout = [...aventura.items].filter((i) => i.type === "ponto-interesse"
-        && i.system.descricaoContextual.includes("op2-ato-i/handouts/"));
+        && i.system.descricaoContextual.includes("systems/ordem-paranormal-2e/assets/ato-i/handouts/"));
       ok("os pontos que citam handout trazem a imagem na descrição do mestre",
         comHandout.length >= 5);
 
@@ -896,8 +895,8 @@ const relato = await page.evaluate(async () => {
     if (musicas) {
       const trilha = await musicas.getDocument([...musicas.index][0]._id);
       ok("a trilha tem as duas faixas", trilha.sounds.size === 2);
-      ok("as faixas apontam para arquivos instalados pelo `npm run ato-i`",
-        trilha.sounds.every((s) => s.path.startsWith("op2-ato-i/musicas/")));
+      ok("as faixas moram dentro do sistema",
+        trilha.sounds.every((s) => s.path.startsWith("systems/ordem-paranormal-2e/assets/ato-i/musicas/")));
     }
 
     ok("compêndio de handouts do Ato I existe",
@@ -927,10 +926,12 @@ const relato = await page.evaluate(async () => {
         const resposta = await fetch(`/${caminho}`, { method: "HEAD" }).catch(() => null);
         if (!resposta?.ok) quebradas.push(caminho);
       }
-      // As imagens do Ato I só existem depois de `npm run ato-i`: fora delas, nenhuma
-      // imagem de compêndio pode faltar.
-      const doSistema = quebradas.filter((c) => !c.startsWith("op2-ato-i/"));
-      ok("nenhuma imagem de compêndio do sistema está quebrada", doSistema.length === 0);
+      // As artes do Ato I passaram a viajar no sistema: acabou a exceção, toda imagem
+      // que um compêndio cita tem que carregar.
+      ok("nenhuma imagem de compêndio do sistema está quebrada", quebradas.length === 0);
+      const doAtoI = [...caminhos].filter((c) => c.includes("/assets/ato-i/"));
+      ok("e as do Ato I vêm do próprio sistema, não do User Data",
+        doAtoI.length >= 20 && doAtoI.every((c) => c.startsWith("systems/ordem-paranormal-2e/")));
 
       const icones = [...caminhos].filter((c) => c.includes("/assets/icons/"));
       ok("ferramentas e habilidades têm ícone próprio, não o padrão do tipo",
