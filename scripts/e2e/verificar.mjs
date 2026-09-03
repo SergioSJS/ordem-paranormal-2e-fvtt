@@ -1222,7 +1222,7 @@ const relato = await page.evaluate(async () => {
   // Participantes repete o mesmo roster da Ordem das Rodadas logo abaixo — vira
   // <details> recolhível pra não rolar a janela duas vezes pela mesma lista.
   ok("seção Participantes é um <details> recolhível",
-    painelEl?.querySelector(".op2-painel-secao[data-sync='participantes']")?.tagName === "DETAILS");
+    painelEl?.querySelector(".op2-painel-secao[data-secao='participantes']")?.tagName === "DETAILS");
 
   // NPC extra só pra Ordem das Rodadas deixar de ter a seção de NPCs vazia neste
   // roteiro — sem ele não dá pra testar o checkbox de já agiu na linha de NPC.
