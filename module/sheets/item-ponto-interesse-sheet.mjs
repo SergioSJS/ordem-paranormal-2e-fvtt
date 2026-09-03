@@ -82,6 +82,7 @@ export class PontoInteresseSheet extends OP2ItemSheet {
           conjuntos: chave === "radio"
             ? (ferramentas.radio?.conjuntos ?? []).map((conjunto, indice) => ({ ...conjunto, indice }))
             : [],
+          radioTexto: chave === "radio" ? (ferramentas.radio?.texto ?? "") : "",
         })),
       ferramentasDisponiveis: FERRAMENTAS_POI
         .filter((chave) => !ferramentas[chave] && !this.#ferramentasNovas.has(chave))

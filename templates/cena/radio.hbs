@@ -3,41 +3,42 @@
     {{localize "OP2.Ferramenta.RadioAjuda" total=totalRolado removidos=removidos totalFalsos=totalFalsos}}
   </p>
 
-  {{#unless conjuntos.length}}
+  {{#unless temPecas}}
     <p class="op2-ajuda">{{localize "OP2.Ferramenta.RadioTudoRemovido"}}</p>
   {{/unless}}
 
-  {{#each conjuntos}}
-    <fieldset class="op2-radio__conjunto{{#if (op2Eq resolvido true)}} op2-radio__conjunto--resolvido{{/if}}{{#if (op2Eq resolvido false)}} op2-radio__conjunto--errado{{/if}}">
-      <div class="op2-radio__palavras">
-        {{#each palavras}}
-          <span class="op2-radio__palavra">
-            <span class="op2-radio__palavra-texto">{{palavra}}</span>
-            {{#unless @root.finalizado}}
-              <span class="op2-radio__setas">
-                <button type="button" class="op2-botao-icone" data-action="moverPalavra"
-                  data-conjunto="{{../indice}}" data-indice="{{i}}" data-direcao="-1" {{#if @first}}disabled{{/if}}
-                  aria-label="{{localize 'OP2.Ferramenta.RadioMoverEsquerda'}}">
-                  <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="op2-botao-icone" data-action="moverPalavra"
-                  data-conjunto="{{../indice}}" data-indice="{{i}}" data-direcao="1" {{#if @last}}disabled{{/if}}
-                  aria-label="{{localize 'OP2.Ferramenta.RadioMoverDireita'}}">
-                  <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-                </button>
-              </span>
-            {{/unless}}
+  <div class="op2-radio__pecas{{#if (op2Eq resolvido true)}} op2-radio__pecas--resolvido{{/if}}{{#if (op2Eq resolvido false)}} op2-radio__pecas--errado{{/if}}">
+    {{#each pecas}}
+      <span class="op2-radio__peca{{#if descartada}} op2-radio__peca--descartada{{/if}}" data-peca="{{i}}">
+        <span class="op2-radio__peca-texto">{{texto}}</span>
+        {{#unless @root.finalizado}}
+          <span class="op2-radio__setas">
+            <button type="button" class="op2-botao-icone" data-action="moverPeca"
+              data-indice="{{i}}" data-direcao="-1" {{#if primeira}}disabled{{/if}}
+              aria-label="{{localize 'OP2.Ferramenta.RadioMoverEsquerda'}}">
+              <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="op2-botao-icone" data-action="moverPeca"
+              data-indice="{{i}}" data-direcao="1" {{#if ultima}}disabled{{/if}}
+              aria-label="{{localize 'OP2.Ferramenta.RadioMoverDireita'}}">
+              <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="op2-botao-icone" data-action="alternarPeca" data-indice="{{i}}"
+              aria-label="{{#if descartada}}{{localize 'OP2.Ferramenta.RadioRecuperar'}}{{else}}{{localize 'OP2.Ferramenta.RadioDescartar'}}{{/if}}">
+              <i class="fa-solid {{#if descartada}}fa-rotate-left{{else}}fa-xmark{{/if}}" aria-hidden="true"></i>
+            </button>
           </span>
-        {{/each}}
-      </div>
-      {{#if (op2Eq resolvido true)}}
-        <p class="op2-ajuda op2-ajuda--sucesso"><i class="fa-solid fa-check" aria-hidden="true"></i> {{localize "OP2.Ferramenta.RadioResolvido"}}</p>
-      {{/if}}
-      {{#if (op2Eq resolvido false)}}
-        <p class="op2-ajuda"><i class="fa-solid fa-xmark" aria-hidden="true"></i> {{localize "OP2.Ferramenta.RadioNaoResolvido"}}</p>
-      {{/if}}
-    </fieldset>
-  {{/each}}
+        {{/unless}}
+      </span>
+    {{/each}}
+  </div>
+
+  {{#if (op2Eq resolvido true)}}
+    <p class="op2-ajuda op2-ajuda--sucesso"><i class="fa-solid fa-check" aria-hidden="true"></i> {{localize "OP2.Ferramenta.RadioResolvido"}}</p>
+  {{/if}}
+  {{#if (op2Eq resolvido false)}}
+    <p class="op2-ajuda"><i class="fa-solid fa-xmark" aria-hidden="true"></i> {{localize "OP2.Ferramenta.RadioNaoResolvido"}}</p>
+  {{/if}}
 
   {{#unless finalizado}}
     <button type="button" class="op2-botao" data-action="finalizar">{{localize "OP2.Ferramenta.Finalizar"}}</button>

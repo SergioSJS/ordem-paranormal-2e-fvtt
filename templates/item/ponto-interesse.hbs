@@ -112,6 +112,12 @@
                   </button>
                 {{/if}}
                 <p class="op2-ajuda">{{localize "OP2.POI.RadioAjudaAutor"}}</p>
+                <label class="op2-campo">
+                  <span>{{localize "OP2.POI.RadioTexto"}}</span>
+                  <textarea name="system.ferramentas.radio.texto" rows="2"
+                    {{#unless @root.editavel}}disabled{{/unless}}>{{radioTexto}}</textarea>
+                </label>
+                <p class="op2-ajuda">{{localize "OP2.POI.RadioTextoAjuda"}}</p>
               </fieldset>
             {{else}}
               <label class="op2-campo">
@@ -143,6 +149,13 @@
           </select>
         {{/if}}
       </fieldset>
+
+      <label class="op2-campo op2-campo--inline">
+        <span>{{localize "OP2.POI.LaboratorioDados"}}</span>
+        <input type="number" name="system.laboratorioDados" value="{{sistema.laboratorioDados}}"
+          min="4" max="6" step="1" {{#unless editavel}}disabled{{/unless}}>
+      </label>
+      <p class="op2-ajuda">{{localize "OP2.POI.LaboratorioDadosAjuda"}}</p>
 
       <label class="op2-campo op2-campo--inline">
         <input type="checkbox" name="system.reveladoPorLaser"

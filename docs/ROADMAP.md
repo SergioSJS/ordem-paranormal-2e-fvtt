@@ -118,10 +118,10 @@ declara `minimum: 13`, mas só o v14 foi exercitado de verdade.
 
 ## Compêndios ✅
 
-Oito packs em duas pastas — `Ordem Paranormal 2 → Regras` e `→ Ato I — A Maldição do
-Ídolo de Pedra` (`packFolders` no manifesto).
+Nove packs em três pastas — `Ordem Paranormal 2 → Regras`, `→ Ato I — A Maldição do
+Ídolo de Pedra` e `→ Ato II — …` (`packFolders` no manifesto).
 
-- [x] Habilidades (as do Ato I, com `origem` de perfil ou ocupação)
+- [x] Habilidades (as do Ato I e do Ato II, com `origem` de perfil, ocupação ou nível)
 - [x] Ocupações do livro, como Item arrastável para a ficha
 - [x] As 10 ferramentas da Ordo Realitas, com as cargas da regra
 - [x] Pré-gerados do Ato I, conferidos contra as fichas do pacote
@@ -137,11 +137,26 @@ Oito packs em duas pastas — `Ordem Paranormal 2 → Regras` e `→ Ato I — A
 O extrator é conferido contra o livro: cada célula de DT vira uma linha, e cada linha
 tem que ser idêntica à coluna "Informação" do PDF (86/86).
 
+## Ato II ✅
+
+O porão revisitado pelos agentes, com as ferramentas da Ordo Realitas. Não é público:
+o texto sai do PDF (`npm run ato-ii:extrair && npm run ato-ii:gerar-aventura`) e as
+artes do zip da editora, que o mestre entrega na hora de importar.
+
+- [x] Extrator das p. 72–103: 25 pontos, 63 linhas de quadro, o setor de ferramentas de
+      cada ponto (44 leituras), o roteiro do ato e as mecânicas de cada ferramenta —
+      conferido contra a tabela "Locais de uso de cada ferramenta" do livro
+- [x] Importador de extras (`module/ui/extras-aventura.mjs` + `zip.mjs`): pede o zip,
+      descompacta no navegador, sobe para `worlds/<mundo>/ato-ii/` e reescreve os
+      caminhos; menu de configurações para reenviar
+- [x] Cena do Ato II com as 39 paredes do Ato I transportadas para o mapa novo
+- [x] Os cinco agentes de nível 6 e as oito habilidades novas no compêndio
+- [x] Rádio Modificado no modelo do livro: peças em blocos, um monte só, descarte
+- [x] Laser com a lista explícita do livro; número de dados do Laboratório por ponto
+- [x] Erros de diagramação do livro tratados sem apagar texto (docs/LACUNAS.md)
+- [ ] Validação em Foundry v13 (adiada por decisão do projeto)
+
 ## Depois
 
 NEX, progressão por nível, traumas permanentes e o combate completo, quando forem
 publicados. Os campos já existem; a mecânica não.
-
-**Ato II.** O PDF traz um segundo capítulo — o porão revisitado pelos agentes, com as
-reações de ferramenta e pontos novos. O extrator lê só o Ato I; estender é o próximo
-passo natural, e a estrutura (pontos, quadro, caixas, duas colunas) é a mesma.

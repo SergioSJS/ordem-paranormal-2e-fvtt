@@ -135,12 +135,14 @@ Ordem Paranormal 2
 │   ├── Habilidades          Foco Mental, Ímpeto, Avaliação, Mentoria, Prontidão…
 │   ├── Ocupações            Cientista, Operário, Artista, Professor…
 │   └── Ferramentas          as 10 da Ordo Realitas, com as cargas da regra
-└── Ato I — A Maldição do Ídolo de Pedra
-    ├── A Aventura           importa tudo abaixo de uma vez, já vinculado
-    ├── Pré-gerados          os cinco, com habilidades e tokens
-    ├── Cenas                o Porão, com muros e portas secretas
-    ├── Handouts             os 18 handouts e os 5 históricos
-    └── Trilha               as duas faixas
+├── Ato I — A Maldição do Ídolo de Pedra
+│   ├── A Aventura           importa tudo abaixo de uma vez, já vinculado
+│   ├── Pré-gerados          os cinco, com habilidades e tokens
+│   ├── Cenas                o Porão, com muros e portas secretas
+│   ├── Handouts             os 18 handouts e os 5 históricos
+│   └── Trilha               as duas faixas
+└── Ato II — A Maldição do Ídolo de Pedra
+    └── A Aventura           os agentes voltam ao porão; as artes vêm do zip da editora
 ```
 
 **Comece pela Aventura.** Importar esse único documento traz a cena, a trilha, os
@@ -216,6 +218,70 @@ Ocupação é texto livre na ficha e concede uma habilidade (spec §2.1). O Item
 ocupação guarda as duas coisas juntas: **arraste a ocupação para a ficha** e ela
 preenche o campo e traz a habilidade dela, já marcada como de ocupação.
 
+## Compêndios do Ato II
+
+O Ato II é o porão revisitado pelos agentes da Ordem, com as dez ferramentas da Ordo
+Realitas. Ele **não é público**: o texto está no mesmo PDF, e as artes num zip que a
+editora entrega a quem assina os Arquivos Secretos. O sistema não distribui nada disso —
+distribui o que faz com isso.
+
+**Um único documento `Adventure`** traz a cena (o porão redesenhado, com as 39 paredes
+do Ato I transportadas para o mapa novo), os cinco agentes transcritos das fichas
+(Amanda, Antônio, Heitor, Raven e Val, nível 6, com as oito habilidades novas no
+compêndio), os handouts e o Compêndio da Ordem em PDF, os três áudios do Medidor EMF
+como playlist, as dez ferramentas prontas para arrastar, os **25 pontos de interesse**
+com as **63 linhas de quadro** e o **setor de ferramentas** de cada um (44 leituras,
+conferidas contra a tabela *Locais de uso de cada ferramenta* do livro), os três
+desafios de acesso, o roteiro do ato com as instruções de mestre de cada ferramenta,
+as regras da maldição para o caso de quebrarem o Ídolo, e a investigação com tudo
+vinculado.
+
+### As artes vêm do seu zip
+
+![Pedido do zip ao importar o Ato II](docs/img/importar-ato-ii.png)
+
+Ao importar a aventura, o sistema pede o `Ordem-2-Playtest-Alpha-Ato-II-Extras.zip` —
+o mesmo arquivo baixado do site da editora, sem extrair. Ele é descompactado no
+navegador e os 31 arquivos que a aventura usa (tokens, retratos, fichas, históricos,
+handouts, mapa, áudios, o PDF do Compêndio) vão para a pasta **do seu mundo**
+(`worlds/<mundo>/ato-ii/`). Nada é instalado no sistema, e uma atualização do sistema
+não apaga nada. Importou num segundo mundo? Ele pede o zip de novo. Perdeu os arquivos
+ou importou sem eles? *Configurações → Arquivos das aventuras* reenvia.
+
+O casamento com o zip é pelo nome do arquivo, sem acento: tanto faz como o seu
+descompactador grava os nomes.
+
+### O que o livro imprime errado, e como entra
+
+A diagramação do Ato II repete blocos de outros pontos. Nada é apagado: a descrição do
+Símbolo no Teto impressa no Depósito A, no Molho de Chaves e no Duto (que ainda leva
+o título "Símbolo no Teto") recebe a descrição do mesmo objeto no Ato I, com a nota do
+que o livro imprime; as linhas do quadro do Molho de Chaves repetidas no Depósito B e
+no Armário de Roupas, e a da cadeira da Mesa de Poker repetida na Churrasqueira, entram
+como **rascunho** com a nota de onde são. Os quatro rótulos "Laboratório" do Freezer
+viram Laboratório, Lanterna UV, EMF e Termômetro pelo que a leitura diz — e a tabela do
+livro confirma. Tudo está em [docs/LACUNAS.md](docs/LACUNAS.md).
+
+### O Rádio Modificado, como no livro
+
+O livro entrega blocos de palavras (*PENSE NA*, *SUA FILHA,*, *ELOÍSA*…), alguns falsos,
+e o jogador monta a frase. O app faz isso: um monte só com todas as peças que o teste
+de Tecnologia não removeu, sem marcar as falsas — ordenar e descartar é o jogo. Na ficha
+do ponto, as peças de um conjunto são escritas separadas por `|`.
+
+### Gerar
+
+```bash
+npm run ato-ii:extrair          # lê as p. 72–103 do PDF e se confere contra o livro
+npm run ato-ii:gerar-cena       # transporta as paredes do Ato I para o mapa novo
+npm run ato-ii:gerar-aventura   # monta o Adventure
+npm run pack:build
+```
+
+O extrator sai com erro se qualquer célula de DT não virar linha, se algum ponto reagir
+a uma ferramenta diferente do que a tabela do livro diz, ou se a solução de um rádio não
+casar com as peças. O passo a passo está em [scripts/ato-ii/README.md](scripts/ato-ii/README.md).
+
 ## Em português
 
 O sistema é escrito em pt-BR primeiro, e um jogador que ainda não escolheu idioma entra
@@ -286,6 +352,7 @@ Em desenvolvimento, versão 0.0.1.
 | 2 | Investigação: POIs, Examinar/Interagir, Recapitular, Compartilhar, rodadas, sobrecarga | pronta |
 | 3 | Desafios (Arrombar, Destrancar, Hackear, genérico), Alcançar, Sustentar, ferramentas da Ordo Realitas | pronta |
 | 4 | Testes opostos, Ajuda, usar habilidades e itens, combate simplificado, ferimentos e traumas | pronta |
+| Compêndios | Ato I inteiro dentro do sistema; Ato II inteiro a partir do PDF e do zip da editora | prontos |
 
 O playtest é explicitamente parcial: NEX, progressão por nível e traumas permanentes
 ainda não foram publicados. Onde o texto é ambíguo ou se contradiz, o sistema expõe um

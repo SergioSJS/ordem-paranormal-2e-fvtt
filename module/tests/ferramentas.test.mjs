@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   temFerramenta, podeUsarCarga, sequenciaLaboratorio, rerrolagensLaboratorio,
   sequenciaValida, conjuntosFalsosRemovidos, conjuntosRestantes, moverEmLista,
-  ordemCorreta, embaralhar, temReacaoFerramenta,
+  ordemCorreta, embaralhar, temReacaoFerramenta, pecasDoConjunto, montarPecas, solucaoDasPecas, pecasResolvidas,
 } from "../cena/ferramentas.mjs";
 import { ESCADA } from "../config.mjs";
 
@@ -99,4 +99,41 @@ test("temReacaoFerramenta: texto vazio/null é sem reação; conjuntos do Rádio
   assert.equal(temReacaoFerramenta("tem texto"), true);
   assert.equal(temReacaoFerramenta({ conjuntos: [] }), false);
   assert.equal(temReacaoFerramenta({ conjuntos: [{ verdadeiro: true, frase: "a" }] }), true);
+});
+
+test("pecasDoConjunto: blocos separados por | como no livro, senão palavra a palavra", () => {
+  assert.deepEqual(pecasDoConjunto("PENSE NA | SUA FILHA, | ELOÍSA"), ["PENSE NA", "SUA FILHA,", "ELOÍSA"]);
+  assert.deepEqual(pecasDoConjunto("o gato subiu"), ["o", "gato", "subiu"]);
+  assert.deepEqual(pecasDoConjunto("  "), []);
+  assert.equal(ordemCorreta(["PENSE NA", "SUA FILHA,"], "PENSE NA | SUA FILHA,"), true);
+});
+
+test("montarPecas/solucaoDasPecas: o monte mistura tudo, a solução é só o verdadeiro na ordem", () => {
+  const conjuntos = [
+    { verdadeiro: true, frase: "EU VOU | FAZER | ELE" },
+    { verdadeiro: false, frase: "EDGAR" },
+    { verdadeiro: false, frase: "MATAR ELE" },
+  ];
+  // "MATAR ELE" é uma peça: o ponto está em modo de blocos, o falso não vira duas palavras.
+  assert.deepEqual(montarPecas(conjuntos).map((p) => p.texto), ["EU VOU", "FAZER", "ELE", "EDGAR", "MATAR ELE"]);
+  // Sem "|" em lugar nenhum, tudo é palavra a palavra.
+  assert.deepEqual(montarPecas([{ verdadeiro: true, frase: "o gato" }, { verdadeiro: false, frase: "falso um" }]).map((p) => p.texto),
+    ["o", "gato", "falso", "um"]);
+  assert.deepEqual(montarPecas(conjuntos).map((p) => p.verdadeiro), [true, true, true, false, false]);
+  assert.deepEqual(solucaoDasPecas(conjuntos), ["EU VOU", "FAZER", "ELE"]);
+});
+
+test("pecasResolvidas: ordem certa das peças mantidas, e nada falso mantido", () => {
+  const conjuntos = [{ verdadeiro: true, frase: "a | b" }, { verdadeiro: false, frase: "x" }];
+  const peca = (texto, descartada = false) => ({ texto, descartada });
+  assert.equal(pecasResolvidas([peca("a"), peca("x", true), peca("b")], conjuntos), true);
+  assert.equal(pecasResolvidas([peca("b"), peca("a"), peca("x", true)], conjuntos), false, "ordem errada");
+  assert.equal(pecasResolvidas([peca("a"), peca("x"), peca("b")], conjuntos), false, "falsa mantida");
+  assert.equal(pecasResolvidas([peca("a"), peca("x", true), peca("b", true)], conjuntos), false, "verdadeira descartada");
+});
+
+test("temReacaoFerramenta: o rádio reage com conjuntos OU com leitura em texto", () => {
+  assert.equal(temReacaoFerramenta({ conjuntos: [], texto: "" }), false);
+  assert.equal(temReacaoFerramenta({ conjuntos: [], texto: "<p>Sai um grito.</p>" }), true);
+  assert.equal(temReacaoFerramenta({ conjuntos: [{ verdadeiro: true, frase: "a" }], texto: "" }), true);
 });

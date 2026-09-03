@@ -8,7 +8,7 @@
     {{#if temMarcados}}
       <p class="op2-card__texto">{{localize "OP2.Ferramenta.LaserMarcou"}}</p>
       <ul class="op2-card__infos">
-        {{#each marcados}}<li>{{this}}</li>{{/each}}
+        {{#each marcados}}<li>{{nome}}{{#if leitura}}<div class="op2-card__texto">{{{leitura}}}</div>{{/if}}</li>{{/each}}
       </ul>
     {{else}}
       <p class="op2-ajuda">{{localize "OP2.Ferramenta.LaserNada"}}</p>

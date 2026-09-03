@@ -17,15 +17,19 @@ da spec e das amostras visuais; extraia dele em vez de adivinhar.
 
 ## Estado
 
-**Fases 1 a 4 fechadas; compêndios fechados.** O sistema entrega o Ato I inteiro por um
-único `Adventure` (`Ato I — O Porão`): cena murada, trilha, pré-gerados, handouts, 31
-pontos de interesse com 86 linhas de quadro, 10 desafios, itens de mesa, roteiro e
-maldição rodada a rodada, tudo vinculado e em pastas. Pronto para a rodada de teste
-manual que fecha a v1.
+**Fases 1 a 4 fechadas; compêndios fechados; Ato II fechado.** O sistema entrega cada
+ato por um único `Adventure`. Ato I (`Ato I — O Porão`): cena murada, trilha,
+pré-gerados, handouts, 31 pontos com 86 linhas de quadro, 10 desafios, itens de mesa,
+roteiro e maldição rodada a rodada. Ato II (`Ato II — O Porão`): cena com as paredes
+transportadas, os cinco agentes, handouts e Compêndio em PDF, áudios EMF, as dez
+ferramentas, 25 pontos com 63 linhas e o setor de ferramentas (44 leituras), 3
+desafios, roteiro e mecânicas de mestre. **As artes do Ato II não entram no sistema:**
+o importador (`module/ui/extras-aventura.mjs`) pede o zip da editora e sobe para
+`worlds/<mundo>/ato-ii/`. Pronto para a rodada de teste manual que fecha a v1.
 **Versão:** 0.0.1 (a v1 é decisão de release).
-**Próximo:** Ato II do PDF (mesma estrutura) e o que o playtest ainda não publicou
-(NEX, progressão, traumas permanentes). Validação em v13 **adiada por decisão do
-projeto** — o sistema declara `minimum: 13`, mas só o v14 foi exercitado.
+**Próximo:** o que o playtest ainda não publicou (NEX, progressão, traumas
+permanentes). Validação em v13 **adiada por decisão do projeto** — o sistema declara
+`minimum: 13`, mas só o v14 foi exercitado.
 
 ## Convenções
 
@@ -68,6 +72,7 @@ npm run pack:build   # compila os compêndios de packs/sources/
 npm run ato-i:assets # recopia as artes do Ato I para assets/ato-i/
 npm run ato-i:gerar-cena  # deriva as paredes do Porão comparando os três mapas
 npm run ato-i:cena   # traz a cena do seu mundo de volta para packs/sources/
+npm run ato-ii:extrair && npm run ato-ii:gerar-aventura   # o Ato II, a partir do PDF
 npm run reparar-pastas -- <mundo>   # refaz as pastas de compêndio de um mundo
 ```
 

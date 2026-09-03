@@ -108,20 +108,33 @@ export async function usarLaser(ator) {
     return null;
   }
 
+  const pois = (await Promise.all(investigacao.system.pois.map((uuid) => fromUuid(uuid))))
+    .filter((poi) => poi?.type === "ponto-interesse");
+  // O livro pode dizer de saída quem a varredura identifica (o Ato II lista os pontos
+  // por ambiente, e deixa de fora alguns que reagem a outra ferramenta). Se algum
+  // ponto da investigação tem leitura própria no slot do laser, é essa lista que
+  // vale; senão, reage quem tem reação a qualquer ferramenta (spec §9).
+  const explicito = pois.some((poi) => temReacaoFerramenta(poi.system.ferramentas.laser));
   const marcados = [];
-  for (const uuid of investigacao.system.pois) {
-    const poi = await fromUuid(uuid);
-    if (poi?.type !== "ponto-interesse" || poi.system.reveladoPorLaser) continue;
-    const reage = Object.values(poi.system.ferramentas).some(temReacaoFerramenta);
+  const leituras = [];
+  for (const poi of pois) {
+    if (poi.system.reveladoPorLaser) continue;
+    const reage = explicito
+      ? temReacaoFerramenta(poi.system.ferramentas.laser)
+      : Object.values(poi.system.ferramentas).some(temReacaoFerramenta);
     if (!reage) continue;
     await comoMestre("marcarReveladoPorLaser", { uuid: poi.uuid });
     marcados.push(poi.name);
+    leituras.push({
+      nome: poi.name,
+      leitura: explicito ? await editorDeTexto().enrichHTML(poi.system.ferramentas.laser, { relativeTo: poi }) : "",
+    });
   }
 
   await enviarCard(ator, {
     titulo: rotulo,
     laser: true,
-    marcados,
+    marcados: leituras,
     temMarcados: marcados.length > 0,
   }, sussurroPara(ator));
 
@@ -149,6 +162,16 @@ export async function usarRadio(ator, poiUuid, { rapido = false } = {}) {
 
   const conjuntos = poi.system.ferramentas.radio?.conjuntos ?? [];
   if (!conjuntos.length) {
+    // Reação sem enigma (o Ídolo grita, nada para ordenar): revela como qualquer
+    // outra ferramenta, sem teste — o teste de Tecnologia só serve para tirar falsos.
+    const texto = poi.system.ferramentas.radio?.texto ?? "";
+    if (texto.trim()) {
+      await enviarCard(ator, {
+        titulo: rotulo, poiNome: poi.name, temReacao: true,
+        resultado: await editorDeTexto().enrichHTML(texto, { relativeTo: poi }),
+      }, sussurroPara(ator));
+      return null;
+    }
     ui.notifications.warn(game.i18n.localize("OP2.Ferramenta.RadioSemConjuntos"));
     return null;
   }

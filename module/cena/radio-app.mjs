@@ -3,16 +3,18 @@
  *
  * O teste de Tecnologia já rolou antes de abrir (em `usarRadio`, acoes-ferramenta.mjs)
  * e decidiu quantos conjuntos falsos saem de jogo — este app só cuida da parte
- * objetiva que sobra: embaralhar as palavras de cada conjunto restante e deixar o
- * jogador reordenar até bater com a frase certa. Se o jogador ainda "confunde" um
- * falso que o teste não removeu com um verdadeiro, isso é interpretação de mesa,
- * não algo que o sistema julga (docs/LACUNAS.md).
+ * objetiva que sobra: mistura as peças de todos os conjuntos que restaram num monte
+ * só e deixa o jogador ordenar e descartar até bater com a frase certa. É o jogo do
+ * livro: "você entrega vários conjuntos de palavras para o jogador e ele precisa
+ * ordená-los corretamente para formar frases. Contudo, nem todos os conjuntos serão
+ * utilizados: alguns são falsos". Separar os falsos que o teste não removeu é parte
+ * do desafio — por isso eles entram no mesmo monte, sem marca.
  *
  * Sem Item nem persistência: como Laboratório e Alcançar, é ação avulsa — só o
  * resultado final vai para o chat.
  */
 import { SYSTEM_ID } from "../config.mjs";
-import { embaralhar, moverEmLista, ordemCorreta } from "./ferramentas.mjs";
+import { embaralhar, moverEmLista, montarPecas, pecasResolvidas } from "./ferramentas.mjs";
 import { renderizar } from "../dice/teste.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -21,9 +23,10 @@ export class RadioApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     classes: ["op2", "op2-radio"],
     window: { title: "OP2.Ferramenta.Subtipo.radio", icon: "fa-solid fa-satellite-dish", resizable: true },
-    position: { width: 520, height: "auto" },
+    position: { width: 560, height: "auto" },
     actions: {
-      moverPalavra: RadioApp.#moverPalavra,
+      moverPeca: RadioApp.#moverPeca,
+      alternarPeca: RadioApp.#alternarPeca,
       finalizar: RadioApp.#finalizar,
     },
   };
@@ -43,12 +46,10 @@ export class RadioApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.roll = resultado.roll;
     this.removidos = resultado.removidos;
     this.totalFalsos = resultado.totalFalsos;
-    this.conjuntos = resultado.conjuntos.map((conjunto, indice) => ({
-      indice,
-      frase: conjunto.frase,
-      palavras: embaralhar(conjunto.frase.trim().split(/\s+/)),
-    }));
+    this.conjuntos = resultado.conjuntos;
+    this.pecas = embaralhar(montarPecas(this.conjuntos)).map((peca) => ({ ...peca, descartada: false }));
     this.finalizado = false;
+    this.resolvido = null;
   }
 
   static abrir(resultado) {
@@ -65,36 +66,39 @@ export class RadioApp extends HandlebarsApplicationMixin(ApplicationV2) {
       removidos: this.removidos,
       totalFalsos: this.totalFalsos,
       finalizado: this.finalizado,
-      conjuntos: this.conjuntos.map((conjunto) => ({
-        indice: conjunto.indice,
-        palavras: conjunto.palavras.map((palavra, i) => ({ palavra, i })),
-        resolvido: this.finalizado ? ordemCorreta(conjunto.palavras, conjunto.frase) : null,
-      })),
+      resolvido: this.resolvido,
+      pecas: this.pecas.map((peca, i) => ({ ...peca, i, primeira: i === 0, ultima: i === this.pecas.length - 1 })),
+      temPecas: this.pecas.length > 0,
     };
   }
 
-  static #moverPalavra(_evento, alvo) {
-    const conjunto = this.conjuntos.find((c) => c.indice === Number(alvo.dataset.conjunto));
-    if (!conjunto || this.finalizado) return;
-    conjunto.palavras = moverEmLista(conjunto.palavras, Number(alvo.dataset.indice), Number(alvo.dataset.direcao));
+  static #moverPeca(_evento, alvo) {
+    if (this.finalizado) return;
+    this.pecas = moverEmLista(this.pecas, Number(alvo.dataset.indice), Number(alvo.dataset.direcao));
+    this.render();
+  }
+
+  static #alternarPeca(_evento, alvo) {
+    if (this.finalizado) return;
+    const peca = this.pecas[Number(alvo.dataset.indice)];
+    if (peca) peca.descartada = !peca.descartada;
     this.render();
   }
 
   static async #finalizar() {
     this.finalizado = true;
+    this.resolvido = pecasResolvidas(this.pecas, this.conjuntos);
 
-    const resultados = this.conjuntos.map((conjunto) => ({
-      frase: conjunto.palavras.join(" "),
-      resolvido: ordemCorreta(conjunto.palavras, conjunto.frase),
-    }));
-
+    const mantidas = this.pecas.filter((p) => !p.descartada).map((p) => p.texto);
+    const descartadas = this.pecas.filter((p) => p.descartada).map((p) => p.texto);
     const conteudo = await renderizar("systems/ordem-paranormal-2e/templates/chat/radio.hbs", {
       titulo: game.i18n.localize("OP2.Ferramenta.Subtipo.radio"),
       poiNome: this.poi.name,
       removidos: this.removidos,
       totalFalsos: this.totalFalsos,
-      resultados,
-      todasResolvidas: resultados.length > 0 && resultados.every((r) => r.resolvido),
+      mantidas: mantidas.join(" "),
+      descartadas: descartadas.join(" · "),
+      resolvido: this.resolvido,
     });
     await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.ator }),

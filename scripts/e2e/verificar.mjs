@@ -11,6 +11,8 @@
  *   node scripts/e2e/verificar.mjs [url] [pasta-de-saida]
  */
 import { chromium } from "playwright";
+import { existsSync, rmSync } from "node:fs";
+import { join } from "node:path";
 
 const URL = process.argv[2] ?? "http://localhost:30099";
 const SAIDA = process.argv[3] ?? ".";
@@ -660,8 +662,8 @@ const relato = await page.evaluate(async () => {
       ok("as habilidades vêm junto do pré-gerado",
         alan?.items.map((i) => i.name).sort().join() === "Foco Mental,Ímpeto");
     }
-    ok("compêndio de habilidades tem as oito do Ato I",
-      game.packs.get("ordem-paranormal-2e.habilidades")?.index.size === 8);
+    ok("compêndio de habilidades tem as oito do Ato I e as oito do Ato II",
+      game.packs.get("ordem-paranormal-2e.habilidades")?.index.size === 16);
     // Ocupação é texto livre na ficha e concede uma habilidade (spec §2.1): o Item é o
     // atalho que guarda as duas coisas juntas.
     const ocupacoes = game.packs.get("ordem-paranormal-2e.ocupacoes");
@@ -975,13 +977,81 @@ const relato = await page.evaluate(async () => {
         noMundo("Item").length === 0 && noMundo("Actor").length === 0);
     }
 
+    // O Ato II: a mesma estrutura, mais o setor de ferramentas de cada ponto e as artes
+    // que vêm do zip da editora (`module/ui/extras-aventura.mjs`). Gerado do PDF, como o
+    // Ato I: numa cópia limpa o pack existe vazio.
+    const atoII = game.packs.get("ordem-paranormal-2e.ato-ii-aventura");
+    if (atoII?.index.size) {
+      const aventura = await atoII.getDocument([...atoII.index][0]._id);
+      ok("o Ato II traz cena, os áudios EMF, cinco diários, cinco agentes e a investigação",
+        aventura.scenes.size === 1 && aventura.playlists.size === 1
+        && aventura.journal.size === 5 && aventura.actors.size === 6);
+      const pontos = [...aventura.items].filter((i) => i.type === "ponto-interesse");
+      const desafios = [...aventura.items].filter((i) => i.type === "desafio-acesso");
+      const ferramentas = [...aventura.items].filter((i) => i.type === "ferramenta");
+      ok("com os 25 pontos da legenda do mapa, 3 desafios e as 10 ferramentas da Ordem",
+        pontos.length === 25 && desafios.length === 3 && ferramentas.length === 10);
+      const linhas = pontos.flatMap((p) => p.system.informacoes);
+      ok("as 63 células de DT do livro viram 63 linhas de quadro, com perícia válida",
+        linhas.length === 63 && linhas.every((l) => l.pericia && Number.isInteger(l.dt) && l.dt > 0));
+      // Cada ponto reage exatamente às ferramentas que a tabela "Locais de uso" (p. 75)
+      // diz, e a leitura mora no setor de ferramentas do ponto.
+      const chavesDe = (p) => Object.entries(p.system.ferramentas)
+        .filter(([k, v]) => k !== "laser" && (typeof v === "string" ? v.trim() : (v?.conjuntos?.length || v?.texto?.trim())))
+        .map(([k]) => k).sort().join();
+      const porNome = (n) => pontos.find((p) => p.name === n);
+      ok("o Freezer lê Câmera, Laboratório, Lanterna UV, EMF e Termômetro (os quatro rótulos 'Laboratório' do livro, corrigidos pela leitura)",
+        chavesDe(porNome("Freezer")) === "camera,emf,laboratorio,lanternaUV,termometro");
+      ok("o Ídolo lê sete ferramentas, com a Lanterna UV que a tabela do livro esquece",
+        chavesDe(porNome("O Ídolo de Pedra")) === "emf,infravermelho,laboratorio,lanternaUV,poRevelador,radio,termometro");
+      ok("os pontos de leitura normal não têm reação nenhuma",
+        ["Depósito A", "Pôsteres", "Porta de Saída", "Mesa de Sinuca"].every((n) => chavesDe(porNome(n)) === ""));
+      ok("o laser identifica exatamente os dez pontos da lista do livro",
+        pontos.filter((p) => p.system.ferramentas.laser?.trim()).length === 10
+        && Boolean(porNome("Faca de Churrasco").system.ferramentas.laser)
+        && !porNome("Pertences de Eloísa").system.ferramentas.laser);
+      ok("a sequência mínima do Laboratório vira o número de dados do ponto",
+        porNome("O Ídolo de Pedra").system.laboratorioDados === 6
+        && porNome("Pertences de Eloísa").system.laboratorioDados === 5);
+      const radioAltar = porNome("“Altar” de Madeira").system.ferramentas.radio.conjuntos;
+      ok("o rádio do altar traz a solução em oito peças e sete conjuntos falsos",
+        radioAltar.length === 8 && radioAltar[0].verdadeiro && radioAltar[0].frase.split(" | ").length === 8
+        && radioAltar.filter((c) => !c.verdadeiro).length === 7);
+      ok("o do computador, o diálogo em sete falas e cinco falsos",
+        porNome("Computador").system.ferramentas.radio.conjuntos[0].frase.split(" | ").length === 7
+        && porNome("Computador").system.ferramentas.radio.conjuntos.filter((c) => !c.verdadeiro).length === 5);
+      // Erros de diagramação do livro, tratados sem apagar texto (docs/LACUNAS.md).
+      ok("o ponto 18 é o Duto de Ventilação, não um segundo 'Símbolo no Teto'",
+        Boolean(porNome("Duto de Ventilação")) && pontos.filter((p) => p.name === "Símbolo no Teto").length === 1);
+      ok("linha que o livro repete de outro ponto entra como rascunho",
+        porNome("Armário de Roupas").system.informacoes.every((l) => l.oculta)
+        && porNome("Depósito B").system.informacoes.filter((l) => l.oculta).length === 2);
+      ok("o Depósito A recebe a descrição do Ato I no lugar da do Símbolo repetida",
+        /grade divisória/.test(porNome("Depósito A").system.descricaoBasica));
+      const painel = desafios.find((d) => d.name.includes("Painel"));
+      const computador = desafios.find((d) => d.name.includes("Computador"));
+      const duto = desafios.find((d) => d.name.includes("Duto"));
+      ok("painel, computador e grade do duto viram desafios com os números do livro",
+        painel?.system.hackTecnico.tabela.length === 4 && painel.system.hackTecnico.tabela[0].desafio === "16 × 5 = 80"
+        && computador?.system.hackTecnico.tabela.map((l) => l.segundos).join() === "20,15,10"
+        && duto?.system.abordagens.arrombar === true && duto.system.dtObjeto === 7 && duto.system.pontuacaoAlvo === 10);
+      const extras = aventura.flags["ordem-paranormal-2e"]?.extras;
+      ok("a aventura declara os arquivos que vêm do zip da editora, com prefixo e pasta",
+        extras?.arquivos.length === 31 && extras.pasta === "ato-ii" && extras.prefixo.endsWith("/assets/ato-ii/"));
+      const json = JSON.stringify(aventura.toObject());
+      ok("todo caminho de arte do Ato II usa esse prefixo — nada do User Data no compêndio",
+        !/worlds\//.test(json) && (json.match(/assets\/ato-ii\//g) ?? []).length > 40);
+      ok("a descrição da aventura explica o zip e não manda instalar nada",
+        /zip/i.test(aventura.description) && !/npm run|instal/i.test(aventura.description));
+    }
+
     // Compêndio organizado em pastas: sem isso vira uma lista solta de sete packs.
     const nossos = game.packs.filter((c) => c.metadata.packageName === "ordem-paranormal-2e");
     ok("todo compêndio do sistema mora numa pasta", nossos.every((c) => Boolean(c.folder)));
     const nomesDePasta = new Set((game.packs.folders ?? []).map((f) => f.name));
-    ok("com a hierarquia Regras / Ato I dentro do sistema",
+    ok("com a hierarquia Regras / Ato I / Ato II dentro do sistema",
       nomesDePasta.has("Ordem Paranormal 2") && nomesDePasta.has("Regras")
-      && [...nomesDePasta].some((n) => n.startsWith("Ato I")));
+      && [...nomesDePasta].some((n) => n.startsWith("Ato I ")) && [...nomesDePasta].some((n) => n.startsWith("Ato II")));
 
     // As duas faixas liberadas, como playlist pronta.
     const musicas = game.packs.get("ordem-paranormal-2e.ato-i-musicas");
@@ -2122,33 +2192,37 @@ const relato = await page.evaluate(async () => {
     const elRadio = appRadio.element;
     ok("app do Rádio renderizou", Boolean(elRadio));
 
-    // O conjunto de 1 palavra nunca embaralha pra outra coisa — já nasce "resolvido",
-    // sem precisar simular arrastar/clicar em nada.
-    const conjuntoUnico = appRadio.conjuntos.find((c) => c.frase === "so");
-    ok("conjunto de 1 palavra só tem 1 ficha", conjuntoUnico?.palavras.length === 1);
+    // Um monte só: as peças de todos os conjuntos que sobraram, verdadeiros e falsos,
+    // sem marca — separar é parte do jogo (spec §9.2).
+    const esperadas = resultado.conjuntos.flatMap((c) => c.frase.split(/\s+/)).length;
+    ok("o monte tem as peças de todos os conjuntos restantes, misturadas",
+      appRadio.pecas.length === esperadas && elRadio.querySelectorAll(".op2-radio__peca").length === esperadas);
 
-    // Força uma ordem errada conhecida no conjunto de 2 palavras pra testar a seta
-    // com uma interação real de clique, não só a lógica pura já coberta em
-    // moverEmLista().
-    const conjuntoDuplo = appRadio.conjuntos.find((c) => c.frase === "duas palavras");
-    if (conjuntoDuplo) {
-      conjuntoDuplo.palavras = ["palavras", "duas"];
-      await appRadio.render();
-      await esperar(400);
-      const seta = elRadio.querySelector(
-        `[data-action="moverPalavra"][data-conjunto="${conjuntoDuplo.indice}"][data-indice="0"][data-direcao="1"]`,
-      );
-      seta?.click();
-      await esperar(400);
-      ok("seta reordena as palavras (bate com a frase certa depois de mover)",
-        conjuntoDuplo.palavras.join(" ") === "duas palavras");
+    // Ordem conhecida: "duas" antes de "so" (errado), depois "palavras", depois os falsos.
+    const peca = (t) => appRadio.pecas.find((p) => p.texto === t && p.verdadeiro);
+    appRadio.pecas = [peca("duas"), peca("so"), peca("palavras"), ...appRadio.pecas.filter((p) => !p.verdadeiro)];
+    await appRadio.render();
+    await esperar(400);
+    elRadio.querySelector('[data-action="moverPeca"][data-indice="1"][data-direcao="-1"]')?.click();
+    await esperar(400);
+    ok("a seta reordena as peças por clique de verdade",
+      appRadio.pecas.slice(0, 3).map((p) => p.texto).join(" ") === "so duas palavras");
+    // Descarta os falsos, um clique por peça.
+    for (const [i, p] of appRadio.pecas.entries()) {
+      if (p.verdadeiro) continue;
+      elRadio.querySelector(`[data-action="alternarPeca"][data-indice="${i}"]`)?.click();
+      await esperar(200);
     }
+    ok("descartar marca a peça sem tirar do monte",
+      appRadio.pecas.filter((p) => p.descartada).length === appRadio.pecas.filter((p) => !p.verdadeiro).length
+      && elRadio.querySelectorAll(".op2-radio__peca--descartada").length === appRadio.pecas.filter((p) => !p.verdadeiro).length);
 
     const mensagensAntesRadio = game.messages.size;
     elRadio.querySelector('[data-action="finalizar"]')?.click();
     await esperar(600);
     ok("finalizar publica um card no chat", game.messages.size > mensagensAntesRadio);
-    ok("conjunto acertado aparece marcado como resolvido", Boolean(elRadio.querySelector(".op2-radio__conjunto--resolvido")));
+    ok("peças certas na ordem certa, falsos fora: resolvido",
+      appRadio.resolvido === true && Boolean(elRadio.querySelector(".op2-radio__pecas--resolvido")));
     ok("botão finalizar some depois de encerrar", !elRadio.querySelector('[data-action="finalizar"]'));
     await appRadio.close();
 
@@ -2515,6 +2589,148 @@ const relato = await page.evaluate(async () => {
   relato.passos.push([depois.tentativas === 1, "DT 0 rola de verdade pelo diálogo (o botão Rolar não fica inerte)"]);
   relato.passos.push([depois.pv === alvo.pvAntes - 1, "Arrombar pela ficha cobra 1 PV do personagem daquela ficha"]);
   relato.passos.push([!depois.dialogoAberto, "diálogo fecha depois de rolar"]);
+}
+
+// Ato II com o zip da editora: o importador pede o zip, descompacta no navegador, sobe
+// os arquivos para a pasta do mundo e reescreve os caminhos. O zip é material da
+// editora e não vem no repositório: sem ele em docs/, o bloco não roda.
+{
+  const zipPath = "docs/Ordem-2-Playtest-Alpha-Ato-II-Extras.zip";
+  const worldId = await page.evaluate(() => game.world.id);
+  // Com o User Data à mão (OP2_E2E_DATA), zera a pasta para exercitar o upload de verdade.
+  if (process.env.OP2_E2E_DATA) {
+    rmSync(join(process.env.OP2_E2E_DATA, "Data", "worlds", worldId, "ato-ii"), { recursive: true, force: true });
+  }
+  const limparAtoII = async () => page.evaluate(async () => {
+    const doAtoII = (d) => d.folder?.name === "Ato II — O Porão" || d.folder?.folder?.name === "Ato II — O Porão";
+    for (const colecao of [game.actors, game.items, game.scenes, game.journal, game.playlists]) {
+      for (const doc of [...colecao].filter(doAtoII)) await doc.delete().catch(() => {});
+    }
+    for (const pasta of [...game.folders].filter((f) => f.name === "Ato II — O Porão" || f.folder?.name === "Ato II — O Porão")) {
+      await pasta.delete().catch(() => {});
+    }
+  });
+
+  if (existsSync(zipPath) && await page.evaluate(() => Boolean(game.packs.get("ordem-paranormal-2e.ato-ii-aventura")?.index.size))) {
+    await limparAtoII();
+    const primeira = await page.evaluate(async () => {
+      const pack = game.packs.get("ordem-paranormal-2e.ato-ii-aventura");
+      const aventura = await pack.getDocument([...pack.index][0]._id);
+      const r = await aventura.import({ dialog: false });
+      // Cancelada pelo hook: `created` volta como array vazio; criada de verdade, como registro.
+      return { cancelou: Array.isArray(r.created) && r.created.length === 0 };
+    });
+    relato.passos.push([primeira.cancelou, "importar o Ato II sem os arquivos no mundo segura a importação e pede o zip"]);
+
+    await page.waitForSelector(".op2-extras input[type=file]", { timeout: 20000 });
+    await page.setInputFiles(".op2-extras input[type=file]", zipPath);
+    await page.waitForSelector('.op2-extras [data-action="concluir"]', { timeout: 300000 });
+    const envio = await page.evaluate(() => ({
+      ok: Boolean(document.querySelector(".op2-extras__ok")),
+      faltando: document.querySelectorAll(".op2-extras__lista li").length,
+    }));
+    relato.passos.push([envio.ok && envio.faltando === 0, "o zip da editora traz todos os 31 arquivos que a aventura espera"]);
+    await page.click('.op2-extras [data-action="concluir"]');
+    // O import cria as pastas por último: esperar só pelos documentos deixava o filtro
+    // por pasta vazio (achado ao escrever este mesmo bloco).
+    await page.waitForFunction(() => game.actors.getName("Amanda")?.folder && game.scenes.getName("O Porão — Ato II")?.folder
+      && game.items.getName("Freezer")?.folder && game.playlists.getName("Ato II — Áudios EMF")?.folder
+      && game.folders.getName("Ferramentas da Ordem"), null, { timeout: 180000 });
+
+    const mundo = await page.evaluate(async (worldId) => {
+      const raiz = `worlds/${worldId}/ato-ii`;
+      const r = {};
+      const amanda = game.actors.getName("Amanda");
+      r.atorImg = amanda.img === `${raiz}/tokens/personagem-amanda.png`
+        && amanda.prototypeToken.texture.src === `${raiz}/tokens/token-amanda.png`
+        && amanda.system.biografia.includes(`${raiz}/historicos/historico-amanda.jpg`);
+      const cena = game.scenes.getName("O Porão — Ato II");
+      r.cena = cena._source.background.src === `${raiz}/mapas/mapa-01-o-porao.jpg`
+        && cena.width === 3537 && cena.height === 4101 && cena.walls.size === 39
+        && cena.walls.filter((w) => w.door).length === 6;
+      const trilha = game.playlists.getName("Ato II — Áudios EMF");
+      r.trilha = trilha.sounds.size === 3 && trilha.sounds.every((s) => s.path.startsWith(`${raiz}/musicas/audio-emf-`));
+      const handouts = game.journal.getName("Handouts — Ato II");
+      r.handouts = handouts.pages.size === 7
+        && handouts.pages.filter((p) => p.type === "image").every((p) => p.src.startsWith(`${raiz}/handouts/`))
+        && handouts.pages.find((p) => p.type === "pdf")?.src === `${raiz}/handouts/handout-01-compendium-playtest-preenchivel.pdf`;
+      const freezer = game.items.getName("Freezer");
+      r.freezer = freezer.system.ferramentas.camera.includes(`${raiz}/handouts/handout-06-foto-do-freezer.png`)
+        && /@UUID\[Playlist\./.test(freezer.system.ferramentas.emf);
+      const docsAtoII = [game.actors, game.items, game.scenes, game.journal, game.playlists]
+        .flatMap((c) => [...c].filter((d) => d.folder?.name === "Ato II — O Porão" || d.folder?.folder?.name === "Ato II — O Porão"));
+      const comPrefixo = docsAtoII.filter((d) => JSON.stringify(d.toObject()).includes("assets/ato-ii/"))
+        .map((d) => `${d.documentName} ${d.name}`);
+      const tudo = docsAtoII.map((d) => JSON.stringify(d.toObject())).join("");
+      r.semPrefixo = docsAtoII.length >= 45 && comPrefixo.length === 0 && tudo.includes(raiz);
+      r.comPrefixo = comPrefixo;
+      r.docsAtoII = docsAtoII.length;
+      const picker = foundry.applications.apps.FilePicker.implementation;
+      const { files: tokens } = await picker.browse("data", `${raiz}/tokens`);
+      r.arquivosNoMundo = tokens.length === 10;
+      const cabecas = await Promise.all([
+        `${raiz}/mapas/mapa-01-o-porao.jpg`, `${raiz}/tokens/token-val.png`, `${raiz}/musicas/audio-emf-3.mp3`,
+        `${raiz}/handouts/handout-01-compendium-playtest-preenchivel.pdf`, `${raiz}/handouts/handout-02a-laser-porao.jpg`,
+      ].map((c) => fetch(`/${c}`, { method: "HEAD" }).then((resp) => resp.ok).catch(() => false)));
+      r.servidos = cabecas.every(Boolean);
+      const inv = game.actors.getName("O Porão — Ato II");
+      const links = [...inv.system.pois, ...inv.system.desafios, ...inv.system.participantes];
+      const alvos = await Promise.all(links.map((u) => fromUuid(u)));
+      r.investigacao = inv.system.pois.length === 25 && inv.system.desafios.length === 3
+        && inv.system.participantes.length === 5 && alvos.every((d) => d && !d.pack) && inv.system.sobrecarga.ativa === true;
+
+      // O laser com a lista explícita do livro: dez pontos, e não "quem reage a algo".
+      const agente = await Actor.create({ name: "Agente do Laser", type: "personagem", system: { tipo: "agente" } });
+      await agente.createEmbeddedDocuments("Item", ["Laser de Varredura", "Rádio Modificado"]
+        .map((n) => game.items.getName(n).toObject()));
+      const ativaAntes = game.settings.get("ordem-paranormal-2e", "investigacoesAtivasUuids");
+      await game.op2.definirInvestigacaoAtiva(inv.uuid);
+      const marcados = await game.op2.usarLaser(agente);
+      r.laser = marcados.length === 10 && marcados.includes("Faca de Churrasco") && marcados.includes("Freezer")
+        && !marcados.includes("Pertences de Eloísa") && !marcados.includes("Depósito A");
+
+      // O rádio do Depósito B, no modelo do livro: peças em blocos.
+      const depositoB = game.items.getName("Depósito B");
+      const resultado = await game.op2.usarRadio(agente, depositoB.uuid, { rapido: true });
+      const app = game.op2.abrirRadio(resultado);
+      await new Promise((res) => setTimeout(res, 500));
+      const verdadeiras = app.pecas.filter((p) => p.verdadeiro).map((p) => p.texto);
+      r.radio = verdadeiras.join(" | ") !== "" && app.pecas.filter((p) => p.verdadeiro).length === 6
+        && app.pecas.every((p) => p.texto !== "MATAR" && p.texto !== "ELE " )
+        && verdadeiras.includes("FAZER ISSO");
+      await app.close();
+      await game.settings.set("ordem-paranormal-2e", "investigacoesAtivasUuids", ativaAntes);
+      await agente.delete();
+      return r;
+    }, worldId);
+
+    relato.passos.push([mundo.atorImg, "os agentes chegam ao mundo apontando para a pasta do mundo (retrato, token, histórico)"]);
+    relato.passos.push([mundo.cena, "a cena do Ato II vem com o mapa do zip, 39 paredes e 6 portas"]);
+    relato.passos.push([mundo.trilha, "a playlist dos áudios EMF aponta para os mp3 enviados"]);
+    relato.passos.push([mundo.handouts, "o diário de handouts traz as imagens e o PDF do Compêndio da Ordem"]);
+    relato.passos.push([mundo.freezer, "a leitura da Câmera no Freezer traz o handout, e a do EMF o link para a playlist"]);
+    relato.passos.push([mundo.semPrefixo, `nenhum dos ${mundo.docsAtoII} documentos importados ficou com o prefixo do compêndio${mundo.comPrefixo?.length ? ` (${mundo.comPrefixo.join(", ")})` : ""}`]);
+    relato.passos.push([mundo.arquivosNoMundo, "os dez tokens estão na pasta do mundo"]);
+    relato.passos.push([mundo.servidos, "mapa, token, áudio, PDF e handout são servidos pelo Foundry"]);
+    relato.passos.push([mundo.investigacao, "a investigação do Ato II resolve 25 pontos, 3 desafios e 5 agentes no mundo"]);
+    relato.passos.push([mundo.laser, "o laser marca exatamente os dez pontos da lista do livro"]);
+    relato.passos.push([mundo.radio, "o rádio do Depósito B joga em blocos, como o livro"]);
+
+    // Segunda importação, com os arquivos já no lugar: nada de pedir o zip de novo.
+    await limparAtoII();
+    const segunda = await page.evaluate(async () => {
+      const pack = game.packs.get("ordem-paranormal-2e.ato-ii-aventura");
+      const aventura = await pack.getDocument([...pack.index][0]._id);
+      await aventura.import({ dialog: false });
+      await new Promise((res) => setTimeout(res, 3000));
+      return { dialogo: Boolean(document.querySelector(".op2-extras")), amanda: Boolean(game.actors.getName("Amanda")) };
+    });
+    await page.waitForFunction(() => game.actors.getName("Amanda")?.folder && game.items.getName("Freezer")?.folder, null, { timeout: 180000 });
+    relato.passos.push([!segunda.dialogo, "com os arquivos já no mundo, importar de novo não pede o zip"]);
+    await limparAtoII();
+  } else {
+    console.log("(sem docs/Ordem-2-Playtest-Alpha-Ato-II-Extras.zip ou sem o pack do Ato II: importação com zip não verificada)");
+  }
 }
 
 const falhas = relato.passos.filter(([ok]) => !ok);

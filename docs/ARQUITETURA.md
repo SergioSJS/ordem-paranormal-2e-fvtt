@@ -29,15 +29,17 @@ sheets/ · dialogs · chat   apresentação
 | `module/data/` | `TypeDataModel` por tipo de documento. `campos.mjs` tem os construtores compartilhados. |
 | `module/dice/` | Escada, análise, `OP2Roll`, diálogo de teste, seleção de dados, falha crítica. |
 | `module/sheets/` | Fichas de ator e item. |
-| `module/ui/` | Ícones de dado, helpers de Handlebars, listeners de chat. |
+| `module/ui/` | Ícones de dado, helpers de Handlebars, listeners de chat, socket. `zip.mjs` (leitor de zip puro) e `extras-aventura.mjs` (o importador que pede o zip da editora, sobe para a pasta do mundo e reescreve os caminhos). |
 | `module/cena/` | Cena: investigação ativa, painel, rodadas (sobrecarga e roteiro por rodada), ações de investigação/desafio/ferramenta/combate/ajuda, os três apps de minigame (Destrancar, Laboratório, Rádio), Ímpeto, ferimentos e queda. Regras puras em `investigacao.mjs`, `desafios.mjs`, `combate.mjs`, `ajuda.mjs`, `ferimentos.mjs`. |
 | `module/settings/` | Registro dos settings. Um por lacuna do playtest. |
 | `module/tests/` | `node --test`, sem runner externo. |
 | `templates/partials/` | Peças reutilizadas: controle de dado, linha de perícia, trilha de recurso. |
 | `scripts/build-packs.mjs` | Compila `packs/sources/` em LevelDB direto (o `fvtt package pack` devolvia banco vazio com documento embutido). |
 | `scripts/ato-i/` | `extrair-aventura.py` lê o PDF (pontos, quadro, caixas, maldição, itens, roteiro); `gerar-aventura.mjs` monta o `Adventure`; `importar-cena.mjs` traz a cena murada do mundo; `copiar-assets.mjs` recopia as artes. |
+| `scripts/ato-ii/` | `extrair-aventura.py` lê as p. 72–103 (pontos, quadro, setor de ferramentas, roteiro, mecânicas, matriz de conferência); `gerar-cena.mjs` transporta as paredes do Ato I; `gerar-aventura.mjs` monta o `Adventure` com `flags.extras`. `README.md` explica o pipeline. |
+| `scripts/aventura/comum.mjs` | O que os dois geradores compartilham: ids determinísticos, títulos legíveis, pastas. |
 | `scripts/reparar-pastas-compendio.mjs` | Refaz as pastas de compêndio de um mundo que as perdeu (o Foundry só as materializa quando a lista de packs muda). |
-| `assets/ato-i/` | As artes do Ato I que os compêndios referenciam. |
+| `assets/ato-i/` | As artes do Ato I que os compêndios referenciam. As do Ato II não existem aqui: o compêndio aponta para `assets/ato-ii/` e o importador troca pela pasta do mundo. |
 
 ## Decisões que valem repetir
 

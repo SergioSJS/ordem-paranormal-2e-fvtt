@@ -28,10 +28,14 @@ export class PontoInteresseData extends foundry.abstract.TypeDataModel {
     ferramentas.radio = new SchemaField({
       conjuntos: new ArrayField(new SchemaField({
         verdadeiro: new BooleanField({ required: true, initial: true }),
-        // Palavras corretas, em ordem, separadas por espaço (docs/LACUNAS.md) — o
-        // app embaralha na hora de jogar; conferir a resposta é comparar de novo.
+        // As peças certas, em ordem: blocos separados por " | " (como o livro imprime)
+        // ou palavras separadas por espaço (docs/LACUNAS.md). O app mistura as peças
+        // de todos os conjuntos na hora de jogar; conferir é comparar de novo.
         frase: new StringField({ required: true, initial: "", blank: true }),
       }), { initial: [] }),
+      // Reação sem enigma ("sai um som horripilante similar a gritos", o Ídolo): o rádio
+      // reage, mas não há nada para ordenar — vira o card de leitura comum.
+      texto: new HTMLField({ required: true, initial: "", blank: true }),
     }, { nullable: true, initial: null });
 
     return {
@@ -69,6 +73,13 @@ export class PontoInteresseData extends foundry.abstract.TypeDataModel {
       })),
 
       ferramentas: new SchemaField(ferramentas),
+
+      /**
+       * Quantos dados o Laboratório Portátil rola neste ponto (spec §9.1: 4 a 6, "conforme
+       * instruções no ponto de interesse" — o livro imprime "Sequência mínima: N" ao lado
+       * da leitura). O app usa isto como padrão quando aberto a partir do ponto.
+       */
+      laboratorioDados: new NumberField({ required: true, initial: 4, min: 4, max: 6, integer: true, nullable: false }),
 
       /** O Laser de Varredura revela quais POIs reagem às demais ferramentas (spec §9). */
       reveladoPorLaser: new BooleanField({ required: true, initial: false }),

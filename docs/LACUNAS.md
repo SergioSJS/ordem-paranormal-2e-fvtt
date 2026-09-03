@@ -257,10 +257,17 @@ automático, pela mesma regra de sempre: a mesa às vezes reinterpreta o que foi
 ## Redistribuição dos arquivos do Ato I
 
 Os arquivos públicos do Ato I (handouts, mapas, tokens, músicas) são material da
-editora, liberado de graça para o playtest. **Decisão:** não vão no repositório nem no
-pacote do sistema — mesma política do PDF. Os compêndios trazem só os dados e apontam
-para `systems/ordem-paranormal-2e/assets/ato-i/` no User Data; `npm run ato-i` copia os arquivos para lá na máquina de
-quem já os tem.
+editora, liberado de graça para o playtest. **Decisão:** viajam no sistema, em
+`assets/ato-i/` (`npm run ato-i:assets` refaz a cópia). O PDF e o texto extraído dele,
+não: ficam fora do repositório.
+
+## Redistribuição dos arquivos do Ato II
+
+O Ato II é exclusivo de assinante: PDF e zip de artes. **Decisão:** o texto sai do PDF
+de quem o tem, como no Ato I, e as artes ficam no zip do mestre. O compêndio aponta para
+um prefixo que não existe (`assets/ato-ii/`); na importação, o sistema pede o zip,
+descompacta no navegador e guarda os arquivos em `worlds/<mundo>/ato-ii/` — pasta do
+mundo, não do sistema, para sobreviver a atualização. Nada da editora entra no pacote.
 
 
 ## Quais habilidades são de perfil e quais de ocupação
@@ -337,5 +344,58 @@ Todas as caixas de acesso do porão têm campo no `desafio-acesso`:
   Tecnologia" é perícia alternativa e segue descobrível — o sistema testa uma perícia
   por linha, a alternativa fica no texto.
 
-O que segue fora: o Ato II (outro capítulo do playtest, com os próprios pontos e as
-reações de ferramenta) não é gerado — o compêndio cobre o Ato I.
+## Ato II: o que o livro imprime errado, e as decisões
+
+Tudo abaixo mantém o texto do livro; o que muda é onde ele entra e o que o mestre lê ao
+lado.
+
+- **Descrições repetidas.** O Depósito A (10), o Molho de Chaves (11) e o Duto (18) trazem
+  impressa a descrição do Símbolo no Teto. Entram com a descrição do mesmo objeto no Ato
+  I (mesmo porão) e a nota do que o livro imprime.
+- **Título errado.** O ponto 18 leva o título "Símbolo no Teto"; o número da margem e a
+  legenda do mapa dizem Duto de Ventilação, e é assim que ele entra, com a nota.
+- **Linhas repetidas.** As três linhas do Molho de Chaves aparecem no Armário de Roupas
+  (23) e uma delas no Depósito B (13); a cadeira caída da Mesa de Poker (20) aparece na
+  Churrasqueira (22). Entram como rascunho, com a nota de onde são — o mestre libera se
+  quiser.
+- **Quatro "Laboratório" no Freezer.** O rótulo se repete nas leituras da Lanterna UV, do
+  EMF e do Termômetro; a leitura diz qual é cada uma, e a tabela da p. 75 confirma.
+- **Tabela × texto no Ídolo.** A tabela "Locais de uso" diz que a Lanterna UV não reage
+  no Ídolo; o texto dá a leitura ("parece ficar transparente"). O texto manda; é a única
+  discrepância entre a tabela e as 25 leituras.
+- **Numeração dos handouts.** O texto cita "HANDOUT 01 - FOTO DO ALTAR"; o arquivo do zip
+  chama "Handout 03". O casamento é por título, e o diário mostra os dois nomes.
+- **Ícone perdido.** "(leia Percepção [ícone] acima)" na Lanterna do Ídolo perde o
+  ícone da DT na extração; a linha citada é a de Percepção condicionada ao Ídolo
+  quebrado, e o texto passa a dizer isso.
+- **Contagem de jogadores.** No Computador, "3 ou 4 … / 5 …" são os ícones de contagem
+  de jogadores do livro: viram "(3 ou 4 jogadores)" e "(5 jogadores)" no texto da linha
+  de Intuição.
+- **Laboratório sem sequência.** O Armário de Roupas não imprime "Sequência mínima";
+  fica o padrão de 4 dados (`laboratorioDados`, editável na ficha do ponto).
+- **Origem das habilidades novas.** As fichas não dizem qual é de perfil, de ocupação ou
+  de nível. Avaliação, Ímpeto e Prontidão repetem o Ato I (perfil). Foco Mental, Mentoria
+  e Técnica Medicinal são da ocupação por óbvio; Linha de Tiro e Para Bellum foram lidas
+  como da ocupação (Policial, Militar) e o resto — Olhar Infalível, Amor pela Descoberta,
+  Incansável, Estoico, Varredura Ampla — como de nível. É rótulo, não mecânica.
+- **Ímpeto de cinco espaços (Heitor).** A barra mostra cinco pips; "2 espaços → +d10" e
+  "5 espaços → ação extra" ficam no texto, a mesa aplica.
+- **Rádio Modificado em peças.** O livro dá blocos ("PENSE NA", "SUA FILHA,") e marca os
+  falsos em vermelho, cor que a extração perde: o que não está na solução é falso. No
+  ponto, a solução é um conjunto verdadeiro com as peças separadas por " | ", e cada
+  peça falsa um conjunto falso. O app mistura tudo num monte, sem marca; o jogador
+  ordena e descarta. Sem "|" em lugar nenhum, o conjunto é lido palavra a palavra, como
+  antes.
+- **Rádio sem enigma.** No Ídolo o rádio só "sai um som horripilante similar a gritos":
+  reação sem nada para ordenar. O slot do rádio ganhou `texto` ao lado de `conjuntos`;
+  sem conjuntos, usar o rádio revela o texto como qualquer outra ferramenta, sem teste.
+- **Laser explícito.** O livro lista quem a varredura identifica (dez pontos), e deixa de
+  fora a Eloísa, que reage ao Laboratório. Quando algum ponto da investigação tem texto
+  no slot do laser, é a lista que vale; senão, reage quem tem reação a algo (spec §9).
+- **A cena.** Estante e porta de saída abertas (p. 95 e 96); grade do duto trancada
+  (ainda é desafio); portas dos depósitos fechadas e destrancadas — "os desafios
+  solucionados no Ato I seguem resolvidos" depende de cada mesa.
+- **O que ficou de fora.** "Próximos passos" (o formulário de feedback do playtest) e a
+  versão "para impressão" do Compêndio da Ordem — a preenchível entra como página PDF.
+- **Sobrecarga.** A tabela do porão é a padrão do sistema (spec §7.6), ligada na
+  investigação; a caixa do livro se repete no roteiro como nota.

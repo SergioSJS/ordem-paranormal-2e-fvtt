@@ -205,14 +205,20 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     await usarFerramenta(this.ator, alvo.dataset.poiUuid, alvo.dataset.ferramenta);
   }
 
-  /** Laboratório Portátil é minigame: pede quantos dados o POI exige (spec §9.1). */
+  /**
+   * Laboratório Portátil é minigame: pede quantos dados o POI exige (spec §9.1). O
+   * padrão vem do próprio ponto (`laboratorioDados`, a "sequência mínima" do livro);
+   * o mestre ainda pode mudar na hora.
+   */
   static async #usarLaboratorio(_evento, alvo) {
+    const poi = alvo.dataset.poiUuid ? fromUuidSync(alvo.dataset.poiUuid) : null;
+    const padrao = poi?.system?.laboratorioDados ?? 4;
     const qtdDados = await foundry.applications.api.DialogV2.prompt({
       window: { title: game.i18n.localize("OP2.Ferramenta.Subtipo.laboratorio") },
       content: `
         <div class="form-group">
           <label>${game.i18n.localize("OP2.Ferramenta.QtdDados")}</label>
-          <input type="number" name="qtd" value="4" min="4" max="6">
+          <input type="number" name="qtd" value="${padrao}" min="4" max="6">
         </div>`,
       ok: { callback: (_ev, botao) => Number(botao.form.elements.qtd.value) },
       rejectClose: false,

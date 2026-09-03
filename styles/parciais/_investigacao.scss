@@ -464,7 +464,12 @@ summary.op2-painel-titulo { cursor: pointer; }
 }
 
 .op2-radio {
-  &__conjunto {
+  // Um monte só: as peças verdadeiras e as falsas que o teste não removeu,
+  // misturadas — é o jogador quem descarta (spec §9.2).
+  &__pecas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--op2-e2);
     padding: var(--op2-e2);
     border: 1px dashed var(--op2-linha);
     border-radius: var(--op2-raio);
@@ -473,13 +478,7 @@ summary.op2-painel-titulo { cursor: pointer; }
     &--errado { border-color: var(--op2-vermelho); }
   }
 
-  &__palavras {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--op2-e2);
-  }
-
-  &__palavra {
+  &__peca {
     display: flex;
     align-items: center;
     gap: 0.2rem;
@@ -487,9 +486,16 @@ summary.op2-painel-titulo { cursor: pointer; }
     border: 1px solid var(--op2-linha);
     border-radius: var(--op2-raio);
     background: var(--op2-superficie-alta);
+
+    &--descartada {
+      opacity: 0.45;
+      border-style: dashed;
+
+      .op2-radio__peca-texto { text-decoration: line-through; }
+    }
   }
 
-  &__palavra-texto {
+  &__peca-texto {
     font-family: var(--op2-fonte-mono);
     font-size: 0.85rem;
   }

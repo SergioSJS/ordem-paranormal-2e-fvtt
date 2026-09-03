@@ -76,10 +76,58 @@ export function moverEmLista(lista, indice, direcao) {
   return nova;
 }
 
-/** A ordem de palavras bate com a frase correta ("palavra1 palavra2 ...")? */
+/**
+ * As peças de um conjunto. O livro entrega blocos de palavras ("PENSE NA", "SUA FILHA,")
+ * que o jogador ordena em frases: um conjunto escrito com " | " entre os blocos é lido
+ * bloco a bloco; sem o separador, palavra a palavra.
+ */
+export function pecasDoConjunto(frase, modoBlocos = String(frase ?? "").includes("|")) {
+  const texto = String(frase ?? "").trim();
+  if (!texto) return [];
+  return modoBlocos
+    ? texto.split("|").map((p) => p.trim()).filter(Boolean)
+    : texto.split(/\s+/);
+}
+
+/**
+ * Um ponto escrito em blocos ("A | B") lê TODOS os conjuntos como blocos: o falso
+ * "MATAR ELE" é uma peça só, não duas palavras.
+ */
+const modoBlocosDe = (conjuntos) => conjuntos.some((c) => String(c.frase ?? "").includes("|"));
+
+/** A ordem de peças bate com a frase correta? */
 export function ordemCorreta(ordemAtual, frase) {
-  const alvo = frase.trim().split(/\s+/);
-  return ordemAtual.length === alvo.length && ordemAtual.every((palavra, i) => palavra === alvo[i]);
+  const alvo = pecasDoConjunto(frase);
+  return ordemAtual.length === alvo.length && ordemAtual.every((peca, i) => peca === alvo[i]);
+}
+
+/**
+ * O monte de peças que o jogador vê: todas as peças de todos os conjuntos que sobraram
+ * depois do teste, misturadas (spec §9.2: "nem todos os conjuntos serão utilizados").
+ * @param {Array<{verdadeiro: boolean, frase: string}>} conjuntos
+ * @returns {Array<{texto: string, verdadeiro: boolean, conjunto: number, posicao: number}>}
+ */
+export function montarPecas(conjuntos) {
+  const blocos = modoBlocosDe(conjuntos);
+  return conjuntos.flatMap((c, conjunto) => pecasDoConjunto(c.frase, blocos)
+    .map((texto, posicao) => ({ texto, verdadeiro: Boolean(c.verdadeiro), conjunto, posicao })));
+}
+
+/** A solução: as peças dos conjuntos verdadeiros, na ordem em que o mestre cadastrou. */
+export function solucaoDasPecas(conjuntos) {
+  const blocos = modoBlocosDe(conjuntos);
+  return conjuntos.filter((c) => c.verdadeiro).flatMap((c) => pecasDoConjunto(c.frase, blocos));
+}
+
+/**
+ * As peças mantidas, na ordem em que o jogador deixou, formam a solução? Descartar
+ * uma peça verdadeira ou manter uma falsa erra do mesmo jeito que a ordem errada.
+ * @param {Array<{texto: string, descartada?: boolean}>} pecas
+ */
+export function pecasResolvidas(pecas, conjuntos) {
+  const mantidas = pecas.filter((p) => !p.descartada).map((p) => p.texto);
+  const alvo = solucaoDasPecas(conjuntos);
+  return mantidas.length === alvo.length && mantidas.every((texto, i) => texto === alvo[i]);
 }
 
 /** Fisher-Yates — `aleatorio` injetável pra dar determinismo em teste. */
@@ -101,5 +149,5 @@ export function embaralhar(lista, aleatorio = Math.random) {
 export function temReacaoFerramenta(valor) {
   if (valor == null) return false;
   if (typeof valor === "string") return Boolean(valor.trim());
-  return Array.isArray(valor.conjuntos) && valor.conjuntos.length > 0;
+  return (Array.isArray(valor.conjuntos) && valor.conjuntos.length > 0) || Boolean(valor.texto?.trim());
 }
