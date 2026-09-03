@@ -194,10 +194,10 @@
       "AdicionarFerramenta": "Add tool…",
       "RemoverFerramenta": "Remove tool",
       "RadioVerdadeiro": "True",
-      "RadioFrasePlaceholder": "Correct words, in order, separated by spaces",
+      "RadioFrasePlaceholder": "Pieces in order, separated by | (or words separated by spaces)",
       "RadioRemoverConjunto": "Remove set",
       "RadioAdicionarConjunto": "New set",
-      "RadioAjudaAutor": "Mark the false ones. The Technology test removes some of them before the player orders the rest.",
+      "RadioAjudaAutor": "Mark the false ones. The Technology test removes some of them; the player sees every piece shuffled together, orders the right ones and discards the rest.",
       "FerramentaSemReacao": "No reaction",
       "ReveladoPorLaser": "Reacts to the Sweep Laser",
       "SomenteMestre": "The information board and the contextual description are GM-only.",
@@ -216,7 +216,11 @@
         "rascunho": "Draft — players can't see it and Examine never finds it. Click to make it discoverable.",
         "descobrivel": "Discoverable — only by Examining with the skill and meeting the DT. Click to open it to everyone.",
         "aberta": "Open — every player sees it without spending an action. Click to return to draft."
-      }
+      },
+      "LaboratorioDados": "Portable Lab dice",
+      "LaboratorioDadosAjuda": "How many dice the Lab ladder rolls at this point (4 to 6) — the book's \"minimum sequence\". The app uses it as the default.",
+      "RadioTexto": "Reading without a puzzle",
+      "RadioTextoAjuda": "What the radio does when there is no sentence to assemble (a scream, static). With sets registered, the puzzle takes priority."
     },
     "Acoes": {
       "Titulo": "Investigation actions",
@@ -578,13 +582,17 @@
       "Adicionar": "New tool",
       "Vazio": "No Ordo Realitas tools.",
       "RadioSemConjuntos": "This point of interest has no sets configured for the Modified Radio.",
-      "RadioAjuda": "Technology test: {total}. Removed {removidos} of {totalFalsos} false set(s). Reorder the remaining words to form the right phrase.",
-      "RadioTudoRemovido": "The test removed every false set and none of the true ones are left to order.",
-      "RadioResolvido": "Correct phrase.",
-      "RadioNaoResolvido": "The order doesn't match the right phrase.",
-      "RadioMoverEsquerda": "Move word left",
-      "RadioMoverDireita": "Move word right",
-      "RadioResultadoResumo": "Removed {removidos} of {totalFalsos} false set(s)."
+      "RadioAjuda": "Technology test: {total}. Removed {removidos} of {totalFalsos} false set(s). Order the pieces into the right sentence and discard the ones that don't belong.",
+      "RadioTudoRemovido": "The test removed every false set and no piece is left to order.",
+      "RadioResolvido": "The pieces form the right sentence.",
+      "RadioNaoResolvido": "The order (or the discards) does not match the right sentence.",
+      "RadioMoverEsquerda": "Move piece left",
+      "RadioMoverDireita": "Move piece right",
+      "RadioResultadoResumo": "Removed {removidos} of {totalFalsos} false set(s).",
+      "RadioDescartar": "Discard piece",
+      "RadioRecuperar": "Recover piece",
+      "RadioMantidas": "Kept pieces, in order:",
+      "RadioDescartadas": "Discarded:"
     },
     "Ferimento": {
       "Titulo": "Wound",
@@ -662,6 +670,29 @@
       "HabilidadeAdicionada": "Ability {habilidade} added.",
       "JaTinha": "{ator} already has the {habilidade} ability.",
       "Descricao": "Description"
+    },
+    "Extras": {
+      "Titulo": "Adventure files",
+      "Intro": "“{aventura}” uses images, a map and audio the publisher only hands to people who own the material. They don't ship with the system: they live in your world's folder.",
+      "Pedir": "Pick the {zip} file you downloaded from the publisher's site. {faltam} of {total} files are missing from the world folder.",
+      "Destino": "Files go to {pasta}. Nothing in the system is changed.",
+      "Pular": "Import without the files",
+      "Cancelar": "Cancel",
+      "Enviando": "Unpacking and uploading to the world folder…",
+      "Pronto": "{enviados} file(s) in {pasta}.",
+      "Faltando": "The zip did not contain these files (the adventure will point to them anyway):",
+      "Concluir": "Import the adventure",
+      "ErroEnvio": "Foundry refused the upload of {arquivo}.",
+      "ErroGeral": "Could not prepare the adventure files: {erro}",
+      "Enviados": "Files uploaded to {pasta}.",
+      "MenuTitulo": "Adventure files",
+      "MenuNome": "Adventure files (publisher zip)",
+      "MenuBotao": "Upload files",
+      "MenuAjuda": "Re-uploads to the world folder the images, map and audio of an adventure the publisher ships as a zip — for anyone who imported without them or changed worlds.",
+      "MenuIntro": "System adventures whose art comes from the publisher's zip. Uploads go to this world's folder.",
+      "MenuVazio": "No adventure with external files.",
+      "MenuEstado": "{presentes} of {total} file(s) in {pasta}",
+      "MenuEnviar": "Upload zip"
     }
   }
 }

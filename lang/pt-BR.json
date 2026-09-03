@@ -194,10 +194,10 @@
       "AdicionarFerramenta": "Adicionar ferramenta…",
       "RemoverFerramenta": "Remover ferramenta",
       "RadioVerdadeiro": "Verdadeiro",
-      "RadioFrasePlaceholder": "Palavras corretas, em ordem, separadas por espaço",
+      "RadioFrasePlaceholder": "Peças em ordem, separadas por | (ou palavras separadas por espaço)",
       "RadioRemoverConjunto": "Remover conjunto",
       "RadioAdicionarConjunto": "Novo conjunto",
-      "RadioAjudaAutor": "Marque os falsos. O teste de Tecnologia remove alguns deles antes do jogador ordenar o resto.",
+      "RadioAjudaAutor": "Marque os falsos. O teste de Tecnologia remove alguns deles; o jogador vê todas as peças misturadas, ordena as certas e descarta o resto.",
       "FerramentaSemReacao": "Sem reação",
       "ReveladoPorLaser": "Reage ao Laser de Varredura",
       "SomenteMestre": "O quadro de informações e a descrição contextual são só do mestre.",
@@ -216,7 +216,11 @@
         "rascunho": "Rascunho — o jogador não vê, e Examinar nunca encontra. Clique para tornar descobrível.",
         "descobrivel": "Descobrível — só quem Examinar com a perícia e alcançar a DT. Clique para abrir para todos.",
         "aberta": "Aberta — todo jogador vê sem gastar ação. Clique para voltar a rascunho."
-      }
+      },
+      "LaboratorioDados": "Dados do Laboratório Portátil",
+      "LaboratorioDadosAjuda": "Quantos dados a escada do Laboratório rola neste ponto (4 a 6) — a \"sequência mínima\" do livro. O app usa como padrão.",
+      "RadioTexto": "Leitura sem enigma",
+      "RadioTextoAjuda": "O que o rádio faz quando não há frase para montar (um grito, estática). Com conjuntos cadastrados, o enigma tem prioridade."
     },
     "Acoes": {
       "Titulo": "Ações de investigação",
@@ -578,13 +582,17 @@
       "Adicionar": "Nova ferramenta",
       "Vazio": "Nenhuma ferramenta da Ordo Realitas.",
       "RadioSemConjuntos": "Este ponto de interesse não tem conjuntos cadastrados para o Rádio Modificado.",
-      "RadioAjuda": "Teste de Tecnologia: {total}. Removeu {removidos} de {totalFalsos} conjunto(s) falso(s). Reordene as palavras dos que sobraram para formar a frase certa.",
-      "RadioTudoRemovido": "O teste removeu todos os conjuntos falsos e não sobrou nenhum verdadeiro para ordenar.",
-      "RadioResolvido": "Frase correta.",
-      "RadioNaoResolvido": "A ordem não bate com a frase certa.",
-      "RadioMoverEsquerda": "Mover palavra para a esquerda",
-      "RadioMoverDireita": "Mover palavra para a direita",
-      "RadioResultadoResumo": "Removeu {removidos} de {totalFalsos} conjunto(s) falso(s)."
+      "RadioAjuda": "Teste de Tecnologia: {total}. Removeu {removidos} de {totalFalsos} conjunto(s) falso(s). Ordene as peças para formar a frase certa e descarte as que não entram.",
+      "RadioTudoRemovido": "O teste removeu todos os conjuntos falsos e não sobrou peça nenhuma para ordenar.",
+      "RadioResolvido": "As peças formam a frase certa.",
+      "RadioNaoResolvido": "A ordem (ou o descarte) não bate com a frase certa.",
+      "RadioMoverEsquerda": "Mover peça para a esquerda",
+      "RadioMoverDireita": "Mover peça para a direita",
+      "RadioResultadoResumo": "Removeu {removidos} de {totalFalsos} conjunto(s) falso(s).",
+      "RadioDescartar": "Descartar peça",
+      "RadioRecuperar": "Recuperar peça",
+      "RadioMantidas": "Peças mantidas, na ordem:",
+      "RadioDescartadas": "Descartadas:"
     },
     "Ferimento": {
       "Titulo": "Ferimento",
@@ -662,6 +670,29 @@
       "HabilidadeAdicionada": "Habilidade {habilidade} adicionada.",
       "JaTinha": "{ator} já tem a habilidade {habilidade}.",
       "Descricao": "Descrição"
+    },
+    "Extras": {
+      "Titulo": "Arquivos da aventura",
+      "Intro": "«{aventura}» usa imagens, mapa e áudios que a editora entrega só a quem tem o material. Eles não vêm no sistema: ficam na pasta do seu mundo.",
+      "Pedir": "Escolha o arquivo {zip} que você baixou do site da editora. Faltam {faltam} de {total} arquivos na pasta do mundo.",
+      "Destino": "Os arquivos vão para {pasta}. Nada é alterado no sistema.",
+      "Pular": "Importar sem os arquivos",
+      "Cancelar": "Cancelar",
+      "Enviando": "Descompactando e enviando para a pasta do mundo…",
+      "Pronto": "{enviados} arquivo(s) em {pasta}.",
+      "Faltando": "O zip não trazia estes arquivos (a aventura vai apontar para eles mesmo assim):",
+      "Concluir": "Importar a aventura",
+      "ErroEnvio": "O Foundry recusou o envio de {arquivo}.",
+      "ErroGeral": "Não deu para preparar os arquivos da aventura: {erro}",
+      "Enviados": "Arquivos enviados para {pasta}.",
+      "MenuTitulo": "Arquivos das aventuras",
+      "MenuNome": "Arquivos das aventuras (zip da editora)",
+      "MenuBotao": "Enviar arquivos",
+      "MenuAjuda": "Reenvia para a pasta do mundo as imagens, o mapa e os áudios de uma aventura que a editora entrega em zip — para quem importou sem eles ou trocou de mundo.",
+      "MenuIntro": "Aventuras do sistema cujas artes vêm do zip da editora. O envio vai para a pasta deste mundo.",
+      "MenuVazio": "Nenhuma aventura com arquivos externos.",
+      "MenuEstado": "{presentes} de {total} arquivo(s) em {pasta}",
+      "MenuEnviar": "Enviar zip"
     }
   }
 }

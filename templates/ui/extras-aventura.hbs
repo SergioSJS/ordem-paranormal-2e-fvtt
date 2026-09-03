@@ -1,0 +1,44 @@
+<div class="op2-extras__corpo">
+  <p class="op2-extras__intro">{{localize "OP2.Extras.Intro" aventura=aventura}}</p>
+
+  {{#if (op2Eq fase "pedir")}}
+    <p>{{localize "OP2.Extras.Pedir" zip=zip faltam=faltam total=total}}</p>
+    <p class="op2-ajuda">{{localize "OP2.Extras.Destino" pasta=pasta}}</p>
+    {{#if erro}}
+      <p class="op2-extras__erro"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{erro}}</p>
+    {{/if}}
+    <label class="op2-extras__arquivo">
+      <input type="file" accept=".zip,application/zip">
+    </label>
+    <footer class="op2-extras__botoes">
+      {{#if permitirPular}}
+        <button type="button" class="op2-botao op2-botao--fantasma" data-action="pular">
+          {{localize "OP2.Extras.Pular"}}
+        </button>
+      {{/if}}
+      <button type="button" class="op2-botao op2-botao--fantasma" data-action="cancelar">
+        {{localize "OP2.Extras.Cancelar"}}
+      </button>
+    </footer>
+  {{/if}}
+
+  {{#if (op2Eq fase "enviando")}}
+    <p>{{localize "OP2.Extras.Enviando"}}</p>
+    <progress max="{{envio.total}}" value="{{envio.feito}}"></progress>
+    <p class="op2-ajuda" data-progresso>{{envio.feito}}/{{envio.total}} — {{envio.atual}}</p>
+  {{/if}}
+
+  {{#if (op2Eq fase "pronto")}}
+    <p class="op2-extras__ok"><i class="fa-solid fa-check" aria-hidden="true"></i>
+      {{localize "OP2.Extras.Pronto" enviados=enviados pasta=pasta}}</p>
+    {{#if faltando.length}}
+      <p class="op2-extras__erro">{{localize "OP2.Extras.Faltando"}}</p>
+      <ul class="op2-extras__lista">
+        {{#each faltando}}<li>{{nome}}</li>{{/each}}
+      </ul>
+    {{/if}}
+    <footer class="op2-extras__botoes">
+      <button type="button" class="op2-botao" data-action="concluir">{{localize "OP2.Extras.Concluir"}}</button>
+    </footer>
+  {{/if}}
+</div>

@@ -1,0 +1,20 @@
+<div class="op2-extras__corpo">
+  <p class="op2-extras__intro">{{localize "OP2.Extras.MenuIntro"}}</p>
+  {{#if semAventura}}
+    <p class="op2-ajuda">{{localize "OP2.Extras.MenuVazio"}}</p>
+  {{/if}}
+  <ul class="op2-extras__aventuras">
+    {{#each aventuras}}
+      <li class="op2-extras__aventura">
+        <div class="op2-extras__texto">
+          <strong>{{nome}}</strong>
+          <span class="op2-ajuda">{{localize "OP2.Extras.MenuEstado" presentes=presentes total=total pasta=pasta}}</span>
+          <span class="op2-ajuda">{{zip}}</span>
+        </div>
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="enviar" data-uuid="{{uuid}}">
+          <i class="fa-solid fa-upload" aria-hidden="true"></i> {{localize "OP2.Extras.MenuEnviar"}}
+        </button>
+      </li>
+    {{/each}}
+  </ul>
+</div>
