@@ -118,6 +118,8 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       // qualquer investigação em jogo vê outro.
       temPersonagem: Boolean(this.atorDaVisao),
       filtro: this.#filtro,
+      // Toda seção nasce recolhida; o que o usuário abriu fica guardado no navegador.
+      secoes: lerSecoes(),
       pois: investigacao ? await this.#contextoPois(investigacao, ehGM) : [],
       desafios: investigacao ? await this.#contextoDesafios(investigacao, ehGM) : [],
       ordem: this.#contextoOrdem(investigacao, ehGM),
@@ -367,6 +369,11 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       await definirInvestigacaoAtiva(seletor.value);
       this.render();
     });
+
+    // Abrir/fechar uma seção é preferência de tela: fica no cliente, por seção.
+    for (const secao of this.element.querySelectorAll("details[data-secao]")) {
+      secao.addEventListener("toggle", () => gravarSecao(secao.dataset.secao, secao.open));
+    }
 
     // Filtro por nome: só esconde/mostra cards no DOM, sem rerrenderizar.
     const filtro = this.element.querySelector("[data-filtro-pois]");
@@ -740,4 +747,24 @@ function alternarNaLista(chave, uuid) {
 /** Comparação de nomes sem acento nem caixa, para o filtro. */
 function normalizar(texto) {
   return String(texto ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+}
+
+const CHAVE_SECOES = "op2.painel.secoes";
+
+/** @returns {Record<string, boolean>} seção → aberta. Sem registro, fechada. */
+function lerSecoes() {
+  try {
+    const lido = JSON.parse(window.localStorage.getItem(CHAVE_SECOES) ?? "{}");
+    return lido && typeof lido === "object" ? lido : {};
+  } catch {
+    return {};
+  }
+}
+
+function gravarSecao(nome, aberta) {
+  try {
+    window.localStorage.setItem(CHAVE_SECOES, JSON.stringify({ ...lerSecoes(), [nome]: aberta }));
+  } catch {
+    // Sem storage: dura só esta tela.
+  }
 }

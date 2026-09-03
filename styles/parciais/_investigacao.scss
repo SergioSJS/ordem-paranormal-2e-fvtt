@@ -154,7 +154,27 @@
 
 // Participantes repete a mesma lista de "Ordem das Rodadas" logo abaixo — deixar
 // recolhível evita rolar a janela duas vezes pelo mesmo roster (achado em uso real).
-summary.op2-painel-titulo { cursor: pointer; }
+// Toda seção do painel é um <details>: nasce recolhida e o que o usuário abre fica
+// guardado no navegador (achado em uso real: a janela virava uma rolagem só).
+summary.op2-painel-titulo {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--op2-e2);
+
+  &::-webkit-details-marker { display: none; }
+  &::before {
+    content: "";
+    width: 0.45rem;
+    height: 0.45rem;
+    border-right: 2px solid var(--op2-vermelho-claro);
+    border-bottom: 2px solid var(--op2-vermelho-claro);
+    transform: rotate(-45deg);
+    transition: transform 0.15s ease;
+  }
+}
+details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
 
 .op2-painel-acoes-grupo { display: flex; flex-wrap: wrap; gap: var(--op2-e2); }
 

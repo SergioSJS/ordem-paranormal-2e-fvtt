@@ -98,6 +98,7 @@ await fotografar("ficha-personagem", ".op2-ficha--personagem", {
 });
 await page.evaluate(() => [...foundry.applications.instances.values()].forEach((a) => a.close?.()));
 
+await page.evaluate(() => localStorage.setItem("op2.painel.secoes", JSON.stringify({ pontos: true, desafios: true, ordem: true })));
 await fotografar("painel-investigacao", "#op2-painel-investigacao", {
   antes: () => game.op2.painelInvestigacao(),
 });

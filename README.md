@@ -43,7 +43,9 @@ pela própria ficha.
 
 ![Painel de investigação](docs/img/painel-investigacao.png)
 
-Trinta pontos numa lista precisam de navegação: cada card **recolhe e expande** (o
+Trinta pontos numa lista precisam de navegação: cada seção do painel (participantes, pontos,
+desafios, ordem das rodadas, roteiro, sobrecarga) **recolhe e expande**, nasce recolhida e o
+que você abre fica guardado no seu navegador. Cada card também **recolhe e expande** (o
 estado fica no seu navegador), há **recolher/expandir todos** e um **filtro por nome**.
 O card recolhido mostra o resumo *linhas à vista / total*. Cada linha do quadro é uma
 linha só — estado, DT num selo, texto, quem descobriu. O mestre tem, por card, um botão

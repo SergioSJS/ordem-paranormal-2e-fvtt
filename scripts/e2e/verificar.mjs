@@ -2901,12 +2901,24 @@ const relato = await page.evaluate(async () => {
     ok("a sobrecarga rolada vira card do sistema, com a rolagem guardada e o dano aplicado",
       /op2-card/.test(cardDano?.content ?? "") && cardDano?.rolls?.length === 1 && ator.system.recursos.pd.value === pdAntes - 4);
 
-    // 5. Painel: recolher, notas do mestre, filtro.
+    // 5. Painel: seções recolhidas por padrão, cards recolhíveis, notas do mestre, filtro.
+    localStorage.removeItem("op2.painel.secoes");
     const painel = game.op2.painelInvestigacao();
     await painel.render(true);
     await esperar(1200);
     const el = painel.element;
-    const card = el?.querySelector(`[data-poi-card="${poi.uuid}"]`);
+    const secoes = [...el.querySelectorAll("details[data-secao]")];
+    ok("toda seção do painel é recolhível e nasce fechada",
+      secoes.length >= 5 && secoes.every((d) => !d.open) && ["participantes", "pontos", "desafios", "ordem"].every((n) => secoes.some((d) => d.dataset.secao === n)));
+    el.querySelector('details[data-secao="pontos"]').open = true;
+    el.querySelector('details[data-secao="pontos"]').dispatchEvent(new Event("toggle"));
+    await painel.render();
+    await esperar(800);
+    ok("seção aberta continua aberta depois de rerrenderizar (guardada no navegador)",
+      painel.element.querySelector('details[data-secao="pontos"]')?.open === true
+      && painel.element.querySelector('details[data-secao="desafios"]')?.open === false);
+    const elPainel = painel.element;
+    const card = elPainel?.querySelector(`[data-poi-card="${poi.uuid}"]`);
     ok(`o card do ponto tem o corpo, o resumo de linhas (1 descoberta de 2) e o botão de notas do mestre (${card?.querySelector(".op2-poi-card__resumo")?.textContent?.trim()})`,
       Boolean(card?.querySelector(".op2-poi-card__corpo")) && /1\/2/.test(card?.querySelector(".op2-poi-card__resumo")?.textContent ?? "")
       && Boolean(card?.querySelector('[data-action="alternarNotasMestre"]')));
@@ -2982,7 +2994,7 @@ const relato = await page.evaluate(async () => {
         invAtoI.system.poisOcultos.length === invAtoI.system.pois.length && invAtoI.system.desafiosOcultos.length === invAtoI.system.desafios.length);
     }
 
-    localStorage.removeItem("op2.painel.recolhidos"); localStorage.removeItem("op2.painel.notas");
+    localStorage.removeItem("op2.painel.recolhidos"); localStorage.removeItem("op2.painel.notas"); localStorage.removeItem("op2.painel.secoes");
     await game.user.update({ character: null });
     for (const d of [hack, porta, poi, poiVisivel, ator, inv]) await d.delete().catch(() => {});
     return passos;

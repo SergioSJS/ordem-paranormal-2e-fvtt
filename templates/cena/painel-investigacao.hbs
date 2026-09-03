@@ -83,8 +83,9 @@
       {{/if}}
     {{/if}}
 
-    <details class="op2-painel-secao" data-sync="participantes">
-      <summary class="op2-painel-titulo">{{localize "OP2.Painel.Participantes"}}</summary>
+    <details class="op2-painel-secao" data-secao="participantes" {{#if secoes.participantes}}open{{/if}}>
+      <summary class="op2-painel-titulo">{{localize "OP2.Painel.Participantes"}}
+        <span class="op2-painel-contagem">{{participantes.length}}</span></summary>
       {{#unless participantes.length}}
         <p class="op2-ajuda">{{localize "OP2.Painel.SemParticipantes"}}</p>
       {{/unless}}
@@ -111,12 +112,12 @@
   {{/if}}
 
   {{#if temInvestigacao}}
-  <section class="op2-painel-secao op2-painel-pontos">
+  <details class="op2-painel-secao op2-painel-pontos" data-secao="pontos" {{#if secoes.pontos}}open{{/if}}>
+    <summary class="op2-painel-titulo">{{localize "OP2.Painel.POIs"}}
+      <span class="op2-painel-contagem">{{pois.length}}</span></summary>
+    {{!-- Trinta pontos numa lista: filtrar pelo nome e recolher tudo é o que evita
+          a barra de rolagem infinita (achado em uso real). --}}
     <header class="op2-painel-secao__topo">
-      <h3 class="op2-painel-titulo">{{localize "OP2.Painel.POIs"}}
-        <span class="op2-painel-contagem">{{pois.length}}</span></h3>
-      {{!-- Trinta pontos numa lista: filtrar pelo nome e recolher tudo é o que evita
-            a barra de rolagem infinita (achado em uso real). --}}
       <div class="op2-painel-ferramentas">
         <input type="search" class="op2-painel-filtro" data-filtro-pois value="{{filtro}}"
           placeholder="{{localize 'OP2.Painel.FiltrarPontos'}}" aria-label="{{localize 'OP2.Painel.FiltrarPontos'}}">
@@ -241,13 +242,11 @@
         </li>
       {{/each}}
     </ol>
-  </section>
+  </details>
 
-    <section class="op2-painel-secao op2-painel-desafios">
-      <header class="op2-painel-secao__topo">
-        <h3 class="op2-painel-titulo">{{localize "OP2.Painel.Desafios"}}
-          <span class="op2-painel-contagem">{{desafios.length}}</span></h3>
-      </header>
+    <details class="op2-painel-secao op2-painel-desafios" data-secao="desafios" {{#if secoes.desafios}}open{{/if}}>
+      <summary class="op2-painel-titulo">{{localize "OP2.Painel.Desafios"}}
+        <span class="op2-painel-contagem">{{desafios.length}}</span></summary>
       {{#unless desafios.length}}
         <p class="op2-ajuda">{{localize "OP2.Painel.SemDesafios"}}</p>
       {{/unless}}
@@ -342,19 +341,20 @@
           </li>
         {{/each}}
       </ol>
-    </section>
+    </details>
   {{/if}}
 
   {{#if temInvestigacao}}
-    <section class="op2-painel-secao">
-      <div class="op2-painel-topo__info">
-        <h3 class="op2-painel-titulo">{{localize "OP2.Painel.OrdemRodadas"}}</h3>
-        {{#if ehGM}}
+    <details class="op2-painel-secao" data-secao="ordem" {{#if secoes.ordem}}open{{/if}}>
+      <summary class="op2-painel-titulo">{{localize "OP2.Painel.OrdemRodadas"}}
+        <span class="op2-painel-contagem">{{ordem.length}}</span></summary>
+      {{#if ehGM}}
+        <div class="op2-painel-secao__topo">
           <button type="button" class="op2-botao op2-botao--pequeno" data-action="novaRodada">
             <i class="fa-solid fa-forward-step" aria-hidden="true"></i> {{localize "OP2.Painel.NovaRodada"}}
           </button>
-        {{/if}}
-      </div>
+        </div>
+      {{/if}}
       {{!-- Uma lista só, personagem e NPC misturados: separar em dois grupos
             deixava a linha do NPC imóvel na prática (com um NPC só, as duas setas
             dele nasciam desabilitadas). Quem age quando é decisão de mesa. --}}
@@ -388,12 +388,13 @@
       </ol>
       <p class="op2-ajuda">{{localize "OP2.Painel.OrdemAjuda"}}</p>
       <p class="op2-ajuda">{{localize "OP2.Painel.JaAgiuAjuda"}}</p>
-    </section>
+    </details>
 
     {{#if ehGM}}
       {{#if eventos.length}}
-        <section class="op2-painel-secao op2-painel-eventos">
-          <h3 class="op2-painel-titulo">{{localize "OP2.Painel.Eventos"}}</h3>
+        <details class="op2-painel-secao op2-painel-eventos" data-secao="eventos" {{#if secoes.eventos}}open{{/if}}>
+          <summary class="op2-painel-titulo">{{localize "OP2.Painel.Eventos"}}
+            <span class="op2-painel-contagem">{{eventos.length}}</span></summary>
           <p class="op2-ajuda">{{localize "OP2.Painel.EventosAjuda"}}</p>
           <ol class="op2-eventos">
             {{#each eventos}}
@@ -406,11 +407,11 @@
               </li>
             {{/each}}
           </ol>
-        </section>
+        </details>
       {{/if}}
 
-      <section class="op2-painel-secao op2-painel-sobrecarga">
-        <h3 class="op2-painel-titulo">{{localize "OP2.Painel.Sobrecarga"}}</h3>
+      <details class="op2-painel-secao op2-painel-sobrecarga" data-secao="sobrecarga" {{#if secoes.sobrecarga}}open{{/if}}>
+        <summary class="op2-painel-titulo">{{localize "OP2.Painel.Sobrecarga"}}</summary>
         <label class="op2-campo op2-campo--inline">
           <input type="checkbox" data-action="alternarSobrecarga" {{#if sobrecarga.ativa}}checked{{/if}}>
           <span>{{localize "OP2.Painel.SobrecargaAtiva"}}</span>
@@ -447,7 +448,7 @@
           <p class="op2-ajuda">{{localize "OP2.Painel.SobrecargaAjuda"}}</p>
           <p class="op2-ajuda">{{localize "OP2.Painel.ProximoDano" rodada=rodada dano=sobrecarga.proximoDano}}</p>
         {{/if}}
-      </section>
+      </details>
     {{/if}}
   {{/if}}
 </div>
