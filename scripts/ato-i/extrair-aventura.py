@@ -117,18 +117,25 @@ def ler_tabela(linhas, i, col_dt, col_info):
             continue
 
         vazias = 0
-        atual.append((pericia, meio, info))
+        # A linha crua vai junto: fora da tabela, o texto atravessa as colunas e fatiar
+        # por posição parte palavra no meio ("O fe rimento").
+        atual.append((pericia, meio, info, linha))
         i += 1
 
     if atual: blocos.append(atual)
 
     # Cada bloco vira uma informação; a perícia se espalha para os blocos sem nome.
-    infos = []
+    # Bloco sem DT não é linha de quadro: é o texto de mestre que vem depois da tabela,
+    # e ele não pode ser jogado fora.
+    infos, sobras = [], []
     for bloco in blocos:
-        nome = " ".join(p for p, _, _ in bloco if p).strip()
-        dts = [m for _, m, _ in bloco if m.isdigit()]
-        texto = " ".join(t for _, _, t in bloco if t).strip()
+        nome = " ".join(p for p, _, _, _ in bloco if p).strip()
+        dts = [m for _, m, _, _ in bloco if m.isdigit()]
+        texto = " ".join(t for _, _, t, _ in bloco if t).strip()
+        inteiro = re.sub(r"\s{2,}", " ", " ".join(crua.strip() for _, _, _, crua in bloco)).strip()
         if not dts or not texto:
+            if inteiro:
+                sobras.append(inteiro)
             continue
         infos.append({"pericia": nome, "dt": int(dts[0]), "texto": texto})
 
@@ -146,7 +153,7 @@ def ler_tabela(linhas, i, col_dt, col_info):
         if info["pericia"]: break
         info["pericia"] = primeira
 
-    return infos, i
+    return infos, i, sobras
 
 
 # As caixas de desafio ao lado do ponto trazem os números prontos.
@@ -444,6 +451,40 @@ ITEM_NA_PROSA = re.compile(r"^([A-ZÁÂÃÉÊÍÓÔÕÚÇ][A-ZÁÂÃÉÊÍÓÔÕ
 ENIGMA_DA_ESTANTE = re.compile(r"^PRATELEIRA\s+(\d)\s*[-–]\s*(.+)$")
 
 
+# Um bloco de duas colunas lido linha a linha embaralha as duas ("resolvendo o puzzle da
+# estante Vocês se deparam com o que,"). O vão entre as colunas é uma faixa de espaços que
+# atravessa TODAS as linhas do bloco — achar essa faixa é o que diz onde cortar.
+def desempilhar_colunas(cruas):
+    # O número do ponto no mapa é impresso na margem direita da linha.
+    linhas = [re.sub(r"\s{3,}\d{1,2}\s*$", "", l.rstrip()) for l in cruas if l.strip()]
+    if len(linhas) < 5:
+        return [re.sub(r"\s{2,}", " ", l.strip()) for l in linhas]
+
+    largura = max(len(l) for l in linhas)
+    cheias = [l.ljust(largura) for l in linhas]
+    vao, atual = None, None
+    for coluna in range(20, min(largura, 80)):
+        if all(l[coluna] == " " for l in cheias):
+            atual = (atual[0], coluna) if atual else (coluna, coluna)
+            if not vao or (atual[1] - atual[0]) > (vao[1] - vao[0]):
+                vao = atual
+        else:
+            atual = None
+
+    if not vao or vao[1] - vao[0] < 4:
+        return [re.sub(r"\s{2,}", " ", l.strip()) for l in linhas]
+
+    corte = vao[0]
+    esquerda = [l[:corte].strip() for l in cheias if l[:corte].strip()]
+    direita = [l[corte:].strip() for l in cheias if l[corte:].strip()]
+    # Duas colunas de verdade têm as duas com corpo; senão é texto de uma coluna só,
+    # com o parágrafo recuado.
+    if len(esquerda) < 3 or len(direita) < 3:
+        return [re.sub(r"\s{2,}", " ", l.strip()) for l in linhas]
+    return [re.sub(r"\s{2,}", " ", " ".join(esquerda)),
+            re.sub(r"\s{2,}", " ", " ".join(direita))]
+
+
 def ler_itens(linhas, nomes_de_pontos=()):
     """Itens descritos no texto e o enigma da estante (qual livro puxar)."""
     pontos = {n.upper() for n in nomes_de_pontos}
@@ -498,8 +539,9 @@ def extrair():
         cab = CABECALHO.match(linha)
         if cab and atual is not None:
             col_dt, col_info = colunas(linha)
-            novas, fim = ler_tabela(linhas, i + 1, col_dt, col_info)
+            novas, fim, sobras = ler_tabela(linhas, i + 1, col_dt, col_info)
             atual["informacoes"].extend(novas)
+            atual["notas"].extend(sobras)
             atual["bruto"].extend(linhas[i:fim])
             i = fim
             continue
@@ -516,15 +558,34 @@ def extrair():
                 i += 1
                 continue
             atual = {"nome": nome, "condicao": condicao, "descricao": [],
-                     "informacoes": [], "caixa": [], "bruto": [], "na_caixa": False}
+                     "informacoes": [], "caixa": [], "bruto": [], "conteudo": [], "notas": [],
+                     "descricao_cruas": [],
+                     "na_caixa": False, "no_conteudo": False}
             pontos.append(atual)
+        elif atual is not None and not RUIDO.match(linha) and atual["informacoes"]:
+            # Depois do quadro vem o texto de mestre do ponto: por que aquilo está ali,
+            # o que significa, o que o grupo pode concluir. Era jogado fora.
+            atual["notas"].append(linha.strip())
         elif atual is not None and not RUIDO.match(linha) and not atual["informacoes"]:
             texto = linha.strip()
             recuo = len(linha) - len(linha.lstrip())
+            # "CONTEÚDO" abre o que o mestre lê ao vencer o desafio: o corpo no freezer,
+            # o ídolo no armário — com handout e teste de Disciplina junto.
+            if texto == "CONTEÚDO":
+                atual["no_conteudo"], atual["na_caixa"] = True, False
+                i += 1
+                continue
+            if atual["no_conteudo"]:
+                atual["conteudo"].append(texto)
+                i += 1
+                continue
             # A coluna da direita da caixa às vezes é impressa ANTES do rótulo (o banco
             # de perguntas do celular). Descrição do ponto nunca começa tão à direita.
             if ABRE_CAIXA.search(texto) or DESAFIO_NA_CAIXA.search(texto):
                 atual["na_caixa"] = True
+            elif atual["na_caixa"] and recuo < 20 and len(texto) > 60 and texto[0].isupper():
+                # Linha longa na margem: a caixa acabou e o texto do ponto voltou.
+                atual["na_caixa"] = False
             elif recuo >= 28 and atual["descricao"]:
                 atual["caixa"].append(linha.rstrip())
                 i += 1
@@ -534,15 +595,23 @@ def extrair():
                 atual["caixa"].append(linha.rstrip())
             else:
                 atual["descricao"].append(texto)
+                atual["descricao_cruas"].append(linha.rstrip())
         i += 1
 
     for p in pontos:
-        texto = " ".join(p["descricao"])
+        texto = " ".join(desempilhar_colunas(p["descricao_cruas"]))
         # O número do ponto no mapa é impresso na margem e cai no meio da frase.
         texto = re.sub(r"\s{3,}\d{1,2}\s+", " ", texto)
         texto = re.sub(r"\s+\d{1,2}\s*$", "", texto)
         p["descricao"] = re.sub(r"\s{2,}", " ", texto).strip()
         p.pop("na_caixa", None)
+        p.pop("no_conteudo", None)
+        # O conteúdo revelado é texto de mestre, não descrição do que se vê.
+        notas = " ".join(p.pop("notas", []))
+        notas = re.sub(r"\s{3,}\d{1,3}\s+", " ", notas)     # número de página na margem
+        p["notas"] = re.sub(r"\s{2,}", " ", notas).strip()
+        conteudo = " ".join(p.pop("conteudo", []))
+        p["conteudo"] = re.sub(r"\s{2,}", " ", re.sub(r"\s+\d{1,3}\s*$", "", conteudo)).strip()
         p["desafio"] = ler_desafio(p.pop("caixa"), p["nome"])
         # Sem caixa, o desafio ainda pode estar no texto ("As correntes podem ser
         # abertas com arrombar (DT 10, PA 10)…").

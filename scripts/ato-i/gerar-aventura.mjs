@@ -83,8 +83,9 @@ function pontosBrutos() {
     return [];
   }
   return JSON.parse(readFileSync(EXTRAIDOS, "utf8"))
-    // "Os Personagens" e "A Sala Secreta" são cabeçalhos de seção do livro, não pontos.
-    .filter((p) => !["OS PERSONAGENS", "A SALA SECRETA"].includes(p.nome.toUpperCase()))
+    // Até "Os Personagens" e "A Sala Secreta" entram: parecem cabeçalho de seção, mas o
+    // livro põe texto de mesa neles (os corpos como parte da investigação; as
+    // instruções de revelar a sala secreta com ou sem luz).
     .filter((p) => p.informacoes.length || p.descricao);
 }
 
@@ -110,6 +111,15 @@ function pontosDoPorao() {
 
       // O painel da porta de saída tem senha impressa no livro — não é o minigame de
       // Destrancar, é informação de mestre. Fica na descrição que só ele lê.
+      // "CONTEÚDO": o que o mestre lê quando o desafio cai (o corpo no freezer, o ídolo
+      // no armário) — com o handout e o teste que vêm junto.
+      const conteudo = ponto.conteudo
+        ? `<p><strong>Ao abrir:</strong> ${ponto.conteudo}</p>` : "";
+
+      // O texto que o livro põe DEPOIS do quadro: por que aquilo está ali e o que o
+      // grupo pode concluir. É leitura de mestre, então vai na descrição contextual.
+      const notas = ponto.notas ? `<p>${ponto.notas}</p>` : "";
+
       const senha = ponto.desafio?.senhaFixa
         ? `<p><strong>Senha do painel:</strong> ${ponto.desafio.senhaFixa}`
           + `${ponto.desafio.senhaNota ? ` <em>(${ponto.desafio.senhaNota})</em>` : ""}.</p>`
@@ -120,7 +130,7 @@ function pontosDoPorao() {
         img: "systems/ordem-paranormal-2e/assets/icons/tipos/ponto-interesse.svg",
         system: {
           descricaoBasica: `<p>${ponto.descricao}</p>`,
-          descricaoContextual: [senha, ...imagens].filter(Boolean).join("\n"),
+          descricaoContextual: [notas, conteudo, senha, ...imagens].filter(Boolean).join("\n"),
           informacoes: ponto.informacoes.map((info, indice) => ({
             id: `i${indice + 1}`,
             pericia: info.chave,

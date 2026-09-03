@@ -159,13 +159,13 @@ npm run ato-i:gerar-aventura   # monta a aventura com cena, trilha, handouts e t
 npm run pack:build
 ```
 
-`extrair-aventura.py` lê as tabelas `Perícia · DT · Informação` direto do PDF: 28 pontos
+`extrair-aventura.py` lê as tabelas `Perícia · DT · Informação` direto do PDF: 30 pontos
 de interesse, 73 linhas de quadro, com as perícias já traduzidas para as chaves do
 sistema (`Aptidão (Humanas)` → `aptidao.humanas`). As condições que o livro escreve entre
 parênteses — *apenas Victor*, *se o ídolo for quebrado* — não têm campo no sistema e vão
 no começo do texto da linha, onde o mestre lê antes de liberar.
 
-As caixas laterais viram os nove desafios de acesso do porão com os números do livro:
+As caixas laterais e o texto de mestre viram os dez desafios de acesso do porão com os números do livro:
 `ARROMBAR (DT 10, PA 10)` e `DESTRANCAR (senha: 3d6, 3 tentativas)` entram como DT do
 objeto, pontuação alvo, tamanho da senha e teto de tentativas. A senha **não** vem
 sorteada no compêndio — quem sorteia é o mestre, na ficha do desafio, senão ela viajaria

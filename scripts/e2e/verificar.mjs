@@ -760,6 +760,10 @@ const relato = await page.evaluate(async () => {
       const comQuadro = [...aventura.items].filter((i) => i.type === "ponto-interesse"
         && i.system.informacoes.length);
       ok("os pontos trazem o quadro de informações preenchido", comQuadro.length >= 20);
+      // Depois do quadro o livro explica o ponto para o mestre; isso também entra.
+      const comNotaDeMestre = [...aventura.items].filter((i) => i.type === "ponto-interesse"
+        && i.system.descricaoContextual.length > 80);
+      ok("e a leitura de mestre que vem depois do quadro", comNotaDeMestre.length >= 25);
       const linhas = comQuadro.flatMap((i) => i.system.informacoes);
       ok("com perícia válida e DT em toda linha",
         linhas.length >= 60 && linhas.every((l) => l.pericia && Number.isInteger(l.dt) && l.dt > 0));
@@ -772,7 +776,7 @@ const relato = await page.evaluate(async () => {
       const idsDeAtores = new Set([...aventura.actors].map((a) => a.id));
       const resolve = (uuids, conjunto) => uuids.every((u) => conjunto.has(u.split(".").pop()));
       ok("a investigação já vem com os pontos de interesse vinculados",
-        investigacao.system.pois.length >= 28
+        investigacao.system.pois.length >= 30
         && resolve(investigacao.system.pois, idsDeItens));
       ok("com os desafios vinculados",
         investigacao.system.desafios.length >= 10
@@ -826,7 +830,7 @@ const relato = await page.evaluate(async () => {
       await limpar();
       await aventura.import({ dialog: false });
       ok("importar a aventura cria tudo no mundo",
-        noMundo("Actor").length === 6 && noMundo("Item").length === 41
+        noMundo("Actor").length === 6 && noMundo("Item").length === 43
         && noMundo("Scene").length === 1 && noMundo("JournalEntry").length === 3
         && noMundo("Playlist").length === 1);
 
@@ -842,7 +846,7 @@ const relato = await page.evaluate(async () => {
         return noMundo("Item").concat(noMundo("Actor")).filter((d) => d.folder?.id === alvo?.id);
       };
       ok("com pontos, desafios e pré-gerados cada um na sua",
-        naPasta("Pontos de Interesse").length === 28
+        naPasta("Pontos de Interesse").length === 30
         && naPasta("Desafios de Acesso").length === 10
         && naPasta("Pré-gerados").length === 5);
       ok("e nada solto fora de pasta",
@@ -852,7 +856,7 @@ const relato = await page.evaluate(async () => {
       const pontosNoMundo = noMundo("Item").filter((i) => i.type === "ponto-interesse");
       const linhasNoMundo = pontosNoMundo.flatMap((i) => i.system.informacoes);
       ok("os pontos chegam ao mundo com o quadro preenchido",
-        pontosNoMundo.length === 28 && linhasNoMundo.length === 73
+        pontosNoMundo.length === 30 && linhasNoMundo.length === 73
         && linhasNoMundo.every((l) => l.pericia && l.dt > 0 && l.texto.length > 10));
       ok("e com as três visibilidades no padrão descobrível",
         linhasNoMundo.every((l) => l.oculta === false && l.aberta === false));
