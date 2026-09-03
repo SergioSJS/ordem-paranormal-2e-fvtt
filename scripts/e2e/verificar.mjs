@@ -1072,6 +1072,14 @@ const relato = await page.evaluate(async () => {
         painel?.system.hackTecnico.tabela.length === 4 && painel.system.hackTecnico.tabela[0].desafio === "16 × 5 = 80"
         && computador?.system.hackTecnico.tabela.map((l) => l.segundos).join() === "20,15,10"
         && duto?.system.abordagens.arrombar === true && duto.system.dtObjeto === 7 && duto.system.pontuacaoAlvo === 10);
+      // As pastas dos dois atos não podem dividir id: import é keepId, e a pasta de
+      // um ato "roubada" pelo outro levava os pontos junto ao apagar (achado em uso real).
+      const atoIParaPastas = game.packs.get("ordem-paranormal-2e.ato-i-aventura");
+      if (atoIParaPastas?.index.size) {
+        const aventuraI = await atoIParaPastas.getDocument([...atoIParaPastas.index][0]._id);
+        const idsI = new Set([...aventuraI.folders].map((f) => f.id));
+        ok("as pastas do Ato II não repetem id de pasta do Ato I", ![...aventura.folders].some((f) => idsI.has(f.id)));
+      }
       const extras = aventura.flags["ordem-paranormal-2e"]?.extras;
       ok("a aventura declara os arquivos que vêm do zip da editora, com prefixo e pasta",
         extras?.arquivos.length === 31 && extras.pasta === "ato-ii" && extras.prefixo.endsWith("/assets/ato-ii/"));

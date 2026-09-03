@@ -45,7 +45,10 @@ export function tituloLegivel(nome) {
  */
 export function pasta(tipo, nome, pai = null, sort = 0) {
   return {
-    _id: ident(`pasta-${tipo}-${nome}`),
+    // O id leva a pasta-mãe: "Pontos de Interesse" existe nos dois atos, e com o mesmo
+    // id o import do Ato II (keepId) movia a pasta do Ato I para baixo da raiz do Ato
+    // II — e apagar o Ato II levava os pontos do Ato I junto (achado em uso real).
+    _id: ident(`pasta-${tipo}-${pai ?? "raiz"}-${nome}`),
     name: nome, type: tipo, folder: pai,
     sorting: "m", sort, color: "#7f1d1d", description: "", flags: {},
   };
