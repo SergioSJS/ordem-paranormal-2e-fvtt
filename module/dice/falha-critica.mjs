@@ -59,9 +59,11 @@ export async function aplicarFalhaCritica(ator, face) {
 
   if (entrada.efeito === "dano") {
     const roll = await new Roll(entrada.formula).evaluate();
-    await roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: ator }),
-      flavor: game.i18n.localize(`OP2.FalhaCritica.${entrada.chave}.nome`),
+    const { cardDeDano } = await import("../cena/rodada.mjs");
+    await cardDeDano(ator, roll, {
+      titulo: game.i18n.localize(`OP2.FalhaCritica.${entrada.chave}.nome`),
+      recurso: entrada.alvo,
+      flags: { tipo: "falha-critica-dano" },
     });
     await aplicarDano(ator, roll.total, entrada.alvo);
   }

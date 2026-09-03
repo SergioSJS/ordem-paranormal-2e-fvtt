@@ -127,6 +127,38 @@
         <p class="op2-ajuda">{{localize "OP2.Painel.SobrecargaAjuda"}}</p>
       {{/if}}
     </section>
+
+    {{!-- O roteiro da cena: o que acontece em cada rodada marcada (a maldição do Ato I).
+          "Nova rodada" põe a narração no card e o efeito só para o mestre. --}}
+    <section class="op2-painel-secao op2-painel-eventos-editor">
+      <h3 class="op2-painel-titulo">{{localize "OP2.Painel.Eventos"}}</h3>
+      <p class="op2-ajuda">{{localize "OP2.Investigacao.EventosFichaAjuda"}}</p>
+      {{#each eventos}}
+        <div class="op2-evento-editor" data-evento-linha>
+          <div class="op2-evento-editor__topo">
+            <label class="op2-campo op2-campo--inline">
+              <span>{{localize "OP2.Painel.SobrecargaRodada"}}</span>
+              <input type="number" data-evento-campo="rodada" value="{{rodada}}" min="0" step="1">
+            </label>
+            <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="removerEvento"
+              data-indice="{{indice}}" aria-label="{{localize 'OP2.Investigacao.RemoverEvento'}}">
+              <i class="fa-solid fa-trash" aria-hidden="true"></i>
+            </button>
+          </div>
+          <label class="op2-campo">
+            <span>{{localize "OP2.Investigacao.EventoNarracao"}}</span>
+            <textarea data-evento-campo="narracao" rows="3">{{narracao}}</textarea>
+          </label>
+          <label class="op2-campo">
+            <span>{{localize "OP2.Investigacao.EventoEfeito"}}</span>
+            <textarea data-evento-campo="efeito" rows="2">{{efeito}}</textarea>
+          </label>
+        </div>
+      {{/each}}
+      <button type="button" class="op2-botao op2-botao--pequeno" data-action="adicionarEvento">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "OP2.Investigacao.AdicionarEvento"}}
+      </button>
+    </section>
   {{/if}}
 
   <label class="op2-campo">

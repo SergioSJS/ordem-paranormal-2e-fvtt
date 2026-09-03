@@ -247,17 +247,87 @@ summary.op2-painel-titulo { cursor: pointer; }
 
   &__infos {
     margin: var(--op2-e1) 0 0;
-    padding-left: 1.2rem;
+    padding: 0;
+    list-style: none;
     font-size: 0.85rem;
   }
 
+  // Uma linha do quadro é UMA linha: ícone de estado, DT, texto, quem descobriu —
+  // antes cada pedaço caía numa linha própria e o card virava uma torre (achado
+  // em uso real).
+  &__info {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--op2-e2);
+    padding: 0.15rem 0;
+    border-top: 1px dashed color-mix(in srgb, var(--op2-linha) 60%, transparent);
+
+    .op2-botao-icone { flex: 0 0 auto; }
+  }
+
+  &__texto {
+    flex: 1;
+    min-width: 0;
+    p { margin: 0; }
+    p + p { margin-top: var(--op2-e1); }
+  }
+
   &__dt {
+    flex: 0 0 auto;
+    padding: 0.05rem 0.35rem;
+    border: 1px solid var(--op2-linha);
+    border-radius: var(--op2-raio);
     font-family: var(--op2-fonte-mono);
     color: var(--op2-texto-fraco);
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+
+  &__revelado-por {
+    flex: 0 0 auto;
+    max-width: 9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--op2-sucesso);
     font-size: 0.75rem;
   }
 
-  &__revelado-por { color: var(--op2-sucesso); font-size: 0.75rem; }
+  // Recolhido: só o cabeçalho, com o resumo "linhas à vista / total".
+  &__recolher i { transition: transform 0.15s ease; }
+  &--recolhido &__recolher i { transform: rotate(-90deg); }
+  &--recolhido &__corpo { display: none; }
+
+  &__resumo {
+    padding: 0.05rem 0.4rem;
+    border-radius: var(--op2-raio);
+    background: var(--op2-superficie-alta);
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.72rem;
+    color: var(--op2-texto-fraco);
+    white-space: nowrap;
+  }
+
+  // Notas só do mestre, no card, quando ele pede (botão de agente secreto).
+  &__contextual {
+    display: none;
+    margin: var(--op2-e2) 0;
+    padding: var(--op2-e2);
+    border-left: 2px dashed var(--op2-vermelho);
+    background: var(--op2-superficie-alta);
+    font-size: 0.82rem;
+    p { margin: 0 0 var(--op2-e1); }
+    img { max-width: 100%; height: auto; }
+  }
+  &--notas &__contextual { display: block; }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--op2-e1);
+  }
+
+  .op2-botao--pequeno.ativo { border-color: var(--op2-vermelho); }
 
   // Rascunho do mestre: nunca é revelável enquanto oculta (`resolverInvestigacao`/
   // `resolverExaminar` já filtram), só marcada visualmente aqui pra quem já vê tudo.
@@ -713,4 +783,52 @@ summary.op2-painel-titulo { cursor: pointer; }
   &__narracao { font-style: italic; }
   &__efeito { color: var(--op2-texto-fraco); font-size: 0.9em; }
   &__narracao p, &__efeito p { margin: 0 0 var(--op2-e1); }
+}
+
+// Cabeçalho de seção do painel com ferramentas (filtro, recolher/expandir).
+.op2-painel-secao__topo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--op2-e2);
+
+  .op2-painel-titulo { flex: 1; margin: 0; }
+}
+
+.op2-painel-ferramentas {
+  display: flex;
+  align-items: center;
+  gap: var(--op2-e1);
+}
+
+.op2-painel-filtro {
+  width: 11rem;
+  font-size: 0.8rem;
+}
+
+.op2-painel-contagem {
+  margin-left: 0.3rem;
+  font-family: var(--op2-fonte-mono);
+  font-size: 0.72rem;
+  color: var(--op2-texto-fraco);
+}
+
+.op2-tag--ok { border-color: var(--op2-sucesso); color: var(--op2-sucesso); }
+
+// Editor do roteiro na ficha da investigação: um bloco por evento.
+.op2-evento-editor {
+  padding: var(--op2-e2);
+  border: 1px dashed var(--op2-linha);
+  border-radius: var(--op2-raio);
+  & + & { margin-top: var(--op2-e2); }
+
+  &__topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--op2-e2);
+    input[type="number"] { width: 4.5rem; }
+  }
+
+  textarea { width: 100%; }
 }

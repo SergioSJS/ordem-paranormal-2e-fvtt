@@ -7,11 +7,11 @@
   {{#if evento}}
     <div class="op2-card__evento">
       {{#if evento.narracao}}
-        <p class="op2-card__narracao">{{evento.narracao}}</p>
+        <div class="op2-card__narracao">{{{evento.narracao}}}</div>
       {{/if}}
       {{#if evento.efeito}}
-        <p class="op2-ajuda" data-op2-gm><strong>{{localize "OP2.Rodada.EventoEfeito"}}</strong>
-          {{evento.efeito}}</p>
+        <div class="op2-ajuda op2-card__efeito" data-op2-gm><strong>{{localize "OP2.Rodada.EventoEfeito"}}</strong>
+          {{{evento.efeito}}}</div>
       {{/if}}
     </div>
   {{/if}}
@@ -22,7 +22,8 @@
       {{#each personagens}}
         <button type="button" class="op2-botao op2-botao--pequeno" data-op2-acao="rolar-sobrecarga"
           data-ator-id="{{id}}" data-expressao="{{../dano}}">
-          {{nome}} — {{../dano}}
+          <i class="fa-solid {{#if ../danoRola}}fa-dice{{else}}fa-heart-crack{{/if}}" aria-hidden="true"></i>
+          {{nome}} · {{../danoRotulo}}
         </button>
       {{/each}}
     </div>

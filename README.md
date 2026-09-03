@@ -43,6 +43,22 @@ pela própria ficha.
 
 ![Painel de investigação](docs/img/painel-investigacao.png)
 
+Trinta pontos numa lista precisam de navegação: cada card **recolhe e expande** (o
+estado fica no seu navegador), há **recolher/expandir todos** e um **filtro por nome**.
+O card recolhido mostra o resumo *linhas à vista / total*. Cada linha do quadro é uma
+linha só — estado, DT num selo, texto, quem descobriu. O mestre tem, por card, um botão
+de **notas do mestre** que abre a descrição contextual inteira ali mesmo, sem abrir a
+ficha; ninguém mais vê. Ponto e desafio **entram ocultos** quando vinculados ou
+importados: o mestre revela cada um com o olho quando o grupo chega nele. Cada ponto
+tem ícone próprio — o retrato de quem é, o handout que ele entrega, ou um ícone do
+Foundry pela palavra-chave. Os cards de desafio mostram a abordagem e o estado dela
+(pontuação só em Arrombar; tentativas em Destrancar; pendente/resolvido nos hacks), com
+a nota do mestre escondida até pedir.
+
+O **roteiro da cena** (o que acontece em cada rodada marcada, como a maldição do Ato I)
+se edita na ficha da investigação: rodada, narração para ler em voz alta e efeito só do
+mestre. "Nova rodada" põe a narração no card.
+
 **Não existe uma ação "Investigar".** Investigar um ponto é **Examinar** ou
 **Interagir** — as duas sub-ações em que a ação se resolve. Examinar faz os dois passos
 da regra com a mesma perícia:

@@ -14,6 +14,7 @@
  * quem revelou o quê. Nenhum dado de regra (DT, reação de ferramenta) vaza para o
  * lado do jogador.
  */
+import { SYSTEM_ID } from "../config.mjs";
 import { periciasDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs";
 import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerrar-investigacao.mjs";
 import {
@@ -65,8 +66,15 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       cicloVisibilidadeInfo: PainelInvestigacao.#cicloVisibilidadeInfo,
       limparRevelacao: PainelInvestigacao.#limparRevelacao,
       moverParticipante: PainelInvestigacao.#moverParticipante,
+      alternarRecolhido: PainelInvestigacao.#alternarRecolhido,
+      alternarNotasMestre: PainelInvestigacao.#alternarNotasMestre,
+      recolherTodos: PainelInvestigacao.#recolherTodos,
+      expandirTodos: PainelInvestigacao.#expandirTodos,
     },
   };
+
+  /** O filtro por nome vive na instância: sobrevive a rerrenderizações do painel. */
+  #filtro = "";
 
   static PARTS = {
     corpo: { template: "systems/ordem-paranormal-2e/templates/cena/painel-investigacao.hbs" },
@@ -109,8 +117,9 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       // personagem atribuído vê um texto, jogador com personagem fora de
       // qualquer investigação em jogo vê outro.
       temPersonagem: Boolean(this.atorDaVisao),
+      filtro: this.#filtro,
       pois: investigacao ? await this.#contextoPois(investigacao, ehGM) : [],
-      desafios: investigacao ? this.#contextoDesafios(investigacao, ehGM) : [],
+      desafios: investigacao ? await this.#contextoDesafios(investigacao, ehGM) : [],
       ordem: this.#contextoOrdem(investigacao, ehGM),
       participantes: this.#contextoParticipantes(investigacao, ehGM),
       sobrecarga: {
@@ -159,6 +168,8 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
   async #contextoPois(investigacao, ehGM) {
     const editor = foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
     const pois = [];
+    const recolhidos = lerLista(CHAVE_RECOLHIDOS);
+    const notas = lerLista(CHAVE_NOTAS);
     for (const uuid of investigacao.system.pois) {
       const oculto = investigacao.system.poisOcultos.includes(uuid);
       if (oculto && !ehGM) continue;
@@ -166,11 +177,28 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       const poi = await fromUuid(uuid);
       if (poi?.type !== "ponto-interesse") continue;
 
+      // O resumo do card recolhido: quantas linhas já chegaram a alguém, sobre o
+      // total. Para o mestre, é o que está aberto ou que algum personagem descobriu;
+      // para o jogador, o que ele mesmo vê.
+      const descobertaPorAlguem = (info) => personagensDaCenaAtiva()
+        .some((a) => a.system.estado.infosReveladas.has(chaveInfo(uuid, info.id)));
+      const linhasTotal = poi.system.informacoes.length;
+      const linhasVisiveis = poi.system.informacoes.filter((info) => (ehGM
+        ? (info.aberta || descobertaPorAlguem(info))
+        : (info.aberta || this.#jaDescobriu(uuid, info.id)))).length;
+
       pois.push({
         uuid,
         nome: poi.name,
         img: poi.img,
         oculto,
+        recolhido: recolhidos.has(uuid),
+        notasAbertas: notas.has(uuid),
+        linhasTotal,
+        linhasVisiveis,
+        descricaoContextual: ehGM && poi.system.descricaoContextual?.trim()
+          ? await editor.enrichHTML(poi.system.descricaoContextual, { relativeTo: poi })
+          : "",
         reveladoPorLaser: poi.system.reveladoPorLaser,
         // O mestre controla visibilidade direto pelo olho — deste POI e de cada
         // linha do quadro abaixo — sem depender de o jogador ter investigado
@@ -212,23 +240,60 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     return pois;
   }
 
-  #contextoDesafios(investigacao, ehGM) {
+  async #contextoDesafios(investigacao, ehGM) {
     const ocultos = investigacao.system.desafiosOcultos;
-    return investigacao.system.desafios.map((uuid) => fromUuidSync(uuid))
+    const recolhidos = lerLista(CHAVE_RECOLHIDOS);
+    const notas = lerLista(CHAVE_NOTAS);
+    const editor = foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
+    const rotulos = {
+      arrombar: "OP2.Desafio.Arrombar", destrancar: "OP2.Desafio.Destrancar",
+      hackTecnico: "OP2.Desafio.HackTecnico", hackSocial: "OP2.Desafio.HackSocial",
+      sustentar: "OP2.Desafio.Sustentar",
+    };
+    const desafios = investigacao.system.desafios.map((uuid) => fromUuidSync(uuid))
       .filter((desafio) => desafio?.type === "desafio-acesso")
-      .filter((desafio) => ehGM || !ocultos.includes(desafio.uuid))
-      .map((desafio) => ({
+      .filter((desafio) => ehGM || !ocultos.includes(desafio.uuid));
+    const saida = [];
+    for (const desafio of desafios) {
+      const { abordagens, generico, hackTecnico, hackSocial } = desafio.system;
+      const nota = desafio.flags?.[SYSTEM_ID]?.notaDoMestre ?? "";
+      const resolvido = (abordagens.arrombar && desafio.system.pontuacaoAtual >= desafio.system.pontuacaoAlvo)
+        || (abordagens.destrancar && desafio.system.destrancado)
+        || (abordagens.hackTecnico && hackTecnico.resolvido)
+        || (abordagens.hackSocial && hackSocial.resolvido)
+        || (abordagens.generico && generico.resolvido);
+      saida.push({
         uuid: desafio.uuid,
         nome: desafio.name,
         img: desafio.img,
         oculto: ocultos.includes(desafio.uuid),
+        recolhido: recolhidos.has(desafio.uuid),
+        notasAbertas: notas.has(desafio.uuid),
+        abordagens: Object.entries(rotulos).filter(([chave]) => abordagens[chave]).map(([, chave]) => game.i18n.localize(chave))
+          .concat(abordagens.generico ? [generico.rotulo || game.i18n.localize("OP2.Desafio.Generico")] : []),
+        temArrombar: abordagens.arrombar,
+        temDestrancar: abordagens.destrancar,
+        temHackTecnico: abordagens.hackTecnico,
+        temHackSocial: abordagens.hackSocial,
+        temSustentar: abordagens.sustentar,
+        temGenerico: abordagens.generico,
+        genericoRotulo: generico.rotulo || game.i18n.localize("OP2.Desafio.Generico"),
+        genericoResolvido: generico.resolvido,
+        dtObjeto: desafio.system.dtObjeto,
+        sustentarDt: desafio.system.sustentar?.dt,
         pontuacaoAtual: desafio.system.pontuacaoAtual,
         pontuacaoAlvo: desafio.system.pontuacaoAlvo,
+        destrancarTentativas: desafio.system.destrancarTentativas,
+        maxTentativas: desafio.system.maxTentativas,
         quebrado: desafio.system.quebrado,
         destrancado: desafio.system.destrancado,
-        hackTecnicoResolvido: desafio.system.hackTecnico.resolvido,
-        hackSocialResolvido: desafio.system.hackSocial.resolvido,
-      }));
+        hackTecnicoResolvido: hackTecnico.resolvido,
+        hackSocialResolvido: hackSocial.resolvido,
+        resolvido,
+        nota: ehGM && nota.trim() ? await editor.enrichHTML(nota, { relativeTo: desafio }) : "",
+      });
+    }
+    return saida;
   }
 
   /** O personagem desta visão já descobriu esta linha? */
@@ -303,11 +368,53 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       this.render();
     });
 
+    // Filtro por nome: só esconde/mostra cards no DOM, sem rerrenderizar.
+    const filtro = this.element.querySelector("[data-filtro-pois]");
+    filtro?.addEventListener("input", () => {
+      this.#filtro = filtro.value;
+      this.#aplicarFiltro();
+    });
+    this.#aplicarFiltro();
+
     if (!game.user.isGM) return;
     // O editor da tabela de sobrecarga grava na investigação a cada campo editado.
     for (const campo of this.element.querySelectorAll("[data-sobrecarga-campo]")) {
       campo.addEventListener("change", () => this.#gravarTabela());
     }
+  }
+
+  #aplicarFiltro() {
+    const termo = normalizar(this.#filtro);
+    for (const card of this.element.querySelectorAll(".op2-painel-pontos [data-poi-card]")) {
+      card.hidden = Boolean(termo) && !normalizar(card.dataset.nome).includes(termo);
+    }
+  }
+
+  /** Recolher/expandir é preferência de tela: fica no cliente, sem tocar o documento. */
+  static #alternarRecolhido(_evento, alvo) {
+    const { uuid } = alvo.dataset;
+    const recolhido = alternarNaLista(CHAVE_RECOLHIDOS, uuid);
+    this.element.querySelector(`[data-poi-card="${uuid}"]`)?.classList.toggle("op2-poi-card--recolhido", recolhido);
+  }
+
+  static #alternarNotasMestre(_evento, alvo) {
+    const { uuid } = alvo.dataset;
+    const aberto = alternarNaLista(CHAVE_NOTAS, uuid);
+    this.element.querySelector(`[data-poi-card="${uuid}"]`)?.classList.toggle("op2-poi-card--notas", aberto);
+    alvo.classList.toggle("ativo", aberto);
+  }
+
+  static #recolherTodos() {
+    const cards = [...this.element.querySelectorAll("[data-poi-card]")];
+    gravarLista(CHAVE_RECOLHIDOS, new Set([...lerLista(CHAVE_RECOLHIDOS), ...cards.map((c) => c.dataset.poiCard)]));
+    for (const card of cards) card.classList.add("op2-poi-card--recolhido");
+  }
+
+  static #expandirTodos() {
+    const cards = [...this.element.querySelectorAll("[data-poi-card]")];
+    const lista = lerLista(CHAVE_RECOLHIDOS);
+    for (const card of cards) { lista.delete(card.dataset.poiCard); card.classList.remove("op2-poi-card--recolhido"); }
+    gravarLista(CHAVE_RECOLHIDOS, lista);
   }
 
   async #gravarTabela() {
@@ -597,4 +704,40 @@ export function registrarPainelInvestigacao() {
       if (["ponto-interesse", "desafio-acesso", "ferramenta"].includes(item.type)) atualizar();
     });
   }
+}
+
+/* ---------------------------------------------------- preferências de tela -- */
+
+const CHAVE_RECOLHIDOS = "op2.painel.recolhidos";
+const CHAVE_NOTAS = "op2.painel.notas";
+
+/** @returns {Set<string>} uuids guardados no navegador deste usuário. */
+function lerLista(chave) {
+  try {
+    return new Set(JSON.parse(window.localStorage.getItem(chave) ?? "[]"));
+  } catch {
+    return new Set();
+  }
+}
+
+function gravarLista(chave, lista) {
+  try {
+    window.localStorage.setItem(chave, JSON.stringify([...lista]));
+  } catch {
+    // Navegador sem storage: a preferência dura só esta tela.
+  }
+}
+
+/** Liga/desliga o uuid na lista e devolve o estado novo. */
+function alternarNaLista(chave, uuid) {
+  const lista = lerLista(chave);
+  const ligado = !lista.has(uuid);
+  if (ligado) lista.add(uuid); else lista.delete(uuid);
+  gravarLista(chave, lista);
+  return ligado;
+}
+
+/** Comparação de nomes sem acento nem caixa, para o filtro. */
+function normalizar(texto) {
+  return String(texto ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 }

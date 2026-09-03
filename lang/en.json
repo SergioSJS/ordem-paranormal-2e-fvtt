@@ -279,7 +279,13 @@
       "SemRolar": "no roll",
       "ExaminarAchou": "the roll revealed {quantidade} new piece(s) of information.",
       "ExaminarSoGratis": "the roll reached nothing new; the {quantidade} line(s) above came from your die size.",
-      "CriticoExaminar": "reveals what was left for this skill, ignoring the DT."
+      "CriticoExaminar": "reveals what was left for this skill, ignoring the DT.",
+      "ExaminarPeloDado": "By the die",
+      "EventosFichaAjuda": "What happens on each marked round. On \"New round\", the narration goes to the card (read it aloud) and the effect only to you.",
+      "EventoNarracao": "Narration (for the players)",
+      "EventoEfeito": "Effect (GM only)",
+      "AdicionarEvento": "New event",
+      "RemoverEvento": "Remove event"
     },
     "Dialog": {
       "Teste": {
@@ -362,7 +368,8 @@
       "AplicarEfeito": "Apply effect",
       "DanoAplicado": "{quantidade} damage to {alvos}.",
       "AplicarDano": "Apply damage",
-      "DanoNosSelecionados": "Applies to the tokens selected on the scene; with no selection, to whoever rolled."
+      "DanoNosSelecionados": "Applies to the tokens selected on the scene; with no selection, to whoever rolled.",
+      "FalhaCriticaExplica": "All dice on 1: roll 1d8 on the critical failure table (spec §4.4). The GM decides the effect."
     },
     "Cena": {
       "Encerrar": "End scene",
@@ -410,14 +417,24 @@
       "LimparRevelacao": "Undo this line's discovery (for everyone)",
       "RevelacaoLimpa": "Discovery undone for: {nomes}.",
       "Eventos": "Scene script",
-      "EventosAjuda": "What happens at the start of each marked round. The narration goes to the round card; only the GM sees the effect."
+      "EventosAjuda": "What happens at the start of each marked round. The narration goes to the round card; only the GM sees the effect.",
+      "FiltrarPontos": "Filter points…",
+      "RecolherTodos": "Collapse all",
+      "ExpandirTodos": "Expand all",
+      "RecolherExpandir": "Collapse / expand",
+      "NotasMestre": "GM notes (only you see them)",
+      "LinhasResumoDica": "Grid lines in view / total"
     },
     "Rodada": {
       "Titulo": "Round {rodada}",
       "Sobrecarga": "Mental overload",
       "SobrecargaTexto": "End of round {encerrada}: {dano} emotional damage (DP). Each player rolls their own.",
       "SemDano": "End of round {encerrada}: no overload damage.",
-      "EventoEfeito": "Round effect:"
+      "EventoEfeito": "Round effect:",
+      "RolarDano": "roll {dano}",
+      "DanoFixo": "{dano} PD",
+      "DanoAplicado": "{total} damage to {recurso}.",
+      "SemDanoRolado": "No damage this time."
     },
     "Aviso": {
       "TetoDeDados": "At most {max} dice rolled per check.",
@@ -535,7 +552,7 @@
       "AbordagensAjuda": "Check only what makes sense on this object. A jammed door can't be hacked; an electronic panel can't be forced open.",
       "SemAbordagem": "No approach checked on this challenge — the GM needs to pick at least one on its sheet.",
       "SenhaAjuda": "The code itself is generated and checked by the Unlock app, at play time.",
-      "Generico": "Other approach",
+      "Generico": "Challenge",
       "GenericoAjuda": "For what the playtest doesn't name: boarded-up planks, a rusted gate, a high window. Pick the skill and the name shown on the button.",
       "GenericoRotulo": "Action name",
       "GenericoRotuloExemplo": "e.g. Pry the boards off",
@@ -551,7 +568,9 @@
       "HackTecnicoSegundos": "{segundos} seconds",
       "HackTabelaSegundos": "Seconds",
       "DestrancarTetoRodada": "That's all {teto} attempt(s) for this round (Crime {dado}). Wait for the next one.",
-      "DestrancarNaRodada": "{usadas}/{teto} attempts this round (Crime {dado})."
+      "DestrancarNaRodada": "{usadas}/{teto} attempts this round (Crime {dado}).",
+      "Resolvido": "Solved",
+      "Pendente": "Pending"
     },
     "Ferramenta": {
       "Rotulo": "Tool",

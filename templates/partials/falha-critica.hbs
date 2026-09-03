@@ -1,0 +1,13 @@
+{{!-- Falha crítica (spec §4.4) num card de ação própria: o mesmo desfecho e o mesmo
+      botão de mestre do card de teste, para a mecânica não sumir quando a ação tem
+      card próprio (Examinar tinha, e a falha crítica passava em branco). --}}
+<p class="op2-card__desfecho op2-card__desfecho--falha-critica">
+  <i class="fa-solid fa-skull" aria-hidden="true"></i> {{localize "OP2.FalhaCriticaTitulo"}}
+</p>
+<p class="op2-ajuda">{{localize "OP2.Chat.FalhaCriticaExplica"}}</p>
+<div class="op2-card__acoes">
+  <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-op2-gm
+    data-op2-acao="rolar-falha-critica" data-ator-id="{{atorId}}">
+    {{localize "OP2.Chat.RolarFalhaCritica"}}
+  </button>
+</div>

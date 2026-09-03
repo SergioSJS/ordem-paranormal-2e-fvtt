@@ -56,6 +56,13 @@ permanentes). Validação em v13 **adiada por decisão do projeto** — o sistem
   passe por `comoMestre()` (`module/ui/socket.mjs`), que executa no `activeGM`.
 - **`dragDrop` em `DEFAULT_OPTIONS` é do AppV1** e o AppV2 ignora em silêncio. No V2,
   construa `DragDrop.implementation` num getter `_dragDrop` e religue em `_onRender`.
+- **`OP2Roll` entra em `CONFIG.Dice.rolls` com `push`, nunca `unshift`.** O primeiro da
+  lista é a classe padrão de TODA rolagem do jogo (`/r 1d8`, módulos de dados); com o
+  OP2Roll na frente, uma rolagem comum era renderizada pelo template do teste e saía
+  vazia no chat.
+- **Card com rolagem própria (Examinar, sobrecarga) mostra a falha crítica.** O partial
+  `partials/falha-critica.hbs` leva o desfecho e o botão do mestre; `chat/dano.hbs` é o
+  card de dano avulso. Nunca `roll.toMessage()` cru: o card do core não diz o que é.
 - **O core arredonda `button` e deixa a janela translúcida.** Botão pequeno nosso pede
   `border-radius: 0`; janela do sistema fixa fundo opaco e `backdrop-filter: none`.
 - Commits: Conventional Commits, em português.

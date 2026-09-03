@@ -239,7 +239,7 @@ const relato = await page.evaluate(async () => {
   });
   ok("POI criado com data model próprio", poi?.system.constructor.name === "PontoInteresseData");
 
-  await game.op2.vincularPoi(investigacao, poi.uuid);
+  await game.op2.vincularPoi(investigacao, poi.uuid, { oculto: false });
   ok("vincular POI grava o UUID no schema da investigação", investigacao.system.pois.includes(poi.uuid));
 
   // Não existe ação "Investigar": investigar um ponto é Examinar ou Interagir
@@ -1322,7 +1322,7 @@ const relato = await page.evaluate(async () => {
           { id: "vb", pericia: "percepcao", dt: 6, texto: "PISTA-DESCOBRIVEL" },
         ],
       } });
-      await game.op2.vincularPoi(investigacao, visivel.uuid);
+      await game.op2.vincularPoi(investigacao, visivel.uuid, { oculto: false });
       // Abrir a linha é ato de mestre e passa pela ponte `comoMestre`: com o
       // `isGM` fingido de falso ela sairia pelo socket e não voltaria para este
       // mesmo cliente. Vira mestre só para o preparo.
@@ -1628,8 +1628,8 @@ const relato = await page.evaluate(async () => {
 
     // Painel: seção "Desafios" lista os itens vinculados à investigação (mesmo
     // padrão de vincular POI já testado acima), com progresso e botão de Arrombar.
-    await game.op2.vincularDesafio(investigacao, fechadura.uuid);
-    await game.op2.vincularDesafio(investigacao, cofre.uuid);
+    await game.op2.vincularDesafio(investigacao, fechadura.uuid, { oculto: false });
+    await game.op2.vincularDesafio(investigacao, cofre.uuid, { oculto: false });
     await painel.render();
     await esperar(800);
     ok("painel lista os desafios vinculados à investigação",
@@ -2040,7 +2040,7 @@ const relato = await page.evaluate(async () => {
 
     // Destrancar aparece junto do Arrombar nas ações da ficha, por desafio.
     const desafioVitrine = await Item.create({ name: "Porta do Fundo", type: "desafio-acesso" });
-    await game.op2.vincularDesafio(investigacao, desafioVitrine.uuid);
+    await game.op2.vincularDesafio(investigacao, desafioVitrine.uuid, { oculto: false });
     {
       const app = game.op2.acoesInvestigacao(ator);
       await esperar(700);
@@ -2066,7 +2066,7 @@ const relato = await page.evaluate(async () => {
         && porta.system.abordagens.hackSocial === false
         && porta.system.abordagens.arrombar === true);
 
-      await game.op2.vincularDesafio(investigacao, porta.uuid);
+      await game.op2.vincularDesafio(investigacao, porta.uuid, { oculto: false });
       const app = game.op2.acoesInvestigacao(ator);
       await esperar(700);
       const el = document.getElementById(`op2-acoes-${ator.id}`);
@@ -2148,7 +2148,7 @@ const relato = await page.evaluate(async () => {
       name: "Cofre com Painel", type: "desafio-acesso",
       system: { abordagens: { hackTecnico: true, hackSocial: true } },
     });
-    await game.op2.vincularDesafio(investigacao, desafioComPainel.uuid);
+    await game.op2.vincularDesafio(investigacao, desafioComPainel.uuid, { oculto: false });
     {
       const app = game.op2.acoesInvestigacao(ator);
       await esperar(700);
@@ -2213,7 +2213,7 @@ const relato = await page.evaluate(async () => {
     // Regressão: o Laser varria `Object.values(ferramentas).some(t => t.trim())` —
     // quebraria ao encontrar o campo estruturado do Rádio Modificado no meio da
     // varredura (achado ao escrever este mesmo lote, antes de existir o app).
-    await game.op2.vincularPoi(investigacao, poiRadio.uuid);
+    await game.op2.vincularPoi(investigacao, poiRadio.uuid, { oculto: false });
     let laserQuebrou = false;
     try { await game.op2.usarLaser(ator); } catch { laserQuebrou = true; }
     ok("laser não quebra ao varrer um POI com Rádio Modificado configurado", !laserQuebrou);
@@ -2574,7 +2574,7 @@ const relato = await page.evaluate(async () => {
     await game.op2.adicionarParticipante(inv, ator.uuid);
     // DT 0: o objeto exige a ação, não a dificuldade.
     const desafio = await Item.create({ name: "Painel DT 0", type: "desafio-acesso", system: { dtObjeto: 0 } });
-    await game.op2.vincularDesafio(inv, desafio.uuid);
+    await game.op2.vincularDesafio(inv, desafio.uuid, { oculto: false });
 
     await ator.sheet.render(true);
     await new Promise((r) => setTimeout(r, 700));
@@ -2809,6 +2809,177 @@ const relato = await page.evaluate(async () => {
   } else {
     console.log("(sem docs/Ordem-2-Playtest-Alpha-Ato-II-Extras.zip ou sem o pack do Ato II: importação com zip não verificada)");
   }
+}
+
+// O que a primeira rodada de teste manual apontou (2026-09-03): rolagem comum sem
+// mensagem, falha crítica que passava em branco no Examinar, "FALHA" com pista na tela,
+// <p> cru no card da rodada, cards gigantes no painel, pontos visíveis de cara.
+{
+  const uso = await page.evaluate(async () => {
+    const passos = [];
+    const ok = (titulo, condicao) => passos.push([Boolean(condicao), titulo]);
+    const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+    const aleatorioOriginal = CONFIG.Dice.randomUniform;
+    const comDados = async (valor, fn) => {
+      CONFIG.Dice.randomUniform = () => valor;
+      try { return await fn(); } finally { CONFIG.Dice.randomUniform = aleatorioOriginal; }
+    };
+    const ultimaMensagem = () => [...game.messages].at(-1);
+
+    // 1. Uma rolagem comum do jogo continua sendo do core: `/r 1d8`, calculadoras de
+    //    dados. Com o OP2Roll na frente da lista, o card saía vazio.
+    const comum = Roll.create("1d8");
+    ok("Roll.create dá a classe do core, não o OP2Roll", comum.constructor.name === "Roll" && !(comum instanceof game.op2.OP2Roll));
+    await comum.evaluate();
+    await comum.toMessage({ speaker: { alias: "e2e" } });
+    await esperar(400);
+    // O conteúdo gravado é só o total; o card de dados do core é montado ao exibir.
+    const htmlComum = await ultimaMensagem()?.renderHTML?.();
+    ok("a mensagem de uma rolagem comum traz o card de dados do core",
+      ultimaMensagem()?.rolls?.length === 1 && ultimaMensagem().rolls[0].constructor.name === "Roll"
+      && Boolean(htmlComum?.querySelector?.(".dice-roll, .dice-total")));
+    ok("e o OP2Roll segue registrado para reidratar cards de teste", CONFIG.Dice.rolls.some((c) => c.name === "OP2Roll"));
+
+    // 2. Examinar com todos os dados em 1: falha crítica, com o botão do mestre no card.
+    const inv = await game.op2.criarInvestigacao("Uso real");
+    const ator = await Actor.create({ name: "Examinadora", type: "personagem", system: {
+      "atributos.mente.die": "d6", "pericias.percepcao.die": "d6", "recursos.pd": { value: 10, max: 10 },
+    } });
+    await game.user.update({ character: ator.id });
+    await game.op2.adicionarParticipante(inv, ator.uuid);
+    const poi = await Item.create({ name: "Cofre Marcado", type: "ponto-interesse", system: {
+      descricaoContextual: "<p>SEGREDO-DO-MESTRE</p>",
+      informacoes: [
+        { id: "c1", pericia: "percepcao", dt: 5, texto: "<p>Arranhões na porta.</p>" },
+        { id: "c2", pericia: "percepcao", dt: 20, texto: "<p>Um compartimento falso.</p>" },
+      ],
+    } });
+    await game.op2.vincularPoi(inv, poi.uuid);
+    ok("vincular um ponto o deixa oculto dos jogadores por padrão", inv.system.poisOcultos.includes(poi.uuid));
+    const poiVisivel = await Item.create({ name: "Placa da Rua", type: "ponto-interesse" });
+    await game.op2.vincularPoi(inv, poiVisivel.uuid, { oculto: false });
+    ok("… a não ser que quem vincula peça visível", !inv.system.poisOcultos.includes(poiVisivel.uuid));
+    await game.op2.definirInvestigacaoAtiva(inv.uuid);
+
+    const critica = await comDados(0.9999, () => game.op2.examinar(ator, poi.uuid, "luta", { rapido: true }));
+    await esperar(400);
+    ok("todos os dados em 1 ao Examinar é falha crítica", critica?.roll?.falhaCritica === true);
+    ok("e o card traz o botão de rolar a tabela de falha crítica",
+      /rolar-falha-critica/.test(ultimaMensagem()?.content ?? "") && /op2-card__desfecho--falha-critica/.test(ultimaMensagem()?.content ?? ""));
+
+    // 3. Pista pelo dado, rolagem que não soma: nem "FALHA", nem custo — "pelo dado".
+    // Dados no meio da escala: nem todos em 1 (falha crítica), nem no máximo.
+    const peloDado = await comDados(0.5, () => game.op2.examinar(ator, poi.uuid, "percepcao", { rapido: true }));
+    await esperar(400);
+    ok("o dado d6 entrega a linha de DT 5 sem rolar", peloDado?.revelaveis?.includes("c1") && peloDado.perdePD === false);
+    ok("o card diz 'pelo dado', não 'falha'", /op2-card__desfecho--parcial/.test(ultimaMensagem()?.content ?? "")
+      && !/op2-card__desfecho--falha"/.test(ultimaMensagem()?.content ?? ""));
+
+    // 4. Card da rodada com o roteiro em HTML (nada de <p> cru) e botão que diz o dado.
+    await inv.update({ "system.eventos": [{ rodada: 1, narracao: "<p>O símbolo pulsa.</p>", efeito: "<p>Cada um perde 1 PD.</p>" }],
+      "system.sobrecarga": { ativa: true, tabela: [{ rodada: 1, dano: "1d4" }] } });
+    await game.op2.avancarRodada();
+    await esperar(400);
+    const cardRodada = ultimaMensagem()?.content ?? "";
+    ok("a narração do roteiro entra como HTML no card da rodada", /<p>O símbolo pulsa\.<\/p>/.test(cardRodada) && !/&lt;p&gt;/.test(cardRodada));
+    await game.op2.avancarRodada();
+    await esperar(400);
+    const cardRodada2 = ultimaMensagem()?.content ?? "";
+    ok("o botão de sobrecarga diz o que vai rolar", /rolar 1d4/.test(cardRodada2) && /rolar-sobrecarga/.test(cardRodada2));
+    const pdAntes = ator.system.recursos.pd.value;
+    await comDados(0, async () => { const { rolarSobrecarga } = await import("/systems/ordem-paranormal-2e/module/cena/rodada.mjs"); await rolarSobrecarga(ator, "1d4"); });
+    await esperar(400);
+    const cardDano = ultimaMensagem();
+    ok("a sobrecarga rolada vira card do sistema, com a rolagem guardada e o dano aplicado",
+      /op2-card/.test(cardDano?.content ?? "") && cardDano?.rolls?.length === 1 && ator.system.recursos.pd.value === pdAntes - 4);
+
+    // 5. Painel: recolher, notas do mestre, filtro.
+    const painel = game.op2.painelInvestigacao();
+    await painel.render(true);
+    await esperar(1200);
+    const el = painel.element;
+    const card = el?.querySelector(`[data-poi-card="${poi.uuid}"]`);
+    ok(`o card do ponto tem o corpo, o resumo de linhas (1 descoberta de 2) e o botão de notas do mestre (${card?.querySelector(".op2-poi-card__resumo")?.textContent?.trim()})`,
+      Boolean(card?.querySelector(".op2-poi-card__corpo")) && /1\/2/.test(card?.querySelector(".op2-poi-card__resumo")?.textContent ?? "")
+      && Boolean(card?.querySelector('[data-action="alternarNotasMestre"]')));
+    ok("as linhas do quadro são compactas: uma linha por informação, com a DT num selo",
+      card?.querySelectorAll(".op2-poi-card__info").length === 2 && card.querySelectorAll(".op2-poi-card__info .op2-poi-card__dt").length === 2);
+    ok("as notas do mestre ficam escondidas até ele pedir", !card?.classList.contains("op2-poi-card--notas") && /SEGREDO-DO-MESTRE/.test(card?.querySelector(".op2-poi-card__contextual")?.textContent ?? ""));
+    card?.querySelector('[data-action="alternarNotasMestre"]')?.click();
+    await esperar(200);
+    ok("um clique abre as notas do mestre no próprio card", card?.classList.contains("op2-poi-card--notas"));
+    card?.querySelector('[data-action="alternarRecolhido"]')?.click();
+    await esperar(200);
+    ok("recolher esconde o corpo e fica guardado no navegador",
+      card?.classList.contains("op2-poi-card--recolhido") && (localStorage.getItem("op2.painel.recolhidos") ?? "").includes(poi.uuid));
+    el?.querySelector('[data-action="expandirTodos"]')?.click();
+    await esperar(200);
+    ok("expandir todos reabre", !card?.classList.contains("op2-poi-card--recolhido"));
+    el?.querySelector('[data-action="recolherTodos"]')?.click();
+    await esperar(200);
+    ok("recolher todos recolhe todos", [...el.querySelectorAll("[data-poi-card]")].every((c) => c.classList.contains("op2-poi-card--recolhido")));
+    const filtro = el?.querySelector("[data-filtro-pois]");
+    filtro.value = "placa"; filtro.dispatchEvent(new Event("input"));
+    await esperar(200);
+    ok("o filtro esconde os pontos que não casam com o nome",
+      card?.hidden === true && el.querySelector(`[data-poi-card="${poiVisivel.uuid}"]`)?.hidden === false);
+    filtro.value = ""; filtro.dispatchEvent(new Event("input"));
+    await painel.render();
+    await esperar(800);
+    ok("o painel rerrenderizado lembra o que estava recolhido", el?.querySelector(`[data-poi-card="${poi.uuid}"]`)?.classList.contains("op2-poi-card--recolhido"));
+    el?.querySelector('[data-action="expandirTodos"]')?.click();
+
+    // 6. Desafios: só Arrombar tem pontuação; um hack mostra pendente/resolvido.
+    const hack = await Item.create({ name: "Painel Hackeável", type: "desafio-acesso", system: {
+      abordagens: { arrombar: false, hackTecnico: true }, hackTecnico: { tabela: [{ rolagem: "10+", desafio: "2+2=4", segundos: 0 }] },
+    }, flags: { "ordem-paranormal-2e": { notaDoMestre: "<p>NOTA-DO-DESAFIO</p>" } } });
+    const porta = await Item.create({ name: "Porta Forçável", type: "desafio-acesso", system: { abordagens: { arrombar: true } } });
+    await game.op2.vincularDesafio(inv, hack.uuid);
+    await game.op2.vincularDesafio(inv, porta.uuid);
+    ok("vincular um desafio o deixa oculto por padrão", inv.system.desafiosOcultos.includes(hack.uuid));
+    await painel.render();
+    await esperar(1000);
+    const cardHack = painel.element?.querySelector(`[data-poi-card="${hack.uuid}"]`);
+    const cardPorta = painel.element?.querySelector(`[data-poi-card="${porta.uuid}"]`);
+    ok(`um desafio de hack não mostra pontuação 0/10, mostra o estado (${cardHack ? cardHack.textContent.replace(/\s+/g, " ").trim().slice(0, 90) : "card ausente"})`,
+      Boolean(cardHack) && !cardHack.querySelector(".op2-stepper") && /Pendente/.test(cardHack.textContent) && /hack/i.test(cardHack.textContent));
+    ok("um desafio de arrombar mostra a pontuação com o passo a passo", Boolean(cardPorta?.querySelector(".op2-stepper")));
+    ok("a nota do mestre do desafio está no card, escondida até pedir",
+      /NOTA-DO-DESAFIO/.test(cardHack?.querySelector(".op2-poi-card__contextual")?.textContent ?? "") && !cardHack?.classList.contains("op2-poi-card--notas"));
+
+    // 7. O roteiro da cena se edita na ficha da investigação.
+    await inv.sheet.render(true);
+    await esperar(1000);
+    const ficha = inv.sheet.element;
+    ok("a ficha da investigação lista os eventos do roteiro", ficha?.querySelectorAll("[data-evento-linha]").length === 1
+      && ficha.querySelector("[data-evento-campo='narracao']")?.value === "O símbolo pulsa.");
+    ficha?.querySelector('[data-action="adicionarEvento"]')?.click();
+    await esperar(600);
+    ok("novo evento entra na rodada seguinte", inv.system.eventos.length === 2 && inv.system.eventos[1].rodada === 2);
+    const campo = inv.sheet.element?.querySelectorAll("[data-evento-campo='narracao']")[1];
+    if (campo) { campo.value = "Primeiro parágrafo.\n\nSegundo."; campo.dispatchEvent(new Event("change")); }
+    await esperar(600);
+    ok("o texto digitado vira parágrafos HTML no roteiro", inv.system.eventos[1]?.narracao === "<p>Primeiro parágrafo.</p><p>Segundo.</p>");
+    await inv.sheet.close();
+
+    // 8. Um ícone por ponto na aventura do Ato I.
+    const pack = game.packs.get("ordem-paranormal-2e.ato-i-aventura");
+    if (pack?.index.size) {
+      const aventura = await pack.getDocument([...pack.index][0]._id);
+      const imgs = [...aventura.items].filter((i) => i.type === "ponto-interesse").map((i) => i.img);
+      ok("os pontos do Ato I têm ícone próprio: retrato, handout ou ícone do core", new Set(imgs).size >= 20
+        && !imgs.some((i) => i.endsWith("tipos/ponto-interesse.svg")) && imgs.some((i) => i.includes("personagem-alan")));
+      const invAtoI = [...aventura.actors].find((a) => a.type === "investigacao");
+      ok("e a investigação do Ato I chega com todos os pontos e desafios ocultos",
+        invAtoI.system.poisOcultos.length === invAtoI.system.pois.length && invAtoI.system.desafiosOcultos.length === invAtoI.system.desafios.length);
+    }
+
+    localStorage.removeItem("op2.painel.recolhidos"); localStorage.removeItem("op2.painel.notas");
+    await game.user.update({ character: null });
+    for (const d of [hack, porta, poi, poiVisivel, ator, inv]) await d.delete().catch(() => {});
+    return passos;
+  });
+  relato.passos.push(...uso);
 }
 
 const falhas = relato.passos.filter(([ok]) => !ok);

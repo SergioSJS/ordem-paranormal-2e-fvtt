@@ -74,8 +74,8 @@ const dados = await page.evaluate(async () => {
 
   const inv = await game.op2.criarInvestigacao("O Porão");
   for (const a of [alan, edgar, npc]) await game.op2.adicionarParticipante(inv, a.uuid);
-  await game.op2.vincularPoi(inv, poi.uuid);
-  await game.op2.vincularDesafio(inv, desafio.uuid);
+  await game.op2.vincularPoi(inv, poi.uuid, { oculto: false });
+  await game.op2.vincularDesafio(inv, desafio.uuid, { oculto: false });
   await inv.update({ "system.rodada": 3, "system.sobrecarga.ativa": true });
   await game.user.update({ character: alan.id });
 

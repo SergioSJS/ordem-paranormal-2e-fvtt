@@ -279,7 +279,13 @@
       "SemRolar": "sem rolar",
       "ExaminarAchou": "o teste revelou {quantidade} informação(ões) nova(s).",
       "ExaminarSoGratis": "o teste não alcançou nada novo; as {quantidade} linha(s) acima vieram pelo tamanho do seu dado.",
-      "CriticoExaminar": "revela o que faltava desta perícia, ignorando a DT."
+      "CriticoExaminar": "revela o que faltava desta perícia, ignorando a DT.",
+      "ExaminarPeloDado": "Pelo dado",
+      "EventosFichaAjuda": "O que acontece em cada rodada marcada. Ao apertar \"Nova rodada\", a narração vai para o card (leia em voz alta) e o efeito só para você.",
+      "EventoNarracao": "Narração (para os jogadores)",
+      "EventoEfeito": "Efeito (só do mestre)",
+      "AdicionarEvento": "Novo evento",
+      "RemoverEvento": "Remover evento"
     },
     "Dialog": {
       "Teste": {
@@ -362,7 +368,8 @@
       "AplicarEfeito": "Aplicar efeito",
       "DanoAplicado": "{quantidade} de dano em {alvos}.",
       "AplicarDano": "Aplicar dano",
-      "DanoNosSelecionados": "Aplica nos tokens selecionados na cena; sem seleção, em quem rolou."
+      "DanoNosSelecionados": "Aplica nos tokens selecionados na cena; sem seleção, em quem rolou.",
+      "FalhaCriticaExplica": "Todos os dados em 1: rola 1d8 na tabela de falha crítica (spec §4.4). O mestre decide o efeito."
     },
     "Cena": {
       "Encerrar": "Encerrar cena",
@@ -410,14 +417,24 @@
       "LimparRevelacao": "Desfazer a descoberta desta linha (para todos)",
       "RevelacaoLimpa": "Descoberta desfeita para: {nomes}.",
       "Eventos": "Roteiro da cena",
-      "EventosAjuda": "O que acontece no começo de cada rodada marcada. A narração vai para o card da rodada; o efeito só o mestre vê."
+      "EventosAjuda": "O que acontece no começo de cada rodada marcada. A narração vai para o card da rodada; o efeito só o mestre vê.",
+      "FiltrarPontos": "Filtrar pontos…",
+      "RecolherTodos": "Recolher todos",
+      "ExpandirTodos": "Expandir todos",
+      "RecolherExpandir": "Recolher / expandir",
+      "NotasMestre": "Notas do mestre (só você vê)",
+      "LinhasResumoDica": "Linhas do quadro à vista / total"
     },
     "Rodada": {
       "Titulo": "Rodada {rodada}",
       "Sobrecarga": "Sobrecarga mental",
       "SobrecargaTexto": "Fim da rodada {encerrada}: {dano} de dano emocional (PD). Cada jogador rola o seu.",
       "SemDano": "Fim da rodada {encerrada}: sem dano de sobrecarga.",
-      "EventoEfeito": "Efeito da rodada:"
+      "EventoEfeito": "Efeito da rodada:",
+      "RolarDano": "rolar {dano}",
+      "DanoFixo": "{dano} PD",
+      "DanoAplicado": "{total} de dano em {recurso}.",
+      "SemDanoRolado": "Sem dano desta vez."
     },
     "Aviso": {
       "TetoDeDados": "Máximo de {max} dados rolados por teste.",
@@ -535,7 +552,7 @@
       "AbordagensAjuda": "Marque só o que faz sentido neste objeto. Uma porta emperrada não se hackeia; um painel eletrônico não se arromba no braço.",
       "SemAbordagem": "Nenhuma abordagem marcada neste desafio — o mestre precisa escolher pelo menos uma na ficha dele.",
       "SenhaAjuda": "A senha em si é gerada e conferida pelo app de Destrancar, na hora de jogar.",
-      "Generico": "Outra abordagem",
+      "Generico": "Desafio",
       "GenericoAjuda": "Para o que o playtest não nomeia: uma tábua pregada, um portão enferrujado, uma janela alta. Escolha a perícia e o nome que aparece no botão.",
       "GenericoRotulo": "Nome da ação",
       "GenericoRotuloExemplo": "Ex.: Arrancar as tábuas",
@@ -551,7 +568,9 @@
       "HackTecnicoSegundos": "{segundos} segundos",
       "HackTabelaSegundos": "Segundos",
       "DestrancarTetoRodada": "Já foram as {teto} tentativa(s) desta rodada (Crime {dado}). Espere a próxima.",
-      "DestrancarNaRodada": "{usadas}/{teto} tentativas nesta rodada (Crime {dado})."
+      "DestrancarNaRodada": "{usadas}/{teto} tentativas nesta rodada (Crime {dado}).",
+      "Resolvido": "Resolvido",
+      "Pendente": "Pendente"
     },
     "Ferramenta": {
       "Rotulo": "Ferramenta",

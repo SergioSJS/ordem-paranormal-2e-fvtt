@@ -18,7 +18,7 @@
  */
 import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { ident, semAcento, palavras, afinidade, arquivoPublico, tituloLegivel, pasta, em } from "../aventura/comum.mjs";
+import { ident, semAcento, palavras, afinidade, arquivoPublico, tituloLegivel, pasta, em, iconeDoPonto } from "../aventura/comum.mjs";
 
 const FONTES = "packs/sources";
 const DESTINO = join(FONTES, "ato-i-aventura", "ato-i.json");
@@ -95,6 +95,8 @@ function pontosDoPorao() {
         const melhor = Math.max(...(disputam[n] ?? [ponto.nome]).map((o) => afinidade(arquivo, o)));
         return meu >= melhor;
       }));
+      const caminhosDeHandout = numeros.flatMap((n) => HANDOUTS[n] ?? [])
+        .map((a) => `systems/ordem-paranormal-2e/assets/ato-i/handouts/${arquivoPublico(a)}`);
       const imagens = numeros.flatMap((n) => HANDOUTS[n] ?? [])
         .map((a) => `<p><img src="systems/ordem-paranormal-2e/assets/ato-i/handouts/${arquivoPublico(a)}" alt="${a}"></p>`);
 
@@ -127,7 +129,12 @@ function pontosDoPorao() {
 
       return {
         _id, name: tituloLegivel(ponto.nome), type: "ponto-interesse",
-        img: "systems/ordem-paranormal-2e/assets/icons/tipos/ponto-interesse.svg",
+        // Retrato de quem é, handout do ponto, ou ícone pela palavra-chave: um ícone
+        // por ponto, reconhecível numa lista de 31 (achado em uso real).
+        img: iconeDoPonto(ponto.nome, {
+          handouts: caminhosDeHandout,
+          padrao: "systems/ordem-paranormal-2e/assets/icons/tipos/ponto-interesse.svg",
+        }),
         system: {
           descricaoBasica: `<p>${ponto.descricao}</p>`,
           descricaoContextual: [condicaoDoPonto, daCaixa, notas, prateleiras, conteudo, senha, ...imagens]
@@ -396,6 +403,11 @@ const investigacao = {
     participantes: pregerados.map((a) => `Actor.${a._id}`),
     pois: pontos.map((p) => `Item.${p._id}`),
     desafios: desafios.map((d) => `Item.${d._id}`),
+    // Tudo começa oculto dos jogadores: o mestre revela cada ponto quando o grupo
+    // chega nele — importado visível, a lista inteira do porão aparecia de cara
+    // (achado em uso real).
+    poisOcultos: pontos.map((p) => `Item.${p._id}`),
+    desafiosOcultos: desafios.map((d) => `Item.${d._id}`),
     rodada: 0,
     // "Progressão de referência (a do porão do Ato I/II)" — spec §7.6. A tabela padrão
     // do schema é exatamente essa, então basta ligar.

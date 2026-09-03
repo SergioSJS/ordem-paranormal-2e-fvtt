@@ -194,7 +194,9 @@
   background: transparent;
   cursor: pointer;
   gap: var(--op2-e2);
-  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  // Quatro colunas: ícone, nome, efeito e custo. Com três, o custo caía numa linha
+  // nova e vazava para fora do diálogo (achado em uso real).
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto auto;
   text-align: left;
 
   // Lista de alvo/aliado: mesmo corte pelo topo das outras listas de retrato.
@@ -209,7 +211,17 @@
     color: var(--op2-vermelho-claro);
     font-family: var(--op2-fonte-mono);
     font-size: 0.72rem;
+    white-space: nowrap;
   }
+
+  &__custo {
+    color: var(--op2-texto-fraco);
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+
+  &--sem-pd { opacity: 0.5; cursor: not-allowed; }
 
   &.ativo {
     border-color: var(--op2-vermelho);

@@ -253,7 +253,12 @@ export async function examinar(ator, poiUuid, chavePericia, { rapido = false } =
     // O desfecho de Examinar não é o dado contra uma DT: é ter achado algo ou
     // não. Só o teste (`revelaveis`) conta como sucesso — o que veio de graça
     // pelo tamanho do dado já era do personagem antes de rolar.
-    desfechoTeste: revelaveis.length ? "sucesso" : "falha",
+    // Três desfechos, não dois: o teste achou (sucesso), o teste não achou mas o dado
+    // já tinha entregue (pelo dado — não é falha, o jogador recebeu pista), ou nada
+    // (falha, que só chega aqui sem cobrar PD quando… nunca: esse caso é o card de
+    // custo). "FALHA" com pista na tela confundia (achado em uso real).
+    desfechoTeste: revelaveis.length ? "sucesso" : (gratis.length ? "peloDado" : "falha"),
+    atorId: ator.id,
     quantidadeTeste: revelaveis.length,
     quantidadeGratis: gratis.length,
     pdRecuperado,

@@ -109,6 +109,8 @@
     &--critico { color: var(--op2-critico); }
     &--sucesso { color: var(--op2-sucesso); }
     &--falha { color: var(--op2-texto-fraco); }
+    // Nem sucesso nem falha: o dado entregou, a rolagem não somou nada.
+    &--parcial { color: var(--op2-critico); }
     &--falha-critica { color: var(--op2-vermelho-claro); }
   }
 
@@ -164,3 +166,9 @@
   margin: 0 0 var(--op2-e1);
   font-style: italic;
 }
+
+// O roteiro da cena no card da rodada: a narração é HTML do mestre (parágrafos), lida
+// em voz alta; o efeito só ele vê.
+.op2-card__narracao p,
+.op2-card__efeito p { margin: 0 0 var(--op2-e1); }
+.op2-card__narracao { font-style: italic; }

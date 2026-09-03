@@ -25,7 +25,7 @@
  */
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { ident, semAcento, tituloLegivel, pasta, em, escapar, html } from "../aventura/comum.mjs";
+import { ident, semAcento, tituloLegivel, pasta, em, escapar, html, iconeDoPonto } from "../aventura/comum.mjs";
 
 const FONTES = "packs/sources";
 const DESTINO = join(FONTES, "ato-ii-aventura", "ato-ii.json");
@@ -284,9 +284,16 @@ function pontoDeInteresse(ponto) {
   const textoDeMestre = ponto.notas.filter((n) => !rodapes.has(Number(n[0])) || !/^\d /.test(n));
   const citados = imagensDoAtoI(ponto.handoutsCitados ?? []);
 
+  // Handouts que o ponto cita, para o ícone: os do zip (pela ferramenta que os entrega)
+  // e os do Ato I que o texto menciona.
+  const caminhosDeHandout = [
+    ...ponto.ferramentas.flatMap((f) => (f.handouts ?? []).map(handoutPorTitulo).filter(Boolean).map((h) => caminho(h.destino))),
+    ...citados.map((html) => /src="([^"]+)"/.exec(html)?.[1]).filter(Boolean),
+  ];
+
   return {
     _id, name: tituloLegivel(ponto.nome), type: "ponto-interesse",
-    img: `${ICONES}/tipos/ponto-interesse.svg`,
+    img: iconeDoPonto(ponto.nome, { handouts: caminhosDeHandout, padrao: `${ICONES}/tipos/ponto-interesse.svg` }),
     system: {
       descricaoBasica: `<p>${escapar(descricao)}</p>`,
       descricaoContextual: [...notas, html(textoDeMestre), ...citados].filter(Boolean).join("\n"),
@@ -499,6 +506,9 @@ const investigacao = {
     participantes: agentes.map((a) => `Actor.${a._id}`),
     pois: pontos.map((p) => `Item.${p._id}`),
     desafios: desafios.map((d) => `Item.${d._id}`),
+    // Tudo começa oculto dos jogadores; o mestre revela ponto a ponto.
+    poisOcultos: pontos.map((p) => `Item.${p._id}`),
+    desafiosOcultos: desafios.map((d) => `Item.${d._id}`),
     rodada: 0,
     // "Este Ato II introduz uma importante regra: a sobrecarga mental" (p. 77) — a
     // progressão do porão é a tabela padrão do sistema (spec §7.6).

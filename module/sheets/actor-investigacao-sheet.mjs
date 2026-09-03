@@ -27,6 +27,8 @@ export class InvestigacaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
       alternarOculto: InvestigacaoSheet.#alternarOculto,
       adicionarLinhaSobrecarga: InvestigacaoSheet.#adicionarLinhaSobrecarga,
       removerLinhaSobrecarga: InvestigacaoSheet.#removerLinhaSobrecarga,
+      adicionarEvento: InvestigacaoSheet.#adicionarEvento,
+      removerEvento: InvestigacaoSheet.#removerEvento,
     },
     dragDrop: [{ dropSelector: ".op2-investigacao-corpo" }],
   };
@@ -63,6 +65,12 @@ export class InvestigacaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
         ...sistema.sobrecarga,
         tabela: sistema.sobrecarga.tabela.map((linha, indice) => ({ ...linha, indice })),
       },
+      // O roteiro se edita como texto: os parágrafos HTML viram linhas em branco e
+      // voltam a ser <p> ao gravar — sem um editor de texto rico por linha.
+      eventos: sistema.eventos.map((evento, indice) => ({
+        indice, rodada: evento.rodada,
+        narracao: textoPlano(evento.narracao), efeito: textoPlano(evento.efeito),
+      })),
     };
   }
 
@@ -72,6 +80,30 @@ export class InvestigacaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
     for (const campo of this.element.querySelectorAll("[data-sobrecarga-campo]")) {
       campo.addEventListener("change", () => this.#gravarTabela());
     }
+    for (const campo of this.element.querySelectorAll("[data-evento-campo]")) {
+      campo.addEventListener("change", () => this.#gravarEventos());
+    }
+  }
+
+  async #gravarEventos() {
+    const eventos = [...this.element.querySelectorAll("[data-evento-linha]")]
+      .map((linha) => ({
+        rodada: Number(linha.querySelector("[data-evento-campo='rodada']")?.value ?? 0),
+        narracao: htmlDeTexto(linha.querySelector("[data-evento-campo='narracao']")?.value ?? ""),
+        efeito: htmlDeTexto(linha.querySelector("[data-evento-campo='efeito']")?.value ?? ""),
+      }));
+    await this.actor.update({ "system.eventos": eventos });
+  }
+
+  static async #adicionarEvento() {
+    const eventos = this.actor.system.eventos.map((e) => ({ ...e }));
+    const ultima = Math.max(0, ...eventos.map((e) => e.rodada));
+    await this.actor.update({ "system.eventos": [...eventos, { rodada: ultima + 1, narracao: "", efeito: "" }] });
+  }
+
+  static async #removerEvento(_evento, alvo) {
+    const eventos = this.actor.system.eventos.filter((_e, i) => i !== Number(alvo.dataset.indice));
+    await this.actor.update({ "system.eventos": eventos });
   }
 
   async #gravarTabela() {
@@ -134,4 +166,18 @@ export class InvestigacaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
     const tabela = this.actor.system.sobrecarga.tabela.filter((_l, i) => i !== Number(alvo.dataset.indice));
     await this.actor.update({ "system.sobrecarga.tabela": tabela });
   }
+}
+
+/** `<p>a</p><p>b</p>` → "a\n\nb", para editar num textarea. */
+function textoPlano(html) {
+  return String(html ?? "")
+    .replace(/<\/p>\s*<p[^>]*>/gi, "\n\n").replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "")
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
+}
+
+/** "a\n\nb" → `<p>a</p><p>b</p>`. */
+function htmlDeTexto(texto) {
+  const escapar = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return String(texto ?? "").split(/\n\s*\n/).map((par) => par.trim()).filter(Boolean)
+    .map((par) => `<p>${escapar(par).replace(/\n/g, "<br>")}</p>`).join("");
 }

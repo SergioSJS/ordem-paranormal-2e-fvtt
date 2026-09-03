@@ -68,7 +68,12 @@ Hooks.once("init", () => {
   CONFIG.Item.dataModels["desafio-acesso"] = DesafioAcessoData;
   CONFIG.Item.dataModels.ocupacao = OcupacaoData;
 
-  CONFIG.Dice.rolls.unshift(OP2Roll);
+  // `push`, não `unshift`: o primeiro da lista é a classe padrão de TODA rolagem do
+  // jogo — `/r 1d8`, módulos de calculadora de dados. Com o OP2Roll na frente, uma
+  // rolagem comum era renderizada pelo template do teste do sistema, sem o contexto
+  // que ele espera: os dados 3D rolavam e a mensagem saía vazia (achado em uso real).
+  // Registrado no fim, o OP2Roll continua sendo reconhecido ao reidratar mensagens.
+  CONFIG.Dice.rolls.push(OP2Roll);
 
   // Ícone padrão por tipo de documento (ICONES_PADRAO), aplicado só quando a
   // criação não traz `img` — duplicar ou importar de compêndio mantém o ícone

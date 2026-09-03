@@ -148,20 +148,33 @@ export async function alternarJaAgiu(investigacao, atorUuid) {
   await investigacao.update({ "system.jaAgiram": novo });
 }
 
-export async function vincularPoi(investigacao, poiUuid) {
+/**
+ * Vincula um ponto à investigação. Entra OCULTO por padrão: o mestre prepara a cena
+ * inteira antes da mesa e revela cada ponto quando o grupo chega nele — vinculado
+ * visível, os jogadores viam a lista completa do porão de cara (achado em uso real).
+ */
+export async function vincularPoi(investigacao, poiUuid, { oculto = true } = {}) {
   const pois = investigacao.system.pois;
   if (pois.includes(poiUuid)) return;
-  await investigacao.update({ "system.pois": [...pois, poiUuid] });
+  const ocultos = investigacao.system.poisOcultos;
+  await investigacao.update({
+    "system.pois": [...pois, poiUuid],
+    ...(oculto && !ocultos.includes(poiUuid) ? { "system.poisOcultos": [...ocultos, poiUuid] } : {}),
+  });
 }
 
 export async function removerPoi(investigacao, poiUuid) {
   await investigacao.update({ "system.pois": investigacao.system.pois.filter((uuid) => uuid !== poiUuid) });
 }
 
-export async function vincularDesafio(investigacao, desafioUuid) {
+export async function vincularDesafio(investigacao, desafioUuid, { oculto = true } = {}) {
   const desafios = investigacao.system.desafios;
   if (desafios.includes(desafioUuid)) return;
-  await investigacao.update({ "system.desafios": [...desafios, desafioUuid] });
+  const ocultos = investigacao.system.desafiosOcultos;
+  await investigacao.update({
+    "system.desafios": [...desafios, desafioUuid],
+    ...(oculto && !ocultos.includes(desafioUuid) ? { "system.desafiosOcultos": [...ocultos, desafioUuid] } : {}),
+  });
 }
 
 export async function removerDesafio(investigacao, desafioUuid) {
