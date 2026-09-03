@@ -1,9 +1,11 @@
-# Nunca commitar material da editora. O PDF do playtest e os arquivos liberados do
-# Ato I são a fonte da spec e dos compêndios, mas não são nossos para redistribuir —
-# `npm run ato-i` copia os do Ato I para o User Data de quem já os tem.
+# Nunca commitar material da editora. O PDF do playtest é a fonte da spec e dos
+# compêndios; os arquivos públicos do Ato I entram em assets/ato-i/ (npm run ato-i:assets);
+# os extras do Ato II são exclusivos de assinante e ficam fora do repositório.
 *.pdf
+*.zip
 docs/*.pdf
 docs/Arquivos para o público - Ato I/
+docs/Ordem-2-Playtest-Alpha-Ato-II-Extras/
 
 # A aventura é gerada do PDF (npm run ato-i:extrair && npm run ato-i:gerar-aventura):
 # o texto dos pontos de interesse é da editora, como o PDF e as artes.
