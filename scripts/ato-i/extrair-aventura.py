@@ -295,11 +295,41 @@ def desafio_na_prosa(linhas):
     d = ler_desafio([texto])
     if not d:
         return None
+    d.pop("observacao", None)      # na prosa, a "caixa" é o texto do ponto inteiro
     d["rotulo"] = m.group(1).strip().capitalize()
     d.pop("item", None)          # "molho de chaves 1" aqui não vem entre parênteses
     if (chave := re.search(r"molho de chaves\s*(\d)", texto, re.I)):
         d["item"] = f"molho de chaves {chave.group(1)}"
     return d
+
+
+def prosa_da_caixa(linhas):
+    """O texto corrido dentro da caixa — o que não é rótulo nem abordagem."""
+    partes = []
+    for linha in linhas:
+        if FIM_DA_CAIXA.search(linha):
+            break
+        texto = re.sub(r"\s{2,}", " ", linha.strip())
+        # "Requer realizar as duas ações em sequência" é frase, não rótulo de abordagem.
+        so_abordagens = re.compile(r"\b(ARROMBAR|DESTRANCAR|ALCANÇAR|HACKEAR|SUSTENTAR|RESOLVER|ITEM)\b")
+        texto = so_abordagens.split(texto)[0] if so_abordagens.search(texto) else texto
+        texto = re.sub(r"^[\ue000-\uf8ff•\-–\s]+", "", texto)
+        # Fora o que já virou campo: pergunta do banco, senha impressa, equação.
+        if texto.endswith("?") or LINHA_DA_TABELA.search(texto) \
+                or re.search(r"senha\s+\d|=\s*\d|respostas?\s+corretas?", texto, re.I) \
+                or ROTULO_VALOR.match(texto):
+            continue
+        if len(texto) > 25 and not texto.isupper():
+            partes.append(texto)
+
+    frase = re.sub(r"\s{2,}", " ", " ".join(partes)).strip()
+    # Os rótulos do quadro se infiltram no meio da frase, porque são impressos na coluna
+    # da esquerda, na mesma linha.
+    frase = re.sub(r"\b(DESAFIO DE|DESAFIO|BLOQUEIO|DE ACESSO|MECÂNICA DE|ROLAGEM|EQUAÇÃO"
+                   r"|HACK TÉCNICO|HACK SOCIAL)\b", "", frase)
+    frase = re.sub(r"\(\s*\)|\([^)]{0,4}$", "", frase)      # sobra de parêntese cortado
+    frase = re.sub(r"\s{2,}", " ", frase).strip(" .,:;")
+    return frase if len(frase) > 30 else ""
 
 
 def ler_desafio(linhas, nome_do_ponto=""):
@@ -334,6 +364,10 @@ def ler_desafio(linhas, nome_do_ponto=""):
         d["senhaNota"] = (m.group(2) or "").strip("()")
     if d:
         d["rotulo"] = nome_do_obstaculo(linhas, nome_do_ponto)
+        # A caixa também explica coisas que mudam a mesa: "se escolherem arrombar, o
+        # Ídolo se quebra e a informação de Pesquisar sobe de 6 para 10". Sem isso, a
+        # regra sumia junto com o quadro lateral.
+        d["observacao"] = "" if "hackSocial" in d else prosa_da_caixa(linhas)
         # "ITEM (molho de chaves 1)": a chave que dispensa o desafio.
         if (m := re.search(r"ITEM\s*\(([^)]+)\)", texto, re.I)):
             d["item"] = re.sub(r"\s+", " ", m.group(1)).strip()
@@ -552,6 +586,7 @@ def extrair():
         if eh_titulo(linhas, i):
             m = TITULO.match(linha)
             nome, condicao = m.group(2).strip(), (m.group(4) or "").strip()
+            recuo_do_titulo = len(m.group(1))
             # "PONTO (CONTINUAÇÃO)" é a mesma tabela virando a página: as linhas
             # seguintes somam no ponto que já existe, em vez de criar um ponto novo.
             if "CONTINUAÇÃO" in nome.upper() and atual:
@@ -559,7 +594,7 @@ def extrair():
                 continue
             atual = {"nome": nome, "condicao": condicao, "descricao": [],
                      "informacoes": [], "caixa": [], "bruto": [], "conteudo": [], "notas": [],
-                     "descricao_cruas": [],
+                     "descricao_cruas": [], "recuo": recuo_do_titulo,
                      "na_caixa": False, "no_conteudo": False}
             pontos.append(atual)
         elif atual is not None and not RUIDO.match(linha) and atual["informacoes"]:
@@ -586,7 +621,10 @@ def extrair():
             elif atual["na_caixa"] and recuo < 20 and len(texto) > 60 and texto[0].isupper():
                 # Linha longa na margem: a caixa acabou e o texto do ponto voltou.
                 atual["na_caixa"] = False
-            elif recuo >= 28 and atual["descricao"]:
+            # Recuo MUITO maior que o do título é coluna da direita de caixa. Medir em
+            # absoluto quebrava os pontos impressos na coluna da direita da página, cujo
+            # texto inteiro começa lá pela coluna 51.
+            elif recuo >= atual["recuo"] + 20 and atual["descricao"]:
                 atual["caixa"].append(linha.rstrip())
                 i += 1
                 continue
@@ -604,6 +642,7 @@ def extrair():
         texto = re.sub(r"\s{3,}\d{1,2}\s+", " ", texto)
         texto = re.sub(r"\s+\d{1,2}\s*$", "", texto)
         p["descricao"] = re.sub(r"\s{2,}", " ", texto).strip()
+        p.pop("recuo", None)
         p.pop("na_caixa", None)
         p.pop("no_conteudo", None)
         # O conteúdo revelado é texto de mestre, não descrição do que se vê.

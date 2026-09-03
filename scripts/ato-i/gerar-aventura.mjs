@@ -120,6 +120,14 @@ function pontosDoPorao() {
       // grupo pode concluir. É leitura de mestre, então vai na descrição contextual.
       const notas = ponto.notas ? `<p>${ponto.notas}</p>` : "";
 
+      // Alcançar não vira desafio de acesso (spec §7.4), mas a caixa dele explica o que
+      // a mesa precisa saber ("subir no altar molhado e escorregadio") — e essa
+      // explicação não pode morrer com a caixa.
+      const daCaixa = ponto.desafio?.observacao
+        && !(ponto.desafio.arrombar || ponto.desafio.destrancar || ponto.desafio.hackTecnico
+          || ponto.desafio.hackSocial || ponto.desafio.sustentar)
+        ? `<p>${ponto.desafio.observacao}.</p>` : "";
+
       const senha = ponto.desafio?.senhaFixa
         ? `<p><strong>Senha do painel:</strong> ${ponto.desafio.senhaFixa}`
           + `${ponto.desafio.senhaNota ? ` <em>(${ponto.desafio.senhaNota})</em>` : ""}.</p>`
@@ -130,7 +138,8 @@ function pontosDoPorao() {
         img: "systems/ordem-paranormal-2e/assets/icons/tipos/ponto-interesse.svg",
         system: {
           descricaoBasica: `<p>${ponto.descricao}</p>`,
-          descricaoContextual: [notas, conteudo, senha, ...imagens].filter(Boolean).join("\n"),
+          descricaoContextual: [daCaixa, notas, conteudo, senha, ...imagens]
+            .filter(Boolean).join("\n"),
           informacoes: ponto.informacoes.map((info, indice) => ({
             id: `i${indice + 1}`,
             pericia: info.chave,
@@ -186,6 +195,9 @@ function desafioDoPonto(ponto) {
   const nome = repete ? rotulo : `${ponto_} — ${rotulo}`;
   const notas = [
     `<p>${ponto.descricao}</p>`,
+    // O que a caixa explica além dos números: arrombar o armário quebra o Ídolo e piora
+    // a DT de Pesquisar; o símbolo no teto exige subir no altar molhado.
+    d.observacao ? `<p>${d.observacao}.</p>` : "",
     d.item ? `<p>Dispensa o desafio: <em>${d.item}</em>.</p>` : "",
     d.alcancar ? `<p>Antes de arrombar é preciso <strong>Alcançar (DT ${d.alcancar.dt})</strong>.</p>` : "",
     d.destrancar?.tentativas
