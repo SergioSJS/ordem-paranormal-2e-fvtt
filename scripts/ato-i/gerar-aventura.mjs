@@ -106,12 +106,19 @@ function pontosDoPorao() {
       const imagens = numeros.flatMap((n) => HANDOUTS[n] ?? [])
         .map((a) => `<p><img src="systems/ordem-paranormal-2e/assets/ato-i/handouts/${arquivoPublico(a)}" alt="${a}"></p>`);
 
+      // O painel da porta de saída tem senha impressa no livro — não é o minigame de
+      // Destrancar, é informação de mestre. Fica na descrição que só ele lê.
+      const senha = ponto.desafio?.senhaFixa
+        ? `<p><strong>Senha do painel:</strong> ${ponto.desafio.senhaFixa}`
+          + `${ponto.desafio.senhaNota ? ` <em>(${ponto.desafio.senhaNota})</em>` : ""}.</p>`
+        : "";
+
       return {
         _id, name: tituloLegivel(ponto.nome), type: "ponto-interesse",
         img: "systems/ordem-paranormal-2e/assets/icons/tipos/ponto-interesse.svg",
         system: {
           descricaoBasica: `<p>${ponto.descricao}</p>`,
-          descricaoContextual: imagens.join("\n"),
+          descricaoContextual: [senha, ...imagens].filter(Boolean).join("\n"),
           informacoes: ponto.informacoes.map((info, indice) => ({
             id: `i${indice + 1}`,
             pericia: info.chave,
@@ -153,7 +160,9 @@ function tituloLegivel(nome) {
  */
 function desafioDoPonto(ponto) {
   const d = ponto.desafio;
-  if (!d?.arrombar && !d?.destrancar && !d?.hackTecnico) return null;
+  // Alcançar é ação avulsa (spec §7.4) e a senha impressa do painel da saída não é
+  // minigame nenhum: nem toda caixa do livro vira desafio de acesso.
+  if (!d?.arrombar && !d?.destrancar && !d?.hackTecnico && !d?.sustentar) return null;
 
   // "Freezer — Cadeado do Freezer" repete: quando o rótulo já diz de que objeto se
   // trata, ele basta sozinho.
@@ -170,6 +179,9 @@ function desafioDoPonto(ponto) {
     d.destrancar
       ? "<p>A senha ainda não foi sorteada: use <em>Gerar senha</em> na ficha do desafio.</p>" : "",
     // O painel do Depósito A: o que a rolagem entrega é uma conta para o jogador resolver.
+    d.sustentar
+      ? "<p>Uma pessoa passa por rodada. Quem sustenta pode passar junto; se falhar na "
+        + "rodada em que alguém está passando, essa pessoa é esmagada e perde 1d4 PV.</p>" : "",
     d.hackTecnico?.tabela?.length
       ? `<p>Tabela do painel:</p><ul>${d.hackTecnico.tabela
         .map((l) => `<li><strong>${l.rolagem}</strong> — ${l.equacao}</li>`).join("")}</ul>` : "",
@@ -183,10 +195,16 @@ function desafioDoPonto(ponto) {
       abordagens: {
         arrombar: Boolean(d.arrombar), destrancar: Boolean(d.destrancar),
         hackTecnico: Boolean(d.hackTecnico), hackSocial: Boolean(d.hackSocial),
-        generico: false,
+        // A estante é enigma + Sustentar: entra como abordagem genérica, que é o que o
+        // sistema tem para "teste de perícia contra o obstáculo".
+        generico: Boolean(d.sustentar),
       },
-      generico: { pericia: "atletismo", rotulo: "", resolvido: false },
-      dtObjeto: d.arrombar?.dt ?? 7,
+      generico: {
+        pericia: "atletismo",
+        rotulo: d.sustentar ? `Sustentar a estante (DT ${d.sustentar.dt})` : "",
+        resolvido: false,
+      },
+      dtObjeto: d.arrombar?.dt ?? d.sustentar?.dt ?? 7,
       pontuacaoAlvo: d.arrombar?.pa ?? 10,
       pontuacaoAtual: 0,
       // O teto de tentativas do playtest é da fechadura, não do arrombamento.

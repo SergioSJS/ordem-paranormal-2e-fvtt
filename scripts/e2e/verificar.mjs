@@ -775,7 +775,7 @@ const relato = await page.evaluate(async () => {
         investigacao.system.pois.length >= 15
         && resolve(investigacao.system.pois, idsDeItens));
       ok("com os desafios vinculados",
-        investigacao.system.desafios.length >= 6
+        investigacao.system.desafios.length >= 7
         && resolve(investigacao.system.desafios, idsDeItens));
 
       // As caixas laterais do PDF trazem os números prontos — nada é chutado aqui.
@@ -826,7 +826,7 @@ const relato = await page.evaluate(async () => {
       await limpar();
       await aventura.import({ dialog: false });
       ok("importar a aventura cria tudo no mundo",
-        noMundo("Actor").length === 6 && noMundo("Item").length === 29
+        noMundo("Actor").length === 6 && noMundo("Item").length === 30
         && noMundo("Scene").length === 1 && noMundo("JournalEntry").length === 2
         && noMundo("Playlist").length === 1);
 
@@ -843,7 +843,7 @@ const relato = await page.evaluate(async () => {
       };
       ok("com pontos, desafios e pré-gerados cada um na sua",
         naPasta("Pontos de Interesse").length === 23
-        && naPasta("Desafios de Acesso").length === 6
+        && naPasta("Desafios de Acesso").length === 7
         && naPasta("Pré-gerados").length === 5);
       ok("e nada solto fora de pasta",
         [...noMundo("Actor"), ...noMundo("Item"), ...noMundo("Scene"),
@@ -858,10 +858,22 @@ const relato = await page.evaluate(async () => {
         linhasNoMundo.every((l) => l.oculta === false && l.aberta === false));
 
       const desafiosNoMundo = noMundo("Item").filter((i) => i.type === "desafio-acesso");
-      ok("os seis desafios de acesso chegam com os números do livro",
-        desafiosNoMundo.length === 6
+      ok("os sete desafios de acesso chegam com os números do livro",
+        desafiosNoMundo.length === 7
         && desafiosNoMundo.every((d) => d.system.dtObjeto > 0 && d.system.pontuacaoAlvo > 0
           && Object.values(d.system.abordagens).some(Boolean)));
+      // A estante é enigma + Sustentar: abordagem genérica, não arrombamento.
+      const estante = desafiosNoMundo.find((d) => d.name.startsWith("Estante"));
+      ok("a estante entra como abordagem genérica, com o rótulo do Sustentar",
+        estante?.system.abordagens.generico === true
+        && /Sustentar/.test(estante.system.generico.rotulo));
+
+      // A senha impressa do painel da saída é informação de mestre, não minigame.
+      const saida = pontosNoMundo.find((p) => p.name === "Porta de Saída");
+      ok("e a senha impressa da porta de saída fica na descrição do mestre",
+        /160322/.test(saida?.system.descricaoContextual ?? "")
+        && !desafiosNoMundo.some((d) => d.name.includes("Saída")));
+
       // O painel do Depósito A é Hack Técnico, não arrombamento — a caixa do livro diz.
       const painel = desafiosNoMundo.find((d) => d.name.includes("Painel"));
       ok("e o painel elétrico chega como Hack Técnico, com a tabela na nota do mestre",

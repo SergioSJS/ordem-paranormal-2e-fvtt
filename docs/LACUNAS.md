@@ -310,3 +310,18 @@ cena. Compêndio não carrega esses registros: testado com id próprio e com
 `defaultLevel0000`, o Foundry ignora e sintetiza um nível padrão — a cena importa em
 branco. **Decisão:** a fonte do compêndio guarda o campo legado `background` no registro
 da cena, que o v14 migra para o nível ao carregar. É o único caminho que funciona hoje.
+
+## Caixas do Ato I que o sistema não modela inteiras
+
+O livro do Ato I traz três caixas de acesso que não cabem redondas no `desafio-acesso`:
+
+- **Painel Elétrico (Hack Técnico)** — a caixa traz uma tabela `rolagem → equação` que o
+  jogador resolve de cabeça. O modelo tem a abordagem, mas não o campo da tabela: ela vai
+  na nota do mestre, que lê a conta em voz alta.
+- **Estante de Livros** — pede *enigma* + *Sustentar (DT 7)* em sequência, com 1d4 PV em
+  quem for esmagado. Entra como abordagem genérica com o rótulo do Sustentar; a regra da
+  rodada fica na nota. Sustentar em si é ação avulsa (spec §7.5), não abordagem.
+- **Porta de Saída** — a senha é impressa no livro (160322), não sorteada. Não é o
+  minigame de Destrancar: vira informação na descrição de mestre do ponto.
+
+Se o playtest publicar campos para isso, os três viram dados de verdade.

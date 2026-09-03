@@ -35,7 +35,8 @@ DESAFIO_NA_CAIXA = re.compile(r"\(DT\s|\bPA\s|\b(ARROMBAR|DESTRANCAR|ALCANÇAR|H
 # inclusive as frases em caixa normal da coluna da esquerda ("Só é possível investigá-lo
 # se conseguir entendê-lo") e a tabela de equações do Hack Técnico, que estava vazando
 # para a descrição do ponto.
-ABRE_CAIXA = re.compile(r"\b(DESAFIO DE|BLOQUEIO|DE ACESSO|HACK (TÉCNICO|SOCIAL)|ROLAGEM)\b")
+ABRE_CAIXA = re.compile(r"\b(DESAFIO|BLOQUEIO|MECÂNICA DE|DE ACESSO|HACK (TÉCNICO|SOCIAL)"
+                        r"|ROLAGEM|SUSTENTAR|RESOLVER O ENIGMA)\b|Requer realizar as duas ações")
 
 
 def eh_titulo(linhas, i):
@@ -147,15 +148,16 @@ ALCANCAR = re.compile(r"ALCANÇAR\s*\(DT\s*(\d+)\)", re.I)
 CABECA_DA_CAIXA = re.compile(r"^(DESAFIO|BLOQUEIO|DE ACESSO)$")
 # Onde a caixa acaba e a página recomeça.
 FIM_DA_CAIXA = re.compile(r"CONTEÚDO|CONTINUAÇÃO|TESTE")
-PALAVRA_CHAVE = re.compile(r"\b(ARROMBAR|DESTRANCAR|ALCANÇAR|HACKEAR|ITEM|Requer)\b")
+PALAVRA_CHAVE = re.compile(r"\b(ARROMBAR|DESTRANCAR|ALCANÇAR|HACKEAR|SUSTENTAR|RESOLVER"
+                           r"|ITEM|Requer)\b")
 
 
 # Palavras do rótulo do quadro, não do obstáculo: o que sobra é o nome dele.
-COLA_DA_CAIXA = {"DESAFIO", "BLOQUEIO", "DE", "ACESSO", "HACK", "TÉCNICO", "SOCIAL",
-                 "ROLAGEM", "EQUAÇÃO", "REQUER", "ITEM"}
+COLA_DA_CAIXA = {"DESAFIO", "BLOQUEIO", "MECÂNICA", "DE", "ACESSO", "HACK", "TÉCNICO",
+                 "SOCIAL", "ROLAGEM", "EQUAÇÃO", "REQUER", "ITEM"}
 
 
-def nome_do_obstaculo(linhas):
+def nome_do_obstaculo(linhas, nome_do_ponto=""):
     """O que a caixa chama o obstáculo ("PORTA TRANCADA", "PAINEL CONFUSO").
 
     O rótulo mora na coluna da esquerda; a da direita traz a abordagem ou a tabela. Duas
@@ -165,13 +167,18 @@ def nome_do_obstaculo(linhas):
     for linha in linhas:
         if FIM_DA_CAIXA.search(linha):
             break
+        # O rótulo mora na margem esquerda da caixa. Linha recuada é continuação da
+        # coluna da direita ("• DE LIVROS", do enigma da estante) e não é nome de nada.
+        if len(linha) - len(linha.lstrip()) > 20:
+            continue
         esquerda = re.split(r"\s{2,}", linha.strip())[0]
         # Caixa de uma coluna só: a abordagem vem na mesma fatia do rótulo.
         esquerda = PALAVRA_CHAVE.split(esquerda)[0]
         esquerda = re.sub(r"[\ue000-\uf8ff•\-–]", " ", esquerda)
         if not esquerda or not esquerda.isupper():
             continue
-        palavras += [p for p in esquerda.split() if p not in COLA_DA_CAIXA and not p.isdigit()]
+        palavras += [p for p in esquerda.split()
+                     if p not in COLA_DA_CAIXA and not p.isdigit()]
     nome = " ".join(dict.fromkeys(palavras)).title()
     return re.sub(r"\b(Do|Da|De|Dos|Das|E)\b", lambda m: m.group(1).lower(), nome)
 
@@ -180,7 +187,7 @@ def nome_do_obstaculo(linhas):
 LINHA_DA_TABELA = re.compile(r"(\d+\s*\+|\d+\s*-\s*\d+)\s+(.+?=\s*[\d.,]+)\s*$")
 
 
-def ler_desafio(linhas):
+def ler_desafio(linhas, nome_do_ponto=""):
     """Lê a caixa de desafio de acesso que vem antes da tabela do ponto."""
     texto = " ".join(linhas)
     d = {}
@@ -204,8 +211,15 @@ def ler_desafio(linhas):
         d["hackTecnico"] = {"tabela": tabela}
     if re.search(r"HACK\s+SOCIAL", texto, re.I):
         d["hackSocial"] = True
+    # A estante: enigma + Sustentar, uma pessoa por rodada.
+    if (m := re.search(r"SUSTENTAR\s*\(DT\s*(\d+)\)", texto, re.I)):
+        d["sustentar"] = {"dt": int(m.group(1))}
+    # A porta de saída não tem minigame: a senha está impressa no livro.
+    if (m := re.search(r"Senha\s+(\d{4,8})\s*(\([^)]*\))?", texto)):
+        d["senhaFixa"] = m.group(1)
+        d["senhaNota"] = (m.group(2) or "").strip("()")
     if d:
-        d["rotulo"] = nome_do_obstaculo(linhas)
+        d["rotulo"] = nome_do_obstaculo(linhas, nome_do_ponto)
         # "ITEM (molho de chaves 1)": a chave que dispensa o desafio.
         if (m := re.search(r"ITEM\s*\(([^)]+)\)", texto, re.I)):
             d["item"] = re.sub(r"\s+", " ", m.group(1)).strip()
@@ -246,7 +260,8 @@ def extrair():
             if ABRE_CAIXA.search(texto) or DESAFIO_NA_CAIXA.search(texto):
                 atual["na_caixa"] = True
             if atual["na_caixa"] or texto.isupper():
-                atual["caixa"].append(texto)      # caixa de desafio de acesso
+                # Guarda a linha COM o recuo: é ele que diz qual coluna da caixa é qual.
+                atual["caixa"].append(linha.rstrip())
             else:
                 atual["descricao"].append(texto)
         i += 1
@@ -258,7 +273,7 @@ def extrair():
         texto = re.sub(r"\s+\d{1,2}\s*$", "", texto)
         p["descricao"] = re.sub(r"\s{2,}", " ", texto).strip()
         p.pop("na_caixa", None)
-        p["desafio"] = ler_desafio(p.pop("caixa"))
+        p["desafio"] = ler_desafio(p.pop("caixa"), p["nome"])
         # "Mostre o HANDOUT 06 - ESTANTE DE LIVROS" aparece tanto na pista quanto na
         # prosa do mestre — o ponto leva os dois.
         p["handouts"] = sorted({int(n) for n in
