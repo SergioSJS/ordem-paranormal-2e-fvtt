@@ -401,7 +401,9 @@
       "MoverParaCima": "Subir na ordem",
       "MoverParaBaixo": "Descer na ordem",
       "LimparRevelacao": "Desfazer a descoberta desta linha (para todos)",
-      "RevelacaoLimpa": "Descoberta desfeita para: {nomes}."
+      "RevelacaoLimpa": "Descoberta desfeita para: {nomes}.",
+      "Eventos": "Roteiro da cena",
+      "EventosAjuda": "O que acontece no começo de cada rodada marcada. A narração vai para o card da rodada; o efeito só o mestre vê."
     },
     "Rodada": {
       "Titulo": "Rodada {rodada}",

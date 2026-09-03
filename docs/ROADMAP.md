@@ -118,22 +118,32 @@ declara `minimum: 13`, mas só o v14 foi exercitado de verdade.
       3 espaços sobem um atributo em um passo até o fim da cena
 - [ ] Validação em Foundry v13 (adiada por decisão do projeto)
 
-## Compêndios
+## Compêndios ✅
 
-- [x] Habilidades do Ato I (8 itens)
-- [x] Pré-gerados do Ato I (Alan, Edgar, Eloísa, Kênia, Victor), com habilidades e tokens
-- [x] Handouts e históricos do Ato I como JournalEntry
-- [x] `npm run ato-i` instala as imagens no User Data (não são redistribuídas)
-- [x] As 10 ferramentas da Ordo Realitas como itens prontos, com as cargas da regra
-      (Lanterna UV 3, Pó Revelador 5; as demais ilimitadas)
+Oito packs em duas pastas — `Ordem Paranormal 2 → Regras` e `→ Ato I — A Maldição do
+Ídolo de Pedra` (`packFolders` no manifesto).
 
-As habilidades de perfil moram no compêndio de habilidades com `origem: "perfil"` — não
-existe um pack "perfis" separado.
+- [x] Habilidades (as do Ato I, com `origem` de perfil ou ocupação)
+- [x] Ocupações do livro, como Item arrastável para a ficha
+- [x] As 10 ferramentas da Ordo Realitas, com as cargas da regra
+- [x] Pré-gerados do Ato I, conferidos contra as fichas do pacote
+- [x] Handouts e históricos como JournalEntry
+- [x] A cena do Porão murada à mão (39 paredes, 6 portas secretas) e a trilha
+- [x] As artes do Ato I dentro do sistema (`assets/ato-i/`) — nada a instalar
+- [x] **A aventura**: um único documento `Adventure` que importa a mesa montada — cena,
+      trilha, pré-gerados, handouts, 31 pontos de interesse com 86 linhas de quadro, 10
+      desafios de acesso, os itens de mesa, o roteiro do ato, a maldição rodada a rodada
+      e a investigação com tudo vinculado, em pastas. O texto sai do PDF de quem o tem
+      (`npm run ato-i:extrair && npm run ato-i:gerar-aventura`) e não é commitado.
+
+O extrator é conferido contra o livro: cada célula de DT vira uma linha, e cada linha
+tem que ser idêntica à coluna "Informação" do PDF (86/86).
 
 ## Depois
 
 NEX, progressão por nível, traumas permanentes e o combate completo, quando forem
 publicados. Os campos já existem; a mecânica não.
 
-Fora de escopo permanente: a aventura *A Maldição do Ídolo de Pedra*. Ela é conteúdo do
-PDF e, se virar algo, é um *adventure module* separado.
+**Ato II.** O PDF traz um segundo capítulo — o porão revisitado pelos agentes, com as
+reações de ferramenta e pontos novos. O extrator lê só o Ato I; estender é o próximo
+passo natural, e a estrutura (pontos, quadro, caixas, duas colunas) é a mesma.

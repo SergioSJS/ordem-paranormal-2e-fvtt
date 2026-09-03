@@ -159,18 +159,32 @@ npm run ato-i:gerar-aventura   # monta a aventura com cena, trilha, handouts e t
 npm run pack:build
 ```
 
-`extrair-aventura.py` lê as tabelas `Perícia · DT · Informação` direto do PDF: 31 pontos
-de interesse, 86 linhas de quadro, com as perícias já traduzidas para as chaves do
-sistema (`Aptidão (Humanas)` → `aptidao.humanas`). As condições que o livro escreve entre
-parênteses — *apenas Victor*, *se o ídolo for quebrado* — não têm campo no sistema e vão
-no começo do texto da linha, onde o mestre lê antes de liberar.
+`extrair-aventura.py` lê o capítulo inteiro do PDF, não só as tabelas: 31 pontos de
+interesse com 86 linhas de quadro (perícias já nas chaves do sistema — `Aptidão
+(Humanas)` → `aptidao.humanas`), a descrição do que se vê e o texto de mestre que o livro
+põe depois de cada quadro, as caixas "CONTEÚDO" do que se revela ao vencer um desafio,
+os vinte livros das cinco prateleiras, a Mesa de Poker impressa na coluna da direita da
+Sala Secreta. O extrator é conferido contra o livro: cada célula de DT vira uma linha, e
+cada linha tem que ser idêntica à coluna *Informação* do PDF — 86 de 86.
 
-As caixas laterais e o texto de mestre viram os dez desafios de acesso do porão com os números do livro:
-`ARROMBAR (DT 10, PA 10)` e `DESTRANCAR (senha: 3d6, 3 tentativas)` entram como DT do
-objeto, pontuação alvo, tamanho da senha e teto de tentativas. A senha **não** vem
-sorteada no compêndio — quem sorteia é o mestre, na ficha do desafio, senão ela viajaria
-à vista de todos. Os handouts citados no texto (*"Mostre o HANDOUT 06"*) viram a imagem
+As condições do livro — *apenas Victor*, *se o ídolo for quebrado* — abrem o texto da
+linha e a deixam como **rascunho**: Examinar não alcança, o mestre libera quando a
+condição acontece. *Medicina ou Sobrevivência* não é condição, é perícia alternativa, e
+a linha segue descobrível.
+
+As caixas laterais e o texto de mestre viram os **dez desafios de acesso** com os números
+do livro: `ARROMBAR (DT 10, PA 10)`, `DESTRANCAR (senha: 3d6, 3 tentativas)`, a tabela
+de faixas do Hack Técnico (uma conta por faixa no painel; segundos por faixa no
+computador), as seis perguntas do Hack Social do celular, a estante como obstáculo de
+Sustentar. A senha **não** vem sorteada — quem sorteia é o mestre, na ficha, senão ela
+viajaria à vista de todos. Os handouts citados (*"Mostre o HANDOUT 06"*) viram a imagem
 na descrição de mestre do ponto.
+
+E o que não é ponto nem desafio também entra: a faca de churrasco e os dois molhos de
+chaves como itens; o roteiro do ato (introdução, cena inicial com a legenda do mapa,
+narração final) e *A Maldição do Ídolo de Pedra* como diários de mestre; e a tabela da
+maldição como **roteiro por rodada** da investigação — `Nova rodada` põe a narração no
+card e o efeito só para o mestre, e o painel mostra o que vem a seguir.
 
 Sem o PDF, o compêndio da aventura simplesmente não existe, e os demais funcionam
 normalmente.

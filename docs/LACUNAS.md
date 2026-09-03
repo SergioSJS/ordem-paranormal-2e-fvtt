@@ -329,5 +329,15 @@ Todas as caixas de acesso do porão têm campo no `desafio-acesso`:
   Não é o minigame de Destrancar, que sorteia; vira informação na descrição de mestre do
   ponto, e o desafio não existe.
 
+- **A Dívida Precisa Ser Paga** — a investigação ganhou `eventos` (rodada, narração,
+  efeito). `avancarRodada()` põe a narração no card da rodada que começa e o efeito só
+  para o mestre; o painel lista o roteiro com a próxima rodada em destaque. O que não
+  cabe em campo (ativação, "A Dívida Foi Paga", "Ídolo Quebrado") vira o diário de
+  mestre "A Maldição do Ídolo de Pedra".
+- **Linhas condicionais** ("apenas Victor", "se o ídolo for quebrado") entram como
+  rascunho: Examinar não as alcança, o mestre libera quando a condição acontece. "ou
+  Tecnologia" é perícia alternativa e segue descobrível — o sistema testa uma perícia
+  por linha, a alternativa fica no texto.
+
 O que segue fora: o Ato II (outro capítulo do playtest, com os próprios pontos e as
 reações de ferramenta) não é gerado — o compêndio cobre o Ato I.

@@ -17,12 +17,15 @@ da spec e das amostras visuais; extraia dele em vez de adivinhar.
 
 ## Estado
 
-**Fase:** 4 — combate simplificado, ferimentos/traumas, Ajuda e uso de habilidades:
-**fechada**. Fases 1 a 3 fechadas.
-**Versão:** 0.0.1
-**Próximo:** compêndios (ferramentas da Ordo Realitas, perfis) e o que o playtest ainda
-não publicou (NEX, progressão, traumas permanentes). Validação em v13 **adiada por
-decisão do projeto** — o sistema declara `minimum: 13`, mas só o v14 foi exercitado.
+**Fases 1 a 4 fechadas; compêndios fechados.** O sistema entrega o Ato I inteiro por um
+único `Adventure` (`Ato I — O Porão`): cena murada, trilha, pré-gerados, handouts, 31
+pontos de interesse com 86 linhas de quadro, 10 desafios, itens de mesa, roteiro e
+maldição rodada a rodada, tudo vinculado e em pastas. Pronto para a rodada de teste
+manual que fecha a v1.
+**Versão:** 0.0.1 (a v1 é decisão de release).
+**Próximo:** Ato II do PDF (mesma estrutura) e o que o playtest ainda não publicou
+(NEX, progressão, traumas permanentes). Validação em v13 **adiada por decisão do
+projeto** — o sistema declara `minimum: 13`, mas só o v14 foi exercitado.
 
 ## Convenções
 

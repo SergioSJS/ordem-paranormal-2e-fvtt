@@ -30,10 +30,14 @@ sheets/ · dialogs · chat   apresentação
 | `module/dice/` | Escada, análise, `OP2Roll`, diálogo de teste, seleção de dados, falha crítica. |
 | `module/sheets/` | Fichas de ator e item. |
 | `module/ui/` | Ícones de dado, helpers de Handlebars, listeners de chat. |
-| `module/cena/` | Cena: encerrar, regras puras de investigação, ações, painel, rodadas e sobrecarga. |
+| `module/cena/` | Cena: investigação ativa, painel, rodadas (sobrecarga e roteiro por rodada), ações de investigação/desafio/ferramenta/combate/ajuda, os três apps de minigame (Destrancar, Laboratório, Rádio), Ímpeto, ferimentos e queda. Regras puras em `investigacao.mjs`, `desafios.mjs`, `combate.mjs`, `ajuda.mjs`, `ferimentos.mjs`. |
 | `module/settings/` | Registro dos settings. Um por lacuna do playtest. |
 | `module/tests/` | `node --test`, sem runner externo. |
 | `templates/partials/` | Peças reutilizadas: controle de dado, linha de perícia, trilha de recurso. |
+| `scripts/build-packs.mjs` | Compila `packs/sources/` em LevelDB direto (o `fvtt package pack` devolvia banco vazio com documento embutido). |
+| `scripts/ato-i/` | `extrair-aventura.py` lê o PDF (pontos, quadro, caixas, maldição, itens, roteiro); `gerar-aventura.mjs` monta o `Adventure`; `importar-cena.mjs` traz a cena murada do mundo; `copiar-assets.mjs` recopia as artes. |
+| `scripts/reparar-pastas-compendio.mjs` | Refaz as pastas de compêndio de um mundo que as perdeu (o Foundry só as materializa quando a lista de packs muda). |
+| `assets/ato-i/` | As artes do Ato I que os compêndios referenciam. |
 
 ## Decisões que valem repetir
 

@@ -401,7 +401,9 @@
       "MoverParaCima": "Move up in order",
       "MoverParaBaixo": "Move down in order",
       "LimparRevelacao": "Undo this line's discovery (for everyone)",
-      "RevelacaoLimpa": "Discovery undone for: {nomes}."
+      "RevelacaoLimpa": "Discovery undone for: {nomes}.",
+      "Eventos": "Scene script",
+      "EventosAjuda": "What happens at the start of each marked round. The narration goes to the round card; only the GM sees the effect."
     },
     "Rodada": {
       "Titulo": "Round {rodada}",

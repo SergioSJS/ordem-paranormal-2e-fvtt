@@ -119,6 +119,18 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
         proximoDano: danoSobrecarga(sobrecarga.tabela, Math.max(rodada, 1)),
         tabela: sobrecarga.tabela.map((linha, indice) => ({ ...linha, indice })),
       },
+      // O roteiro da cena (só o mestre vê): o que acontece em cada rodada marcada, com
+      // a próxima em destaque — para ele ver o que vem antes de apertar "Nova rodada".
+      eventos: ehGM
+        ? [...(investigacao?.system.eventos ?? [])]
+          .sort((a, b) => a.rodada - b.rodada)
+          .map((e) => ({
+            ...e,
+            passado: e.rodada < rodada,
+            proximo: e.rodada === [...(investigacao?.system.eventos ?? [])]
+              .map((x) => x.rodada).filter((r) => r >= rodada).sort((a, b) => a - b)[0],
+          }))
+        : [],
     };
   }
 

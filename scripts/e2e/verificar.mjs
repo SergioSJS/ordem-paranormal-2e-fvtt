@@ -1735,6 +1735,18 @@ const relato = await page.evaluate(async () => {
       await definirInvestigacaoAtiva(invEvento.uuid);
       await game.op2.avancarRodada();          // rodada 1: nada
       const semEvento = game.messages.contents.at(-1)?.content ?? "";
+
+      // O painel mostra o roteiro ao mestre, com a próxima rodada marcada em destaque.
+      const painelRoteiro = await game.op2.painelInvestigacao();
+      await esperar(600);
+      const elRoteiro = painelRoteiro?.element ?? document.querySelector("#op2-painel-investigacao");
+      ok("o painel lista o roteiro da cena para o mestre",
+        elRoteiro?.querySelectorAll(".op2-eventos__item").length === 1
+        && /símbolo pulsa/i.test(elRoteiro.querySelector(".op2-eventos__narracao")?.textContent ?? ""));
+      ok("e destaca a próxima rodada com evento",
+        Boolean(elRoteiro?.querySelector(".op2-eventos__item--proximo")));
+      // O painel é um só (singleton): fechar aqui derrubava o `painel` que as
+      // verificações do laser, mais adiante, ainda usam.
       await game.op2.avancarRodada();          // rodada 2: o evento
       const comEvento = game.messages.contents.at(-1)?.content ?? "";
       ok("card da rodada sem evento não inventa nada", !/símbolo pulsa/i.test(semEvento));

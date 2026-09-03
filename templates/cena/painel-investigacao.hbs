@@ -308,6 +308,24 @@
     </section>
 
     {{#if ehGM}}
+      {{#if eventos.length}}
+        <section class="op2-painel-secao op2-painel-eventos">
+          <h3 class="op2-painel-titulo">{{localize "OP2.Painel.Eventos"}}</h3>
+          <p class="op2-ajuda">{{localize "OP2.Painel.EventosAjuda"}}</p>
+          <ol class="op2-eventos">
+            {{#each eventos}}
+              <li class="op2-eventos__item{{#if passado}} op2-eventos__item--passado{{/if}}{{#if proximo}} op2-eventos__item--proximo{{/if}}">
+                <span class="op2-eventos__rodada">{{localize "OP2.Rodada.Titulo" rodada=rodada}}</span>
+                <div class="op2-eventos__texto">
+                  {{#if narracao}}<div class="op2-eventos__narracao">{{{narracao}}}</div>{{/if}}
+                  {{#if efeito}}<div class="op2-eventos__efeito">{{{efeito}}}</div>{{/if}}
+                </div>
+              </li>
+            {{/each}}
+          </ol>
+        </section>
+      {{/if}}
+
       <section class="op2-painel-secao op2-painel-sobrecarga">
         <h3 class="op2-painel-titulo">{{localize "OP2.Painel.Sobrecarga"}}</h3>
         <label class="op2-campo op2-campo--inline">

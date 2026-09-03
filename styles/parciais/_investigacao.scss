@@ -680,3 +680,31 @@ summary.op2-painel-titulo { cursor: pointer; }
 }
 
 }
+
+// Roteiro da cena no painel: o que vem em cada rodada marcada, com o próximo aceso.
+.op2-eventos {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: var(--op2-e2);
+    padding: var(--op2-e1) 0;
+    border-bottom: 1px dashed var(--op2-linha);
+
+    &--passado { color: var(--op2-texto-fraco); }
+    &--proximo .op2-eventos__rodada { color: var(--op2-vermelho-claro); }
+  }
+
+  &__rodada {
+    font-family: var(--op2-fonte-display);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__narracao { font-style: italic; }
+  &__efeito { color: var(--op2-texto-fraco); font-size: 0.9em; }
+  &__narracao p, &__efeito p { margin: 0 0 var(--op2-e1); }
+}
