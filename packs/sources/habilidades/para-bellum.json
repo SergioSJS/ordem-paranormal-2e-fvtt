@@ -1,0 +1,29 @@
+{
+  "_id": "4f131ea300c4cf27",
+  "_key": "!items!4f131ea300c4cf27",
+  "name": "Para Bellum",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/para-bellum.svg",
+  "system": {
+    "origem": "ocupacao",
+    "perfil": "",
+    "custo": "",
+    "descricao": "<p>Você recebe <strong>proficiência</strong> com armas de fogo e seu dano com essas armas aumenta em <strong>+2</strong>.</p>",
+    "efeito": {
+      "tipo": "nenhum",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [],
+      "permitirD20": false
+    },
+    "usoEmInvestigacao": "",
+    "custoPD": 0
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

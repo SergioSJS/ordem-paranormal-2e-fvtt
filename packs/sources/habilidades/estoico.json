@@ -1,0 +1,31 @@
+{
+  "_id": "197916fab9e86c0d",
+  "_key": "!items!197916fab9e86c0d",
+  "name": "Estoico",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/estoico.svg",
+  "system": {
+    "origem": "nivel",
+    "perfil": "",
+    "custo": "",
+    "descricao": "<p>Você recebe <strong>+d6</strong> em testes de trauma e, na primeira vez em que cada cena que faz um teste de trauma, recupera <strong>9 PD</strong>.</p>",
+    "efeito": {
+      "tipo": "dado-extra",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [
+        "disciplina"
+      ],
+      "permitirD20": false
+    },
+    "usoEmInvestigacao": "",
+    "custoPD": 0
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

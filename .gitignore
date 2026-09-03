@@ -10,6 +10,7 @@ docs/Ordem-2-Playtest-Alpha-Ato-II-Extras/
 # A aventura é gerada do PDF (npm run ato-i:extrair && npm run ato-i:gerar-aventura):
 # o texto dos pontos de interesse é da editora, como o PDF e as artes.
 packs/sources/ato-i-aventura/
+packs/sources/ato-ii-aventura/
 build/
 
 node_modules/
@@ -35,6 +36,7 @@ packs/ato-i-handouts/
 packs/ato-i-aventura/
 packs/ato-i-cenas/
 packs/ato-i-musicas/
+packs/ato-ii-aventura/
 
 .fvtt-config
 .vscode/settings.json

@@ -1,0 +1,29 @@
+{
+  "_id": "1a28d6217a3e53e5",
+  "_key": "!items!1a28d6217a3e53e5",
+  "name": "Técnica Medicinal",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/tecnica-medicinal.svg",
+  "system": {
+    "origem": "ocupacao",
+    "perfil": "",
+    "custo": "",
+    "descricao": "<p>Sempre que você usa um efeito que <strong>cura</strong> pontos de vida, seu efeito cura <strong>+1 PV</strong> (ou <strong>+1 PV</strong> por dado).</p>",
+    "efeito": {
+      "tipo": "nenhum",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [],
+      "permitirD20": false
+    },
+    "usoEmInvestigacao": "",
+    "custoPD": 0
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

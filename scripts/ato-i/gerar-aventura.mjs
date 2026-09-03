@@ -18,11 +18,10 @@
  */
 import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { createHash } from "node:crypto";
+import { ident, semAcento, palavras, afinidade, arquivoPublico, tituloLegivel, pasta, em } from "../aventura/comum.mjs";
 
 const FONTES = "packs/sources";
 const DESTINO = join(FONTES, "ato-i-aventura", "ato-i.json");
-const ident = (semente) => createHash("sha1").update(semente).digest("hex").slice(0, 16);
 
 const ler = (pasta) => readdirSync(join(FONTES, pasta))
   .filter((a) => a.endsWith(".json"))
@@ -56,21 +55,6 @@ const HANDOUTS = readdirSync("docs/Arquivos para o público - Ato I/Handouts")
     return mapa;
   }, {});
 
-const semAcento = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-/** Palavras que distinguem um ponto do outro — o resto é cola. */
-const CHAVES_FRACAS = new Set(["de", "do", "da", "dos", "das", "e", "o", "a", "os", "as",
-  "no", "na", "em", "um", "uma", "poster", "handout", "foto", "conversa"]);
-const palavras = (t) => new Set(semAcento(t).toLowerCase().split(/[^a-z0-9]+/)
-  .filter((w) => w.length > 2 && !CHAVES_FRACAS.has(w)));
-/** Quanto o título impresso do handout combina com o nome do ponto. */
-function afinidade(arquivo, nome) {
-  const alvo = palavras(nome);
-  return [...palavras(arquivo.replace(/^Handout \d+[A-C]?\s*-?\s*/i, "").replace(/\.\w+$/, ""))]
-    .filter((w) => alvo.has(w)).length;
-}
-const arquivoPublico = (nome) => semAcento(nome).toLowerCase()
-  .replace(/[^a-z0-9.]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
 
 /**
  * Pontos de interesse do porão, extraídos do PDF do playtest.
@@ -169,18 +153,6 @@ function pontosDoPorao() {
     });
 }
 
-/** "DEPÓSITO A, MOLHO DE CHAVES" → "Depósito A, Molho de Chaves". */
-function tituloLegivel(nome) {
-  // "a" e "o" sozinhos podem ser artigo ou identificador ("Depósito A"): só viram
-  // minúscula quando há mais de uma letra.
-  const minusculas = new Set(["de", "do", "da", "dos", "das", "no", "na", "em", "ou", "e"]);
-  return nome.toLowerCase().split(/\s+/)
-    .map((palavra, i) => (i > 0 && minusculas.has(palavra.replace(/[^a-zà-ú]/g, ""))
-      ? palavra
-      : palavra.charAt(0).toUpperCase() + palavra.slice(1)))
-    .join(" ");
-}
-
 /**
  * Desafios de acesso do porão, das caixas laterais do PDF.
  *
@@ -275,13 +247,6 @@ function desafioDoPonto(ponto) {
  * diretório. O Foundry cria as pastas junto com o conteúdo, uma árvore por tipo.
  */
 const RAIZ = "Ato I — O Porão";
-function pasta(tipo, nome, pai = null, sort = 0) {
-  return {
-    _id: ident(`pasta-${tipo}-${nome}`),
-    name: nome, type: tipo, folder: pai,
-    sorting: "m", sort, color: "#7f1d1d", description: "", flags: {},
-  };
-}
 
 const pastas = {
   atores: pasta("Actor", RAIZ),
@@ -294,8 +259,6 @@ pastas.pregerados = pasta("Actor", "Pré-gerados", pastas.atores._id, 100);
 pastas.pontos = pasta("Item", "Pontos de Interesse", pastas.itens._id, 100);
 pastas.desafios = pasta("Item", "Desafios de Acesso", pastas.itens._id, 200);
 
-/** Põe o documento na pasta e devolve ele — o import respeita o campo `folder`. */
-const em = (destino) => (doc) => ({ ...doc, folder: destino._id });
 
 /** A faca de churrasco e os dois molhos de chaves, do texto do livro. */
 function itensDoPorao() {

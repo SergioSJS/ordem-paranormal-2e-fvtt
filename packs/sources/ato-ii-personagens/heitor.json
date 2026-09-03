@@ -1,0 +1,276 @@
+{
+  "_id": "cda311cb1b4d4d09",
+  "name": "Heitor",
+  "type": "personagem",
+  "img": "systems/ordem-paranormal-2e/assets/ato-ii/tokens/personagem-heitor.png",
+  "system": {
+    "tipo": "agente",
+    "perfil": "executor",
+    "ocupacao": "Policial",
+    "nivel": 6,
+    "nex": 0,
+    "atributos": {
+      "fisico": {
+        "die": "d10"
+      },
+      "mente": {
+        "die": "d6"
+      },
+      "emocao": {
+        "die": "d8"
+      }
+    },
+    "pericias": {
+      "acrobacia": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "aptidao": {
+        "die": "d8",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "atletismo": {
+        "die": "d10",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "crime": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "disciplina": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "enganacao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "furtividade": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "intimidar": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "intuicao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "luta": {
+        "die": "d10",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "maquinas": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "medicina": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "ocultismo": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "percepcao": {
+        "die": "d10",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "persuasao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "pesquisar": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "pontaria": {
+        "die": "d8",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "sobrevivencia": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "tecnologia": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "vigor": {
+        "die": "d8",
+        "atributo": "fisico",
+        "stepMod": 0
+      }
+    },
+    "aptidoes": {
+      "artes": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "atualidades": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "burocracia": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "exatas": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "humanas": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "tatica": {
+        "rotulo": "",
+        "die": "d8"
+      }
+    },
+    "recursos": {
+      "pv": {
+        "value": 34,
+        "max": 34
+      },
+      "pd": {
+        "value": 20,
+        "max": 20
+      }
+    },
+    "biografia": "<p><img src=\"systems/ordem-paranormal-2e/assets/ato-ii/historicos/historico-heitor.jpg\" alt=\"Histórico — Heitor\"></p>"
+  },
+  "items": [
+    {
+      "_id": "0c9a614f622f0602",
+      "name": "Ímpeto",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/impeto.svg",
+      "system": {
+        "origem": "perfil",
+        "perfil": "executor",
+        "custo": "",
+        "descricao": "<p>Você possui uma <strong>barra de ímpeto</strong> com cinco espaços. Sempre que <strong>falha</strong> em um <strong>teste</strong>, você preenche um espaço na barra.</p><p>Você pode apagar espaços preenchidos para:</p><ul><li>1 espaço: receber <strong>+d4</strong> em um teste.</li><li>2 espaços: receber <strong>+d10</strong> em um teste.</li><li>3 espaços: aumentar um <strong>atributo</strong> em um <strong>passo</strong> até o fim da cena.</li><li>5 espaços: fazer uma <strong>ação extra</strong> na rodada.</li></ul>",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": "",
+        "impeto": {
+          "espacos": 5,
+          "preenchidos": 0
+        }
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 100,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!cda311cb1b4d4d09.0c9a614f622f0602"
+    },
+    {
+      "_id": "2bfba71227476eea",
+      "name": "Incansável",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/incansavel.svg",
+      "system": {
+        "origem": "nivel",
+        "perfil": "",
+        "custo": "5 PV",
+        "descricao": "<p>Uma vez por cena de conflito, você pode gastar <strong>5 PV</strong> para fazer uma ação extra.</p>",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": "",
+        "custoPD": 0
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 200,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!cda311cb1b4d4d09.2bfba71227476eea"
+    },
+    {
+      "_id": "9496d3be553c5145",
+      "name": "Linha de Tiro",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/linha-de-tiro.svg",
+      "system": {
+        "origem": "ocupacao",
+        "perfil": "",
+        "custo": "4 PD",
+        "descricao": "<p>Você recebe proficiência com <strong>armas de fogo</strong> e, quando faz um teste de ataque com essas armas, pode gastar <strong>4 PD</strong> para receber <strong>+d10</strong> no teste.</p>",
+        "efeito": {
+          "tipo": "dado-extra",
+          "passos": 1,
+          "dado": "d10",
+          "chaves": [
+            "pontaria"
+          ],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": "",
+        "custoPD": 4
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 300,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!cda311cb1b4d4d09.9496d3be553c5145"
+    }
+  ],
+  "prototypeToken": {
+    "name": "Heitor",
+    "texture": {
+      "src": "systems/ordem-paranormal-2e/assets/ato-ii/tokens/token-heitor.png"
+    },
+    "actorLink": true,
+    "disposition": 1,
+    "sight": {
+      "enabled": true
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!actors!cda311cb1b4d4d09"
+}

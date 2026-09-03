@@ -1,0 +1,270 @@
+{
+  "_id": "9659f37c07c90e89",
+  "name": "Antônio",
+  "type": "personagem",
+  "img": "systems/ordem-paranormal-2e/assets/ato-ii/tokens/personagem-antonio.png",
+  "system": {
+    "tipo": "agente",
+    "perfil": "analista",
+    "ocupacao": "Professor",
+    "nivel": 6,
+    "nex": 0,
+    "atributos": {
+      "fisico": {
+        "die": "d6"
+      },
+      "mente": {
+        "die": "d12"
+      },
+      "emocao": {
+        "die": "d6"
+      }
+    },
+    "pericias": {
+      "acrobacia": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "aptidao": {
+        "die": "d10",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "atletismo": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "crime": {
+        "die": "d8",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "disciplina": {
+        "die": "d10",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "enganacao": {
+        "die": "d8",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "furtividade": {
+        "die": "d6",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "intimidar": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "intuicao": {
+        "die": "d8",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "luta": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "maquinas": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "medicina": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "ocultismo": {
+        "die": "d10",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "percepcao": {
+        "die": "d8",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "persuasao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "pesquisar": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "pontaria": {
+        "die": "d6",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "sobrevivencia": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "tecnologia": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "vigor": {
+        "die": "d8",
+        "atributo": "fisico",
+        "stepMod": 0
+      }
+    },
+    "aptidoes": {
+      "artes": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "atualidades": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "burocracia": {
+        "rotulo": "",
+        "die": "d8"
+      },
+      "exatas": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "humanas": {
+        "rotulo": "",
+        "die": "d10"
+      },
+      "tatica": {
+        "rotulo": "",
+        "die": "d4"
+      }
+    },
+    "recursos": {
+      "pv": {
+        "value": 24,
+        "max": 24
+      },
+      "pd": {
+        "value": 24,
+        "max": 24
+      }
+    },
+    "biografia": "<p><img src=\"systems/ordem-paranormal-2e/assets/ato-ii/historicos/historico-antonio.jpg\" alt=\"Histórico — Antônio\"></p>"
+  },
+  "items": [
+    {
+      "_id": "f696c3eaf2f9799b",
+      "name": "Amor pela Descoberta",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/amor-pela-descoberta.svg",
+      "system": {
+        "origem": "nivel",
+        "perfil": "",
+        "custo": "",
+        "descricao": "<p>Quando <strong>examina</strong> um ponto de interesse e recebe uma informação nova, você recupera <strong>1 PD</strong>.</p>",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": "<p>Examinar que revela informação nova devolve 1 PD.</p>",
+        "custoPD": 0
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 100,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!9659f37c07c90e89.f696c3eaf2f9799b"
+    },
+    {
+      "_id": "f983aacc08ac9182",
+      "name": "Avaliação",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/avaliacao.svg",
+      "system": {
+        "origem": "perfil",
+        "perfil": "analista",
+        "custo": "1 ação + 2 PD",
+        "descricao": "<p>Você pode gastar <strong>uma ação e 2 PD</strong> para observar um ser ou um ambiente. Você recebe <strong>dois d4</strong> que pode usar em testes relativos àquele ser ou ambiente (você pode usá-los como quiser, recebendo <strong>+2d4</strong> em um teste ou <strong>+d4</strong> em dois testes). Você não pode acumular mais do que dois dados bônus por esta habilidade.</p>",
+        "efeito": {
+          "tipo": "dado-extra",
+          "passos": 1,
+          "dado": "d4",
+          "chaves": [],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": "<p>Observar o ponto de interesse antes de examinar: os d4 valem nos testes sobre aquele ambiente.</p>",
+        "custoPD": 2
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 200,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!9659f37c07c90e89.f983aacc08ac9182"
+    },
+    {
+      "_id": "4371854a601b2b94",
+      "name": "Mentoria",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/mentoria.svg",
+      "system": {
+        "origem": "ocupacao",
+        "perfil": "",
+        "custo": "",
+        "descricao": "<p>Quando <strong>ajuda</strong> outro personagem, você pode fazer um teste da perícia que usou para ajudar contra <strong>DT 7</strong>. Se passar, o personagem ajudado pode substituir um dos dados rolados por ele pela sua <strong>rolagem alta</strong>.</p>",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": ""
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 300,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!9659f37c07c90e89.4371854a601b2b94"
+    }
+  ],
+  "prototypeToken": {
+    "name": "Antônio",
+    "texture": {
+      "src": "systems/ordem-paranormal-2e/assets/ato-ii/tokens/token-antonio.png"
+    },
+    "actorLink": true,
+    "disposition": 1,
+    "sight": {
+      "enabled": true
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!actors!9659f37c07c90e89"
+}

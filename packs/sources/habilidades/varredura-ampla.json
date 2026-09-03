@@ -1,0 +1,29 @@
+{
+  "_id": "a005da6f4bd62d41",
+  "_key": "!items!a005da6f4bd62d41",
+  "name": "Varredura Ampla",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/varredura-ampla.svg",
+  "system": {
+    "origem": "nivel",
+    "perfil": "",
+    "custo": "",
+    "descricao": "<p>Quando <strong>investiga</strong> um ponto de interesse, você pode escolher duas perícias e receber informações de ambas.</p>",
+    "efeito": {
+      "tipo": "nenhum",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [],
+      "permitirD20": false
+    },
+    "usoEmInvestigacao": "<p>Ao investigar um ponto, escolha duas perícias: o mestre entrega as informações que as duas alcançam.</p>",
+    "custoPD": 0
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

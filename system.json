@@ -83,6 +83,17 @@
       }
     },
     {
+      "name": "ato-ii-aventura",
+      "label": "Ato II — A Aventura",
+      "path": "packs/ato-ii-aventura",
+      "type": "Adventure",
+      "system": "ordem-paranormal-2e",
+      "ownership": {
+        "PLAYER": "NONE",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
       "name": "habilidades",
       "label": "Habilidades",
       "path": "packs/habilidades",
@@ -187,6 +198,14 @@
             "ato-i-cenas",
             "ato-i-handouts",
             "ato-i-musicas"
+          ]
+        },
+        {
+          "name": "Ato II — A Maldição do Ídolo de Pedra",
+          "sorting": "m",
+          "color": "#8f2315",
+          "packs": [
+            "ato-ii-aventura"
           ]
         }
       ]

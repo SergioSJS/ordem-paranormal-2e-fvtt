@@ -1,0 +1,273 @@
+{
+  "_id": "c8d9903458115d44",
+  "name": "Amanda",
+  "type": "personagem",
+  "img": "systems/ordem-paranormal-2e/assets/ato-ii/tokens/personagem-amanda.png",
+  "system": {
+    "tipo": "agente",
+    "perfil": "analista",
+    "ocupacao": "Cientista",
+    "nivel": 6,
+    "nex": 0,
+    "atributos": {
+      "fisico": {
+        "die": "d8"
+      },
+      "mente": {
+        "die": "d8"
+      },
+      "emocao": {
+        "die": "d8"
+      }
+    },
+    "pericias": {
+      "acrobacia": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "aptidao": {
+        "die": "d8",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "atletismo": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "crime": {
+        "die": "d6",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "disciplina": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "enganacao": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "furtividade": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "intimidar": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "intuicao": {
+        "die": "d8",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "luta": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "maquinas": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "medicina": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "ocultismo": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "percepcao": {
+        "die": "d10",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "persuasao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "pesquisar": {
+        "die": "d10",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "pontaria": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "sobrevivencia": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "tecnologia": {
+        "die": "d10",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "vigor": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      }
+    },
+    "aptidoes": {
+      "artes": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "atualidades": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "burocracia": {
+        "rotulo": "",
+        "die": "d8"
+      },
+      "exatas": {
+        "rotulo": "",
+        "die": "d8"
+      },
+      "humanas": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "tatica": {
+        "rotulo": "",
+        "die": "d4"
+      }
+    },
+    "recursos": {
+      "pv": {
+        "value": 26,
+        "max": 26
+      },
+      "pd": {
+        "value": 26,
+        "max": 26
+      }
+    },
+    "biografia": "<p><img src=\"systems/ordem-paranormal-2e/assets/ato-ii/historicos/historico-amanda.jpg\" alt=\"Histórico — Amanda\"></p>"
+  },
+  "items": [
+    {
+      "_id": "718e9d2d123f098a",
+      "name": "Avaliação",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/avaliacao.svg",
+      "system": {
+        "origem": "perfil",
+        "perfil": "analista",
+        "custo": "1 ação + 2 PD",
+        "descricao": "<p>Você pode gastar <strong>uma ação e 2 PD</strong> para observar um ser ou um ambiente. Você recebe <strong>dois d4</strong> que pode usar em testes relativos àquele ser ou ambiente (você pode usá-los como quiser, recebendo <strong>+2d4</strong> em um teste ou <strong>+d4</strong> em dois testes). Você não pode acumular mais do que dois dados bônus por esta habilidade.</p>",
+        "efeito": {
+          "tipo": "dado-extra",
+          "passos": 1,
+          "dado": "d4",
+          "chaves": [],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": "<p>Observar o ponto de interesse antes de examinar: os d4 valem nos testes sobre aquele ambiente.</p>",
+        "custoPD": 2
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 100,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!c8d9903458115d44.718e9d2d123f098a"
+    },
+    {
+      "_id": "f77aaf7331077e9b",
+      "name": "Foco Mental",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/foco-mental.svg",
+      "system": {
+        "origem": "ocupacao",
+        "perfil": "",
+        "custo": "4 PD",
+        "descricao": "<p>Quando faz um <strong>teste mental</strong>, você pode gastar <strong>4 PD</strong> para receber <strong>+d8</strong> no teste.</p>",
+        "efeito": {
+          "tipo": "dado-extra",
+          "passos": 1,
+          "dado": "d8",
+          "chaves": [
+            "mente"
+          ],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": "",
+        "custoPD": 4
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 200,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!c8d9903458115d44.f77aaf7331077e9b"
+    },
+    {
+      "_id": "95303e3db234d8e0",
+      "name": "Olhar Infalível",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/olhar-infalivel.svg",
+      "system": {
+        "origem": "nivel",
+        "perfil": "",
+        "custo": "2 PD",
+        "descricao": "<p>Quando faz um <strong>teste de examinar</strong>, você pode gastar <strong>2 PD</strong> para rolar novamente um dos dados do teste.</p>",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": "<p>Ao Examinar: 2 PD para rolar de novo um dos dados do teste — a mesa aplica a rerrolagem.</p>",
+        "custoPD": 2
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 300,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!c8d9903458115d44.95303e3db234d8e0"
+    }
+  ],
+  "prototypeToken": {
+    "name": "Amanda",
+    "texture": {
+      "src": "systems/ordem-paranormal-2e/assets/ato-ii/tokens/token-amanda.png"
+    },
+    "actorLink": true,
+    "disposition": 1,
+    "sight": {
+      "enabled": true
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!actors!c8d9903458115d44"
+}

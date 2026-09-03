@@ -1,0 +1,29 @@
+{
+  "_id": "d087ab00084abd72",
+  "_key": "!items!d087ab00084abd72",
+  "name": "Incansável",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/incansavel.svg",
+  "system": {
+    "origem": "nivel",
+    "perfil": "",
+    "custo": "5 PV",
+    "descricao": "<p>Uma vez por cena de conflito, você pode gastar <strong>5 PV</strong> para fazer uma ação extra.</p>",
+    "efeito": {
+      "tipo": "nenhum",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [],
+      "permitirD20": false
+    },
+    "usoEmInvestigacao": "",
+    "custoPD": 0
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

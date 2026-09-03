@@ -1,0 +1,276 @@
+{
+  "_id": "a30e6cd4b30badec",
+  "name": "Raven",
+  "type": "personagem",
+  "img": "systems/ordem-paranormal-2e/assets/ato-ii/tokens/personagem-raven.png",
+  "system": {
+    "tipo": "agente",
+    "perfil": "executor",
+    "ocupacao": "Militar",
+    "nivel": 6,
+    "nex": 0,
+    "atributos": {
+      "fisico": {
+        "die": "d10"
+      },
+      "mente": {
+        "die": "d8"
+      },
+      "emocao": {
+        "die": "d6"
+      }
+    },
+    "pericias": {
+      "acrobacia": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "aptidao": {
+        "die": "d10",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "atletismo": {
+        "die": "d8",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "crime": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "disciplina": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "enganacao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "furtividade": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "intimidar": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "intuicao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "luta": {
+        "die": "d6",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "maquinas": {
+        "die": "d10",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "medicina": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "ocultismo": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "percepcao": {
+        "die": "d8",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "persuasao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "pesquisar": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "pontaria": {
+        "die": "d10",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "sobrevivencia": {
+        "die": "d8",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "tecnologia": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "vigor": {
+        "die": "d10",
+        "atributo": "fisico",
+        "stepMod": 0
+      }
+    },
+    "aptidoes": {
+      "artes": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "atualidades": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "burocracia": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "exatas": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "humanas": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "tatica": {
+        "rotulo": "",
+        "die": "d10"
+      }
+    },
+    "recursos": {
+      "pv": {
+        "value": 28,
+        "max": 28
+      },
+      "pd": {
+        "value": 24,
+        "max": 24
+      }
+    },
+    "biografia": "<p><img src=\"systems/ordem-paranormal-2e/assets/ato-ii/historicos/historico-raven.jpg\" alt=\"Histórico — Raven\"></p>"
+  },
+  "items": [
+    {
+      "_id": "77bb8e41697dee66",
+      "name": "Estoico",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/estoico.svg",
+      "system": {
+        "origem": "nivel",
+        "perfil": "",
+        "custo": "",
+        "descricao": "<p>Você recebe <strong>+d6</strong> em testes de trauma e, na primeira vez em que cada cena que faz um teste de trauma, recupera <strong>9 PD</strong>.</p>",
+        "efeito": {
+          "tipo": "dado-extra",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [
+            "disciplina"
+          ],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": "",
+        "custoPD": 0
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 100,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!a30e6cd4b30badec.77bb8e41697dee66"
+    },
+    {
+      "_id": "d77a16ca39eb4bec",
+      "name": "Ímpeto",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/impeto.svg",
+      "system": {
+        "origem": "perfil",
+        "perfil": "executor",
+        "custo": "",
+        "descricao": "<p>Você possui uma <strong>barra de ímpeto</strong> com três espaços. Sempre que <strong>falha</strong> em um <strong>teste</strong>, você preenche um espaço na barra.</p><p>Você pode apagar espaços preenchidos para:</p><ul><li>1 espaço: receber <strong>+d4</strong> em um teste.</li><li>3 espaços: aumentar um <strong>atributo</strong> em um <strong>passo</strong> até o fim da cena.</li></ul>",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": "",
+        "impeto": {
+          "espacos": 3,
+          "preenchidos": 0
+        }
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 200,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!a30e6cd4b30badec.d77a16ca39eb4bec"
+    },
+    {
+      "_id": "5c45741b31209d72",
+      "name": "Para Bellum",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/para-bellum.svg",
+      "system": {
+        "origem": "ocupacao",
+        "perfil": "",
+        "custo": "",
+        "descricao": "<p>Você recebe <strong>proficiência</strong> com armas de fogo e seu dano com essas armas aumenta em <strong>+2</strong>.</p>",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": "",
+        "custoPD": 0
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 300,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!a30e6cd4b30badec.5c45741b31209d72"
+    }
+  ],
+  "prototypeToken": {
+    "name": "Raven",
+    "texture": {
+      "src": "systems/ordem-paranormal-2e/assets/ato-ii/tokens/token-raven.png"
+    },
+    "actorLink": true,
+    "disposition": 1,
+    "sight": {
+      "enabled": true
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!actors!a30e6cd4b30badec"
+}

@@ -1,0 +1,271 @@
+{
+  "_id": "7b6dfaf42e9fb0c1",
+  "name": "Val",
+  "type": "personagem",
+  "img": "systems/ordem-paranormal-2e/assets/ato-ii/tokens/personagem-val.png",
+  "system": {
+    "tipo": "agente",
+    "perfil": "vigilante",
+    "ocupacao": "Médico",
+    "nivel": 6,
+    "nex": 0,
+    "atributos": {
+      "fisico": {
+        "die": "d6"
+      },
+      "mente": {
+        "die": "d10"
+      },
+      "emocao": {
+        "die": "d8"
+      }
+    },
+    "pericias": {
+      "acrobacia": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "aptidao": {
+        "die": "d10",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "atletismo": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "crime": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "disciplina": {
+        "die": "d10",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "enganacao": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "furtividade": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "intimidar": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "intuicao": {
+        "die": "d8",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "luta": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "maquinas": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "medicina": {
+        "die": "d10",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "ocultismo": {
+        "die": "d8",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "percepcao": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "persuasao": {
+        "die": "d8",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "pesquisar": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "pontaria": {
+        "die": "d10",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "sobrevivencia": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "tecnologia": {
+        "die": "d10",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "vigor": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      }
+    },
+    "aptidoes": {
+      "artes": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "atualidades": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "burocracia": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "exatas": {
+        "rotulo": "",
+        "die": "d10"
+      },
+      "humanas": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "tatica": {
+        "rotulo": "",
+        "die": "d4"
+      }
+    },
+    "recursos": {
+      "pv": {
+        "value": 18,
+        "max": 18
+      },
+      "pd": {
+        "value": 32,
+        "max": 32
+      }
+    },
+    "biografia": "<p><img src=\"systems/ordem-paranormal-2e/assets/ato-ii/historicos/historico-val.jpg\" alt=\"Histórico — Val\"></p>"
+  },
+  "items": [
+    {
+      "_id": "e90875ba3797196f",
+      "name": "Prontidão",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/prontidao.svg",
+      "system": {
+        "origem": "perfil",
+        "perfil": "vigilante",
+        "custo": "3 PD",
+        "descricao": "<p>No início de qualquer conflito, você pode gastar <strong>3 PD</strong>. Se fizer isso, <strong>ganha uma rodada</strong> na qual pode agir antes dos demais personagens e NPCs.</p><p><em>No painel de investigação, o mestre move você para o topo da Ordem das Rodadas.</em></p>",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": "",
+        "custoPD": 3
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 100,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!7b6dfaf42e9fb0c1.e90875ba3797196f"
+    },
+    {
+      "_id": "7d3f4f441f02f1a3",
+      "name": "Técnica Medicinal",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/tecnica-medicinal.svg",
+      "system": {
+        "origem": "ocupacao",
+        "perfil": "",
+        "custo": "",
+        "descricao": "<p>Sempre que você usa um efeito que <strong>cura</strong> pontos de vida, seu efeito cura <strong>+1 PV</strong> (ou <strong>+1 PV</strong> por dado).</p>",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": "",
+        "custoPD": 0
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 200,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!7b6dfaf42e9fb0c1.7d3f4f441f02f1a3"
+    },
+    {
+      "_id": "b7880ae5bf10c901",
+      "name": "Varredura Ampla",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/varredura-ampla.svg",
+      "system": {
+        "origem": "nivel",
+        "perfil": "",
+        "custo": "",
+        "descricao": "<p>Quando <strong>investiga</strong> um ponto de interesse, você pode escolher duas perícias e receber informações de ambas.</p>",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false
+        },
+        "usoEmInvestigacao": "<p>Ao investigar um ponto, escolha duas perícias: o mestre entrega as informações que as duas alcançam.</p>",
+        "custoPD": 0
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 300,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {},
+      "_key": "!actors.items!7b6dfaf42e9fb0c1.b7880ae5bf10c901"
+    }
+  ],
+  "prototypeToken": {
+    "name": "Val",
+    "texture": {
+      "src": "systems/ordem-paranormal-2e/assets/ato-ii/tokens/token-val.png"
+    },
+    "actorLink": true,
+    "disposition": 1,
+    "sight": {
+      "enabled": true
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!actors!7b6dfaf42e9fb0c1"
+}

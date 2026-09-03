@@ -1,0 +1,29 @@
+{
+  "_id": "8613be8baafd2149",
+  "_key": "!items!8613be8baafd2149",
+  "name": "Olhar Infalível",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/olhar-infalivel.svg",
+  "system": {
+    "origem": "nivel",
+    "perfil": "",
+    "custo": "2 PD",
+    "descricao": "<p>Quando faz um <strong>teste de examinar</strong>, você pode gastar <strong>2 PD</strong> para rolar novamente um dos dados do teste.</p>",
+    "efeito": {
+      "tipo": "nenhum",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [],
+      "permitirD20": false
+    },
+    "usoEmInvestigacao": "<p>Ao Examinar: 2 PD para rolar de novo um dos dados do teste — a mesa aplica a rerrolagem.</p>",
+    "custoPD": 2
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

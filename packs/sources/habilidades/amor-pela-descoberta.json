@@ -1,0 +1,29 @@
+{
+  "_id": "82e58eb0b1e97752",
+  "_key": "!items!82e58eb0b1e97752",
+  "name": "Amor pela Descoberta",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/amor-pela-descoberta.svg",
+  "system": {
+    "origem": "nivel",
+    "perfil": "",
+    "custo": "",
+    "descricao": "<p>Quando <strong>examina</strong> um ponto de interesse e recebe uma informação nova, você recupera <strong>1 PD</strong>.</p>",
+    "efeito": {
+      "tipo": "nenhum",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [],
+      "permitirD20": false
+    },
+    "usoEmInvestigacao": "<p>Examinar que revela informação nova devolve 1 PD.</p>",
+    "custoPD": 0
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

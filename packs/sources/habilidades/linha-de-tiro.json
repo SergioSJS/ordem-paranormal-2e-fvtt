@@ -1,0 +1,31 @@
+{
+  "_id": "4249afc94ca20909",
+  "_key": "!items!4249afc94ca20909",
+  "name": "Linha de Tiro",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/habilidades/linha-de-tiro.svg",
+  "system": {
+    "origem": "ocupacao",
+    "perfil": "",
+    "custo": "4 PD",
+    "descricao": "<p>Você recebe proficiência com <strong>armas de fogo</strong> e, quando faz um teste de ataque com essas armas, pode gastar <strong>4 PD</strong> para receber <strong>+d10</strong> no teste.</p>",
+    "efeito": {
+      "tipo": "dado-extra",
+      "passos": 1,
+      "dado": "d10",
+      "chaves": [
+        "pontaria"
+      ],
+      "permitirD20": false
+    },
+    "usoEmInvestigacao": "",
+    "custoPD": 4
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}
