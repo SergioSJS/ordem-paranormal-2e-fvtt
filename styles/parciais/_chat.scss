@@ -169,8 +169,7 @@
 
 // O roteiro da cena no card da rodada: a narração é HTML do mestre (parágrafos), lida
 // em voz alta; o efeito só ele vê.
-.op2-card__narracao p,
-.op2-card__efeito p { margin: 0 0 var(--op2-e1); }
+.op2-card__narracao p { margin: 0 0 var(--op2-e1); }
 .op2-card__narracao { font-style: italic; }
 
 // Card só do mestre (Interagir): a descrição contextual é bastidor. A faixa diz

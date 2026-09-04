@@ -214,6 +214,8 @@ export function PainelInvestigacaoMixin(Base) {
         // O que a próxima rodada traz, na coluna dos controles: os eventos moram na
         // aba de Preparação, mas "Nova rodada" se decide à esquerda.
         proximoEvento: eventos.map((e) => e.proximaDaCena).filter((r) => r !== null).sort((a, b) => a - b)[0] ?? null,
+        // "Próximo evento: rodada 12" com a cena na 12 confunde: ele é agora.
+        eventoNestaRodada: eventos.some((e) => e.proximaEhAgora),
       };
       contexto.pois = investigacao ? await this.#contextoPois(investigacao, ehGM, contexto.desafios) : [];
       contexto.contagens = { pontos: contexto.pois.length, desafios: contexto.desafios.length };

@@ -288,8 +288,8 @@
       },
       "DtQueFaltava": "GM: the lowest remaining DT for this skill is {dt}.",
       "SemRolar": "no roll",
-      "ExaminarAchou": "the roll revealed {quantidade} new piece(s) of information.",
-      "ExaminarSoGratis": "{quantidade} line(s) from your die size, without rolling.",
+      "ExaminarAchou": "the roll revealed {quantidade} new pieces of information.",
+      "ExaminarSoGratis": "{quantidade} lines from your die size, without rolling.",
       "CriticoExaminar": "reveals what was left for this skill, ignoring the DT.",
       "EventoNarracao": "Narration (for the players)",
       "EventoEfeito": "Effect (GM only)",
@@ -297,9 +297,12 @@
       "InteragirAguarde": "No test. The GM narrates what happens.",
       "InteragirSoMestre": "Only you can see this — the contextual description is the GM's. Narrate the outcome to the table.",
       "InteragirSemContextual": "This point has no contextual description. Narrate by common sense.",
-      "ExaminarGratisTambem": "{quantidade} more line(s) came from your die size, without rolling.",
+      "ExaminarGratisTambem": "{quantidade} more lines came from your die size, without rolling.",
       "ExaminarRestante": "The roll ({total}) did not reach what is still left for this skill.",
-      "ExaminarNadaMais": "Nothing left for this skill at this point."
+      "ExaminarNadaMais": "Nothing left for this skill at this point.",
+      "ExaminarAchouUma": "the roll revealed one new piece of information.",
+      "ExaminarSoGratisUma": "one line from your die size, without rolling.",
+      "ExaminarGratisTambemUma": "One more line came from your die size, without rolling."
     },
     "Dialog": {
       "Teste": {
@@ -444,12 +447,13 @@
         "desafios": "Challenges"
       },
       "PreparacaoAjuda": "Investigation setup: who takes part, the events with their own script and mental overload. Drag actors, points, challenges and events onto the panel.",
-      "ProximoEvento": "Next scripted event: round {rodada}.",
+      "ProximoEvento": "Next event: round {rodada}.",
       "ProximoEventoTag": "Next",
       "OcultoTag": "Hidden",
       "DesafiosDoPonto": "Challenges",
       "EmPonto": "Challenge of {poi}",
-      "IrParaDesafio": "Go to the challenge on the Challenges tab"
+      "IrParaDesafio": "Go to the challenge on the Challenges tab",
+      "EventoNestaRodada": "A scripted event falls on this round."
     },
     "Rodada": {
       "Titulo": "Round {rodada}",

@@ -3003,7 +3003,7 @@ const relato = await page.evaluate(async () => {
     ok("o card diz SUCESSO e explica que a linha veio pelo tamanho do dado",
       /op2-card__desfecho--sucesso/.test(ultimaMensagem()?.content ?? "")
       && !/op2-card__desfecho--falha"/.test(ultimaMensagem()?.content ?? "")
-      && (ultimaMensagem()?.content ?? "").includes(game.i18n.format("OP2.Investigacao.ExaminarSoGratis", { quantidade: 1 })));
+      && (ultimaMensagem()?.content ?? "").includes(game.i18n.localize("OP2.Investigacao.ExaminarSoGratisUma")));
 
     // 3b. Interagir: card público sem segredo; o do mestre nasce no cliente do mestre.
     //     Um sussurro criado pelo jogador tem o jogador como autor, e o autor sempre vê a

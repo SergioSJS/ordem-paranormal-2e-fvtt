@@ -42,14 +42,27 @@
       <p class="op2-card__desfecho op2-card__desfecho--sucesso">
         <i class="fa-solid fa-check" aria-hidden="true"></i>
         {{localize "OP2.Sucesso"}} —
+        {{!-- "1 linha(s)" fica feio no card: singular e plural têm chave própria. --}}
         {{#if quantidadeTeste}}
-          {{localize "OP2.Investigacao.ExaminarAchou" quantidade=quantidadeTeste}}
+          {{#if (op2Eq quantidadeTeste 1)}}
+            {{localize "OP2.Investigacao.ExaminarAchouUma"}}
+          {{else}}
+            {{localize "OP2.Investigacao.ExaminarAchou" quantidade=quantidadeTeste}}
+          {{/if}}
+        {{else if (op2Eq quantidadeGratis 1)}}
+          {{localize "OP2.Investigacao.ExaminarSoGratisUma"}}
         {{else}}
           {{localize "OP2.Investigacao.ExaminarSoGratis" quantidade=quantidadeGratis}}
         {{/if}}
       </p>
       {{#if quantidadeTeste}}{{#if quantidadeGratis}}
-        <p class="op2-ajuda">{{localize "OP2.Investigacao.ExaminarGratisTambem" quantidade=quantidadeGratis}}</p>
+        <p class="op2-ajuda">
+          {{#if (op2Eq quantidadeGratis 1)}}
+            {{localize "OP2.Investigacao.ExaminarGratisTambemUma"}}
+          {{else}}
+            {{localize "OP2.Investigacao.ExaminarGratisTambem" quantidade=quantidadeGratis}}
+          {{/if}}
+        </p>
       {{/if}}{{/if}}
       {{#unless quantidadeTeste}}
         <p class="op2-ajuda">

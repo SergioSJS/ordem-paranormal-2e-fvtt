@@ -23,7 +23,13 @@
     {{!-- O que a próxima rodada traz, sem abrir a aba de Preparação: o roteiro e a
           sobrecarga moram lá, mas o mestre decide "Nova rodada" aqui. --}}
     {{#if proximoEvento}}
-      <p class="op2-ajuda op2-painel-proximo">{{localize "OP2.Painel.ProximoEvento" rodada=proximoEvento}}</p>
+      <p class="op2-ajuda op2-painel-proximo">
+        {{#if eventoNestaRodada}}
+          {{localize "OP2.Painel.EventoNestaRodada"}}
+        {{else}}
+          {{localize "OP2.Painel.ProximoEvento" rodada=proximoEvento}}
+        {{/if}}
+      </p>
     {{/if}}
     {{#if sobrecarga.ativa}}
       <p class="op2-ajuda op2-painel-proximo">{{localize "OP2.Painel.ProximoDano" rodada=rodada dano=sobrecarga.proximoDano}}</p>

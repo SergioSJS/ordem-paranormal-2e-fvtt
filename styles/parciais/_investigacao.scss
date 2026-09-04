@@ -1325,6 +1325,21 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   > .op2-botao { flex: 0 0 auto; }
 }
 
+// O efeito do evento é prosa de mestre, não título: `op2-card__efeito` já era o nome
+// do título em caixa alta da falha crítica, e o texto saía todo em maiúsculas na fonte
+// de display (achado na revisão visual).
+.op2-card__evento-efeito {
+  margin-top: var(--op2-e1);
+
+  strong {
+    font-family: var(--op2-fonte-display);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  p { margin: 0.15rem 0 0; }
+}
+
 // No card da rodada, qual evento falou e em que rodada dele.
 .op2-card__evento-nome {
   display: block;

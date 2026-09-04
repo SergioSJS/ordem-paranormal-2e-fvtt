@@ -16,8 +16,9 @@
         <div class="op2-card__narracao">{{{narracao}}}</div>
       {{/if}}
       {{#if efeito}}
-        <div class="op2-ajuda op2-card__efeito" data-op2-gm><strong>{{localize "OP2.Rodada.EventoEfeito"}}</strong>
-          {{{efeito}}}</div>
+        <div class="op2-ajuda op2-card__evento-efeito" data-op2-gm>
+          <strong>{{localize "OP2.Rodada.EventoEfeito"}}</strong> {{{efeito}}}
+        </div>
       {{/if}}
     </div>
   {{/each}}
