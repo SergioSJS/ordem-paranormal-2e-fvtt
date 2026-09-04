@@ -874,7 +874,7 @@ const relato = await page.evaluate(async () => {
       await limpar();
       await aventura.import({ dialog: false });
       ok("importar a aventura cria tudo no mundo",
-        noMundo("Actor").length === 6 && noMundo("Item").length === 44
+        noMundo("Actor").length === 6 && noMundo("Item").length === 45   // 31 pontos, 10 desafios, 3 de mesa, 1 evento
         && noMundo("Scene").length === 1 && noMundo("JournalEntry").length === 4
         && noMundo("Playlist").length === 1);
 
@@ -1562,7 +1562,7 @@ const relato = await page.evaluate(async () => {
       Boolean(fichaEl.querySelector(".op2-painel-lateral .op2-painel-ordem"))
       && [...fichaEl.querySelectorAll(".op2-abas [data-tab]")].map((b) => b.dataset.tab).join(",") === "preparacao,pontos,desafios"
       && Boolean(fichaEl.querySelector(".op2-painel-lateral input[name='name']"))
-      && Boolean(fichaEl.querySelector(".op2-painel-aba[data-tab='preparacao'] [data-evento-linha], .op2-painel-aba[data-tab='preparacao'] [data-action='adicionarEvento']")));
+      && Boolean(fichaEl.querySelector(".op2-painel-aba[data-tab='preparacao'] [data-action='criarEvento']")));
     investigacao.sheet.changeTab("pontos", "principal");
     const cardPoi = [...fichaEl.querySelectorAll("[data-poi-card]")]
       .find((li) => li.textContent.includes("Quadro na Parede"));
@@ -1815,12 +1815,12 @@ const relato = await page.evaluate(async () => {
       await esperar(500);
       ok("remover pergunta tira a linha do banco", fechadura.system.hackSocial.perguntas.length === 0);
 
-      const botaoTimer = desafioEl.querySelector('[data-action="iniciarTimerHack"]');
-      ok("ficha tem botão de iniciar o timer do hack técnico", Boolean(botaoTimer));
-      botaoTimer?.click();
-      await esperar(200);
-      ok("timer começa em 10 e desabilita o botão (evita reiniciar no meio)",
-        desafioEl.querySelector("[data-timer-hack]")?.textContent === "10" && botaoTimer.disabled === true);
+      // O contador saiu da ficha e passou a abrir na tela de todo mundo (achado em uso
+      // real: só o mestre via, e o jogador tinha que adivinhar o tempo).
+      ok("a ficha abre o contador para a mesa, com os segundos do campo",
+        Boolean(desafioEl.querySelector('[data-action="iniciarHackFaixa"][data-indice="-1"]'))
+        && Boolean(desafioEl.querySelector("[data-timer-segundos]")));
+      ok("e não tem mais contador só dele na própria ficha", !desafioEl.querySelector("[data-timer-hack]"));
 
       // Painel com tabela: a ficha edita as faixas, e o teste devolve o problema em vez
       // de abrir sozinho.
