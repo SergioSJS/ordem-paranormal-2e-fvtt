@@ -1235,3 +1235,109 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
 @media (prefers-reduced-motion: reduce) {
   .op2-poi-card--foco { animation: none; box-shadow: 0 0 0 2px var(--op2-vermelho-claro); }
 }
+
+// Janela de ações em abas: uma lista por aba, com filtro. Tudo numa página só virava
+// rolagem sem fim conforme a mesa revela pontos (achado em uso real).
+.op2-acoes__aba {
+  display: none;
+  flex-direction: column;
+  gap: var(--op2-e2);
+  min-height: 0;
+  padding-top: var(--op2-e2);
+
+  &.active { display: flex; }
+}
+
+.op2-acoes .op2-abas { position: sticky; top: 0; z-index: 1; background: var(--op2-fundo); }
+
+// Cada aba do tamanho do próprio rótulo, numa linha só (o mesmo do painel).
+.op2-acoes .op2-aba {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--op2-e1);
+  white-space: nowrap;
+}
+
+.op2-acoes__lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--op2-e2);
+}
+
+// Uma linha por alvo: identidade em cima, botões embaixo — mais denso que o card
+// antigo, e o nome não disputa espaço com os botões.
+.op2-acoes__linha {
+  padding: var(--op2-e2);
+  border: 1px solid var(--op2-linha);
+  border-left: 3px solid var(--op2-vermelho);
+  border-radius: var(--op2-raio);
+  background: var(--op2-superficie);
+  display: flex;
+  flex-direction: column;
+  gap: var(--op2-e2);
+}
+
+.op2-acoes__linha-topo {
+  display: flex;
+  align-items: center;
+  gap: var(--op2-e2);
+
+  img {
+    width: 1.8rem; height: 1.8rem;
+    flex: 0 0 auto;
+    object-fit: cover; object-position: center top;
+    border-radius: var(--op2-raio);
+  }
+
+  strong { font-family: var(--op2-fonte-display); letter-spacing: 0.03em; }
+}
+
+.op2-acoes__identidade {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+// O ponto a que o desafio pertence, em voz baixa (a mesma leitura do painel).
+.op2-acoes__ponto {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--op2-texto-fraco);
+  font-family: var(--op2-fonte-display);
+  font-size: 0.66rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+// Do ponto para os desafios dele: troca de aba e filtra por ele.
+.op2-acoes__atalho {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--op2-linha-forte);
+  border-radius: var(--op2-raio);
+  background: var(--op2-superficie-alta);
+  font-family: var(--op2-fonte-mono);
+  font-size: 0.72rem;
+  cursor: pointer;
+
+  i { color: var(--op2-texto-fraco); }
+  &:hover { border-color: var(--op2-vermelho); }
+}
+
+.op2-acoes .op2-painel-filtro { width: 100%; }

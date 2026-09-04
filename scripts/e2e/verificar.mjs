@@ -3008,12 +3008,25 @@ const relato = await page.evaluate(async () => {
         && !cardPorta?.classList.contains("op2-poi-card--recolhido") && cardPorta?.classList.contains("op2-poi-card--foco")
         && !(JSON.parse(localStorage.getItem("op2.painel.recolhidos") ?? "[]")).includes(portaZ.uuid));
       painel.changeTab("pontos", "principal");
+      // A janela de ações tem três abas: o desafio mora na de Desafios, com o ponto
+      // como rótulo, e o ponto ganha um atalho que troca de aba já filtrando por ele
+      // (achado em uso real: numa lista só, desafio e ponto se embaralhavam).
       const acoes = game.op2.acoesInvestigacao(ator);
-      await esperar(800);
-      const blocoPonto = [...acoes.element.querySelectorAll(".op2-acoes__alvo")].find((el) => el.textContent.includes("Depósito Z"));
-      ok("na janela de ações, Arrombar da porta fica dentro do Depósito Z, e não na seção de desafios soltos",
-        Boolean(blocoPonto?.querySelector(`[data-action="arrombar"][data-desafio-uuid="${portaZ.uuid}"]`))
-        && acoes.element.querySelectorAll(`[data-action="arrombar"][data-desafio-uuid="${portaZ.uuid}"]`).length === 1);
+      await esperar(900);
+      const abasAcoes = [...acoes.element.querySelectorAll(".op2-abas [data-tab]")].map((b) => b.dataset.tab);
+      ok(`a janela de ações tem as abas Ações, Pontos e Desafios (${abasAcoes.join(", ")})`,
+        abasAcoes.join(",") === "livres,pontos,desafios");
+      const abaDesafios = acoes.element.querySelector(".op2-acoes__aba[data-tab='desafios']");
+      const abaPontos = acoes.element.querySelector(".op2-acoes__aba[data-tab='pontos']");
+      ok("o desafio do ponto fica na aba Desafios, com o ponto como rótulo — e não no meio dos pontos",
+        Boolean(abaDesafios?.querySelector(`[data-action="arrombar"][data-desafio-uuid="${portaZ.uuid}"]`))
+        && !abaPontos?.querySelector('[data-action="arrombar"]')
+        && (abaDesafios?.querySelector(".op2-acoes__ponto")?.textContent ?? "").includes("Depósito Z"));
+      acoes.element.querySelector('[data-action="irParaDesafios"]')?.click();
+      await esperar(300);
+      ok("o atalho do ponto leva à aba Desafios já filtrada por ele",
+        acoes.tabGroups.principal === "desafios"
+        && acoes.element.querySelector("[data-filtro-acoes]")?.value === "Depósito Z");
       await acoes.close();
       await game.op2.removerPoi(inv, deposito.uuid);
       await game.op2.removerDesafio(inv, portaZ.uuid);

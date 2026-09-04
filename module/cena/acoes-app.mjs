@@ -10,7 +10,9 @@
  * chamava — só o dono da ação mudou de lugar.
  */
 import { FERRAMENTAS_POI } from "../config.mjs";
-import { investigacaoAtiva, investigacoesVisiveis, definirInvestigacaoAtiva } from "./investigacao-ativa.mjs";
+import {
+  investigacaoAtiva, investigacoesVisiveis, definirInvestigacaoAtiva, pontoDoDesafio,
+} from "./investigacao-ativa.mjs";
 import { temFerramenta } from "./ferramentas.mjs";
 import { alvosDaCenaAtiva, alvosMarcados } from "./encerrar-investigacao.mjs";
 import {
@@ -25,6 +27,7 @@ import { atacar } from "./acoes-combate.mjs";
 import { usarHabilidadeOuItem } from "./acoes-recurso.mjs";
 import { abrirDestrancar } from "./destrancar-app.mjs";
 import { guardarRolagem, restaurarRolagem, esquecerRolagem } from "../ui/rolagem.mjs";
+import { semPrefixoDoPonto } from "./desafios.mjs";
 import { abrirLaboratorio } from "./laboratorio-app.mjs";
 import { abrirRadio } from "./radio-app.mjs";
 
@@ -35,12 +38,17 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
  * hackeia, painel eletrônico não se arromba no braço (achado em uso real — os
  * quatro botões apareciam em todo desafio).
  */
-function contextoDoDesafio(desafio) {
+function contextoDoDesafio(desafio, investigacao) {
   const { abordagens } = desafio.system;
+  const ponto = pontoDoDesafio(investigacao, desafio.uuid);
   return {
     uuid: desafio.uuid,
     nome: desafio.name,
     img: desafio.img,
+    // O ponto a que pertence vem como rótulo acima do nome, e o nome perde o prefixo
+    // repetido — a mesma leitura do painel.
+    poiNome: ponto?.name ?? "",
+    nomeCurto: semPrefixoDoPonto(desafio.name, ponto?.name),
     quebrado: desafio.system.quebrado,
     destrancado: desafio.system.destrancado,
     hackTecnicoResolvido: desafio.system.hackTecnico.resolvido,
@@ -53,6 +61,18 @@ function contextoDoDesafio(desafio) {
   };
 }
 
+const CHAVE_ABA = "op2.acoes.aba";
+
+/** A última aba escolhida; sem registro, os pontos de interesse. */
+function abaInicial() {
+  try {
+    const aba = window.localStorage.getItem(CHAVE_ABA);
+    return ["livres", "pontos", "desafios"].includes(aba) ? aba : "pontos";
+  } catch {
+    return "pontos";
+  }
+}
+
 /** O corpo da janela de ações rola dentro do `.window-content`, fora da parte. */
 export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
@@ -60,7 +80,7 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     window: { title: "OP2.Acoes.Titulo", icon: "fa-solid fa-magnifying-glass", resizable: true },
     // Larga: é a mesa de ações do personagem, e vai receber mais grupos além dos
     // de investigação.
-    position: { width: 620, height: 680 },
+    position: { width: 640, height: 700 },
     actions: {
       ajudar: AcoesInvestigacaoApp.#ajudar,
       atacar: AcoesInvestigacaoApp.#atacar,
@@ -74,6 +94,7 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       usarLaser: AcoesInvestigacaoApp.#usarLaser,
       examinar: AcoesInvestigacaoApp.#examinar,
       interagir: AcoesInvestigacaoApp.#interagir,
+      irParaDesafios: AcoesInvestigacaoApp.#irParaDesafios,
       usarFerramenta: AcoesInvestigacaoApp.#usarFerramenta,
       usarLaboratorio: AcoesInvestigacaoApp.#usarLaboratorio,
       usarRadio: AcoesInvestigacaoApp.#usarRadio,
@@ -89,12 +110,40 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     corpo: { template: "systems/ordem-paranormal-2e/templates/actor/acoes-investigacao.hbs" },
   };
 
+  /**
+   * Três abas: o que o personagem pode fazer agora (livres), os pontos e os desafios.
+   * Tudo numa lista só virava uma rolagem sem fim conforme a mesa revela coisas, com
+   * desafio misturado no meio dos pontos (achado em uso real).
+   */
+  static TABS = {
+    principal: {
+      tabs: [{ id: "livres" }, { id: "pontos" }, { id: "desafios" }],
+      initial: "pontos",
+      labelPrefix: "OP2.Acoes.Aba",
+    },
+  };
+
+  /** Filtro por nome, como o do painel: vive na instância. */
+  #filtro = "";
+
+  /** @override — a aba escolhida é preferência de tela. */
+  changeTab(aba, grupo, opcoes) {
+    super.changeTab(aba, grupo, opcoes);
+    if (grupo !== "principal") return;
+    try {
+      window.localStorage.setItem(CHAVE_ABA, aba);
+    } catch {
+      // Sem storage: dura só esta tela.
+    }
+  }
+
   /** Hook de `updateActor`, para soltar no fechamento. */
   #hookAtor = null;
 
   /** @param {Actor} ator */
   constructor(ator, opcoes = {}) {
     super({ id: `op2-acoes-${ator.id}`, ...opcoes });
+    this.tabGroups.principal = abaInicial();
     this.ator = ator;
 
     // Investigar grava `estado.poisInvestigados` no personagem, e é isso que
@@ -130,6 +179,19 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
   _onRender(contexto, opcoes) {
     super._onRender(contexto, opcoes);
     restaurarRolagem(this);
+
+    // Filtro por nome: esconde linhas no DOM, sem rerrenderizar. As abas têm um campo
+    // cada, e os dois andam juntos.
+    for (const campo of this.element.querySelectorAll("[data-filtro-acoes]")) {
+      campo.addEventListener("input", () => {
+        this.#filtro = campo.value;
+        for (const outro of this.element.querySelectorAll("[data-filtro-acoes]")) {
+          if (outro !== campo) outro.value = campo.value;
+        }
+        this.#aplicarFiltro();
+      });
+    }
+    this.#aplicarFiltro();
     // `data-action` num <select> reage ao próprio clique de abrir e fecha o menu
     // nativo no meio (achado em uso real, no painel) — listener manual, como todo
     // outro <select> do sistema.
@@ -138,6 +200,21 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       await definirInvestigacaoAtiva(seletor.value);
       this.render();
     });
+  }
+
+  #aplicarFiltro() {
+    const termo = normalizar(this.#filtro);
+    for (const linha of this.element.querySelectorAll("[data-acao-card]")) {
+      linha.hidden = Boolean(termo) && !normalizar(linha.dataset.nome).includes(termo);
+    }
+  }
+
+  /** Do ponto para os desafios dele: troca de aba e filtra pelo nome do ponto. */
+  static #irParaDesafios(_evento, alvo) {
+    this.#filtro = alvo.dataset.nome ?? "";
+    this.changeTab("desafios", "principal");
+    for (const campo of this.element.querySelectorAll("[data-filtro-acoes]")) campo.value = this.#filtro;
+    this.#aplicarFiltro();
   }
 
   async _prepareContext() {
@@ -153,9 +230,8 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       .filter((uuid) => !ocultosDesafio.includes(uuid))
       .map((uuid) => fromUuidSync(uuid))
       .filter((desafio) => desafio?.type === "desafio-acesso")
-      .map(contextoDoDesafio);
+      .map((d) => contextoDoDesafio(d, investigacao));
     const desafioPorUuid = new Map(desafios.map((d) => [d.uuid, d]));
-    const ligados = new Set();
 
     const pois = (investigacao?.system.pois ?? [])
       .filter((uuid) => !ocultosPoi.includes(uuid))
@@ -165,10 +241,10 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
         uuid: poi.uuid,
         nome: poi.name,
         img: poi.img,
-        // Os desafios deste ponto ficam dentro dele: a porta do Depósito A se abre no
-        // Depósito A (achado em uso real). Desafio solto continua na seção própria.
-        desafios: (poi.system.desafios ?? []).map((d) => desafioPorUuid.get(d)).filter(Boolean)
-          .map((d) => { ligados.add(d.uuid); return d; }),
+        // Quantos desafios deste ponto estão à vista: um atalho leva à aba Desafios já
+        // filtrada por ele. Com os botões do desafio dentro do ponto, as duas coisas se
+        // embaralhavam (achado em uso real).
+        totalDesafios: (poi.system.desafios ?? []).filter((d) => desafioPorUuid.has(d)).length,
         // Só as ferramentas que ESTE personagem carrega — a reação do POI segue
         // escondida até o uso (spec §9.3).
         ferramentas: FERRAMENTAS_POI
@@ -176,8 +252,6 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
           .map((chave) => ({ chave, rotulo: game.i18n.localize(`OP2.Ferramenta.Subtipo.${chave}`) })),
       }));
 
-    // Só os desafios soltos, sem ponto: os outros já estão dentro do ponto deles.
-    const desafiosSoltos = desafios.filter((d) => !ligados.has(d.uuid));
 
     return {
       atorNome: ator.name,
@@ -187,7 +261,7 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       // trocar aqui sem voltar pro painel.
       investigacoes: investigacoesVisiveis().map((i) => ({ uuid: i.uuid, nome: i.name })),
       investigacaoAtualUuid: investigacao?.uuid ?? "",
-      desafios: desafiosSoltos,
+      desafios,
       sustentando: ator.system.estado.sustentando?.ativo ?? false,
       // Ação sem alvo possível não é oferecida: avisar só depois do clique deixa o
       // jogador procurando o que não existe (achado em uso real).
@@ -200,6 +274,9 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       recapitularUsado: investigacao?.system.recapitularUsado ?? null,
       compartilharUsado: investigacao?.system.compartilharUsado ?? null,
       pois,
+      tabs: this._prepareTabs("principal"),
+      contagens: { pontos: pois.length, desafios: desafios.length },
+      filtro: this.#filtro,
     };
   }
 
@@ -270,4 +347,9 @@ export function abrirAcoesInvestigacao(ator) {
   const app = new AcoesInvestigacaoApp(ator);
   app.render({ force: true });
   return app;
+}
+
+/** Comparação de nomes sem acento nem caixa, para o filtro. */
+function normalizar(texto) {
+  return String(texto ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 }

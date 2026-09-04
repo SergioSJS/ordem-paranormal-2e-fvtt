@@ -1,7 +1,11 @@
 {{!-- Os botões de um desafio de acesso na janela de ações: dentro do ponto a que
       pertence, ou na seção de desafios soltos. Contexto = o desafio. --}}
-<div class="op2-acoes__alvo-topo op2-acoes__alvo-topo--desafio">
-  <img src="{{img}}" alt=""> <strong>{{nome}}</strong>
+<div class="op2-acoes__linha-topo">
+  <img src="{{img}}" alt="">
+  <div class="op2-acoes__identidade">
+    {{#if poiNome}}<span class="op2-acoes__ponto"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>{{poiNome}}</span>{{/if}}
+    <strong data-tooltip="{{nome}}">{{#if nomeCurto}}{{nomeCurto}}{{else}}{{nome}}{{/if}}</strong>
+  </div>
   {{#if quebrado}}<span class="op2-painel-trava">· {{localize "OP2.Desafio.Quebrado"}}</span>{{/if}}
   {{#if destrancado}}<span class="op2-painel-trava">· {{localize "OP2.Desafio.Destrancou"}}</span>{{/if}}
 </div>

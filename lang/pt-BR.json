@@ -237,7 +237,14 @@
       "SemPOIs": "Nenhum ponto de interesse disponível ainda.",
       "SemDesafios": "Nenhum desafio disponível ainda.",
       "SemAliado": "Marque o alvo no mapa, ou adicione outro personagem à investigação.",
-      "SemAlvo": "Marque o alvo no mapa, ou adicione alguém à investigação."
+      "SemAlvo": "Marque o alvo no mapa, ou adicione alguém à investigação.",
+      "Aba": {
+        "livres": "Ações",
+        "pontos": "Pontos de interesse",
+        "desafios": "Desafios"
+      },
+      "Filtrar": "Filtrar pelo nome…",
+      "VerDesafios": "Ver os desafios deste ponto"
     },
     "Investigacao": {
       "Examinar": "Examinar",

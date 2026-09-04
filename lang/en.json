@@ -237,7 +237,14 @@
       "SemPOIs": "No points of interest available yet.",
       "SemDesafios": "No challenge available yet.",
       "SemAliado": "Target someone on the map, or add another character to the investigation.",
-      "SemAlvo": "Target someone on the map, or add someone to the investigation."
+      "SemAlvo": "Target someone on the map, or add someone to the investigation.",
+      "Aba": {
+        "livres": "Actions",
+        "pontos": "Points of interest",
+        "desafios": "Challenges"
+      },
+      "Filtrar": "Filter by name…",
+      "VerDesafios": "See this point's challenges"
     },
     "Investigacao": {
       "Examinar": "Examine",
