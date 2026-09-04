@@ -247,6 +247,14 @@
           {{/if}}
           {{#if @root.ehGM}}
             <span class="op2-poi-card__acoes-gm">
+              {{!-- Marcador no mapa: o mestre põe, e ele acende para os jogadores
+                    quando o ponto deixa de estar oculto. --}}
+              <button type="button" class="op2-botao op2-botao--pequeno{{#if marcado}} ativo{{/if}}"
+                data-action="{{#if marcado}}desmarcarDoMapa{{else}}marcarNoMapa{{/if}}" data-uuid="{{uuid}}"
+                aria-label="{{#if marcado}}{{localize 'OP2.Marcador.Desmarcar'}}{{else}}{{localize 'OP2.Marcador.Marcar'}}{{/if}}"
+                data-tooltip="{{#if marcado}}{{localize 'OP2.Marcador.Desmarcar'}}{{else}}{{localize 'OP2.Marcador.Marcar'}}{{/if}}">
+                <i class="fa-solid {{#if marcado}}fa-map-pin{{else}}fa-map-location-dot{{/if}}" aria-hidden="true"></i>
+              </button>
               {{#if descricaoContextual}}
                 <button type="button" class="op2-botao op2-botao--pequeno{{#if notasAbertas}} ativo{{/if}}" data-action="alternarNotasMestre"
                   data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.NotasMestre'}}"
@@ -385,6 +393,14 @@
           </span>
           {{#if @root.ehGM}}
             <span class="op2-poi-card__acoes-gm">
+              {{!-- Marcador no mapa: o mestre põe, e ele acende para os jogadores
+                    quando o ponto deixa de estar oculto. --}}
+              <button type="button" class="op2-botao op2-botao--pequeno{{#if marcado}} ativo{{/if}}"
+                data-action="{{#if marcado}}desmarcarDoMapa{{else}}marcarNoMapa{{/if}}" data-uuid="{{uuid}}"
+                aria-label="{{#if marcado}}{{localize 'OP2.Marcador.Desmarcar'}}{{else}}{{localize 'OP2.Marcador.Marcar'}}{{/if}}"
+                data-tooltip="{{#if marcado}}{{localize 'OP2.Marcador.Desmarcar'}}{{else}}{{localize 'OP2.Marcador.Marcar'}}{{/if}}">
+                <i class="fa-solid {{#if marcado}}fa-map-pin{{else}}fa-map-location-dot{{/if}}" aria-hidden="true"></i>
+              </button>
               {{#if nota}}
                 <button type="button" class="op2-botao op2-botao--pequeno{{#if notasAbertas}} ativo{{/if}}" data-action="alternarNotasMestre"
                   data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.NotasMestre'}}"

@@ -19,6 +19,7 @@ import { SYSTEM_ID } from "../config.mjs";
 import { periciasDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs";
 import { semPrefixoDoPonto } from "./desafios.mjs";
 import { rodadaRelativa, proximaRodadaDaCena, linhaDaRodada } from "./eventos.mjs";
+import { marcarNoMapa, desmarcarDoMapa, marcadoresDoPonto } from "./marcadores.mjs";
 import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerrar-investigacao.mjs";
 import {
   estaAtiva, alternarAtiva,
@@ -65,6 +66,8 @@ export function PainelInvestigacaoMixin(Base) {
       // (`acoes-app.mjs`) — aqui não dá pra saber quem age.
       actions: {
         abrirPoi: PainelInvestigacaoComum.#abrirPoi,
+        marcarNoMapa: PainelInvestigacaoComum.#marcarNoMapa,
+        desmarcarDoMapa: PainelInvestigacaoComum.#desmarcarDoMapa,
         removerPoi: PainelInvestigacaoComum.#removerPoi,
         abrirDesafio: PainelInvestigacaoComum.#abrirDesafio,
         removerDesafio: PainelInvestigacaoComum.#removerDesafio,
@@ -257,6 +260,7 @@ export function PainelInvestigacaoMixin(Base) {
           nome: poi.name,
           img: poi.img,
           oculto,
+          marcado: temMarcador(uuid),
           recolhido: recolhidos.has(uuid),
           notasAbertas: notas.has(uuid),
           linhasTotal,
@@ -382,6 +386,7 @@ export function PainelInvestigacaoMixin(Base) {
           // prefixo só repete. O nome inteiro fica na dica e no filtro.
           nomeCurto: semPrefixoDoPonto(desafio.name, ponto?.name),
           oculto: ocultos.includes(desafio.uuid),
+          marcado: temMarcador(desafio.uuid),
           recolhido: recolhidos.has(desafio.uuid),
           notasAbertas: notas.has(desafio.uuid),
           abordagens: Object.entries(rotulos).filter(([chave]) => abordagens[chave]).map(([, chave]) => game.i18n.localize(chave))
@@ -467,7 +472,9 @@ export function PainelInvestigacaoMixin(Base) {
      */
     get _dragDrop() {
       return this.#dragDrop ??= new foundry.applications.ux.DragDrop.implementation({
-        dragSelector: "[data-ator-ordem]",
+        // Duas origens: a linha da ordem (reordenar) e o card do ponto (arrastar para
+        // o mapa e virar marcador). O `DragDrop` do core marca `draggable` sozinho.
+        dragSelector: "[data-ator-ordem], [data-poi-card]",
         dropSelector: ".op2-painel-corpo",
         // Reordenar e vincular POI/desafio/participante são atos de mestre — e
         // gravam na investigação, que o jogador não tem permissão de atualizar.
@@ -537,6 +544,19 @@ export function PainelInvestigacaoMixin(Base) {
       await definirSobrecarga({ ...sobrecargaDaCena(investigacao), tabela }, investigacao);
     }
 
+    /* -- marcadores no mapa ------------------------------------------------ */
+
+    /** Põe o marcador do ponto no meio do mapa aberto; de lá o mestre arrasta. */
+    static async #marcarNoMapa(_evento, alvo) {
+      await marcarNoMapa(alvo.dataset.uuid);
+      rerrenderizarJanelasDeInvestigacao();
+    }
+
+    static async #desmarcarDoMapa(_evento, alvo) {
+      await desmarcarDoMapa(alvo.dataset.uuid);
+      rerrenderizarJanelasDeInvestigacao();
+    }
+
     /* -- preferências de tela ---------------------------------------------- */
 
     /** Recolher/expandir é preferência de tela: fica no cliente, sem tocar o documento. */
@@ -575,6 +595,17 @@ export function PainelInvestigacaoMixin(Base) {
      */
     static #irParaCard(_evento, alvo) {
       const { aba, uuid } = alvo.dataset;
+      this.focarCard(uuid, aba);
+    }
+
+    /**
+     * Leva até o card de um ponto: troca de aba, expande e destaca. É o que o atalho
+     * do desafio usa e o que o marcador do mapa chama ao ser clicado.
+     */
+    async focarCard(uuid, aba) {
+      // Só renderiza quando a janela ainda não está na tela (é o caso do marcador do
+      // mapa): rerrenderizar a cada atalho perdia a posição da rolagem e o card em foco.
+      if (!this.rendered) await this.render({ force: true });
       if (aba && this.tabGroups.principal !== aba) this.changeTab(aba, "principal");
       const card = this.element.querySelector(`[data-poi-card="${uuid}"]`);
       if (!card) return;
@@ -604,8 +635,15 @@ export function PainelInvestigacaoMixin(Base) {
 
     _onDragStart(evento) {
       const linha = evento.target.closest("[data-ator-ordem]");
-      if (!linha) return;
-      evento.dataTransfer.setData("text/plain", JSON.stringify({ tipo: "ordem", atorUuid: linha.dataset.atorOrdem }));
+      if (linha) {
+        evento.dataTransfer.setData("text/plain", JSON.stringify({ tipo: "ordem", atorUuid: linha.dataset.atorOrdem }));
+        return;
+      }
+      // Card do ponto: sai como Item do Foundry, para o mapa entender como marcador.
+      const card = evento.target.closest("[data-poi-card]");
+      if (card) {
+        evento.dataTransfer.setData("text/plain", JSON.stringify({ type: "Item", uuid: card.dataset.poiCard }));
+      }
     }
 
     async _onDrop(evento) {
@@ -841,6 +879,11 @@ export function PainelInvestigacaoMixin(Base) {
 
 const CHAVE_RECOLHIDOS = "op2.painel.recolhidos";
 const CHAVE_NOTAS = "op2.painel.notas";
+/** Se o ponto já tem marcador na cena aberta — o botão do card alterna com isto. */
+function temMarcador(uuid) {
+  return marcadoresDoPonto(canvas?.scene, uuid).length > 0;
+}
+
 const CHAVE_SECOES = "op2.painel.secoes";
 const CHAVE_ABA = "op2.painel.aba";
 

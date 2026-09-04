@@ -212,6 +212,28 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     }
   }
 
+  /**
+   * Leva até o card de um ponto (ou desafio): troca de aba, tira o filtro e destaca.
+   * O marcador do mapa chama isto quando quem clica é jogador.
+   */
+  async focarCard(uuid, aba) {
+    // Só renderiza quando a janela ainda não está na tela (é o caso do marcador do
+    // mapa): rerrenderizar a cada atalho perdia a posição da rolagem e o card em foco.
+    if (!this.rendered) await this.render({ force: true });
+    if (aba && this.tabGroups.principal !== aba) this.changeTab(aba, "principal");
+    this.#filtro = "";
+    for (const campo of this.element.querySelectorAll("[data-filtro-acoes]")) campo.value = "";
+    this.#aplicarFiltro();
+    const card = this.element.querySelector(`[data-acao-card][data-uuid="${uuid}"]`);
+    if (!card) return;
+    card.hidden = false;
+    card.scrollIntoView({ block: "center", behavior: "smooth" });
+    card.classList.remove("op2-acoes__linha--foco");
+    void card.offsetWidth; // reinicia a animação se o card já estava em foco
+    card.classList.add("op2-acoes__linha--foco");
+    setTimeout(() => card.classList.remove("op2-acoes__linha--foco"), 2500);
+  }
+
   /** Do ponto para os desafios dele: troca de aba e filtra pelo nome do ponto. */
   static #irParaDesafios(_evento, alvo) {
     this.#filtro = alvo.dataset.nome ?? "";

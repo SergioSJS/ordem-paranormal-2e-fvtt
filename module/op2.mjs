@@ -54,6 +54,7 @@ import { abrirRadio } from "./cena/radio-app.mjs";
 import { abrirAcoesInvestigacao } from "./cena/acoes-app.mjs";
 import { rolarTesteDeQueda, zerarContadoresDeQueda } from "./cena/ferimentos.mjs";
 import { ajudar } from "./cena/acoes-ajuda.mjs";
+import { registrarMarcadores, marcarNoMapa, desmarcarDoMapa, abrirMarcador } from "./cena/marcadores.mjs";
 import { atacar, defender } from "./cena/acoes-combate.mjs";
 import { usarHabilidadeOuItem, concederPasso } from "./cena/acoes-recurso.mjs";
 
@@ -98,6 +99,7 @@ Hooks.once("init", () => {
   registrarChat();
   registrarSocket();
   registrarPainelInvestigacao();
+  registrarMarcadores();
   registrarExtrasDeAventura();
 
   // Sem iniciativa rolada: os jogadores decidem a ordem entre si (spec §5.2).
@@ -120,6 +122,7 @@ Hooks.once("init", () => {
     vincularEvento, removerEvento, eventosDaInvestigacao, dispararEvento, reiniciarEvento, rodadaAtual,
     vincularDesafioAoPonto, removerDesafioDoPonto, pontoDoDesafio,
     alternarJaAgiu, alternarOculto, moverParticipante,
+    marcarNoMapa, desmarcarDoMapa, abrirMarcador,
   };
 });
 

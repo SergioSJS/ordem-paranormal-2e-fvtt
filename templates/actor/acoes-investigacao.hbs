@@ -106,7 +106,7 @@
       {{/unless}}
       <ol class="op2-acoes__lista">
         {{#each pois}}
-          <li class="op2-acoes__linha" data-acao-card data-nome="{{nome}}">
+          <li class="op2-acoes__linha" data-acao-card data-uuid="{{uuid}}" data-nome="{{nome}}">
             <div class="op2-acoes__linha-topo">
               <img src="{{img}}" alt="">
               <strong>{{nome}}</strong>
@@ -151,7 +151,7 @@
       {{/unless}}
       <ol class="op2-acoes__lista">
         {{#each desafios}}
-          <li class="op2-acoes__linha" data-acao-card data-nome="{{nome}}">
+          <li class="op2-acoes__linha" data-acao-card data-uuid="{{uuid}}" data-nome="{{nome}}">
             {{> (op2Caminho "actor/partials/acoes-desafio")}}
           </li>
         {{/each}}

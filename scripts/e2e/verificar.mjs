@@ -1448,6 +1448,65 @@ const relato = await page.evaluate(async () => {
   await painel.render();
   await esperar(400);
 
+  /* --------------------------------------------- marcadores no mapa --------- */
+  // O ponto vira nota na cena, com o ícone dele. O mestre põe; o jogador só vê
+  // quando a investigação libera o ponto — sem mexer em permissão de documento.
+  {
+    const { marcadorLiberado, marcadoresDoPonto, pontoDoMarcador } =
+      await import("/systems/ordem-paranormal-2e/module/cena/marcadores.mjs");
+    const cena = game.scenes.viewed ?? await Scene.create({ name: "Mapa de teste", width: 2000, height: 2000 });
+    // O drop no mapa cai na cena aberta: sem uma no canvas, o hook não teria onde criar.
+    if (canvas.scene?.id !== cena.id) { await cena.view(); await esperar(800); }
+
+    const nota = await game.op2.marcarNoMapa(poi.uuid, { x: 700, y: 500, cena });
+    ok("marcar um ponto cria a nota na cena, com o ícone do ponto e a flag do sistema",
+      Boolean(nota) && pontoDoMarcador(nota) === poi.uuid && nota.texture.src === poi.img
+      && nota.text === poi.name && nota.x === 700);
+    // Sem autor: com um mestre como autor, a regra do core esconde a nota de todo
+    // jogador e o marcador nunca acenderia (é o que essa linha protege).
+    ok("a nota nasce sem autor, senão o core a esconderia de todo jogador",
+      nota._source.author === null && nota.global === true);
+
+    await game.op2.marcarNoMapa(poi.uuid, { x: 900, y: 600, cena });
+    ok("marcar de novo move o marcador, não duplica",
+      marcadoresDoPonto(cena, poi.uuid).length === 1 && marcadoresDoPonto(cena, poi.uuid)[0].x === 900);
+
+    ok("para o mestre o marcador está sempre aceso", marcadorLiberado(poi.uuid) === true);
+
+    Object.defineProperty(game.user, "isGM", { value: false, configurable: true });
+    ok("jogador vê o marcador do ponto revelado", marcadorLiberado(poi.uuid) === true);
+    Object.defineProperty(game.user, "isGM", { value: true, configurable: true });
+    await game.op2.alternarOculto(investigacao, "pois", poi.uuid);
+    Object.defineProperty(game.user, "isGM", { value: false, configurable: true });
+    ok("esconder o ponto apaga o marcador para o jogador", marcadorLiberado(poi.uuid) === false);
+    Object.defineProperty(game.user, "isGM", { value: true, configurable: true });
+    await game.op2.alternarOculto(investigacao, "pois", poi.uuid);
+
+    // O card do painel tem o botão, e ele alterna com o estado do marcador.
+    await painel.render();
+    await esperar(500);
+    const cardDoPonto = painelEl?.querySelector(`[data-poi-card="${poi.uuid}"]`);
+    ok("o card do ponto oferece tirar o marcador enquanto ele existe",
+      Boolean(cardDoPonto?.querySelector('[data-action="desmarcarDoMapa"]')));
+
+    // Arrastar o ponto para o mapa é o caminho principal: o hook faz o mesmo.
+    await game.op2.desmarcarDoMapa(poi.uuid);
+    ok("desmarcar tira a nota da cena", marcadoresDoPonto(cena, poi.uuid).length === 0);
+    Hooks.call("dropCanvasData", canvas, { type: "Item", uuid: poi.uuid, x: 300, y: 400 });
+    await esperar(600);
+    ok("soltar o ponto no mapa cria o marcador ali",
+      marcadoresDoPonto(cena, poi.uuid)[0]?.x === 300);
+
+    // Ponto apagado não deixa marcador órfão no mapa.
+    const efemero = await Item.create({ name: "Ponto Efêmero", type: "ponto-interesse" });
+    await game.op2.marcarNoMapa(efemero.uuid, { x: 100, y: 100, cena });
+    const uuidEfemero = efemero.uuid;
+    await efemero.delete();
+    await esperar(600);
+    ok("apagar o ponto tira o marcador dele do mapa", marcadoresDoPonto(cena, uuidEfemero).length === 0);
+    await game.op2.desmarcarDoMapa(poi.uuid);
+  }
+
   /* ------------------------------------- investigações múltiplas em jogo ----- */
   // O grupo pode se dividir em mais de uma investigação "em jogo" ao mesmo tempo
   // (achado em uso real). "Em jogo" é ponteiro de MUNDO (só o mestre marca); "vendo

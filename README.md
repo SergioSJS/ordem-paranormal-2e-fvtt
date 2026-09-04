@@ -66,6 +66,18 @@ Foundry pela palavra-chave. Os cards de desafio mostram a abordagem e o estado d
 (pontuação só em Arrombar; tentativas em Destrancar; pendente/resolvido nos hacks), com
 a nota do mestre escondida até pedir.
 
+### Marcadores no mapa
+
+O ponto de interesse também vive no mapa: **arraste o card do ponto (ou o Item, do
+diretório) para a cena** e ele vira um marcador ali, com o ícone do próprio ponto e o
+nome como rótulo — ou clique no alfinete no card, que põe o marcador no meio do que você
+está vendo. Clicar duas vezes no marcador abre o card do ponto: o mestre cai no painel,
+o jogador na janela de ações dele.
+
+O marcador **nasce só do mestre** e acende para os jogadores no momento em que o ponto
+deixa de estar oculto na investigação — a mesma regra do painel e da janela de ações.
+Esconder o ponto de volta apaga o marcador; apagar o ponto tira o marcador do mapa.
+
 Um **evento com roteiro próprio** (a maldição do Ato I) é um Item à parte, vinculado à
 investigação. As rodadas dele contam **a partir do gatilho**, não do começo da cena: no
 livro a maldição só começa quando o grupo observa o Ídolo de Pedra, o que pode cair na

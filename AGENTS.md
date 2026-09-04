@@ -53,6 +53,10 @@ permanentes). Validação em v13 **adiada por decisão do projeto** — o sistem
   alcança e rola pelo resto; só custa 1 PD quando os dois vêm vazios.
 - **Três estados por linha do quadro:** rascunho (`oculta`), descobrível (padrão, o
   único que Examinar acha) e aberta (`aberta`, o jogador vê sem gastar ação).
+- **Marcador no mapa é nota sem autor.** O ponto vira `Note` da cena
+  (`module/cena/marcadores.mjs`). A regra do core esconde do jogador toda nota sem
+  diário cujo autor seja mestre — por isso ela nasce com `author: null`, e quem decide
+  a visão é o nosso `isVisible`: acende quando o ponto não está oculto na investigação.
 - **Jogador não escreve em documento de mundo.** POI e Desafio são Items de mundo:
   passe por `comoMestre()` (`module/ui/socket.mjs`), que executa no `activeGM`.
 - **`dragDrop` em `DEFAULT_OPTIONS` é do AppV1** e o AppV2 ignora em silêncio. No V2,

@@ -812,6 +812,14 @@
       "ExpandirTudo": "Expandir todas as rodadas",
       "RecolherTudo": "Recolher todas as rodadas"
     },
-    "TYPES": {}
+    "TYPES": {},
+    "Marcador": {
+      "Criado": "{nome}: marcador posto no mapa.",
+      "Movido": "{nome}: marcador movido.",
+      "Ajuda": "Arraste o ponto para o mapa: o marcador nasce só do mestre e acende para os jogadores quando o ponto deixa de estar oculto.",
+      "Marcar": "Marcar no mapa",
+      "Desmarcar": "Tirar o marcador do mapa",
+      "SemCena": "Abra a cena do mapa antes de marcar o ponto."
+    }
   }
 }

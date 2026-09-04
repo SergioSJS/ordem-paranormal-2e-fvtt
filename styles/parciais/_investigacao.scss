@@ -1423,7 +1423,8 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
 .op2-poi__desafios .op2-painel-ordem__linha > .op2-botao-icone:first-of-type { margin-left: auto; }
 
 // Chegar a um card vindo de outro (ponto → desafio, desafio → ponto): pisca a borda.
-.op2-poi-card--foco {
+.op2-poi-card--foco,
+.op2-acoes__linha--foco {
   animation: op2-foco-card 2.5s ease-out;
 }
 
@@ -1433,7 +1434,8 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .op2-poi-card--foco { animation: none; box-shadow: 0 0 0 2px var(--op2-vermelho-claro); }
+  .op2-poi-card--foco,
+  .op2-acoes__linha--foco { animation: none; box-shadow: 0 0 0 2px var(--op2-vermelho-claro); }
 }
 
 // Janela de ações em abas: uma lista por aba, com filtro. Tudo numa página só virava

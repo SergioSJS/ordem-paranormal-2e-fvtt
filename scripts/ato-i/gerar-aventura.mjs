@@ -118,10 +118,14 @@ function pontosDoPorao() {
       // Alcançar não vira desafio de acesso (spec §7.4), mas a caixa dele explica o que
       // a mesa precisa saber ("subir no altar molhado e escorregadio") — e essa
       // explicação não pode morrer com a caixa.
-      const daCaixa = ponto.desafio?.observacao
+      const soAlcancar = ponto.desafio?.observacao
         && !(ponto.desafio.arrombar || ponto.desafio.destrancar || ponto.desafio.hackTecnico
-          || ponto.desafio.hackSocial || ponto.desafio.sustentar)
-        ? `<p>${ponto.desafio.observacao}.</p>` : "";
+          || ponto.desafio.hackSocial || ponto.desafio.sustentar);
+      // Com a DT na frente, como no Ato II: só a explicação deixava o mestre sem o
+      // número que a caixa do livro dá (achado na conferência contra o PDF).
+      const daCaixa = soAlcancar
+        ? `<p>${ponto.desafio.alcancar ? `<strong>Alcançar (DT ${ponto.desafio.alcancar.dt}):</strong> ` : ""}${ponto.desafio.observacao}.</p>`
+        : "";
 
       const senha = ponto.desafio?.senhaFixa
         ? `<p><strong>Senha do painel:</strong> ${ponto.desafio.senhaFixa}`
