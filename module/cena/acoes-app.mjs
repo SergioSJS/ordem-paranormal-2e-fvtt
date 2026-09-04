@@ -29,6 +29,29 @@ import { abrirRadio } from "./radio-app.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
+/**
+ * Só as abordagens que o mestre ligou naquele objeto: porta emperrada não se
+ * hackeia, painel eletrônico não se arromba no braço (achado em uso real — os
+ * quatro botões apareciam em todo desafio).
+ */
+function contextoDoDesafio(desafio) {
+  const { abordagens } = desafio.system;
+  return {
+    uuid: desafio.uuid,
+    nome: desafio.name,
+    img: desafio.img,
+    quebrado: desafio.system.quebrado,
+    destrancado: desafio.system.destrancado,
+    hackTecnicoResolvido: desafio.system.hackTecnico.resolvido,
+    hackSocialResolvido: desafio.system.hackSocial.resolvido,
+    genericoResolvido: desafio.system.generico.resolvido,
+    sustentarDt: desafio.system.sustentar.dt,
+    genericoRotulo: desafio.system.generico.rotulo?.trim() || game.i18n.localize("OP2.Desafio.Generico"),
+    abordagens,
+    temAlgumaAbordagem: Object.values(abordagens).some(Boolean),
+  };
+}
+
 export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     classes: ["op2", "op2-acoes"],
@@ -111,6 +134,14 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     const ocultosPoi = investigacao?.system.poisOcultos ?? [];
     const ocultosDesafio = investigacao?.system.desafiosOcultos ?? [];
 
+    const desafios = (investigacao?.system.desafios ?? [])
+      .filter((uuid) => !ocultosDesafio.includes(uuid))
+      .map((uuid) => fromUuidSync(uuid))
+      .filter((desafio) => desafio?.type === "desafio-acesso")
+      .map(contextoDoDesafio);
+    const desafioPorUuid = new Map(desafios.map((d) => [d.uuid, d]));
+    const ligados = new Set();
+
     const pois = (investigacao?.system.pois ?? [])
       .filter((uuid) => !ocultosPoi.includes(uuid))
       .map((uuid) => fromUuidSync(uuid))
@@ -119,6 +150,10 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
         uuid: poi.uuid,
         nome: poi.name,
         img: poi.img,
+        // Os desafios deste ponto ficam dentro dele: a porta do Depósito A se abre no
+        // Depósito A (achado em uso real). Desafio solto continua na seção própria.
+        desafios: (poi.system.desafios ?? []).map((d) => desafioPorUuid.get(d)).filter(Boolean)
+          .map((d) => { ligados.add(d.uuid); return d; }),
         // Só as ferramentas que ESTE personagem carrega — a reação do POI segue
         // escondida até o uso (spec §9.3).
         ferramentas: FERRAMENTAS_POI
@@ -126,31 +161,8 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
           .map((chave) => ({ chave, rotulo: game.i18n.localize(`OP2.Ferramenta.Subtipo.${chave}`) })),
       }));
 
-    const desafios = (investigacao?.system.desafios ?? [])
-      .filter((uuid) => !ocultosDesafio.includes(uuid))
-      .map((uuid) => fromUuidSync(uuid))
-      .filter((desafio) => desafio?.type === "desafio-acesso")
-      .map((desafio) => {
-        // Só as abordagens que o mestre ligou naquele objeto: porta emperrada não
-        // se hackeia, painel eletrônico não se arromba no braço (achado em uso
-        // real — os quatro botões apareciam em todo desafio).
-        const { abordagens } = desafio.system;
-        return {
-          uuid: desafio.uuid,
-          nome: desafio.name,
-          img: desafio.img,
-          quebrado: desafio.system.quebrado,
-          destrancado: desafio.system.destrancado,
-          hackTecnicoResolvido: desafio.system.hackTecnico.resolvido,
-          hackSocialResolvido: desafio.system.hackSocial.resolvido,
-          genericoResolvido: desafio.system.generico.resolvido,
-          sustentarDt: desafio.system.sustentar.dt,
-          genericoRotulo: desafio.system.generico.rotulo?.trim()
-            || game.i18n.localize("OP2.Desafio.Generico"),
-          abordagens,
-          temAlgumaAbordagem: Object.values(abordagens).some(Boolean),
-        };
-      });
+    // Só os desafios soltos, sem ponto: os outros já estão dentro do ponto deles.
+    const desafiosSoltos = desafios.filter((d) => !ligados.has(d.uuid));
 
     return {
       atorNome: ator.name,
@@ -160,6 +172,7 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       // trocar aqui sem voltar pro painel.
       investigacoes: investigacoesVisiveis().map((i) => ({ uuid: i.uuid, nome: i.name })),
       investigacaoAtualUuid: investigacao?.uuid ?? "",
+      desafios: desafiosSoltos,
       sustentando: ator.system.estado.sustentando?.ativo ?? false,
       // Ação sem alvo possível não é oferecida: avisar só depois do clique deixa o
       // jogador procurando o que não existe (achado em uso real).
@@ -172,7 +185,6 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       recapitularUsado: investigacao?.system.recapitularUsado ?? null,
       compartilharUsado: investigacao?.system.compartilharUsado ?? null,
       pois,
-      desafios,
     };
   }
 

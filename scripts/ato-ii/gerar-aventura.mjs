@@ -295,6 +295,7 @@ function pontoDeInteresse(ponto) {
     _id, name: tituloLegivel(ponto.nome), type: "ponto-interesse",
     img: iconeDoPonto(ponto.nome, { handouts: caminhosDeHandout, padrao: `${ICONES}/tipos/ponto-interesse.svg` }),
     system: {
+      desafios: desafioDoPonto(ponto) ? [`Item.${ident(`desafio-ato-ii-${ponto.numero}`)}`] : [],
       descricaoBasica: `<p>${escapar(descricao)}</p>`,
       descricaoContextual: [...notas, html(textoDeMestre), ...citados].filter(Boolean).join("\n"),
       informacoes,

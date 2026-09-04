@@ -150,6 +150,34 @@
         {{/if}}
       </fieldset>
 
+      {{!-- Os desafios deste ponto (a porta, o cadeado, o painel): arrastar um Desafio
+            de acesso para cá liga os dois; ao vincular o ponto a uma investigação,
+            os desafios vão junto. --}}
+      <fieldset class="op2-poi__desafios">
+        <legend>{{localize "OP2.POI.Desafios"}}</legend>
+        {{#unless desafiosVinculados.length}}
+          <p class="op2-ajuda">{{localize "OP2.POI.DesafiosVazio"}}</p>
+        {{/unless}}
+        <ol class="op2-painel-ordem">
+          {{#each desafiosVinculados}}
+            <li class="op2-painel-ordem__linha">
+              <img src="{{img}}" alt=""> <span>{{nome}}</span>
+              <button type="button" class="op2-botao-icone" data-action="abrirDesafioVinculado" data-uuid="{{uuid}}"
+                aria-label="{{localize 'OP2.Painel.AbrirDesafio'}}">
+                <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+              </button>
+              {{#if @root.editavel}}
+                <button type="button" class="op2-botao-icone" data-action="removerDesafioVinculado" data-uuid="{{uuid}}"
+                  aria-label="{{localize 'OP2.Painel.RemoverDesafio'}}">
+                  <i class="fa-solid fa-link-slash" aria-hidden="true"></i>
+                </button>
+              {{/if}}
+            </li>
+          {{/each}}
+        </ol>
+        <p class="op2-ajuda">{{localize "OP2.POI.DesafiosAjuda"}}</p>
+      </fieldset>
+
       <label class="op2-campo op2-campo--inline">
         <span>{{localize "OP2.POI.LaboratorioDados"}}</span>
         <input type="number" name="system.laboratorioDados" value="{{sistema.laboratorioDados}}"

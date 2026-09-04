@@ -161,6 +161,31 @@ export async function vincularPoi(investigacao, poiUuid, { oculto = true } = {})
     "system.pois": [...pois, poiUuid],
     ...(oculto && !ocultos.includes(poiUuid) ? { "system.poisOcultos": [...ocultos, poiUuid] } : {}),
   });
+  // Os desafios do ponto vão junto: a porta do Depósito A entra com o Depósito A.
+  const poi = fromUuidSync(poiUuid);
+  for (const desafioUuid of poi?.system?.desafios ?? []) {
+    await vincularDesafio(investigacao, desafioUuid, { oculto });
+  }
+}
+
+/** Liga um desafio de acesso a um ponto de interesse (cadastro do ponto). */
+export async function vincularDesafioAoPonto(poi, desafioUuid) {
+  const atuais = poi.system.desafios;
+  if (atuais.includes(desafioUuid)) return;
+  await poi.update({ "system.desafios": [...atuais, desafioUuid] });
+}
+
+export async function removerDesafioDoPonto(poi, desafioUuid) {
+  await poi.update({ "system.desafios": poi.system.desafios.filter((uuid) => uuid !== desafioUuid) });
+}
+
+/** O ponto (da investigação) a que um desafio pertence, se houver. */
+export function pontoDoDesafio(investigacao, desafioUuid) {
+  for (const poiUuid of investigacao?.system.pois ?? []) {
+    const poi = fromUuidSync(poiUuid);
+    if (poi?.system?.desafios?.includes(desafioUuid)) return poi;
+  }
+  return null;
 }
 
 export async function removerPoi(investigacao, poiUuid) {

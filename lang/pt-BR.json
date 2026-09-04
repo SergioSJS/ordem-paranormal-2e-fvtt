@@ -223,7 +223,10 @@
       "LaboratorioDados": "Dados do Laboratório Portátil",
       "LaboratorioDadosAjuda": "Quantos dados a escada do Laboratório rola neste ponto (4 a 6) — a \"sequência mínima\" do livro. O app usa como padrão.",
       "RadioTexto": "Leitura sem enigma",
-      "RadioTextoAjuda": "O que o rádio faz quando não há frase para montar (um grito, estática). Com conjuntos cadastrados, o enigma tem prioridade."
+      "RadioTextoAjuda": "O que o rádio faz quando não há frase para montar (um grito, estática). Com conjuntos cadastrados, o enigma tem prioridade.",
+      "Desafios": "Desafios deste ponto",
+      "DesafiosAjuda": "Arraste um Desafio de acesso para cá. Ao vincular o ponto a uma investigação, os desafios dele vão junto.",
+      "DesafiosVazio": "Nenhum desafio neste ponto."
     },
     "Acoes": {
       "Titulo": "Ações de investigação",
@@ -438,7 +441,9 @@
       "PreparacaoAjuda": "Montagem da investigação: quem participa, o roteiro rodada a rodada e a sobrecarga mental. Arraste atores, pontos e desafios para o painel.",
       "ProximoEvento": "Próximo evento do roteiro: rodada {rodada}.",
       "ProximoEventoTag": "Próximo",
-      "OcultoTag": "Oculto"
+      "OcultoTag": "Oculto",
+      "DesafiosDoPonto": "Desafios",
+      "EmPonto": "Desafio de {poi}"
     },
     "Rodada": {
       "Titulo": "Rodada {rodada}",

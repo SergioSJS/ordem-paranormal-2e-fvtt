@@ -83,6 +83,10 @@ export class PontoInteresseData extends foundry.abstract.TypeDataModel {
 
       /** O Laser de Varredura revela quais POIs reagem às demais ferramentas (spec §9). */
       reveladoPorLaser: new BooleanField({ required: true, initial: false }),
+      // Desafios de acesso deste ponto (uuids de Item): a porta trancada do Depósito A
+      // é do Depósito A. Um desafio também pode ficar solto, sem ponto (achado em uso
+      // real: "geralmente o desafio é atrelado a um ponto, e não dá pra saber").
+      desafios: new ArrayField(new StringField({ required: true, blank: false }), { initial: [] }),
     };
   }
 }

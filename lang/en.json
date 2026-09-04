@@ -223,7 +223,10 @@
       "LaboratorioDados": "Portable Lab dice",
       "LaboratorioDadosAjuda": "How many dice the Lab ladder rolls at this point (4 to 6) — the book's \"minimum sequence\". The app uses it as the default.",
       "RadioTexto": "Reading without a puzzle",
-      "RadioTextoAjuda": "What the radio does when there is no sentence to assemble (a scream, static). With sets registered, the puzzle takes priority."
+      "RadioTextoAjuda": "What the radio does when there is no sentence to assemble (a scream, static). With sets registered, the puzzle takes priority.",
+      "Desafios": "Challenges at this point",
+      "DesafiosAjuda": "Drag an Access Challenge here. Linking the point to an investigation brings its challenges along.",
+      "DesafiosVazio": "No challenge at this point."
     },
     "Acoes": {
       "Titulo": "Investigation actions",
@@ -438,7 +441,9 @@
       "PreparacaoAjuda": "Investigation setup: who takes part, the round-by-round script and mental overload. Drag actors, points and challenges onto the panel.",
       "ProximoEvento": "Next scripted event: round {rodada}.",
       "ProximoEventoTag": "Next",
-      "OcultoTag": "Hidden"
+      "OcultoTag": "Hidden",
+      "DesafiosDoPonto": "Challenges",
+      "EmPonto": "Challenge of {poi}"
     },
     "Rodada": {
       "Titulo": "Round {rodada}",

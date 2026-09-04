@@ -47,7 +47,10 @@ O painel tem duas colunas. À esquerda, o que muda a cada rodada: qual investiga
 à vista, **Nova rodada**, **Encerrar cena**, o que o roteiro e a sobrecarga trazem na
 próxima rodada e a **ordem das rodadas** com quem já agiu. À direita, a cena em três abas:
 **Preparação** (participantes, roteiro rodada a rodada e sobrecarga mental — só o mestre
-vê), **Pontos de interesse** e **Desafios**. A ordem fica parada enquanto você percorre
+vê), **Pontos de interesse** e **Desafios**. Um desafio pode pertencer a um ponto (a porta
+trancada do Depósito A é do Depósito A): arraste o desafio para o cadastro do ponto, e ele
+aparece dentro do card do ponto, no ponto da janela de ações do jogador e entra na
+investigação junto com o ponto. Desafio solto continua existindo, na aba Desafios. A ordem fica parada enquanto você percorre
 trinta pontos; numa janela estreita as colunas empilham. A aba escolhida e as seções
 abertas da Preparação ficam guardadas no seu navegador. Cada card também **recolhe e
 expande** (o estado fica no seu navegador), há **recolher/expandir todos** e um **filtro

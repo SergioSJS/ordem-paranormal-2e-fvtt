@@ -136,6 +136,8 @@ function pontosDoPorao() {
           padrao: "systems/ordem-paranormal-2e/assets/icons/tipos/ponto-interesse.svg",
         }),
         system: {
+          // A porta do Depósito A é do Depósito A: o ponto lista o próprio desafio.
+          desafios: desafioDoPonto(ponto) ? [`Item.${ident(`desafio-ato-i-${ponto.nome}`)}`] : [],
           descricaoBasica: `<p>${ponto.descricao}</p>`,
           descricaoContextual: [condicaoDoPonto, daCaixa, notas, prateleiras, conteudo, senha, ...imagens]
             .filter(Boolean).join("\n"),

@@ -9,6 +9,7 @@ import { PERICIAS, APTIDOES_PADRAO, FERRAMENTAS_POI } from "../config.mjs";
 import { OP2ItemSheet } from "./item-sheet.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
 import { cicloVisibilidadeInfo } from "../cena/acoes-investigacao.mjs";
+import { vincularDesafioAoPonto, removerDesafioDoPonto } from "../cena/investigacao-ativa.mjs";
 
 export class PontoInteresseSheet extends OP2ItemSheet {
   static DEFAULT_OPTIONS = {
@@ -21,8 +22,42 @@ export class PontoInteresseSheet extends OP2ItemSheet {
       removerFerramenta: PontoInteresseSheet.#removerFerramenta,
       adicionarConjuntoRadio: PontoInteresseSheet.#adicionarConjuntoRadio,
       removerConjuntoRadio: PontoInteresseSheet.#removerConjuntoRadio,
+      abrirDesafioVinculado: PontoInteresseSheet.#abrirDesafioVinculado,
+      removerDesafioVinculado: PontoInteresseSheet.#removerDesafioVinculado,
     },
   };
+
+  /**
+   * Soltar um Desafio de acesso na ficha liga os dois. `dragDrop` em DEFAULT_OPTIONS é
+   * do AppV1 e o V2 ignora: a instância é criada aqui e religada a cada render.
+   */
+  get _dragDrop() {
+    return this.#dragDrop ??= new foundry.applications.ux.DragDrop.implementation({
+      dropSelector: ".op2-poi__desafios",
+      permissions: { drop: () => game.user.isGM && this.isEditable },
+      callbacks: { drop: this._onDrop.bind(this) },
+    });
+  }
+
+  #dragDrop = null;
+
+  async _onDrop(evento) {
+    let dados;
+    try {
+      dados = JSON.parse(evento.dataTransfer.getData("text/plain"));
+    } catch { return; }
+    if (dados?.type !== "Item") return;
+    const item = await fromUuid(dados.uuid);
+    if (item?.type === "desafio-acesso") await vincularDesafioAoPonto(this.item, item.uuid);
+  }
+
+  static async #abrirDesafioVinculado(_evento, alvo) {
+    (await fromUuid(alvo.dataset.uuid))?.sheet?.render(true);
+  }
+
+  static async #removerDesafioVinculado(_evento, alvo) {
+    await removerDesafioDoPonto(this.item, alvo.dataset.uuid);
+  }
 
   static TABS = {
     principal: {
@@ -87,12 +122,17 @@ export class PontoInteresseSheet extends OP2ItemSheet {
       ferramentasDisponiveis: FERRAMENTAS_POI
         .filter((chave) => !ferramentas[chave] && !this.#ferramentasNovas.has(chave))
         .map((chave) => ({ chave, rotulo: rotuloFerramenta(chave) })),
+      // Os desafios deste ponto: a porta trancada do Depósito A é do Depósito A.
+      desafiosVinculados: this.item.system.desafios.map((uuid) => fromUuidSync(uuid))
+        .filter((d) => d?.type === "desafio-acesso")
+        .map((d) => ({ uuid: d.uuid, nome: d.name, img: d.img })),
     };
   }
 
   _onRender(contexto, opcoes) {
     super._onRender(contexto, opcoes);
     if (!game.user.isGM || !this.isEditable) return;
+    this._dragDrop.bind(this.element);
     // Adicionar uma ferramenta abre a linha vazia; o texto salva sozinho na edição.
     const seletor = this.element.querySelector("[data-seletor-ferramenta]");
     seletor?.addEventListener("change", async () => {

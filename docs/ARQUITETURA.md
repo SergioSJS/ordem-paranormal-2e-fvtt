@@ -131,6 +131,13 @@ parâmetro (a ativa é só o padrão): a ficha de uma investigação que não é
 sobre ela mesma. Toda janela aberta se registra em `janelasDeInvestigacao` e é
 rerrenderizada quando um ponto, desafio ou ator muda.
 
+**Um desafio pode pertencer a um ponto.** `PontoInteresseData.desafios` lista uuids de
+Desafio de acesso; o vínculo se faz arrastando o desafio para a ficha do ponto. Vincular o
+ponto a uma investigação (`vincularPoi`) traz os desafios dele; o painel mostra o desafio
+dentro do card do ponto e o ponto no card do desafio (`pontoDoDesafio`); a janela de
+ações põe os botões do desafio dentro do ponto e deixa na seção própria só os soltos.
+Os geradores dos atos ligam cada desafio ao ponto de onde o livro o tirou.
+
 **"Em jogo" (mundo) é diferente de "vendo agora" (cliente).** O grupo pode se dividir
 em mais de uma investigação ao mesmo tempo (achado em uso real) — por isso não existe
 mais um único ponteiro de investigação ativa. `investigacoesAtivasUuids` é setting de

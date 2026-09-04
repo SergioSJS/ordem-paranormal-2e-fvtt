@@ -33,7 +33,7 @@ import { avancarRodada } from "./cena/rodada.mjs";
 import {
   investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,
   adicionarParticipante, removerParticipante, vincularPoi, removerPoi, vincularDesafio, removerDesafio,
-  alternarJaAgiu, alternarOculto, moverParticipante,
+  alternarJaAgiu, alternarOculto, moverParticipante, vincularDesafioAoPonto, removerDesafioDoPonto, pontoDoDesafio,
 } from "./cena/investigacao-ativa.mjs";
 import {
   examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo,
@@ -113,6 +113,7 @@ Hooks.once("init", () => {
     usarHabilidadeOuItem, concederPasso,
     investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,
     adicionarParticipante, removerParticipante, vincularPoi, removerPoi, vincularDesafio, removerDesafio,
+    vincularDesafioAoPonto, removerDesafioDoPonto, pontoDoDesafio,
     alternarJaAgiu, alternarOculto, moverParticipante,
   };
 });

@@ -1127,3 +1127,42 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
 .op2-timer-hack__botoes { display: flex; gap: var(--op2-e2); }
 
 .op2-card__pergunta { font-family: var(--op2-fonte-mono); font-size: 1.3rem; }
+
+// Os desafios de um ponto, no card do painel: fichas clicáveis (o mestre abre a ficha).
+.op2-poi-card__desafios {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--op2-e1);
+  margin: var(--op2-e2) 0;
+}
+
+.op2-poi-card__desafio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--op2-e1);
+  padding: 0.2rem 0.5rem 0.2rem 0.3rem;
+  border: 1px solid var(--op2-linha-forte);
+  border-radius: var(--op2-raio);
+  background: var(--op2-superficie);
+  color: var(--op2-texto);
+  font-family: var(--op2-fonte-corpo);
+  font-size: 0.85rem;
+  cursor: pointer;
+
+  img { width: 1.3rem; height: 1.3rem; object-fit: cover; border-radius: var(--op2-raio); }
+  &--resolvido { border-color: var(--op2-sucesso); }
+  &:disabled { cursor: default; }
+}
+
+// Na janela de ações: o desafio dentro do ponto, separado das ferramentas.
+.op2-acoes__desafio-do-ponto {
+  margin-top: var(--op2-e2);
+  padding-top: var(--op2-e2);
+  border-top: 1px dashed var(--op2-linha);
+}
+
+.op2-acoes__alvo-topo--desafio strong { font-size: 0.95rem; }
+
+// Na ficha do ponto: a lista dos desafios dele, alvo do arrastar-e-soltar.
+.op2-poi__desafios .op2-painel-ordem__linha > .op2-botao-icone:first-of-type { margin-left: auto; }

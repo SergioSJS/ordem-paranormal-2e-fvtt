@@ -112,6 +112,12 @@
               <span class="op2-acoes__rotulo">{{localize "OP2.Investigacao.Examinar"}}</span>
             </button>
           </div>
+          {{!-- Os desafios deste ponto: a porta do Depósito A se abre no Depósito A. --}}
+          {{#each desafios}}
+            <div class="op2-acoes__desafio-do-ponto">
+              {{> (op2Caminho "actor/partials/acoes-desafio")}}
+            </div>
+          {{/each}}
           {{#if ferramentas.length}}
             <div class="op2-acoes__ferramentas">
               <span class="op2-acoes__subtitulo">{{localize "OP2.Secao.Ferramentas"}}</span>
@@ -131,6 +137,7 @@
       {{/each}}
     </section>
 
+    {{!-- Só os desafios soltos, sem ponto: os outros aparecem dentro do ponto deles. --}}
     <section class="op2-painel-secao">
       <h3 class="op2-painel-titulo">{{localize "OP2.Painel.Desafios"}}</h3>
       {{#unless desafios.length}}
@@ -138,63 +145,7 @@
       {{/unless}}
       {{#each desafios}}
         <div class="op2-acoes__alvo">
-          <div class="op2-acoes__alvo-topo">
-            <img src="{{img}}" alt=""> <strong>{{nome}}</strong>
-            {{#if quebrado}}<span class="op2-painel-trava">· {{localize "OP2.Desafio.Quebrado"}}</span>{{/if}}
-            {{#if destrancado}}<span class="op2-painel-trava">· {{localize "OP2.Desafio.Destrancou"}}</span>{{/if}}
-          </div>
-          {{!-- Só as abordagens que o mestre marcou neste obstáculo. --}}
-          <div class="op2-acoes__grupo">
-            {{#if abordagens.arrombar}}
-              <button type="button" class="op2-botao op2-botao--pequeno" data-action="arrombar"
-                data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}
-                data-tooltip="{{localize 'OP2.Desafio.Arrombar'}}">
-                <i class="fa-solid fa-hammer" aria-hidden="true"></i>
-                <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.Arrombar"}}</span>
-              </button>
-            {{/if}}
-            {{#if abordagens.destrancar}}
-              <button type="button" class="op2-botao op2-botao--pequeno" data-action="destrancar"
-                data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}
-                data-tooltip="{{localize 'OP2.Desafio.Destrancar'}}">
-                <i class="fa-solid fa-key" aria-hidden="true"></i>
-                <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.Destrancar"}}</span>
-              </button>
-            {{/if}}
-            {{#if abordagens.hackTecnico}}
-              <button type="button" class="op2-botao op2-botao--pequeno" data-action="hackTecnico"
-                data-desafio-uuid="{{uuid}}" {{#if hackTecnicoResolvido}}disabled{{/if}}
-                data-tooltip="{{localize 'OP2.Desafio.HackTecnico'}}">
-                <i class="fa-solid fa-laptop-code" aria-hidden="true"></i>
-                <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.HackTecnico"}}</span>
-              </button>
-            {{/if}}
-            {{#if abordagens.hackSocial}}
-              <button type="button" class="op2-botao op2-botao--pequeno" data-action="hackSocial"
-                data-desafio-uuid="{{uuid}}" {{#if hackSocialResolvido}}disabled{{/if}}
-                data-tooltip="{{localize 'OP2.Desafio.HackSocial'}}">
-                <i class="fa-solid fa-comments" aria-hidden="true"></i>
-                <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.HackSocial"}}</span>
-              </button>
-            {{/if}}
-            {{#if abordagens.sustentar}}
-              <button type="button" class="op2-botao op2-botao--pequeno" data-action="sustentarDesafio"
-                data-desafio-uuid="{{uuid}}" data-tooltip="{{localize 'OP2.Desafio.Sustentar'}} (DT {{sustentarDt}})">
-                <i class="fa-solid fa-weight-hanging" aria-hidden="true"></i>
-                <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.Sustentar"}} (DT {{sustentarDt}})</span>
-              </button>
-            {{/if}}
-            {{#if abordagens.generico}}
-              <button type="button" class="op2-botao op2-botao--pequeno" data-action="desafioGenerico"
-                data-desafio-uuid="{{uuid}}" {{#if genericoResolvido}}disabled{{/if}} data-tooltip="{{genericoRotulo}}">
-                <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
-                <span class="op2-acoes__rotulo">{{genericoRotulo}}</span>
-              </button>
-            {{/if}}
-            {{#unless temAlgumaAbordagem}}
-              <span class="op2-ajuda">{{localize "OP2.Desafio.SemAbordagem"}}</span>
-            {{/unless}}
-          </div>
+          {{> (op2Caminho "actor/partials/acoes-desafio")}}
         </div>
       {{/each}}
     </section>

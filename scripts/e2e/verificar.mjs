@@ -929,6 +929,12 @@ const relato = await page.evaluate(async () => {
         correntes?.system.dtObjeto === 10 && correntes.system.pontuacaoAlvo === 10
         && correntes.system.tamanhoSenha === 4 && correntes.system.facesSenha === 4
         && correntes.system.maxTentativas === 2);
+      // Cada desafio pertence ao ponto de onde veio: o ponto lista o desafio.
+      const poisNoMundo = noMundo("Item").filter((i) => i.type === "ponto-interesse");
+      const pontoDeEdgar = poisNoMundo.find((p) => p.name.startsWith("Edgar"));
+      ok("o ponto de Edgar e Kênia lista as correntes como desafio dele",
+        pontoDeEdgar?.system.desafios.includes(`Item.${correntes.id}`)
+        && desafiosNoMundo.every((d) => poisNoMundo.some((p) => p.system.desafios.includes(`Item.${d.id}`))));
 
       // A estante é enigma + Sustentar: abordagem genérica, não arrombamento.
       // Os vinte livros das cinco prateleiras: é neles que os jogadores caçam os quatro.
@@ -2966,6 +2972,39 @@ const relato = await page.evaluate(async () => {
       const doJogador = [...game.messages].slice(antesJogador);
       ok("como jogador, Interagir não cria nenhum card com a descrição contextual",
         doJogador.length === 1 && !doJogador[0].content.includes("SEGREDO-DO-MESTRE") && !doJogador[0].whisper?.length);
+    }
+
+    // 3c. Desafio dentro do ponto: o cadastro do ponto lista os desafios dele; vincular
+    //     o ponto traz o desafio; painel e janela de ações mostram o desafio no ponto
+    //     (achado em uso real: "não dá pra saber a que ponto o desafio pertence").
+    {
+      const deposito = await Item.create({ name: "Depósito Z", type: "ponto-interesse", system: { informacoes: [] } });
+      const portaZ = await Item.create({ name: "Porta do Depósito Z", type: "desafio-acesso", system: {
+        abordagens: { arrombar: true, destrancar: false, hackTecnico: false, hackSocial: false, generico: false },
+      } });
+      await game.op2.vincularDesafioAoPonto(deposito, portaZ.uuid);
+      ok("o ponto lista o desafio vinculado", deposito.system.desafios.includes(portaZ.uuid));
+      await game.op2.vincularPoi(inv, deposito.uuid, { oculto: false });
+      await esperar(300);
+      ok("vincular o ponto à investigação traz o desafio dele, visível como o ponto",
+        inv.system.desafios.includes(portaZ.uuid) && !inv.system.desafiosOcultos.includes(portaZ.uuid));
+      await painel.render();
+      await esperar(800);
+      const cardDeposito = painel.element.querySelector(`[data-poi-card="${deposito.uuid}"]`);
+      const cardPorta = painel.element.querySelector(`[data-poi-card="${portaZ.uuid}"]`);
+      ok("o card do ponto mostra o desafio dele, e o card do desafio diz o ponto",
+        Boolean(cardDeposito?.querySelector(`.op2-poi-card__desafio[data-desafio-uuid="${portaZ.uuid}"]`))
+        && (cardPorta?.textContent ?? "").includes("Depósito Z"));
+      const acoes = game.op2.acoesInvestigacao(ator);
+      await esperar(800);
+      const blocoPonto = [...acoes.element.querySelectorAll(".op2-acoes__alvo")].find((el) => el.textContent.includes("Depósito Z"));
+      ok("na janela de ações, Arrombar da porta fica dentro do Depósito Z, e não na seção de desafios soltos",
+        Boolean(blocoPonto?.querySelector(`[data-action="arrombar"][data-desafio-uuid="${portaZ.uuid}"]`))
+        && acoes.element.querySelectorAll(`[data-action="arrombar"][data-desafio-uuid="${portaZ.uuid}"]`).length === 1);
+      await acoes.close();
+      await game.op2.removerPoi(inv, deposito.uuid);
+      await game.op2.removerDesafio(inv, portaZ.uuid);
+      await deposito.delete(); await portaZ.delete();
     }
 
     // 4. Card da rodada com o roteiro em HTML (nada de <p> cru) e botão que diz o dado.

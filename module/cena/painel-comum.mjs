@@ -21,7 +21,7 @@ import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerra
 import {
   estaAtiva, alternarAtiva,
   adicionarParticipante, removerParticipante, definirOrdemParticipantes, alternarJaAgiu,
-  vincularPoi, removerPoi, vincularDesafio, removerDesafio, alternarOculto, moverParticipante,
+  vincularPoi, removerPoi, vincularDesafio, removerDesafio, alternarOculto, moverParticipante, pontoDoDesafio,
 } from "./investigacao-ativa.mjs";
 import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada } from "./rodada.mjs";
 import { cicloVisibilidadeInfo, limparRevelacao } from "./acoes-investigacao.mjs";
@@ -171,6 +171,8 @@ export function PainelInvestigacaoMixin(Base) {
       const contexto = {
         ...base,
         temInvestigacao: Boolean(investigacao),
+        // Os desafios vêm antes: o card de cada ponto lista os seus (`poi.system.desafios`).
+        pois: [],
         nomeInvestigacao: investigacao?.name ?? "",
         investigacaoEstaEmJogo: investigacao ? estaAtiva(investigacao) : false,
         rodada,
@@ -181,7 +183,6 @@ export function PainelInvestigacaoMixin(Base) {
         // Toda seção nasce recolhida; o que o usuário abriu fica guardado no navegador.
         secoes: lerSecoes(),
         tabs: this._prepareTabs("principal"),
-        pois: investigacao ? await this.#contextoPois(investigacao, ehGM) : [],
         desafios: investigacao ? await this.#contextoDesafios(investigacao, ehGM) : [],
         ordem: this.#contextoOrdem(investigacao, ehGM),
         participantes: this.#contextoParticipantes(investigacao, ehGM),
@@ -196,6 +197,7 @@ export function PainelInvestigacaoMixin(Base) {
         // aba de Preparação, mas "Nova rodada" se decide à esquerda.
         proximoEvento: eventos.find((e) => e.proximo)?.rodada ?? null,
       };
+      contexto.pois = investigacao ? await this.#contextoPois(investigacao, ehGM, contexto.desafios) : [];
       contexto.contagens = { pontos: contexto.pois.length, desafios: contexto.desafios.length };
       return contexto;
     }
@@ -222,9 +224,10 @@ export function PainelInvestigacaoMixin(Base) {
         .map((a) => this.#linhaParticipante(a, investigacao));
     }
 
-    async #contextoPois(investigacao, ehGM) {
+    async #contextoPois(investigacao, ehGM, desafios = []) {
       const editor = foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
       const pois = [];
+      const desafioPorUuid = new Map(desafios.map((d) => [d.uuid, d]));
       const recolhidos = lerLista(CHAVE_RECOLHIDOS);
       const notas = lerLista(CHAVE_NOTAS);
       const personagens = personagensDaCenaAtiva(investigacao);
@@ -258,6 +261,8 @@ export function PainelInvestigacaoMixin(Base) {
             ? await editor.enrichHTML(poi.system.descricaoContextual, { relativeTo: poi })
             : "",
           reveladoPorLaser: poi.system.reveladoPorLaser,
+          // Os desafios deste ponto que estão na investigação (e visíveis para quem vê).
+          desafios: (poi.system.desafios ?? []).map((d) => desafioPorUuid.get(d)).filter(Boolean),
           // O mestre controla visibilidade direto pelo olho — deste POI e de cada
           // linha do quadro abaixo — sem depender de o jogador ter investigado
           // antes (achado em uso real: "marco visível e não aparece pro jogador" —
@@ -324,6 +329,8 @@ export function PainelInvestigacaoMixin(Base) {
           uuid: desafio.uuid,
           nome: desafio.name,
           img: desafio.img,
+          // O ponto a que pertence, se algum ponto da investigação o lista.
+          poiNome: pontoDoDesafio(investigacao, desafio.uuid)?.name ?? "",
           oculto: ocultos.includes(desafio.uuid),
           recolhido: recolhidos.has(desafio.uuid),
           notasAbertas: notas.has(desafio.uuid),
