@@ -14,6 +14,16 @@ import { TABELA_SOBRECARGA_PADRAO } from "../config.mjs";
  * aqui, não em flag de Scene.
  */
 export class InvestigacaoData extends foundry.abstract.TypeDataModel {
+  /**
+   * Investigações antigas guardavam o roteiro aqui dentro, como objetos. Agora o campo
+   * é uma lista de uuids de Item `evento`: o que veio no formato velho sai, e o
+   * roteiro volta ao reimportar a aventura.
+   */
+  static migrateData(fonte) {
+    if (Array.isArray(fonte?.eventos)) fonte.eventos = fonte.eventos.filter((e) => typeof e === "string");
+    return super.migrateData(fonte);
+  }
+
   static defineSchema() {
     const {
       HTMLField, StringField, NumberField, BooleanField, ArrayField, SchemaField,
@@ -41,17 +51,14 @@ export class InvestigacaoData extends foundry.abstract.TypeDataModel {
       }),
 
       /**
-       * Roteiro da cena: o que acontece no começo de certas rodadas.
+       * Os eventos com roteiro próprio desta investigação (uuids de Item `evento`).
        *
-       * A sobrecarga é dano por tabela; isto é o resto — a narração que o mestre lê e o
-       * efeito que ele aplica ("A Dívida Precisa Ser Paga", do Ato I: rodadas 4, 7, 10,
-       * 13 e 14). Só texto: o efeito é decisão de mesa, o sistema avisa na hora certa.
+       * Era uma lista de rodadas aqui dentro, contadas do começo da cena. Mas o livro
+       * conta a partir do gatilho: a maldição do Ato I só começa quando o grupo acha o
+       * Ídolo, seja na rodada 1 ou na 50 (achado em uso real). O roteiro virou Item, com
+       * rodadas relativas, e a investigação só guarda o vínculo.
        */
-      eventos: new ArrayField(new SchemaField({
-        rodada: new NumberField({ required: true, initial: 1, min: 0, integer: true, nullable: false }),
-        narracao: new HTMLField({ required: true, initial: "", blank: true }),
-        efeito: new HTMLField({ required: true, initial: "", blank: true }),
-      }), { initial: [] }),
+      eventos: new ArrayField(new StringField(), { initial: [] }),
 
       // Quem participa — não quem tem token numa Scene específica.
       participantes: new ArrayField(new StringField(), { initial: [] }),

@@ -10,6 +10,7 @@ import { EquipamentoData } from "./data/item-equipamento.mjs";
 import { FerramentaData } from "./data/item-ferramenta.mjs";
 import { PontoInteresseData } from "./data/item-ponto-interesse.mjs";
 import { DesafioAcessoData } from "./data/item-desafio-acesso.mjs";
+import { EventoData } from "./data/item-evento.mjs";
 import { OcupacaoData } from "./data/item-ocupacao.mjs";
 import { InvestigacaoData } from "./data/actor-investigacao.mjs";
 import { PersonagemSheet } from "./sheets/actor-personagem-sheet.mjs";
@@ -18,6 +19,7 @@ import { InvestigacaoSheet } from "./sheets/actor-investigacao-sheet.mjs";
 import { OP2ItemSheet } from "./sheets/item-sheet.mjs";
 import { PontoInteresseSheet } from "./sheets/item-ponto-interesse-sheet.mjs";
 import { DesafioAcessoSheet } from "./sheets/item-desafio-acesso-sheet.mjs";
+import { EventoSheet } from "./sheets/item-evento-sheet.mjs";
 import { OP2Roll } from "./dice/op2-roll.mjs";
 import { rolarTeste } from "./dice/teste.mjs";
 import { stepDie, faces } from "./dice/escada.mjs";
@@ -29,11 +31,12 @@ import { registrarSocket } from "./ui/socket.mjs";
 import { registrarExtrasDeAventura } from "./ui/extras-aventura.mjs";
 import { encerrarCena } from "./cena/encerrar-investigacao.mjs";
 import { registrarPainelInvestigacao, abrirPainelInvestigacao } from "./cena/painel-investigacao.mjs";
-import { avancarRodada } from "./cena/rodada.mjs";
+import { avancarRodada, rodadaAtual } from "./cena/rodada.mjs";
 import {
   investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,
   adicionarParticipante, removerParticipante, vincularPoi, removerPoi, vincularDesafio, removerDesafio,
   alternarJaAgiu, alternarOculto, moverParticipante, vincularDesafioAoPonto, removerDesafioDoPonto, pontoDoDesafio,
+  vincularEvento, removerEvento, eventosDaInvestigacao, dispararEvento, reiniciarEvento,
 } from "./cena/investigacao-ativa.mjs";
 import {
   examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo,
@@ -67,6 +70,7 @@ Hooks.once("init", () => {
   CONFIG.Item.dataModels.ferramenta = FerramentaData;
   CONFIG.Item.dataModels["ponto-interesse"] = PontoInteresseData;
   CONFIG.Item.dataModels["desafio-acesso"] = DesafioAcessoData;
+  CONFIG.Item.dataModels.evento = EventoData;
   CONFIG.Item.dataModels.ocupacao = OcupacaoData;
 
   // `push`, não `unshift`: o primeiro da lista é a classe padrão de TODA rolagem do
@@ -113,6 +117,7 @@ Hooks.once("init", () => {
     usarHabilidadeOuItem, concederPasso,
     investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,
     adicionarParticipante, removerParticipante, vincularPoi, removerPoi, vincularDesafio, removerDesafio,
+    vincularEvento, removerEvento, eventosDaInvestigacao, dispararEvento, reiniciarEvento, rodadaAtual,
     vincularDesafioAoPonto, removerDesafioDoPonto, pontoDoDesafio,
     alternarJaAgiu, alternarOculto, moverParticipante,
   };
@@ -242,5 +247,8 @@ function registrarSheets() {
   });
   Items.registerSheet(SYSTEM_ID, DesafioAcessoSheet, {
     types: ["desafio-acesso"], makeDefault: true, label: "OP2.Ficha.DesafioAcesso",
+  });
+  Items.registerSheet(SYSTEM_ID, EventoSheet, {
+    types: ["evento"], makeDefault: true, label: "OP2.Ficha.Evento",
   });
 }

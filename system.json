@@ -43,7 +43,8 @@
       "ferramenta": {},
       "ponto-interesse": {},
       "desafio-acesso": {},
-      "ocupacao": {}
+      "ocupacao": {},
+      "evento": {}
     }
   },
   "relationships": {

@@ -18,11 +18,13 @@
 import { SYSTEM_ID } from "../config.mjs";
 import { periciasDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs";
 import { semPrefixoDoPonto } from "./desafios.mjs";
+import { rodadaRelativa, proximaRodadaDaCena } from "./eventos.mjs";
 import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerrar-investigacao.mjs";
 import {
   estaAtiva, alternarAtiva,
   adicionarParticipante, removerParticipante, definirOrdemParticipantes, alternarJaAgiu,
   vincularPoi, removerPoi, vincularDesafio, removerDesafio, alternarOculto, moverParticipante, pontoDoDesafio,
+  vincularEvento, removerEvento, eventosDaInvestigacao, dispararEvento, reiniciarEvento,
 } from "./investigacao-ativa.mjs";
 import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada } from "./rodada.mjs";
 import { cicloVisibilidadeInfo, limparRevelacao } from "./acoes-investigacao.mjs";
@@ -72,8 +74,11 @@ export function PainelInvestigacaoMixin(Base) {
         alternarSobrecarga: PainelInvestigacaoComum.#alternarSobrecarga,
         adicionarLinhaSobrecarga: PainelInvestigacaoComum.#adicionarLinhaSobrecarga,
         removerLinhaSobrecarga: PainelInvestigacaoComum.#removerLinhaSobrecarga,
-        adicionarEvento: PainelInvestigacaoComum.#adicionarEvento,
-        removerEvento: PainelInvestigacaoComum.#removerEvento,
+        criarEvento: PainelInvestigacaoComum.#criarEvento,
+        abrirEvento: PainelInvestigacaoComum.#abrirEvento,
+        desvincularEvento: PainelInvestigacaoComum.#desvincularEvento,
+        dispararEvento: PainelInvestigacaoComum.#dispararEvento,
+        reiniciarEvento: PainelInvestigacaoComum.#reiniciarEvento,
         alternarAtiva: PainelInvestigacaoComum.#alternarAtiva,
         removerParticipante: PainelInvestigacaoComum.#removerParticipante,
         alternarJaAgiu: PainelInvestigacaoComum.#alternarJaAgiu,
@@ -160,21 +165,25 @@ export function PainelInvestigacaoMixin(Base) {
         .filter(({ trava }) => trava?.usado)
         .map(({ trava, rotulo }) => ({ rotulo, nome: trava.nome }));
 
-      // O roteiro da cena (só o mestre): editável, com a próxima rodada marcada em
-      // destaque — para ele ver o que vem antes de apertar "Nova rodada". Os
-      // parágrafos HTML viram linhas em branco no textarea e voltam a ser <p> ao
-      // gravar — sem um editor de texto rico por linha.
-      const todosEventos = investigacao?.system.eventos ?? [];
-      const proximaRodada = todosEventos.map((e) => e.rodada).filter((r) => r >= rodada).sort((a, b) => a - b)[0];
+      // Os eventos com roteiro próprio (só o mestre): cada um conta as rodadas a
+      // partir do gatilho, então o que importa aqui é se já foi disparado e o que vem
+      // na próxima rodada DA CENA.
       const eventos = ehGM
-        ? todosEventos.map((evento, indice) => ({
-          indice,
-          rodada: evento.rodada,
-          narracao: textoPlano(evento.narracao),
-          efeito: textoPlano(evento.efeito),
-          passado: evento.rodada < rodada,
-          proximo: evento.rodada === proximaRodada,
-        }))
+        ? eventosDaInvestigacao(investigacao).map((item) => {
+          const relativa = rodadaRelativa(item.system, rodada);
+          const proxima = proximaRodadaDaCena(item.system, rodada);
+          return {
+            uuid: item.uuid,
+            nome: item.name,
+            img: item.img,
+            disparado: item.system.disparado,
+            rodadaInicial: item.system.rodadaInicial,
+            relativa: Math.max(relativa, 0),
+            totalRodadas: item.system.rodadas.length,
+            proximaDaCena: proxima,
+            proximaEhAgora: proxima === rodada,
+          };
+        })
         : [];
 
       const contexto = {
@@ -202,9 +211,9 @@ export function PainelInvestigacaoMixin(Base) {
           tabela: sobrecarga.tabela.map((linha, indice) => ({ ...linha, indice })),
         },
         eventos,
-        // O que a próxima rodada traz, na coluna dos controles: o roteiro mora na
+        // O que a próxima rodada traz, na coluna dos controles: os eventos moram na
         // aba de Preparação, mas "Nova rodada" se decide à esquerda.
-        proximoEvento: eventos.find((e) => e.proximo)?.rodada ?? null,
+        proximoEvento: eventos.map((e) => e.proximaDaCena).filter((r) => r !== null).sort((a, b) => a - b)[0] ?? null,
       };
       contexto.pois = investigacao ? await this.#contextoPois(investigacao, ehGM, contexto.desafios) : [];
       contexto.contagens = { pontos: contexto.pois.length, desafios: contexto.desafios.length };
@@ -469,10 +478,7 @@ export function PainelInvestigacaoMixin(Base) {
         for (const campo of this.element.querySelectorAll("[data-sobrecarga-campo]")) {
           campo.addEventListener("change", () => this.#gravarTabela());
         }
-        for (const campo of this.element.querySelectorAll("[data-evento-campo]")) {
-          campo.addEventListener("change", () => this.#gravarEventos());
         }
-      }
 
       // De novo no fim: o filtro e as classes acima mudam a altura do conteúdo, e a
       // rolagem restaurada na troca do HTML seria cortada pela altura antiga.
@@ -502,18 +508,6 @@ export function PainelInvestigacaoMixin(Base) {
         }))
         .filter((linha) => linha.rodada > 0);
       await definirSobrecarga({ ...sobrecargaDaCena(investigacao), tabela }, investigacao);
-    }
-
-    async #gravarEventos() {
-      const investigacao = this.investigacao;
-      if (!investigacao) return;
-      const eventos = [...this.element.querySelectorAll("[data-evento-linha]")]
-        .map((linha) => ({
-          rodada: Number(linha.querySelector("[data-evento-campo='rodada']")?.value ?? 0),
-          narracao: htmlDeTexto(linha.querySelector("[data-evento-campo='narracao']")?.value ?? ""),
-          efeito: htmlDeTexto(linha.querySelector("[data-evento-campo='efeito']")?.value ?? ""),
-        }));
-      await investigacao.update({ "system.eventos": eventos });
     }
 
     /* -- preferências de tela ---------------------------------------------- */
@@ -608,6 +602,7 @@ export function PainelInvestigacaoMixin(Base) {
         const item = await fromUuid(dados.uuid);
         if (item?.type === "desafio-acesso") return vincularDesafio(investigacao, item.uuid);
         if (item?.type === "ponto-interesse") return vincularPoi(investigacao, item.uuid);
+        if (item?.type === "evento") return vincularEvento(investigacao, item.uuid);
       }
     }
 
@@ -705,19 +700,47 @@ export function PainelInvestigacaoMixin(Base) {
       await definirSobrecarga({ ...sobrecarga, tabela }, investigacao);
     }
 
-    static async #adicionarEvento() {
+    /** Um evento novo, já vinculado — o mestre escreve o roteiro na ficha dele. */
+    static async #criarEvento() {
+      if (!game.user.isGM) return;
       const investigacao = this.investigacao;
       if (!investigacao) return;
-      const eventos = investigacao.system.eventos.map((e) => ({ ...e }));
-      const ultima = Math.max(0, ...eventos.map((e) => e.rodada));
-      await investigacao.update({ "system.eventos": [...eventos, { rodada: ultima + 1, narracao: "", efeito: "" }] });
+      const [item] = await Item.createDocuments([{
+        name: game.i18n.localize("OP2.Evento.Novo"),
+        type: "evento",
+        img: `systems/${SYSTEM_ID}/assets/icons/tipos/ponto-interesse.svg`,
+      }]);
+      await vincularEvento(investigacao, item.uuid);
+      item.sheet.render(true);
     }
 
-    static async #removerEvento(_evento, alvo) {
+    static async #abrirEvento(_evento, alvo) {
+      (await fromUuid(alvo.dataset.uuid))?.sheet?.render(true);
+    }
+
+    static async #desvincularEvento(_evento, alvo) {
       const investigacao = this.investigacao;
-      if (!investigacao) return;
-      const eventos = investigacao.system.eventos.filter((_e, i) => i !== Number(alvo.dataset.indice));
-      await investigacao.update({ "system.eventos": eventos });
+      if (investigacao) await removerEvento(investigacao, alvo.dataset.uuid);
+    }
+
+    /**
+     * O gatilho é ato de mesa: o mestre decide que o grupo achou o Ídolo, e a rodada
+     * de agora vira a rodada 0 DO EVENTO (achado em uso real).
+     */
+    static async #dispararEvento(_evento, alvo) {
+      if (!game.user.isGM) return;
+      const item = await fromUuid(alvo.dataset.uuid);
+      if (item?.type !== "evento") return;
+      await dispararEvento(item, rodadaAtual(this.investigacao));
+      ui.notifications.info(game.i18n.format("OP2.Evento.Disparado", {
+        nome: item.name, rodada: rodadaAtual(this.investigacao),
+      }));
+    }
+
+    static async #reiniciarEvento(_evento, alvo) {
+      if (!game.user.isGM) return;
+      const item = await fromUuid(alvo.dataset.uuid);
+      if (item?.type === "evento") await reiniciarEvento(item);
     }
 
     /** Liga/desliga se a investigação sendo vista agora está "em jogo" pros jogadores. */
@@ -860,20 +883,4 @@ function gravarAba(aba) {
   } catch {
     // Sem storage: dura só esta tela.
   }
-}
-
-/* ------------------------------------------------------- roteiro como texto -- */
-
-/** `<p>a</p><p>b</p>` → "a\n\nb", para editar num textarea. */
-export function textoPlano(html) {
-  return String(html ?? "")
-    .replace(/<\/p>\s*<p[^>]*>/gi, "\n\n").replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "")
-    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
-}
-
-/** "a\n\nb" → `<p>a</p><p>b</p>`. */
-export function htmlDeTexto(texto) {
-  const escapar = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  return String(texto ?? "").split(/\n\s*\n/).map((par) => par.trim()).filter(Boolean)
-    .map((par) => `<p>${escapar(par).replace(/\n/g, "<br>")}</p>`).join("");
 }

@@ -16,6 +16,7 @@ const TEMPLATES = [
   `${RAIZ}/item/equipamento.hbs`,
   `${RAIZ}/item/ponto-interesse.hbs`,
   `${RAIZ}/item/desafio-acesso.hbs`,
+  `${RAIZ}/item/evento.hbs`,
   `${RAIZ}/item/ferramenta.hbs`,
   `${RAIZ}/partials/controle-dado.hbs`,
   `${RAIZ}/partials/linha-pericia.hbs`,

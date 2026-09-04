@@ -991,13 +991,18 @@ const relato = await page.evaluate(async () => {
           .map((pg) => pg.text.content).join(" "))
         && ["A Dívida Foi Paga", "Ídolo Quebrado"].every((n) => diarioMaldicao.pages.getName(n)));
 
-      ok("a investigação traz os eventos de rodada da maldição",
-        investigacaoNoMundo.system.eventos.length === 6
-        && investigacaoNoMundo.system.eventos.map((e) => e.rodada).join() === "0,4,7,10,13,14"
-        && investigacaoNoMundo.system.eventos.every((e) => e.narracao || e.efeito)
+      // A maldição é um Item de evento: as rodadas contam a partir do gatilho (o grupo
+      // observar o Ídolo), não do começo da cena (achado em uso real, lendo o livro).
+      const maldicaoNoMundo = noMundo("Item").find((i) => i.type === "evento");
+      ok("a maldição vira um evento com roteiro próprio, e a investigação aponta para ele",
+        maldicaoNoMundo?.name.includes("Maldição")
+        && maldicaoNoMundo.system.rodadas.map((r) => r.rodada).join() === "0,4,7,10,13,14"
+        && maldicaoNoMundo.system.disparado === false && maldicaoNoMundo.system.rodadaInicial === -1
+        && /Ídolo de Pedra/.test(maldicaoNoMundo.system.gatilho)
+        && investigacaoNoMundo.system.eventos.join() === `Item.${maldicaoNoMundo.id}`
         // A rodada 0 é a ativação: o texto completo, não a célula "efeitos descritos acima".
         && /teste de Disciplina \(DT 7\)/.test(
-          investigacaoNoMundo.system.eventos.find((e) => e.rodada === 0)?.efeito ?? ""));
+          maldicaoNoMundo.system.rodadas.find((r) => r.rodada === 0)?.efeito ?? ""));
 
 
       const cenaNoMundo = noMundo("Scene")[0];
@@ -1876,42 +1881,56 @@ const relato = await page.evaluate(async () => {
     ok("sustentar com DT 0 sempre começa", iniciou?.sustentando === true);
     ok("sustentar liga a flag no ator", ator.system.estado.sustentando.ativo === true);
 
-    // Roteiro da cena: a rodada que começa com evento entra no card.
+    // Roteiro de evento: as rodadas contam a partir do gatilho, não do começo da cena.
     {
+      const maldicaoE2E = await Item.create({
+        name: "Maldição de teste", type: "evento",
+        system: { rodadas: [{ rodada: 2, narracao: "<p>O símbolo pulsa.</p>", efeito: "<p>Todos perdem 1 PD.</p>" }] },
+      });
       const invEvento = await Actor.create({
         name: "Cena com roteiro", type: "investigacao",
-        system: {
-          eventos: [{ rodada: 2, narracao: "<p>O símbolo pulsa.</p>", efeito: "<p>Todos perdem 1 PD.</p>" }],
-          sobrecarga: { ativa: false },
-        },
+        system: { eventos: [maldicaoE2E.uuid], sobrecarga: { ativa: false } },
       });
       const { alternarAtiva, definirInvestigacaoAtiva } =
         await import("/systems/ordem-paranormal-2e/module/cena/investigacao-ativa.mjs");
       const antiga = game.settings.get("ordem-paranormal-2e", "investigacaoVisualizandoUuid");
       await alternarAtiva(invEvento);
       await definirInvestigacaoAtiva(invEvento.uuid);
-      await game.op2.avancarRodada();          // rodada 1: nada
-      const semEvento = game.messages.contents.at(-1)?.content ?? "";
+      await game.op2.avancarRodada();          // rodada 1: o evento nem começou
+      const semGatilho = game.messages.contents.at(-1)?.content ?? "";
+      ok("evento não disparado não fala, nem na rodada que bate com o número dele",
+        !/símbolo pulsa/i.test(semGatilho));
+
+      // O gatilho: a rodada de agora vira a rodada 0 DO EVENTO.
+      await game.op2.dispararEvento(maldicaoE2E, game.op2.rodadaAtual(invEvento));
+      ok("disparar guarda a rodada da cena como rodada 0 do evento",
+        maldicaoE2E.system.disparado === true && maldicaoE2E.system.rodadaInicial === 1);
+      await game.op2.avancarRodada();          // rodada 2 da cena = rodada 1 do evento
+      const antesDaHora = game.messages.contents.at(-1)?.content ?? "";
+      ok("a rodada 2 da cena não é a rodada 2 do evento quando ele começou na 1",
+        !/símbolo pulsa/i.test(antesDaHora));
+      const semEvento = antesDaHora;
 
       // O painel mostra o roteiro ao mestre, com a próxima rodada marcada em destaque.
       const painelRoteiro = await game.op2.painelInvestigacao();
       await esperar(600);
       const elRoteiro = painelRoteiro?.element ?? document.querySelector("#op2-painel-investigacao");
-      ok("o painel lista o roteiro da cena para o mestre",
-        elRoteiro?.querySelectorAll(".op2-eventos__item").length === 1
-        && /símbolo pulsa/i.test(elRoteiro.querySelector(".op2-eventos__narracao")?.textContent ?? ""));
-      ok("e destaca a próxima rodada com evento",
-        Boolean(elRoteiro?.querySelector(".op2-eventos__item--proximo")));
+      ok("o painel lista o evento e mostra em que rodada dele a cena está",
+        elRoteiro?.querySelectorAll(".op2-evento-linha").length === 1
+        && /Maldição de teste/.test(elRoteiro.textContent)
+        && Boolean(elRoteiro.querySelector(".op2-evento-linha--disparado")));
       // O painel é um só (singleton): fechar aqui derrubava o `painel` que as
       // verificações do laser, mais adiante, ainda usam.
-      await game.op2.avancarRodada();          // rodada 2: o evento
+      await game.op2.avancarRodada();          // rodada 3 da cena = rodada 2 do evento
       const comEvento = game.messages.contents.at(-1)?.content ?? "";
       ok("card da rodada sem evento não inventa nada", !/símbolo pulsa/i.test(semEvento));
-      ok("e a rodada com evento traz narração e efeito no card",
-        /O símbolo pulsa/.test(comEvento) && /Todos perdem 1 PD/.test(comEvento));
+      ok("a rodada 2 DO EVENTO cai na rodada 3 da cena, com narração e efeito no card",
+        /O símbolo pulsa/.test(comEvento) && /Todos perdem 1 PD/.test(comEvento)
+        && /rodada 2 do evento/i.test(comEvento));
       await alternarAtiva(invEvento);
       await definirInvestigacaoAtiva(antiga);
       await invEvento.delete();
+      await maldicaoE2E.delete();
     }
 
     // Sustentar um obstáculo (a estante-porta do Ato I): a DT vem do desafio.
@@ -2663,6 +2682,14 @@ const relato = await page.evaluate(async () => {
   const appId = `#op2-acoes-${alvo.atorId}`;
   relato.passos.push([await page.locator(appId).count() > 0, "botão da ficha abre as ações daquele personagem"]);
 
+  // Os desafios têm aba própria desde que a janela virou abas (achado em uso real:
+  // desafio misturado com ponto numa lista sem fim).
+  await page.evaluate((atorId) => {
+    [...foundry.applications.instances.values()]
+      .find((a) => a.id === `op2-acoes-${atorId}`)?.changeTab("desafios", "principal");
+  }, alvo.atorId);
+  await page.waitForTimeout(400);
+
   relato.passos.push([
     await page.locator(`${appId} [data-action="arrombar"]`).count() > 0,
     "ações listam o desafio vinculado com Arrombar",
@@ -3034,8 +3061,13 @@ const relato = await page.evaluate(async () => {
     }
 
     // 4. Card da rodada com o roteiro em HTML (nada de <p> cru) e botão que diz o dado.
-    await inv.update({ "system.eventos": [{ rodada: 1, narracao: "<p>O símbolo pulsa.</p>", efeito: "<p>Cada um perde 1 PD.</p>" }],
+    const eventoUso = await Item.create({
+      name: "Maldição em uso", type: "evento",
+      system: { rodadas: [{ rodada: 0, narracao: "<p>O símbolo pulsa.</p>", efeito: "<p>Cada um perde 1 PD.</p>" }] },
+    });
+    await inv.update({ "system.eventos": [eventoUso.uuid],
       "system.sobrecarga": { ativa: true, tabela: [{ rodada: 1, dano: "1d4" }] } });
+    await game.op2.dispararEvento(eventoUso, game.op2.rodadaAtual(inv) + 1);
     await game.op2.avancarRodada();
     await esperar(400);
     const cardRodada = ultimaMensagem()?.content ?? "";
@@ -3073,7 +3105,7 @@ const relato = await page.evaluate(async () => {
       el.querySelector(".op2-painel-lateral").getBoundingClientRect().right
         <= el.querySelector(".op2-painel-principal").getBoundingClientRect().left
       && el.querySelector(".op2-painel-lateral .op2-painel-ordem").getBoundingClientRect().height > 0);
-    const temRoteiro = (inv.system.eventos?.length ?? 0) > 0;
+    const temRoteiro = true;   // a seção de eventos existe sempre: dá para criar um ali
     ok("pontos e desafios deixaram de ser seções; participantes, roteiro e sobrecarga moram na Preparação",
       !el.querySelector("details[data-secao='pontos']") && !el.querySelector("details[data-secao='ordem']")
       && ["participantes", "sobrecarga", ...(temRoteiro ? ["eventos"] : [])]
@@ -3164,20 +3196,24 @@ const relato = await page.evaluate(async () => {
     ok("a nota do mestre do desafio está no card, escondida até pedir",
       /NOTA-DO-DESAFIO/.test(cardHack?.querySelector(".op2-poi-card__contextual")?.textContent ?? "") && !cardHack?.classList.contains("op2-poi-card--notas"));
 
-    // 7. O roteiro da cena se edita na ficha da investigação.
-    await inv.sheet.render(true);
+    // 7. O roteiro se edita na ficha do EVENTO, com as rodadas contadas do gatilho.
+    await eventoUso.sheet.render(true);
     await esperar(1000);
-    const ficha = inv.sheet.element;
-    ok("a ficha da investigação lista os eventos do roteiro", ficha?.querySelectorAll("[data-evento-linha]").length === 1
-      && ficha.querySelector("[data-evento-campo='narracao']")?.value === "O símbolo pulsa.");
-    ficha?.querySelector('[data-action="adicionarEvento"]')?.click();
+    const fichaEvento = eventoUso.sheet.element;
+    ok("a ficha do evento lista as rodadas do roteiro e diz em que rodada da cena caem",
+      fichaEvento?.querySelectorAll("[data-rodada-linha]").length === 1
+      && fichaEvento.querySelector("[data-rodada-campo='narracao']")?.value === "O símbolo pulsa."
+      && /rodada \d+ da cena/i.test(fichaEvento.textContent));
+    fichaEvento?.querySelector('[data-action="adicionarRodada"]')?.click();
     await esperar(600);
-    ok("novo evento entra na rodada seguinte", inv.system.eventos.length === 2 && inv.system.eventos[1].rodada === 2);
-    const campo = inv.sheet.element?.querySelectorAll("[data-evento-campo='narracao']")[1];
+    ok("nova rodada entra na sequência do evento",
+      eventoUso.system.rodadas.length === 2 && eventoUso.system.rodadas[1].rodada === 1);
+    const campo = eventoUso.sheet.element?.querySelectorAll("[data-rodada-campo='narracao']")[1];
     if (campo) { campo.value = "Primeiro parágrafo.\n\nSegundo."; campo.dispatchEvent(new Event("change")); }
     await esperar(600);
-    ok("o texto digitado vira parágrafos HTML no roteiro", inv.system.eventos[1]?.narracao === "<p>Primeiro parágrafo.</p><p>Segundo.</p>");
-    await inv.sheet.close();
+    ok("o texto digitado vira parágrafos HTML no roteiro do evento",
+      eventoUso.system.rodadas[1]?.narracao === "<p>Primeiro parágrafo.</p><p>Segundo.</p>");
+    await eventoUso.sheet.close();
 
     // 8. Um ícone por ponto na aventura do Ato I.
     const pack = game.packs.get("ordem-paranormal-2e.ato-i-aventura");

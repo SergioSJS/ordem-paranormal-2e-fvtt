@@ -62,6 +62,14 @@ permanentes). Validação em v13 **adiada por decisão do projeto** — o sistem
 - **Card com rolagem própria (Examinar, sobrecarga) mostra a falha crítica.** O partial
   `partials/falha-critica.hbs` leva o desfecho e o botão do mestre; `chat/dano.hbs` é o
   card de dano avulso. Nunca `roll.toMessage()` cru: o card do core não diz o que é.
+- **Evento com roteiro conta as rodadas a partir do gatilho.** A maldição do Ato I não
+  começa na rodada 0 da cena: começa quando o grupo acha o Ídolo. O roteiro é o Item
+  `evento` (rodadas relativas + `rodadaInicial`), vinculado à investigação; disparar é
+  ato de mestre, no painel.
+- **O sistema fala pelo socket, e o manifesto precisa declarar isso.** Sem
+  `"socket": true` no `system.json`, o servidor não relaia `system.<id>` e tudo que
+  passa por `comoMestre()`/`paraTodos()` some — só que o mestre executa direto, então
+  o bug só aparece com dois clientes.
 - **Card só do mestre nasce no cliente do mestre.** Sussurro criado pelo jogador tem o
   jogador como autor, e o Foundry mostra toda mensagem ao próprio autor — o "só você vê"
   do Interagir apareceu para o jogador. Bastidor (contextual, perguntas do hack social,

@@ -11,7 +11,8 @@
 import { SYSTEM_ID } from "../config.mjs";
 import { danoSobrecarga } from "./investigacao.mjs";
 import { personagensDaCenaAtiva } from "./encerrar-investigacao.mjs";
-import { investigacaoAtiva } from "./investigacao-ativa.mjs";
+import { investigacaoAtiva, eventosDaInvestigacao } from "./investigacao-ativa.mjs";
+import { linhaDaRodada } from "./eventos.mjs";
 import { renderizar } from "../dice/teste.mjs";
 import { aplicarDano } from "../dice/falha-critica.mjs";
 import { testarFadigaDeSustentar } from "./acoes-desafio.mjs";
@@ -57,19 +58,27 @@ export async function avancarRodada(investigacao = investigacaoAtiva()) {
     }
   }
 
-  // O roteiro da cena: se a rodada que começa tem evento, ele entra no mesmo card.
-  const evento = (investigacao.system.eventos ?? []).find((e) => e.rodada === nova) ?? null;
+  // Os eventos disparados: cada um conta as próprias rodadas a partir do gatilho, e o
+  // que cair nesta rodada da cena entra no mesmo card (achado em uso real: a maldição
+  // do Ato I só começa quando o grupo acha o Ídolo, não na rodada 0 da cena).
+  const eventos = [];
+  for (const item of eventosDaInvestigacao(investigacao)) {
+    const linha = linhaDaRodada(item.system, nova);
+    if (!linha || !(linha.narracao?.trim() || linha.efeito?.trim())) continue;
+    eventos.push({
+      nome: item.name,
+      rodadaDoEvento: linha.rodada,
+      narracao: await editorDeTexto().enrichHTML(linha.narracao ?? "", { relativeTo: item }),
+      efeito: await editorDeTexto().enrichHTML(linha.efeito ?? "", { relativeTo: item }),
+    });
+  }
 
   // O botão diz o que vai acontecer ao clicar: "rolar 1d4" ou "1 PD" fixo.
   const danoRola = /d/i.test(dano);
   const conteudo = await renderizar("systems/ordem-paranormal-2e/templates/chat/rodada.hbs", {
     nova,
     encerrada,
-    evento: evento && {
-      ...evento,
-      narracao: await editorDeTexto().enrichHTML(evento.narracao ?? "", { relativeTo: investigacao }),
-      efeito: await editorDeTexto().enrichHTML(evento.efeito ?? "", { relativeTo: investigacao }),
-    },
+    eventos,
     dano,
     danoRola,
     danoRotulo: danoRola

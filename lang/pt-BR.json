@@ -11,7 +11,8 @@
       "ponto-interesse": "Ponto de Interesse",
       "desafio-acesso": "Desafio",
       "ferramenta": "Ferramenta",
-      "ocupacao": "Ocupação"
+      "ocupacao": "Ocupação",
+      "evento": "Evento"
     }
   },
   "OP2": {
@@ -23,7 +24,8 @@
       "SemNome": "Sem nome",
       "DesafioAcesso": "Desafio",
       "Ferramenta": "Ferramenta da Ordo Realitas",
-      "Investigacao": "Investigação"
+      "Investigacao": "Investigação",
+      "Evento": "Ficha de evento"
     },
     "Atributo": {
       "fisico": "Físico",
@@ -777,6 +779,34 @@
       "NenhumArquivo": "Nenhum dos {total} arquivos esperados está em {arquivo} ({entradas} arquivo(s) dentro dele). É o zip certo?",
       "RecusadoPeloServidor": "o Foundry recusou o envio",
       "AvisoIncompleto": "Arquivos da aventura: {enviados} de {total} enviados. Veja a lista na janela."
-    }
+    },
+    "Evento": {
+      "Novo": "Novo evento",
+      "FichaAjuda": "Um evento com roteiro próprio (a maldição do Ato I). As rodadas contam a partir do gatilho: a rodada 0 é o momento em que ele é puxado, seja na rodada 1 ou na 50 da cena.",
+      "Gatilho": "Gatilho",
+      "GatilhoAjuda": "O que faz o evento começar. Quem decide que aconteceu é o mestre, no painel.",
+      "Descricao": "Descrição",
+      "Roteiro": "Roteiro, rodada a rodada",
+      "RoteiroAjuda": "Rodada 0 é o gatilho. A narração vai para o card da rodada; o efeito só o mestre vê.",
+      "SemRodadas": "Nenhuma rodada no roteiro ainda.",
+      "RodadaDoEvento": "Rodada do evento",
+      "RodadaDoEventoCurta": "rodada {rodada} do evento",
+      "NaCena": "cai na rodada {rodada} da cena",
+      "AdicionarRodada": "Nova rodada",
+      "RemoverRodada": "Remover rodada",
+      "EstadoParado": "Ainda não disparado",
+      "EstadoDisparado": "Disparado na rodada {rodada} da cena — agora é a rodada {relativa} do evento.",
+      "EmAndamento": "Rodada {relativa} · disparado na rodada {rodada}",
+      "CaiAgora": "cai nesta rodada",
+      "Disparar": "Disparar",
+      "DispararAjuda": "O gatilho aconteceu: a rodada de agora vira a rodada 0 deste evento.",
+      "Disparado": "{nome} disparado na rodada {rodada}.",
+      "Reiniciar": "Desfazer o disparo",
+      "Abrir": "Abrir a ficha do evento",
+      "Desvincular": "Desvincular da investigação",
+      "SemEventos": "Nenhum evento nesta investigação. Arraste um Evento para cá ou crie um.",
+      "PainelAjuda": "Eventos com roteiro próprio. As rodadas contam a partir do gatilho — dispare quando acontecer na mesa."
+    },
+    "TYPES": {}
   }
 }

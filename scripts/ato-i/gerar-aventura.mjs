@@ -339,6 +339,43 @@ function diarioDoRoteiro() {
   };
 }
 
+/**
+ * A maldição como Item `evento`: as rodadas contam a partir do gatilho, não do começo
+ * da cena. No livro ela só começa quando o grupo observa o Ídolo de Pedra — pode ser na
+ * rodada 1 ou na 20 (achado em uso real).
+ */
+function eventoDaMaldicao() {
+  if (!existsSync(MALDICAO)) return null;
+  const { regras, eventos } = JSON.parse(readFileSync(MALDICAO, "utf8"));
+  if (!eventos?.length) return null;
+
+  return {
+    _id: ident("evento-ato-i-maldicao"),
+    name: "A Maldição do Ídolo de Pedra",
+    type: "evento",
+    img: "systems/ordem-paranormal-2e/assets/icons/tipos/ponto-interesse.svg",
+    system: {
+      gatilho: "<p>Quando o grupo <strong>observar o Ídolo de Pedra</strong>. Nesse momento, leia a"
+        + " narração da rodada 0 e dispare o evento: a rodada de agora vira a rodada 0 dele.</p>",
+      descricao: (regras?.caixas ?? []).map((c) => `<p><strong>${c.titulo}:</strong> ${c.texto}</p>`).join(""),
+      rodadas: eventos.map((e) => ({
+        rodada: e.rodada,
+        // A rodada 0 é a ativação: a narração e o teste de Disciplina vêm do texto que
+        // antecede a tabela no livro, não da célula (que está vazia).
+        narracao: e.rodada === 0
+          ? (regras?.narracao ? `<p>${regras.narracao}</p>` : "")
+          : (e.narracao ? `<p>${e.narracao}</p>` : ""),
+        efeito: e.rodada === 0
+          ? (regras?.ativacao ? `<p>${regras.ativacao}</p>` : "")
+          : (e.efeito ? `<p>${e.efeito}</p>` : ""),
+      })),
+      disparado: false,
+      rodadaInicial: -1,
+    },
+    effects: [], folder: null, sort: 0, ownership: { default: 0 }, flags: {},
+  };
+}
+
 /** As regras da maldição que não cabem em campo nenhum: um diário só do mestre. */
 function diarioDaMaldicao() {
   if (!existsSync(MALDICAO)) return null;
@@ -393,6 +430,7 @@ function enigmaDaEstante() {
 const pontos = pontosDoPorao().map(em(pastas.pontos));
 const desafios = pontosBrutos().map(desafioDoPonto).filter(Boolean).map(em(pastas.desafios));
 const itens = itensDoPorao().map(em(pastas.itens));
+const maldicao = eventoDaMaldicao();
 const pregerados = ler("ato-i-personagens").map(semChave).map(em(pastas.pregerados));
 const diarios = [...ler("ato-i-handouts").map(semChave), diarioDoRoteiro(), diarioDaMaldicao()]
   .filter(Boolean).map(em(pastas.diarios));
@@ -418,18 +456,9 @@ const investigacao = {
     // "Progressão de referência (a do porão do Ato I/II)" — spec §7.6. A tabela padrão
     // do schema é exatamente essa, então basta ligar.
     sobrecarga: { ativa: true },
-    // "A Dívida Precisa Ser Paga": o que o mestre lê e aplica em cada rodada marcada.
-    eventos: existsSync(MALDICAO)
-      ? JSON.parse(readFileSync(MALDICAO, "utf8")).eventos.map((e) => ({
-        rodada: e.rodada,
-        narracao: e.narracao ? `<p>${e.narracao}</p>` : "",
-        // A rodada 0 é a ativação: o efeito completo está no texto que vem antes da
-        // tabela ("teste de Disciplina (DT 7)…"), não na célula.
-        efeito: e.rodada === 0 && regrasDaMaldicao()?.ativacao
-          ? `<p>${regrasDaMaldicao().ativacao}</p>`
-          : (e.efeito ? `<p>${e.efeito}</p>` : ""),
-      }))
-      : [],
+    // "A Dívida Precisa Ser Paga" é um Item de evento: o roteiro conta a partir do
+    // gatilho (o grupo observar o Ídolo), não do começo da cena.
+    eventos: maldicao ? [`Item.${maldicao._id}`] : [],
   },
   effects: [], folder: pastas.atores._id, sort: 0, ownership: { default: 0 }, flags: {},
 };
@@ -455,7 +484,7 @@ const aventura = {
     "vista dos jogadores: abra a ficha do desafio e use <em>Gerar senha</em>.</p>",
   ].join("\n"),
   actors: [...pregerados, investigacao],
-  items: [...pontos, ...desafios, ...itens],
+  items: [...pontos, ...desafios, ...itens, ...(maldicao ? [em(pastas.itens)(maldicao)] : [])],
   journal: diarios,
   scenes: [cena],
   playlists: trilha,

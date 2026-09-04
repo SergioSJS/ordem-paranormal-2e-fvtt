@@ -11,7 +11,8 @@
       "ponto-interesse": "Point of Interest",
       "desafio-acesso": "Challenge",
       "ferramenta": "Tool",
-      "ocupacao": "Occupation"
+      "ocupacao": "Occupation",
+      "evento": "Event"
     }
   },
   "OP2": {
@@ -23,7 +24,8 @@
       "SemNome": "Unnamed",
       "DesafioAcesso": "Challenge",
       "Ferramenta": "Ordo Realitas Tool",
-      "Investigacao": "Investigation"
+      "Investigacao": "Investigation",
+      "Evento": "Event sheet"
     },
     "Atributo": {
       "fisico": "Physical",
@@ -777,6 +779,34 @@
       "NenhumArquivo": "None of the {total} expected files is in {arquivo} ({entradas} file(s) inside it). Is it the right zip?",
       "RecusadoPeloServidor": "Foundry refused the upload",
       "AvisoIncompleto": "Adventure files: {enviados} of {total} uploaded. See the list in the window."
-    }
+    },
+    "Evento": {
+      "Novo": "New event",
+      "FichaAjuda": "An event with its own script (the Act I curse). Rounds count from the trigger: round 0 is the moment it is pulled, be it scene round 1 or 50.",
+      "Gatilho": "Trigger",
+      "GatilhoAjuda": "What starts the event. The GM decides it happened, from the panel.",
+      "Descricao": "Description",
+      "Roteiro": "Script, round by round",
+      "RoteiroAjuda": "Round 0 is the trigger. The narration goes to the round card; the effect is GM-only.",
+      "SemRodadas": "No rounds in the script yet.",
+      "RodadaDoEvento": "Event round",
+      "RodadaDoEventoCurta": "event round {rodada}",
+      "NaCena": "falls on scene round {rodada}",
+      "AdicionarRodada": "New round",
+      "RemoverRodada": "Remove round",
+      "EstadoParado": "Not triggered yet",
+      "EstadoDisparado": "Triggered on scene round {rodada} — now it is event round {relativa}.",
+      "EmAndamento": "Round {relativa} · triggered on round {rodada}",
+      "CaiAgora": "falls on this round",
+      "Disparar": "Trigger",
+      "DispararAjuda": "The trigger happened: the current round becomes round 0 of this event.",
+      "Disparado": "{nome} triggered on round {rodada}.",
+      "Reiniciar": "Undo the trigger",
+      "Abrir": "Open the event sheet",
+      "Desvincular": "Unlink from the investigation",
+      "SemEventos": "No events in this investigation. Drag an Event here or create one.",
+      "PainelAjuda": "Events with their own script. Rounds count from the trigger — fire it when it happens at the table."
+    },
+    "TYPES": {}
   }
 }

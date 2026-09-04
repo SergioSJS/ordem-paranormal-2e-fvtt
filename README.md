@@ -46,8 +46,8 @@ pela própria ficha.
 O painel tem duas colunas. À esquerda, o que muda a cada rodada: qual investigação está
 à vista, **Nova rodada**, **Encerrar cena**, o que o roteiro e a sobrecarga trazem na
 próxima rodada e a **ordem das rodadas** com quem já agiu. À direita, a cena em três abas:
-**Preparação** (participantes, roteiro rodada a rodada e sobrecarga mental — só o mestre
-vê), **Pontos de interesse** e **Desafios**. Um desafio pode pertencer a um ponto (a porta
+**Preparação** (participantes, eventos com roteiro próprio e sobrecarga mental — só o
+mestre vê), **Pontos de interesse** e **Desafios**. Um desafio pode pertencer a um ponto (a porta
 trancada do Depósito A é do Depósito A): arraste o desafio para o cadastro do ponto, e ele
 aparece dentro do card do ponto, no ponto da janela de ações do jogador e entra na
 investigação junto com o ponto. Desafio solto continua existindo, na aba Desafios. A ordem fica parada enquanto você percorre
@@ -66,9 +66,13 @@ Foundry pela palavra-chave. Os cards de desafio mostram a abordagem e o estado d
 (pontuação só em Arrombar; tentativas em Destrancar; pendente/resolvido nos hacks), com
 a nota do mestre escondida até pedir.
 
-O **roteiro da cena** (o que acontece em cada rodada marcada, como a maldição do Ato I)
-se edita na aba Preparação, no painel ou na ficha: rodada, narração para ler em voz
-alta e efeito só do mestre. "Nova rodada" põe a narração no card.
+Um **evento com roteiro próprio** (a maldição do Ato I) é um Item à parte, vinculado à
+investigação. As rodadas dele contam **a partir do gatilho**, não do começo da cena: no
+livro a maldição só começa quando o grupo observa o Ídolo de Pedra, o que pode cair na
+rodada 1 ou na 20. Na aba Preparação você **dispara** o evento quando aquilo acontece na
+mesa, e a rodada de agora vira a rodada 0 dele; daí em diante "Nova rodada" põe no card
+o que o roteiro tiver para aquela rodada do evento. A ficha do evento tem o gatilho, a
+descrição e o roteiro rodada a rodada.
 
 **Não existe uma ação "Investigar".** Investigar um ponto é **Examinar** ou
 **Interagir** — as duas sub-ações em que a ação se resolve. Examinar faz os dois passos
@@ -218,7 +222,7 @@ na descrição de mestre do ponto.
 E o que não é ponto nem desafio também entra: a faca de churrasco e os dois molhos de
 chaves como itens; o roteiro do ato (introdução, cena inicial com a legenda do mapa,
 narração final) e *A Maldição do Ídolo de Pedra* como diários de mestre; e a tabela da
-maldição como **roteiro por rodada** da investigação — `Nova rodada` põe a narração no
+maldição como **evento com roteiro próprio**, disparado quando o grupo acha o Ídolo — `Nova rodada` põe a narração no
 card e o efeito só para o mestre, e o painel mostra o que vem a seguir.
 
 Sem o PDF, o compêndio da aventura simplesmente não existe, e os demais funcionam

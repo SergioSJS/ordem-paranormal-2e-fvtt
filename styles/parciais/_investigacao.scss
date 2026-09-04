@@ -1341,3 +1341,35 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
 }
 
 .op2-acoes .op2-painel-filtro { width: 100%; }
+
+// Um evento com roteiro próprio, na Preparação: estado em cima (disparado na rodada
+// tal, em que rodada DELE a cena está), nome embaixo, botões na ponta.
+.op2-evento-linha {
+  &--disparado { border-left: 2px solid var(--op2-vermelho); padding-left: var(--op2-e2); }
+
+  .op2-acoes__identidade { flex: 1 1 auto; }
+  > .op2-botao { flex: 0 0 auto; }
+}
+
+// No card da rodada, qual evento falou e em que rodada dele.
+.op2-card__evento-nome {
+  display: block;
+  margin-bottom: var(--op2-e1);
+  font-family: var(--op2-fonte-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--op2-texto-fraco);
+}
+
+// Ficha do evento: o estado do gatilho no topo.
+.op2-evento-estado {
+  margin: 0;
+  padding: var(--op2-e2);
+  border: 1px dashed var(--op2-linha-forte);
+  border-radius: var(--op2-raio);
+  font-family: var(--op2-fonte-display);
+  letter-spacing: 0.03em;
+}
+
+.op2-evento-roteiro { display: flex; flex-direction: column; gap: var(--op2-e2); }

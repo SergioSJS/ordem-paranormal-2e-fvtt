@@ -131,6 +131,17 @@ parâmetro (a ativa é só o padrão): a ficha de uma investigação que não é
 sobre ela mesma. Toda janela aberta se registra em `janelasDeInvestigacao` e é
 rerrenderizada quando um ponto, desafio ou ator muda.
 
+**Evento tem roteiro próprio, contado a partir do gatilho.** O livro não conta as
+rodadas da maldição do começo da cena: elas começam quando o grupo observa o Ídolo de
+Pedra (achado em uso real). Por isso o roteiro saiu de `InvestigacaoData.eventos` (que
+era uma lista de rodadas absolutas) e virou o Item `evento`
+(`module/data/item-evento.mjs`): gatilho, descrição e rodadas **relativas**, com
+`disparado` e `rodadaInicial`. A investigação só guarda os uuids; `migrateData` limpa o
+formato velho, e o roteiro volta ao reimportar a aventura. As regras puras estão em
+`module/cena/eventos.mjs` (`rodadaRelativa`, `linhaDaRodada`, `proximaRodadaDaCena`), e
+`avancarRodada()` junta no card o que cada evento disparado tiver para aquela rodada.
+Disparar é ato de mesa: o mestre aperta no painel, e a rodada de agora vira a rodada 0.
+
 **Um desafio pode pertencer a um ponto.** `PontoInteresseData.desafios` lista uuids de
 Desafio de acesso; o vínculo se faz arrastando o desafio para a ficha do ponto. Vincular o
 ponto a uma investigação (`vincularPoi`) traz os desafios dele; o painel mostra o desafio

@@ -179,6 +179,37 @@ export async function removerDesafioDoPonto(poi, desafioUuid) {
   await poi.update({ "system.desafios": poi.system.desafios.filter((uuid) => uuid !== desafioUuid) });
 }
 
+/* -- eventos com roteiro próprio ------------------------------------------- */
+
+export async function vincularEvento(investigacao, eventoUuid) {
+  const eventos = investigacao.system.eventos;
+  if (eventos.includes(eventoUuid)) return;
+  await investigacao.update({ "system.eventos": [...eventos, eventoUuid] });
+}
+
+export async function removerEvento(investigacao, eventoUuid) {
+  await investigacao.update({ "system.eventos": investigacao.system.eventos.filter((uuid) => uuid !== eventoUuid) });
+}
+
+/** Os Itens de evento vinculados, na ordem em que foram vinculados. */
+export function eventosDaInvestigacao(investigacao) {
+  return (investigacao?.system.eventos ?? []).map((uuid) => fromUuidSync(uuid))
+    .filter((evento) => evento?.type === "evento");
+}
+
+/**
+ * Puxa o gatilho: a rodada da cena de agora vira a rodada 0 DO EVENTO. É o mestre
+ * quem decide que aconteceu — o sistema não adivinha que o grupo achou o Ídolo.
+ */
+export async function dispararEvento(evento, rodadaDaCena) {
+  await evento.update({ "system.disparado": true, "system.rodadaInicial": rodadaDaCena });
+}
+
+/** Volta o evento para antes do gatilho (o mestre disparou cedo demais). */
+export async function reiniciarEvento(evento) {
+  await evento.update({ "system.disparado": false, "system.rodadaInicial": -1 });
+}
+
 /** O ponto (da investigação) a que um desafio pertence, se houver. */
 export function pontoDoDesafio(investigacao, desafioUuid) {
   for (const poiUuid of investigacao?.system.pois ?? []) {
