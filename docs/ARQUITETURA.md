@@ -118,6 +118,19 @@ autoral, reutilizável — mas o vínculo "este POI está nesta investigação" 
 schema na investigação (`system.pois`), não uma flag de Scene. O mestre troca pelo
 seletor do painel ou abrindo a ficha da investigação direto pela sidebar de Actors.
 
+**Painel e ficha da investigação são uma tela só, com duas portas.** A ficha era uma
+coluna de listas por nome e o painel a tela de jogo (achado em uso real: "não rola
+colocar essa mesma tela no cadastro?"). `module/cena/painel-comum.mjs` é um mixin com
+tudo que os dois compartilham — contexto, ações de gestão, abas, arrastar-e-soltar,
+preferências de tela, o roteiro como texto — e os templates são dois partials
+(`templates/cena/partials/investigacao-lateral.hbs` e `investigacao-abas.hbs`). Cada
+porta só responde `get investigacao()`: o painel devolve a ativa deste usuário e
+mantém o seletor; a ficha devolve o próprio documento e edita nome, imagem e notas.
+Por isso avançar rodada, encerrar cena e o roster recebem a investigação como
+parâmetro (a ativa é só o padrão): a ficha de uma investigação que não é a ativa age
+sobre ela mesma. Toda janela aberta se registra em `janelasDeInvestigacao` e é
+rerrenderizada quando um ponto, desafio ou ator muda.
+
 **"Em jogo" (mundo) é diferente de "vendo agora" (cliente).** O grupo pode se dividir
 em mais de uma investigação ao mesmo tempo (achado em uso real) — por isso não existe
 mais um único ponteiro de investigação ativa. `investigacoesAtivasUuids` é setting de
