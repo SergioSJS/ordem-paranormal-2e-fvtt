@@ -15,8 +15,8 @@ import { investigacaoAtiva } from "./investigacao-ativa.mjs";
  * @param {Actor[]} [opcoes.atores] default: todos os participantes da investigação ativa
  * @param {boolean} [opcoes.avisar]
  */
-export async function encerrarCena({ atores, avisar = true } = {}) {
-  const alvos = atores ?? personagensDaCenaAtiva();
+export async function encerrarCena({ atores, avisar = true, investigacao = investigacaoAtiva() } = {}) {
+  const alvos = atores ?? personagensDaCenaAtiva(investigacao);
   if (!alvos.length) {
     if (avisar) ui.notifications.warn(game.i18n.localize("OP2.Cena.SemPersonagens"));
     return [];
@@ -43,7 +43,6 @@ export async function encerrarCena({ atores, avisar = true } = {}) {
   // O contador de rodadas alimenta a sobrecarga mental (spec §7.6) e reinicia junto.
   // Travas de 1×-por-investigação e a ordem das rodadas também são da sessão que
   // terminou — o roster e os vínculos de POI/desafio continuam.
-  const investigacao = investigacaoAtiva();
   if (investigacao) {
     await investigacao.update({
       "system.rodada": 0,
@@ -60,13 +59,13 @@ export async function encerrarCena({ atores, avisar = true } = {}) {
 }
 
 /** Personagens no roster da investigação ativa. */
-export function personagensDaCenaAtiva() {
-  return participantesDaInvestigacao("personagem");
+export function personagensDaCenaAtiva(investigacao = investigacaoAtiva()) {
+  return participantesDaInvestigacao("personagem", investigacao);
 }
 
 /** NPCs no roster da investigação ativa — agem por último (spec §5.2). */
-export function npcsDaCenaAtiva() {
-  return participantesDaInvestigacao("npc");
+export function npcsDaCenaAtiva(investigacao = investigacaoAtiva()) {
+  return participantesDaInvestigacao("npc", investigacao);
 }
 
 /**
@@ -113,8 +112,8 @@ export function alvosMarcados({ exceto, tipos = ["personagem", "npc"] } = {}) {
   return [...new Set(marcados)];
 }
 
-function participantesDaInvestigacao(tipo) {
-  const uuids = investigacaoAtiva()?.system.participantes ?? [];
+function participantesDaInvestigacao(tipo, investigacao = investigacaoAtiva()) {
+  const uuids = investigacao?.system.participantes ?? [];
   const atores = [];
   for (const uuid of uuids) {
     const ator = fromUuidSync(uuid);

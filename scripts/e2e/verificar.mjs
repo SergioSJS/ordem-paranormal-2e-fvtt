@@ -1527,16 +1527,26 @@ const relato = await page.evaluate(async () => {
     const wc = investigacao.sheet.element.querySelector(".window-content");
     ok("ficha da investigação tem rolagem interna", getComputedStyle(wc).overflowY === "auto");
 
-    const linhaPoi = [...investigacao.sheet.element.querySelectorAll(".op2-painel-ordem__linha")]
+    // A ficha é a mesma tela do painel (achado em uso real: "não rola colocar essa
+    // mesma tela no cadastro?"): coluna da ordem à esquerda, as três abas à direita,
+    // e o nome editável no lugar do seletor.
+    const fichaEl = investigacao.sheet.element;
+    ok("a ficha da investigação é a mesma tela do painel: ordem à esquerda, três abas e o nome editável",
+      Boolean(fichaEl.querySelector(".op2-painel-lateral .op2-painel-ordem"))
+      && [...fichaEl.querySelectorAll(".op2-abas [data-tab]")].map((b) => b.dataset.tab).join(",") === "preparacao,pontos,desafios"
+      && Boolean(fichaEl.querySelector(".op2-painel-lateral input[name='name']"))
+      && Boolean(fichaEl.querySelector(".op2-painel-aba[data-tab='preparacao'] [data-evento-linha], .op2-painel-aba[data-tab='preparacao'] [data-action='adicionarEvento']")));
+    investigacao.sheet.changeTab("pontos", "principal");
+    const cardPoi = [...fichaEl.querySelectorAll("[data-poi-card]")]
       .find((li) => li.textContent.includes("Quadro na Parede"));
-    // 3 ícones agora: ocultar/mostrar, editar, desvincular.
-    const botoes = [...(linhaPoi?.querySelectorAll(".op2-botao-icone") ?? [])].map((b) => b.getBoundingClientRect());
-    ok("botões de ocultar/editar/desvincular do POI ficam colados, não afastados",
-      botoes.length === 3
+    // Os três últimos botões do card: ocultar/mostrar, editar, desvincular.
+    const botoes = [...(cardPoi?.querySelectorAll(".op2-poi-card__acoes-gm .op2-botao") ?? [])].slice(-3).map((b) => b.getBoundingClientRect());
+    ok("a ficha mostra o ponto como card, com ocultar/editar/desvincular colados",
+      botoes.length === 3 && botoes[0].width > 0
       && (botoes[1].left - botoes[0].right) < 12
       && (botoes[2].left - botoes[1].right) < 12);
 
-    const botaoOcultar = linhaPoi?.querySelector('[data-action="alternarOculto"]');
+    const botaoOcultar = cardPoi?.querySelector('[data-action="alternarOculto"]');
     ok("ficha da investigação tem botão de ocultar/mostrar por POI, com o campo certo",
       botaoOcultar?.dataset.campo === "pois" && botaoOcultar?.dataset.uuid === poi.uuid);
   }

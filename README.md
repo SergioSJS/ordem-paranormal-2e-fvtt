@@ -51,7 +51,8 @@ vê), **Pontos de interesse** e **Desafios**. A ordem fica parada enquanto você
 trinta pontos; numa janela estreita as colunas empilham. A aba escolhida e as seções
 abertas da Preparação ficam guardadas no seu navegador. Cada card também **recolhe e
 expande** (o estado fica no seu navegador), há **recolher/expandir todos** e um **filtro
-por nome**.
+por nome**. A **ficha da investigação** (pelo diretório de atores ou pelo lápis do
+painel) é esta mesma tela, com nome, imagem e notas editáveis no lugar do seletor.
 O card recolhido mostra o resumo *linhas à vista / total*. Cada linha do quadro é uma
 linha só — estado, DT num selo, texto, quem descobriu. O mestre tem, por card, um botão
 de **notas do mestre** que abre a descrição contextual inteira ali mesmo, sem abrir a

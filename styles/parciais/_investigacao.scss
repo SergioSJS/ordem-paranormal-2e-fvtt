@@ -970,7 +970,13 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
     justify-content: space-between;
     gap: var(--op2-e2);
     input[type="number"] { width: 4.5rem; }
+    .op2-tag { margin-right: auto; }
   }
 
   textarea { width: 100%; }
+
+  // O editor também é a leitura do mestre: o que já passou apaga, a próxima
+  // rodada marcada fica em destaque — como a lista só de leitura que ele substituiu.
+  &--passado { opacity: 0.6; }
+  &--proximo { border: 1px solid var(--op2-vermelho); }
 }

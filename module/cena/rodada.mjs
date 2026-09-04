@@ -34,8 +34,7 @@ export async function definirSobrecarga(sobrecarga, investigacao = investigacaoA
  * (spec §7.6): ao encerrar a rodada N, aplica o dano da linha N da tabela — com um
  * botão por personagem, porque cada jogador rola o seu.
  */
-export async function avancarRodada() {
-  const investigacao = investigacaoAtiva();
+export async function avancarRodada(investigacao = investigacaoAtiva()) {
   if (!investigacao) {
     ui.notifications.warn(game.i18n.localize("OP2.Painel.SemInvestigacao"));
     return null;
@@ -53,7 +52,7 @@ export async function avancarRodada() {
   // Fim de rodada também é quando quem está Sustentando (spec §7.5) testa de novo,
   // com a fadiga acumulada. Roda para todo mundo na cena, não só o dono do painel.
   if (encerrada >= 1) {
-    for (const personagem of personagensDaCenaAtiva()) {
+    for (const personagem of personagensDaCenaAtiva(investigacao)) {
       if (personagem.system.estado.sustentando?.ativo) await testarFadigaDeSustentar(personagem);
     }
   }
@@ -77,7 +76,7 @@ export async function avancarRodada() {
       ? game.i18n.format("OP2.Rodada.RolarDano", { dano })
       : game.i18n.format("OP2.Rodada.DanoFixo", { dano }),
     temDano: dano !== "0",
-    personagens: personagensDaCenaAtiva().map((a) => ({ id: a.id, nome: a.name })),
+    personagens: personagensDaCenaAtiva(investigacao).map((a) => ({ id: a.id, nome: a.name })),
   });
   await ChatMessage.create({
     content: conteudo,

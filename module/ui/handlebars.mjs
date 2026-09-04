@@ -40,6 +40,8 @@ const TEMPLATES = [
   `${RAIZ}/chat/laboratorio.hbs`,
   `${RAIZ}/chat/radio.hbs`,
   `${RAIZ}/cena/painel-investigacao.hbs`,
+  `${RAIZ}/cena/partials/investigacao-lateral.hbs`,
+  `${RAIZ}/cena/partials/investigacao-abas.hbs`,
   `${RAIZ}/cena/destrancar.hbs`,
   `${RAIZ}/cena/laboratorio.hbs`,
   `${RAIZ}/cena/radio.hbs`,

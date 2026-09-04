@@ -117,8 +117,7 @@
 // resto (fieldset, labels, espaçamento entre blocos) ficava no visual cru do
 // navegador: caixa preta sem padding, texto colado na linha de cima, sem o mesmo
 // peso tipográfico da ficha de personagem (achado em uso real).
-.op2-item-ficha,
-.op2-investigacao-corpo {
+.op2-item-ficha {
   display: flex;
   flex-direction: column;
   gap: var(--op2-e4);

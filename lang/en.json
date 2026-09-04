@@ -265,7 +265,6 @@
       "Nome": "Name",
       "AbrirFicha": "Open investigation sheet",
       "NovaPadrao": "New investigation",
-      "FichaAjuda": "Round, mental strain, participants and the Recap/Share locks live in this investigation's flags, managed by the Investigation Panel. This field is just for GM notes.",
       "Notas": "Notes",
       "SemPoisAjuda": "No points of interest. Drag a Point of Interest item here.",
       "SemDesafiosAjuda": "No challenges. Drag a Challenge item here.",
@@ -430,7 +429,8 @@
         "desafios": "Challenges"
       },
       "PreparacaoAjuda": "Investigation setup: who takes part, the round-by-round script and mental overload. Drag actors, points and challenges onto the panel.",
-      "ProximoEvento": "Next scripted event: round {rodada}."
+      "ProximoEvento": "Next scripted event: round {rodada}.",
+      "ProximoEventoTag": "Next"
     },
     "Rodada": {
       "Titulo": "Round {rodada}",

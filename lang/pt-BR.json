@@ -265,7 +265,6 @@
       "Nome": "Nome",
       "AbrirFicha": "Abrir ficha da investigação",
       "NovaPadrao": "Nova investigação",
-      "FichaAjuda": "Rodada, sobrecarga, participantes e travas de Recapitular/Compartilhar ficam em flags desta investigação, geridos pelo Painel de investigação. Este campo é só para notas do mestre.",
       "Notas": "Notas",
       "SemPoisAjuda": "Nenhum ponto de interesse. Arraste um Item de Ponto de Interesse para cá.",
       "SemDesafiosAjuda": "Nenhum desafio. Arraste um Item de Desafio para cá.",
@@ -430,7 +429,8 @@
         "desafios": "Desafios"
       },
       "PreparacaoAjuda": "Montagem da investigação: quem participa, o roteiro rodada a rodada e a sobrecarga mental. Arraste atores, pontos e desafios para o painel.",
-      "ProximoEvento": "Próximo evento do roteiro: rodada {rodada}."
+      "ProximoEvento": "Próximo evento do roteiro: rodada {rodada}.",
+      "ProximoEventoTag": "Próximo"
     },
     "Rodada": {
       "Titulo": "Rodada {rodada}",

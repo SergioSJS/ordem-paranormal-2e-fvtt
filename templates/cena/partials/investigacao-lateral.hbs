@@ -1,0 +1,86 @@
+{{!-- A coluna da esquerda, comum ao painel e à ficha da investigação: o que muda
+      a cada rodada — em jogo, rodada, os botões de rodada, o que vem a seguir e a
+      ordem de quem age. Acima disto cada porta põe o seu topo (o seletor no painel,
+      nome e imagem na ficha). --}}
+<header class="op2-painel-topo">
+  <div class="op2-painel-topo__info">
+    <span class="op2-tag op2-tag--pequena">{{nomeInvestigacao}}</span>
+    <span class="op2-painel-rodada">{{localize "OP2.Painel.Rodada"}} {{rodada}}</span>
+  </div>
+  {{#if ehGM}}
+    <label class="op2-campo op2-campo--inline" data-tooltip="{{localize 'OP2.Investigacao.EmJogoAjuda'}}">
+      <input type="checkbox" data-action="alternarAtiva" {{#if investigacaoEstaEmJogo}}checked{{/if}}>
+      <span>{{localize "OP2.Investigacao.EmJogo"}}</span>
+    </label>
+    <div class="op2-painel-topo__acoes">
+      <button type="button" class="op2-botao op2-botao--pequeno" data-action="novaRodada">
+        <i class="fa-solid fa-forward-step" aria-hidden="true"></i> {{localize "OP2.Painel.NovaRodada"}}
+      </button>
+      <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="encerrarCena">
+        <i class="fa-solid fa-door-closed" aria-hidden="true"></i> {{localize "OP2.Cena.Encerrar"}}
+      </button>
+    </div>
+    {{!-- O que a próxima rodada traz, sem abrir a aba de Preparação: o roteiro e a
+          sobrecarga moram lá, mas o mestre decide "Nova rodada" aqui. --}}
+    {{#if proximoEvento}}
+      <p class="op2-ajuda op2-painel-proximo">{{localize "OP2.Painel.ProximoEvento" rodada=proximoEvento}}</p>
+    {{/if}}
+    {{#if sobrecarga.ativa}}
+      <p class="op2-ajuda op2-painel-proximo">{{localize "OP2.Painel.ProximoDano" rodada=rodada dano=sobrecarga.proximoDano}}</p>
+    {{/if}}
+  {{/if}}
+</header>
+
+{{!-- Ação nenhuma aqui, nem pro mestre: esta é a mesa de controle da investigação
+      (quem participa, o que está revelado, rodada, sobrecarga). Quem age é sempre um
+      personagem, e é na ficha dele que as ações moram — aqui não dá pra saber por
+      qual personagem o botão agiria (achado em uso real). As travas de
+      1×-por-investigação aparecem como estado, não como botão. --}}
+{{#if ehGM}}
+  {{#if travas.length}}
+    <section class="op2-painel-secao op2-painel-travas">
+      {{#each travas}}
+        <span class="op2-painel-trava">{{rotulo}} · {{nome}}</span>
+      {{/each}}
+    </section>
+  {{/if}}
+{{/if}}
+
+<section class="op2-painel-secao op2-painel-secao--ordem">
+  <h3 class="op2-painel-titulo">{{localize "OP2.Painel.OrdemRodadas"}}
+    <span class="op2-painel-contagem">{{ordem.length}}</span></h3>
+  {{#unless ordem.length}}
+    <p class="op2-ajuda">{{localize "OP2.Painel.SemParticipantes"}}</p>
+  {{/unless}}
+  {{!-- Uma lista só, personagem e NPC misturados: separar em dois grupos deixava a
+        linha do NPC imóvel na prática (com um NPC só, as duas setas dele nasciam
+        desabilitadas). Quem age quando é decisão de mesa. --}}
+  <ol class="op2-painel-ordem">
+    {{#each ordem}}
+      <li class="op2-painel-ordem__linha{{#if ehNpc}} op2-painel-ordem__linha--npc{{/if}}{{#if jaAgiu}} op2-painel-ordem__linha--agiu{{/if}}{{#if oculto}} op2-painel-ordem__linha--oculto{{/if}}"
+        data-ator-ordem="{{uuid}}" {{#if @root.ehGM}}draggable="true"{{/if}}>
+        <label class="op2-campo op2-campo--inline" data-tooltip="{{localize 'OP2.Painel.JaAgiu'}}">
+          <input type="checkbox" data-action="alternarJaAgiu" data-ator-uuid="{{uuid}}" {{#if jaAgiu}}checked{{/if}}
+            {{#unless @root.ehGM}}disabled{{/unless}}>
+        </label>
+        <img src="{{img}}" alt="">
+        <span>{{nome}}</span>
+        {{#if ehNpc}}<span class="op2-tag op2-tag--pequena op2-painel-ordem__npc-tag">NPC</span>{{/if}}
+        {{#if @root.ehGM}}
+          <span class="op2-painel-ordem__setas">
+            <button type="button" class="op2-botao-icone" data-action="moverParticipante"
+              data-ator-uuid="{{uuid}}" data-direcao="-1" {{#if @first}}disabled{{/if}}
+              aria-label="{{localize 'OP2.Painel.MoverParaCima'}}">
+              <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="op2-botao-icone" data-action="moverParticipante"
+              data-ator-uuid="{{uuid}}" data-direcao="1" {{#if @last}}disabled{{/if}}
+              aria-label="{{localize 'OP2.Painel.MoverParaBaixo'}}">
+              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </button>
+          </span>
+        {{/if}}
+      </li>
+    {{/each}}
+  </ol>
+</section>

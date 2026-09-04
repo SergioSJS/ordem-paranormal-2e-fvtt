@@ -1,0 +1,356 @@
+{{!-- A cena em abas, comum ao painel e à ficha da investigação: Preparação (só o
+      mestre: participantes, roteiro rodada a rodada, sobrecarga e, na ficha, as
+      notas), Pontos de interesse e Desafios. --}}
+<nav class="op2-abas tabs" data-group="principal" aria-label="{{localize 'OP2.Secao.Conteudo'}}">
+  {{#each tabs}}
+    <button type="button" class="op2-aba {{cssClass}}" data-action="tab" data-group="{{group}}" data-tab="{{id}}"
+      aria-pressed="{{#if active}}true{{else}}false{{/if}}">
+      {{localize label}}
+      {{#if (lookup @root.contagens id)}}<span class="op2-painel-contagem">{{lookup @root.contagens id}}</span>{{/if}}
+    </button>
+  {{/each}}
+</nav>
+
+{{#if ehGM}}
+  <section class="op2-painel-aba tab {{tabs.preparacao.cssClass}}" data-group="principal" data-tab="preparacao">
+    <p class="op2-ajuda">{{localize "OP2.Painel.PreparacaoAjuda"}}</p>
+
+    <details class="op2-painel-secao" data-secao="participantes" {{#if secoes.participantes}}open{{/if}}>
+      <summary class="op2-painel-titulo">{{localize "OP2.Painel.Participantes"}}
+        <span class="op2-painel-contagem">{{participantes.length}}</span></summary>
+      {{#unless participantes.length}}
+        <p class="op2-ajuda">{{localize "OP2.Painel.SemParticipantes"}}</p>
+      {{/unless}}
+      <ol class="op2-painel-ordem">
+        {{#each participantes}}
+          <li class="op2-painel-ordem__linha{{#if ehNpc}} op2-painel-ordem__linha--npc{{/if}}{{#if oculto}} op2-painel-ordem__linha--oculto{{/if}}">
+            <img src="{{img}}" alt=""> <span>{{nome}}</span>
+            {{#if ehNpc}}<span class="op2-tag op2-tag--pequena op2-painel-ordem__npc-tag">NPC</span>{{/if}}
+            <button type="button" class="op2-botao-icone" data-action="alternarOculto" data-campo="participantes"
+              data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.AlternarOculto'}}" data-tooltip="{{localize 'OP2.Painel.AlternarOculto'}}">
+              <i class="fa-solid {{#if oculto}}fa-eye-slash{{else}}fa-eye{{/if}}" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="op2-botao-icone" data-action="removerParticipante"
+              data-participante-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.RemoverParticipante'}}">
+              <i class="fa-solid fa-link-slash" aria-hidden="true"></i>
+            </button>
+          </li>
+        {{/each}}
+      </ol>
+      <p class="op2-ajuda">{{localize "OP2.Painel.ParticipantesAjuda"}}</p>
+      <p class="op2-ajuda">{{localize "OP2.Painel.OrdemAjuda"}}</p>
+      <p class="op2-ajuda">{{localize "OP2.Painel.JaAgiuAjuda"}}</p>
+    </details>
+
+    {{!-- O roteiro da cena se edita aqui, no painel ou na ficha: rodada, narração (vai
+          para o card de "Nova rodada") e efeito (só o mestre vê). A próxima rodada
+          marcada fica em destaque. --}}
+    <details class="op2-painel-secao op2-painel-eventos" data-secao="eventos" {{#if secoes.eventos}}open{{/if}}>
+      <summary class="op2-painel-titulo">{{localize "OP2.Painel.Eventos"}}
+        <span class="op2-painel-contagem">{{eventos.length}}</span></summary>
+      <p class="op2-ajuda">{{localize "OP2.Investigacao.EventosFichaAjuda"}}</p>
+      {{#each eventos}}
+        <div class="op2-evento-editor{{#if passado}} op2-evento-editor--passado{{/if}}{{#if proximo}} op2-evento-editor--proximo{{/if}}" data-evento-linha>
+          <div class="op2-evento-editor__topo">
+            <label class="op2-campo op2-campo--inline">
+              <span>{{localize "OP2.Painel.SobrecargaRodada"}}</span>
+              <input type="number" data-evento-campo="rodada" value="{{rodada}}" min="0" step="1">
+            </label>
+            {{#if proximo}}<span class="op2-tag op2-tag--pequena">{{localize "OP2.Painel.ProximoEventoTag"}}</span>{{/if}}
+            <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="removerEvento"
+              data-indice="{{indice}}" aria-label="{{localize 'OP2.Investigacao.RemoverEvento'}}">
+              <i class="fa-solid fa-trash" aria-hidden="true"></i>
+            </button>
+          </div>
+          <label class="op2-campo">
+            <span>{{localize "OP2.Investigacao.EventoNarracao"}}</span>
+            <textarea data-evento-campo="narracao" rows="3">{{narracao}}</textarea>
+          </label>
+          <label class="op2-campo">
+            <span>{{localize "OP2.Investigacao.EventoEfeito"}}</span>
+            <textarea data-evento-campo="efeito" rows="2">{{efeito}}</textarea>
+          </label>
+        </div>
+      {{/each}}
+      <button type="button" class="op2-botao op2-botao--pequeno" data-action="adicionarEvento">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "OP2.Investigacao.AdicionarEvento"}}
+      </button>
+    </details>
+
+    <details class="op2-painel-secao op2-painel-sobrecarga" data-secao="sobrecarga" {{#if secoes.sobrecarga}}open{{/if}}>
+      <summary class="op2-painel-titulo">{{localize "OP2.Painel.Sobrecarga"}}</summary>
+      <label class="op2-campo op2-campo--inline">
+        <input type="checkbox" data-action="alternarSobrecarga" {{#if sobrecarga.ativa}}checked{{/if}}>
+        <span>{{localize "OP2.Painel.SobrecargaAtiva"}}</span>
+      </label>
+
+      {{#if sobrecarga.ativa}}
+        <table class="op2-painel-tabela">
+          <thead>
+            <tr>
+              <th>{{localize "OP2.Painel.SobrecargaRodada"}}</th>
+              <th>{{localize "OP2.Painel.SobrecargaDano"}}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each sobrecarga.tabela}}
+              <tr data-sobrecarga-linha>
+                <td><input type="number" data-sobrecarga-campo="rodada" value="{{rodada}}" min="1" step="1"></td>
+                <td><input type="text" data-sobrecarga-campo="dano" value="{{dano}}"></td>
+                <td>
+                  <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo"
+                    data-action="removerLinhaSobrecarga" data-indice="{{indice}}"
+                    aria-label="{{localize 'OP2.Painel.RemoverLinha'}}">
+                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                  </button>
+                </td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="adicionarLinhaSobrecarga">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "OP2.Painel.AdicionarLinha"}}
+        </button>
+        <p class="op2-ajuda">{{localize "OP2.Painel.SobrecargaAjuda"}}</p>
+        <p class="op2-ajuda">{{localize "OP2.Painel.ProximoDano" rodada=rodada dano=sobrecarga.proximoDano}}</p>
+      {{/if}}
+    </details>
+
+    {{!-- Só a ficha tem as notas: é um editor de texto rico ligado ao documento. --}}
+    {{#if ehFicha}}
+      <label class="op2-campo">
+        <span>{{localize "OP2.Investigacao.Notas"}}</span>
+        {{formInput fields.descricao value=sistema.descricao enriched=descricao toggled=true
+          editable=editavel name="system.descricao"}}
+      </label>
+    {{/if}}
+  </section>
+{{/if}}
+
+<section class="op2-painel-aba op2-painel-pontos tab {{tabs.pontos.cssClass}}" data-group="principal" data-tab="pontos">
+  {{!-- Trinta pontos numa lista: filtrar pelo nome e recolher tudo é o que evita
+        a barra de rolagem infinita (achado em uso real). --}}
+  <header class="op2-painel-secao__topo">
+    <div class="op2-painel-ferramentas">
+      <input type="search" class="op2-painel-filtro" data-filtro-pois value="{{filtro}}"
+        placeholder="{{localize 'OP2.Painel.FiltrarPontos'}}" aria-label="{{localize 'OP2.Painel.FiltrarPontos'}}">
+      <button type="button" class="op2-botao-icone" data-action="recolherTodos"
+        aria-label="{{localize 'OP2.Painel.RecolherTodos'}}" data-tooltip="{{localize 'OP2.Painel.RecolherTodos'}}">
+        <i class="fa-solid fa-compress" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="op2-botao-icone" data-action="expandirTodos"
+        aria-label="{{localize 'OP2.Painel.ExpandirTodos'}}" data-tooltip="{{localize 'OP2.Painel.ExpandirTodos'}}">
+        <i class="fa-solid fa-expand" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+  {{#unless pois.length}}
+    <p class="op2-ajuda">{{localize "OP2.Painel.SemPOIs"}}</p>
+  {{/unless}}
+
+  <ol class="op2-painel-pois">
+    {{#each pois}}
+      <li class="op2-poi-card{{#if oculto}} op2-poi-card--oculto{{/if}}{{#if recolhido}} op2-poi-card--recolhido{{/if}}{{#if notasAbertas}} op2-poi-card--notas{{/if}}"
+        data-poi-card="{{uuid}}" data-nome="{{nome}}">
+        <header class="op2-poi-card__topo">
+          <button type="button" class="op2-botao-icone op2-poi-card__recolher" data-action="alternarRecolhido"
+            data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.RecolherExpandir'}}"
+            data-tooltip="{{localize 'OP2.Painel.RecolherExpandir'}}">
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+          <img src="{{img}}" alt="">
+          <strong>{{nome}}</strong>
+          {{#if linhasTotal}}
+            <span class="op2-poi-card__resumo" data-tooltip="{{localize 'OP2.Painel.LinhasResumoDica'}}">
+              {{linhasVisiveis}}/{{linhasTotal}}
+            </span>
+          {{/if}}
+          {{#if reveladoPorLaser}}
+            <span class="op2-tag op2-tag--pequena" data-tooltip="{{localize 'OP2.Ferramenta.LaserDica'}}">
+              <i class="fa-solid fa-satellite-dish" aria-hidden="true"></i>
+            </span>
+          {{/if}}
+          {{#if @root.ehGM}}
+            <span class="op2-poi-card__acoes-gm">
+              {{#if descricaoContextual}}
+                <button type="button" class="op2-botao op2-botao--pequeno{{#if notasAbertas}} ativo{{/if}}" data-action="alternarNotasMestre"
+                  data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.NotasMestre'}}"
+                  data-tooltip="{{localize 'OP2.Painel.NotasMestre'}}">
+                  <i class="fa-solid fa-user-secret" aria-hidden="true"></i>
+                </button>
+              {{/if}}
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="alternarOculto"
+                data-campo="pois" data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.AlternarOculto'}}"
+                data-tooltip="{{localize 'OP2.Painel.AlternarOculto'}}">
+                <i class="fa-solid {{#if oculto}}fa-eye-slash{{else}}fa-eye{{/if}}" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="abrirPoi"
+                data-poi-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.AbrirPOI'}}">
+                <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="removerPoi"
+                data-poi-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.RemoverPOI'}}">
+                <i class="fa-solid fa-link-slash" aria-hidden="true"></i>
+              </button>
+            </span>
+          {{/if}}
+        </header>
+
+        <div class="op2-poi-card__corpo">
+          {{#if descricaoBasica}}
+            <div class="op2-poi-card__basica">{{{descricaoBasica}}}</div>
+          {{/if}}
+
+          {{!-- Só do mestre, e só quando ele pede: a descrição contextual inteira,
+                sem abrir a ficha do ponto. --}}
+          {{#if @root.ehGM}}{{#if descricaoContextual}}
+            <div class="op2-poi-card__contextual">{{{descricaoContextual}}}</div>
+          {{/if}}{{/if}}
+
+          <ul class="op2-poi-card__quadro">
+            {{#each quadro}}
+              <li class="op2-poi-card__pericia">
+                {{!-- A perícia do quadro é bastidor: pro jogador o painel mostra só a
+                      pista liberada, sem entregar por qual perícia ela vem. --}}
+                {{#if @root.ehGM}}
+                  <div class="op2-poi-card__pericia-linha">
+                    <span class="op2-poi-card__rotulo">{{rotulo}}</span>
+                  </div>
+                {{/if}}
+                {{#if infos.length}}
+                  <ul class="op2-poi-card__infos">
+                    {{#each infos}}
+                      <li class="op2-poi-card__info{{#if oculta}} op2-poi-card__info--oculta{{/if}}{{#if descoberta}} op2-poi-card__info--descoberta{{/if}}">
+                        {{#if @root.ehGM}}
+                          {{!-- Um clique gira rascunho → descobrível → aberta. --}}
+                          <button type="button" class="op2-botao-icone op2-poi-card__visibilidade op2-poi-card__visibilidade--{{estado}}"
+                            data-action="cicloVisibilidadeInfo"
+                            data-poi-uuid="{{../../uuid}}" data-info-id="{{id}}"
+                            aria-label="{{localize (op2Concat 'OP2.POI.Visibilidade.' estado)}}"
+                            data-tooltip="{{localize (op2Concat 'OP2.POI.Visibilidade.' estado)}}">
+                            <i class="fa-solid {{#if (op2Eq estado 'rascunho')}}fa-eye-slash{{else if (op2Eq estado 'aberta')}}fa-eye{{else}}fa-magnifying-glass{{/if}}" aria-hidden="true"></i>
+                          </button>
+                          <span class="op2-poi-card__dt">DT {{dt}}</span>
+                        {{/if}}
+                        <div class="op2-poi-card__texto">{{{texto}}}</div>
+                        {{#if @root.ehGM}}{{#if reveladoPor.length}}
+                          <span class="op2-poi-card__revelado-por" data-tooltip="{{reveladoPor}}">
+                            <i class="fa-solid fa-user-check" aria-hidden="true"></i> {{reveladoPor}}
+                          </span>
+                          <button type="button" class="op2-botao-icone" data-action="limparRevelacao"
+                            data-poi-uuid="{{../../uuid}}" data-info-id="{{id}}"
+                            aria-label="{{localize 'OP2.Painel.LimparRevelacao'}}"
+                            data-tooltip="{{localize 'OP2.Painel.LimparRevelacao'}}">
+                            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                          </button>
+                        {{/if}}{{/if}}
+                      </li>
+                    {{/each}}
+                  </ul>
+                {{/if}}
+              </li>
+            {{/each}}
+          </ul>
+        </div>
+      </li>
+    {{/each}}
+  </ol>
+</section>
+
+<section class="op2-painel-aba op2-painel-desafios tab {{tabs.desafios.cssClass}}" data-group="principal" data-tab="desafios">
+  {{#unless desafios.length}}
+    <p class="op2-ajuda">{{localize "OP2.Painel.SemDesafios"}}</p>
+  {{/unless}}
+
+  <ol class="op2-painel-pois">
+    {{#each desafios}}
+      <li class="op2-poi-card op2-poi-card--desafio{{#if oculto}} op2-poi-card--oculto{{/if}}{{#if recolhido}} op2-poi-card--recolhido{{/if}}{{#if notasAbertas}} op2-poi-card--notas{{/if}}"
+        data-poi-card="{{uuid}}" data-nome="{{nome}}">
+        <header class="op2-poi-card__topo">
+          <button type="button" class="op2-botao-icone op2-poi-card__recolher" data-action="alternarRecolhido"
+            data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.RecolherExpandir'}}"
+            data-tooltip="{{localize 'OP2.Painel.RecolherExpandir'}}">
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+          <img src="{{img}}" alt="">
+          <strong>{{nome}}</strong>
+          <span class="op2-poi-card__tags">
+            {{#each abordagens}}<span class="op2-tag op2-tag--pequena">{{this}}</span>{{/each}}
+            {{#if resolvido}}<span class="op2-tag op2-tag--pequena op2-tag--ok">{{localize "OP2.Desafio.Resolvido"}}</span>{{/if}}
+          </span>
+          {{#if @root.ehGM}}
+            <span class="op2-poi-card__acoes-gm">
+              {{#if nota}}
+                <button type="button" class="op2-botao op2-botao--pequeno{{#if notasAbertas}} ativo{{/if}}" data-action="alternarNotasMestre"
+                  data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.NotasMestre'}}"
+                  data-tooltip="{{localize 'OP2.Painel.NotasMestre'}}">
+                  <i class="fa-solid fa-user-secret" aria-hidden="true"></i>
+                </button>
+              {{/if}}
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="alternarOculto"
+                data-campo="desafios" data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.AlternarOculto'}}"
+                data-tooltip="{{localize 'OP2.Painel.AlternarOculto'}}">
+                <i class="fa-solid {{#if oculto}}fa-eye-slash{{else}}fa-eye{{/if}}" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="abrirDesafio"
+                data-desafio-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.AbrirDesafio'}}">
+                <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="removerDesafio"
+                data-desafio-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.RemoverDesafio'}}">
+                <i class="fa-solid fa-link-slash" aria-hidden="true"></i>
+              </button>
+            </span>
+          {{/if}}
+        </header>
+
+        <div class="op2-poi-card__corpo">
+          {{!-- Cada abordagem mostra o próprio estado: pontuação só faz sentido em
+                Arrombar — um hack técnico com "0/10" não dizia nada (achado em uso
+                real). --}}
+          {{#if temArrombar}}
+            <p class="op2-ajuda">
+              {{localize "OP2.Desafio.Progresso"}}:
+              {{#if @root.ehGM}}
+                <span class="op2-stepper" role="group" aria-label="{{localize 'OP2.Desafio.Progresso'}}">
+                  <button type="button" class="op2-botao-icone" data-action="ajustarPontuacaoDesafio"
+                    data-desafio-uuid="{{uuid}}" data-delta="-1" aria-label="{{localize 'OP2.Desafio.DiminuirPontuacao'}}">
+                    <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                  </button>
+                  <span class="op2-stepper__valor">{{pontuacaoAtual}} / {{pontuacaoAlvo}}</span>
+                  <button type="button" class="op2-botao-icone" data-action="ajustarPontuacaoDesafio"
+                    data-desafio-uuid="{{uuid}}" data-delta="1" aria-label="{{localize 'OP2.Desafio.AumentarPontuacao'}}">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                  </button>
+                </span>
+              {{else}}
+                {{pontuacaoAtual}} / {{pontuacaoAlvo}}
+              {{/if}}
+              · DT {{dtObjeto}}
+              {{#if quebrado}} — {{localize "OP2.Desafio.Quebrado"}}{{/if}}
+            </p>
+          {{/if}}
+          {{#if temDestrancar}}
+            <p class="op2-ajuda">{{localize "OP2.Desafio.Destrancar"}}: {{localize "OP2.Desafio.Tentativas"}} {{destrancarTentativas}}{{#if maxTentativas}} / {{maxTentativas}}{{/if}}{{#if destrancado}} — {{localize "OP2.Desafio.Destrancou"}}{{/if}}</p>
+          {{/if}}
+          {{#if temHackTecnico}}
+            <p class="op2-ajuda">{{localize "OP2.Desafio.HackTecnico"}}: {{#if hackTecnicoResolvido}}{{localize "OP2.Desafio.Resolvido"}}{{else}}{{localize "OP2.Desafio.Pendente"}}{{/if}}</p>
+          {{/if}}
+          {{#if temHackSocial}}
+            <p class="op2-ajuda">{{localize "OP2.Desafio.HackSocial"}}: {{#if hackSocialResolvido}}{{localize "OP2.Desafio.Resolvido"}}{{else}}{{localize "OP2.Desafio.Pendente"}}{{/if}}</p>
+          {{/if}}
+          {{#if temSustentar}}
+            <p class="op2-ajuda">{{localize "OP2.Desafio.Sustentar"}} · DT {{sustentarDt}}</p>
+          {{/if}}
+          {{#if temGenerico}}
+            <p class="op2-ajuda">{{genericoRotulo}}{{#if genericoResolvido}} — {{localize "OP2.Desafio.Resolvido"}}{{/if}}</p>
+          {{/if}}
+          {{#if @root.ehGM}}{{#if nota}}
+            <div class="op2-poi-card__contextual">{{{nota}}}</div>
+          {{/if}}{{/if}}
+        </div>
+      </li>
+    {{/each}}
+  </ol>
+</section>
