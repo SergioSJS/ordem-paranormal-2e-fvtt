@@ -152,6 +152,22 @@ const relato = await page.evaluate(async () => {
   const campoNome = el?.querySelector("input[name='name']");
   ok("campo de nome traz o nome do ator", campoNome?.value === "Alan");
 
+  // O perfil tem cor própria no livro (playtest, p. 14): a ficha usa a do personagem
+  // como acento, sem trocar o vermelho do sistema no resto da interface.
+  {
+    const acento = () => getComputedStyle(ator.sheet.element).getPropertyValue("--op2-acento").trim();
+    const perfilAntes = ator.system.perfil;
+    await ator.update({ "system.perfil": "analista" });
+    await esperar(600);
+    ok(`a ficha marca o perfil na raiz e pinta o acento com a cor do livro (${acento()})`,
+      ator.sheet.element?.dataset.perfil === "analista" && acento() === "#367dde");
+    await ator.update({ "system.perfil": "vigilante" });
+    await esperar(600);
+    ok("trocar de perfil troca o acento", acento() === "#4b7d20");
+    await ator.update({ "system.perfil": perfilAntes });
+    await esperar(400);
+  }
+
   const linhas = el?.querySelectorAll(".op2-pericia").length ?? 0;
   ok("19 perícias + 6 aptidões = 25 linhas", linhas === 25);
   ok("ícones de dado renderizados", (el?.querySelectorAll(".op2-dado").length ?? 0) > 20);

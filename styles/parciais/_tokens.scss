@@ -15,6 +15,22 @@
   --op2-critico: #e8b53a;
 
   --op2-raio: 3px;
+
+  // Os perfis têm identidade visual própria no livro (playtest, p. 14): as três
+  // amostradas direto da página — Executor vermelho, Analista azul, Vigilante verde.
+  --op2-perfil-executor: #aa271d;
+  --op2-perfil-analista: #367dde;
+  --op2-perfil-vigilante: #4b7d20;
+  // Sobre o fundo escuro da ficha, a cor cheia some no traço fino e no texto: cada
+  // perfil tem uma versão clara para linha, contorno e rótulo.
+  --op2-perfil-executor-claro: #e0472f;
+  --op2-perfil-analista-claro: #6ba6ec;
+  --op2-perfil-vigilante-claro: #86b943;
+
+  // O acento da ficha aberta. Vermelho do sistema por padrão; a ficha de personagem
+  // troca pelo perfil dela.
+  --op2-acento: var(--op2-vermelho);
+  --op2-acento-claro: var(--op2-vermelho-claro);
   --op2-e1: 0.25rem;
   --op2-e2: 0.5rem;
   --op2-e3: 0.75rem;

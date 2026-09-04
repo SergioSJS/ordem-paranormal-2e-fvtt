@@ -417,6 +417,8 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   _onRender(contexto, opcoes) {
     super._onRender(contexto, opcoes);
+    // O acento da ficha vem do perfil (as cores do livro): o CSS lê daqui.
+    this.element.dataset.perfil = this.actor.system.perfil ?? "";
 
     const campo = this.element.querySelector(".op2-busca__campo");
     if (campo) {

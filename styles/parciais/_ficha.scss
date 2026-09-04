@@ -7,6 +7,41 @@
   }
 }
 
+// A cor do perfil (spec §1: executor, analista, vigilante) entra como acento da ficha
+// daquele personagem — o livro dá identidade própria a cada um. É acento, não tema: o
+// vermelho do sistema continua sendo a cor da moldura e dos botões; muda o que é
+// identidade do personagem — o traço do nome, o contorno do retrato, a aba ativa e a
+// própria tag do perfil.
+.op2-ficha--personagem[data-perfil="executor"] {
+  --op2-acento: var(--op2-perfil-executor);
+  --op2-acento-claro: var(--op2-perfil-executor-claro);
+}
+
+.op2-ficha--personagem[data-perfil="analista"] {
+  --op2-acento: var(--op2-perfil-analista);
+  --op2-acento-claro: var(--op2-perfil-analista-claro);
+}
+
+.op2-ficha--personagem[data-perfil="vigilante"] {
+  --op2-acento: var(--op2-perfil-vigilante);
+  --op2-acento-claro: var(--op2-perfil-vigilante-claro);
+}
+
+.op2-ficha--personagem {
+  .op2-nome { border-bottom-color: var(--op2-acento-claro); }
+
+  .op2-cabecalho__retrato { border-color: color-mix(in srgb, var(--op2-acento-claro) 55%, transparent); }
+
+  .op2-aba.active { box-shadow: inset 0 -2px var(--op2-acento-claro); }
+
+  // A tag do perfil é o próprio rótulo colorido do livro.
+  .op2-tag--perfil {
+    background: var(--op2-acento);
+
+    select { color: #fff; }
+  }
+}
+
 // Duas colunas: a ficha à esquerda, as perícias sempre visíveis à direita —
 // como na diagramação oficial, onde a coluna de perícias nunca sai da vista.
 .op2-ficha--personagem .window-content {
