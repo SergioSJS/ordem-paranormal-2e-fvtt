@@ -39,6 +39,12 @@ Nunca aponte para o seu User Data de trabalho: use um separado.
 > pkill -f "port=30099"
 > lsof packs/*/LOCK   # tem que sair vazio
 > ```
+>
+> Se os dois abrirem o mesmo banco, ele **fica quebrado para os dois**: o log do
+> servidor mostra `Failed to connect to database "…"`, o Foundry tenta reparar e o
+> mundo sobe sem compêndio. Conserto: mate os dois, rode `npm run pack:build` (ele
+> recria cada banco a partir de `packs/sources/`) e suba um só. A suíte falha logo no
+> começo, com o nome dos compêndios que não carregaram, em vez de morrer lá na frente.
 
 > **Reinicie o servidor entre rodadas.** O Foundry marca como indisponível quem já está
 > conectado, e a sessão do run anterior fica de pé um tempo: a rodada seguinte trava na

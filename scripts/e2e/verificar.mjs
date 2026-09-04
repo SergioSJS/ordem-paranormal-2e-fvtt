@@ -59,6 +59,18 @@ const relato = await page.evaluate(async () => {
   const ok = (titulo, condicao) => passos.push([Boolean(condicao), titulo]);
   const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
 
+  // Compêndio é LevelDB, e LevelDB aceita um processo só: com dois Foundry no ar, o
+  // banco não abre e o mundo sobe sem compêndio algum — sem erro na tela. Sem esta
+  // guarda, a suíte morria lá na frente com um `undefined.index` que não diz nada.
+  const semPacks = game.system.packs
+    .map((p) => `ordem-paranormal-2e.${p.name}`)
+    .filter((id) => !game.packs.get(id));
+  if (semPacks.length) {
+    throw new Error(`compêndios não carregaram (${semPacks.join(", ")}). `
+      + "Outro Foundry provavelmente está com os bancos de packs/ abertos: "
+      + "feche-o, rode npm run pack:build e tente de novo.");
+  }
+
   // DT 0 não garante sucesso: dois 1 são falha crítica, e falha crítica ignora a
   // DT (spec §4.4). Isso fazia os testes "com DT 0 sempre passa" falharem ~1 em 16
   // execuções — flake real, que já enganou mais de uma sessão. `randomUniform`
@@ -2801,7 +2813,14 @@ const relato = await page.evaluate(async () => {
     });
     relato.passos.push([primeira.cancelou, "importar o Ato II sem os arquivos no mundo segura a importação e pede o zip"]);
 
-    await page.waitForSelector(".op2-extras input[type=file]", { timeout: 20000 });
+    // Sem OP2_E2E_DATA a pasta do mundo sobrevive de uma rodada para a outra, o
+    // importador acha os arquivos e não pede zip nenhum — e a espera abaixo estourava
+    // com "Timeout exceeded", que não diz o que houve.
+    await page.waitForSelector(".op2-extras input[type=file]", { timeout: 20000 }).catch(() => {
+      throw new Error("o importador do Ato II não pediu o zip: worlds/<mundo>/ato-ii já tem os "
+        + "arquivos de uma rodada anterior. Rode com OP2_E2E_DATA apontando para o User Data "
+        + "descartável (scripts/e2e/README.md) para zerar a pasta antes.");
+    });
 
     // O zip errado primeiro: nada do que a aventura espera está nele, e a janela tem
     // que dizer isso e continuar pedindo — não importar às cegas nem travar.
