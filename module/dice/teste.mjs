@@ -91,7 +91,7 @@ export async function rolarTeste(ator, {
   // animação dos dados continua acontecendo, só o card não sai.
   if (roll.precisaSelecao) {
     await mostrarDados3D(roll);
-    roll.aplicarSelecao(await SelecaoDados.abrir(roll));
+    roll.aplicarSelecao(await SelecaoDados.abrir(roll, ator));
     if (!semCard) await enviarParaChat(roll, ator, { pularDados3D: true });
   } else if (semCard) {
     await mostrarDados3D(roll);

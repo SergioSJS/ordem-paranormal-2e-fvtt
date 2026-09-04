@@ -17,6 +17,7 @@ import { enviarCardAoMestre } from "../ui/card-mestre.mjs";
 import { escolherPericia } from "../dice/pericia-dialog.mjs";
 import { comoMestre, registrarAcaoDeMestre } from "../ui/socket.mjs";
 import { lerConfig } from "../settings/register.mjs";
+import { renderDoPerfil } from "../ui/perfil.mjs";
 
 const CHAT = "systems/ordem-paranormal-2e/templates/chat";
 
@@ -332,6 +333,7 @@ export async function recapitular(ator, { confirmar = true, rapido = false } = {
     const confirmou = await foundry.applications.api.DialogV2.confirm({
       window: { title: game.i18n.localize("OP2.Investigacao.Recapitular") },
       content: `<p>${game.i18n.format("OP2.Investigacao.RecapitularAviso", { dt: DT_RECAPITULAR })}</p>`,
+      render: renderDoPerfil(ator),
     });
     if (!confirmou) return null;
   }
@@ -385,6 +387,7 @@ export async function compartilhar(ator, { aliadoId = null } = {}) {
         <p class="op2-ajuda">${game.i18n.format("OP2.Investigacao.CompartilharAjuda", { dt: DT_COMPARTILHAR })}</p>`,
       ok: { callback: (_evento, botao) => botao.form.elements.aliado.value },
       rejectClose: false,
+      render: renderDoPerfil(ator),
     });
     aliado = aliados.find((a) => a.id === escolhido);
   }

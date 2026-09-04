@@ -13,6 +13,7 @@
 import { PERICIAS } from "../config.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
 import { rotuloDePericia } from "./teste.mjs";
+import { vestirPerfil } from "../ui/perfil.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -61,6 +62,12 @@ export class PericiaDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const promessa = new Promise((resolve) => { app.resolver = resolve; });
     app.render({ force: true });
     return promessa;
+  }
+
+  /** A janela veste a cor do perfil de quem a abriu. */
+  _onRender(contexto, opcoes) {
+    super._onRender(contexto, opcoes);
+    vestirPerfil(this.element, this.ator);
   }
 
   async _prepareContext() {

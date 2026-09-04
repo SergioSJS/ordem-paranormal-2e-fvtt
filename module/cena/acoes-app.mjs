@@ -30,6 +30,7 @@ import { guardarRolagem, restaurarRolagem, esquecerRolagem } from "../ui/rolagem
 import { semPrefixoDoPonto } from "./desafios.mjs";
 import { abrirLaboratorio } from "./laboratorio-app.mjs";
 import { abrirRadio } from "./radio-app.mjs";
+import { renderDoPerfil } from "../ui/perfil.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -328,6 +329,7 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
         </div>`,
       ok: { callback: (_ev, botao) => Number(botao.form.elements.qtd.value) },
       rejectClose: false,
+      render: renderDoPerfil(this.ator),
     });
     if (!qtdDados) return;
     await abrirLaboratorio(this.ator, qtdDados, alvo.dataset.poiUuid);

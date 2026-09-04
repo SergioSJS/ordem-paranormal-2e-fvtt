@@ -15,6 +15,7 @@
 import { gerarSenhaDestrancar, tentarDestrancar, carregarDesafio, posicoesDoPalpite } from "./acoes-desafio.mjs";
 import { tentativasPorRodadaDeDestrancar, tentativasDeDestrancarNaRodada } from "./desafios.mjs";
 import { rodadaAtual } from "./rodada.mjs";
+import { vestirPerfil } from "../ui/perfil.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -43,6 +44,12 @@ export class DestrancarApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /** Geração em andamento — não pedir duas vezes enquanto o socket não volta. */
   #gerando = false;
+
+  /** A janela veste a cor do perfil de quem a abriu. */
+  _onRender(contexto, opcoes) {
+    super._onRender(contexto, opcoes);
+    vestirPerfil(this.element, game.user.character);
+  }
 
   async _prepareContext() {
     const desafio = await carregarDesafio(this.desafioUuid);

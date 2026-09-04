@@ -14,6 +14,7 @@ import { encerrarCena } from "../cena/encerrar-investigacao.mjs";
 import { enriquecerHtml as enriquecer } from "../ui/enriquecer.mjs";
 import { ligarRodaDoMouse } from "../ui/controle-dado.mjs";
 import { abrirAcoesInvestigacao } from "../cena/acoes-app.mjs";
+import { renderDoPerfil } from "../ui/perfil.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -281,6 +282,7 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const confirmado = await foundry.applications.api.DialogV2.confirm({
       window: { title: game.i18n.localize("OP2.Item.Apagar") },
       content: `<p>${game.i18n.format("OP2.Item.ApagarConfirma", { nome: item.name })}</p>`,
+      render: renderDoPerfil(this.actor),
     });
     if (confirmado) await item.delete();
   }
@@ -308,6 +310,7 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       window: { title: game.i18n.localize("OP2.Aptidao.Adicionar") },
       content: `<input type="text" name="rotulo" autofocus placeholder="${game.i18n.localize("OP2.Aptidao.Exemplo")}">`,
       ok: { callback: (_e, botao) => botao.form.elements.rotulo.value.trim() },
+      render: renderDoPerfil(this.actor),
     });
     if (!rotulo) return;
 
@@ -386,6 +389,7 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         </div>`,
       ok: { callback: (_evento, botao) => botao.form.elements.atributo.value },
       rejectClose: false,
+      render: renderDoPerfil(this.actor),
     });
     if (!escolhido) return;
 

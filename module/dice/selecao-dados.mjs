@@ -8,6 +8,7 @@
 import { MAX_DADOS_CONTADOS } from "../config.mjs";
 import { iconeResultado } from "../ui/dice-icons.mjs";
 import * as analise from "./analise.mjs";
+import { vestirPerfil } from "../ui/perfil.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -29,9 +30,10 @@ export class SelecaoDados extends HandlebarsApplicationMixin(ApplicationV2) {
 
   #resolver;
 
-  constructor({ roll, resolver, ...opcoes } = {}) {
+  constructor({ roll, ator, resolver, ...opcoes } = {}) {
     super(opcoes);
     this.roll = roll;
+    this.ator = ator ?? null;
     this.#resolver = resolver;
     this.selecionados = new Set(roll.selecaoSugerida());
   }
@@ -40,8 +42,14 @@ export class SelecaoDados extends HandlebarsApplicationMixin(ApplicationV2) {
    * @param {import("./op2-roll.mjs").OP2Roll} roll
    * @returns {Promise<number[]>} índices escolhidos (a sugestão, se o jogador fechar)
    */
-  static abrir(roll) {
-    return new Promise((resolver) => new SelecaoDados({ roll, resolver }).render({ force: true }));
+  static abrir(roll, ator = null) {
+    return new Promise((resolver) => new SelecaoDados({ roll, ator, resolver }).render({ force: true }));
+  }
+
+  /** A janela veste a cor do perfil de quem rolou. */
+  _onRender(contexto, opcoes) {
+    super._onRender(contexto, opcoes);
+    vestirPerfil(this.element, this.ator);
   }
 
   async _prepareContext() {

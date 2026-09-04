@@ -148,6 +148,19 @@
   }
 }
 
+// O botão de confirmar dos diálogos do core (o "Rolar" do teste) vem com a borda
+// quente do Foundry, que destoa da janela inteira — mais ainda quando ela veste a cor
+// de um perfil (achado na revisão visual).
+.op2-dialog .dialog-buttons button,
+.op2-dialog button[type="submit"] {
+  border-color: color-mix(in srgb, var(--op2-vermelho) 60%, transparent);
+
+  &:hover:not([disabled]) {
+    border-color: var(--op2-vermelho);
+    color: var(--op2-vermelho-claro);
+  }
+}
+
 .op2-passo {
   display: flex;
   gap: 2px;

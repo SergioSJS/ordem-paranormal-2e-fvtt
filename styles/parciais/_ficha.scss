@@ -11,15 +11,13 @@
 // Eloísa (Analista) o azul está na moldura, no nome, nas tags de seção, nos dados,
 // nas trilhas de PV/PD — em tudo que na do Executor é vermelho. Por isso a troca é no
 // token, não em regras avulsas: todo componente da ficha já lê `--op2-vermelho`.
-.op2-ficha--personagem[data-perfil="analista"],
-.op2-acoes[data-perfil="analista"] {
+.op2[data-perfil="analista"] {
   --op2-vermelho: var(--op2-perfil-analista);
   --op2-vermelho-claro: var(--op2-perfil-analista-claro);
   --op2-vermelho-escuro: #24589e;
 }
 
-.op2-ficha--personagem[data-perfil="vigilante"],
-.op2-acoes[data-perfil="vigilante"] {
+.op2[data-perfil="vigilante"] {
   --op2-vermelho: var(--op2-perfil-vigilante);
   --op2-vermelho-claro: var(--op2-perfil-vigilante-claro);
   --op2-vermelho-escuro: #345818;

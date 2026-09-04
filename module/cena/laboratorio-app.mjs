@@ -12,6 +12,7 @@
 import { ESCADA, SYSTEM_ID } from "../config.mjs";
 import { sequenciaLaboratorio, rerrolagensLaboratorio, sequenciaValida } from "./ferramentas.mjs";
 import { renderizar } from "../dice/teste.mjs";
+import { vestirPerfil } from "../ui/perfil.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -61,6 +62,12 @@ export class LaboratorioApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const roll = await new Roll(formula).evaluate();
     this.resultados = roll.dice.map((termo) => termo.results[0].result);
     this.selecionados.clear();
+  }
+
+  /** A janela veste a cor do perfil de quem a abriu. */
+  _onRender(contexto, opcoes) {
+    super._onRender(contexto, opcoes);
+    vestirPerfil(this.element, this.ator);
   }
 
   async _prepareContext() {

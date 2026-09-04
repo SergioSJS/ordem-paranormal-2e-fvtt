@@ -16,6 +16,7 @@
 import { SYSTEM_ID } from "../config.mjs";
 import { embaralhar, moverEmLista, montarPecas, pecasResolvidas } from "./ferramentas.mjs";
 import { renderizar } from "../dice/teste.mjs";
+import { vestirPerfil } from "../ui/perfil.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -56,6 +57,12 @@ export class RadioApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const app = new RadioApp(resultado);
     app.render({ force: true });
     return app;
+  }
+
+  /** A janela veste a cor do perfil de quem a abriu. */
+  _onRender(contexto, opcoes) {
+    super._onRender(contexto, opcoes);
+    vestirPerfil(this.element, this.ator);
   }
 
   async _prepareContext() {
