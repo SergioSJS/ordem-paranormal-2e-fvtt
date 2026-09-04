@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  separarProblema,
+  separarProblema, semPrefixoDoPonto,
   acumularArrombar, arrombou, excedeuTentativas, danoDeAlcancar, avaliarPalpite, venceuDestrancar,
   podeTentarHackNestaRodada, chancesDeErroHackSocial,
   linhaDaTabelaDeHack, tentativasPorRodadaDeDestrancar, tentativasDeDestrancarNaRodada,
@@ -106,4 +106,12 @@ test("separarProblema: a conta do painel vai sem a resposta; sem '=' vai inteira
   assert.deepEqual(separarProblema("23 x 4 - 25 = 67"), { enunciado: "23 x 4 - 25", resposta: "67" });
   assert.deepEqual(separarProblema("Qual a raiz de 144?"), { enunciado: "Qual a raiz de 144?", resposta: "" });
   assert.deepEqual(separarProblema(""), { enunciado: "", resposta: "" });
+});
+
+test("nome do desafio sem o prefixo do ponto: o ponto já aparece acima do nome", () => {
+  assert.equal(semPrefixoDoPonto("Estante de Livros — Porta Pesada", "Estante de Livros"), "Porta Pesada");
+  assert.equal(semPrefixoDoPonto("Depósito A — Porta Trancada", "Depósito A"), "Porta Trancada");
+  assert.equal(semPrefixoDoPonto("Painel Confuso", "Depósito A, Painel Elétrico"), "Painel Confuso");
+  assert.equal(semPrefixoDoPonto("Estante de Livros", "Estante de Livros"), "Estante de Livros");
+  assert.equal(semPrefixoDoPonto("Cofre", null), "Cofre");
 });

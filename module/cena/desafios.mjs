@@ -130,3 +130,14 @@ export function separarProblema(texto) {
   const resposta = partes.pop().trim();
   return { enunciado: partes.join("=").trim(), resposta };
 }
+
+/**
+ * "Estante de Livros — Porta Pesada" sob o ponto "Estante de Livros" vira "Porta
+ * Pesada": o prefixo já está no rótulo do ponto, logo acima do nome no card.
+ */
+export function semPrefixoDoPonto(nome, ponto) {
+  const cheio = String(nome ?? "");
+  if (!ponto || !cheio.startsWith(ponto)) return cheio;
+  const resto = cheio.slice(ponto.length).replace(/^[\s—–-]+/, "").trim();
+  return resto || cheio;
+}

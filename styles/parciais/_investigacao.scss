@@ -223,6 +223,7 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   &__topo {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: var(--op2-e2);
 
     // Retrato de personagem é foto em pé: cortar pelo meio decapita. O corte sobe.
@@ -235,7 +236,53 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
     strong { flex: 1; font-family: var(--op2-fonte-display); letter-spacing: 0.03em; }
   }
 
-  &__acoes-gm { display: flex; gap: var(--op2-e1); }
+  // Nome e, no desafio, o ponto a que ele pertence: uma coluna só, para o nome não
+  // disputar largura com as tags e os botões.
+  &__identidade {
+    flex: 1 1 11rem;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+
+    strong { flex: none; }
+  }
+
+  // "De que ponto é este desafio": navegação, em voz baixa. Sem fundo, sem o recorte
+  // da tag (que comia as letras das pontas), com reticências quando o nome é longo —
+  // o nome inteiro fica na dica.
+  &__ponto {
+    align-self: flex-start;
+    max-width: 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    color: var(--op2-texto-fraco);
+    font-family: var(--op2-fonte-display);
+    font-size: 0.68rem;
+    letter-spacing: 0.09em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    cursor: pointer;
+
+    // A cor vai no conteúdo, não no <button>: o reset `.op2 button { color: inherit }`
+    // tem especificidade maior e ganharia de uma cor declarada aqui.
+    i { flex: 0 0 auto; font-size: 0.85em; color: var(--op2-texto-fraco); }
+    span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--op2-texto-fraco); }
+
+    &:hover,
+    &:focus-visible {
+      i, span { color: var(--op2-vermelho-claro); }
+      span { text-decoration: underline; }
+    }
+  }
+
+  // Os botões do mestre ficam sempre colados na borda direita, venha o que vier antes.
+  &__acoes-gm { display: flex; gap: var(--op2-e1); margin-left: auto; }
 
   // Oculto = preparado com antecedência, ainda não revelado (só o mestre vê isto,
   // já filtrado do lado do jogador na própria leitura de contexto).
@@ -248,7 +295,15 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
     img { filter: grayscale(1); opacity: 0.7; }
   }
 
-  &__oculto-tag { font-size: 0.6rem; }
+  // Estado, não abordagem: a mesma borda tracejada do card oculto, sem o vermelho —
+  // que fica reservado ao que se pode FAZER no desafio (Arrombar, Destrancar, Hackear).
+  &__oculto-tag {
+    background: transparent;
+    border: 1px dashed var(--op2-linha-forte);
+    color: var(--op2-texto-fraco);
+    clip-path: none;
+    font-size: 0.6rem;
+  }
 
   &__basica { margin: var(--op2-e2) 0; font-size: 0.85rem; }
 
@@ -1179,13 +1234,4 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
 
 @media (prefers-reduced-motion: reduce) {
   .op2-poi-card--foco { animation: none; box-shadow: 0 0 0 2px var(--op2-vermelho-claro); }
-}
-
-// O ponto de um desafio, no cabeçalho do card: uma tag clicável.
-.op2-poi-card__ponto {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  cursor: pointer;
-  line-height: 1.2;
 }

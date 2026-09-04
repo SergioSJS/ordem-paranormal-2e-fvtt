@@ -291,14 +291,20 @@
             <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
           </button>
           <img src="{{img}}" alt="">
-          <strong>{{nome}}</strong>
-          {{#if poiNome}}
-            <button type="button" class="op2-tag op2-tag--pequena op2-tag--tinta op2-poi-card__ponto"
-              data-action="irParaCard" data-aba="pontos" data-uuid="{{poiUuid}}"
-              data-tooltip="{{localize 'OP2.Painel.EmPonto' poi=poiNome}}">
-              <i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{poiNome}}
-            </button>
-          {{/if}}
+          {{!-- O ponto a que o desafio pertence é contexto, não abordagem: vem em voz
+                baixa acima do nome, e o nome fica com a linha inteira. Como tag
+                vermelha, competia com Arrombar/Destrancar e o recorte da tag ainda
+                comia as letras das pontas (achado em uso real). --}}
+          <div class="op2-poi-card__identidade">
+            {{#if poiNome}}
+              <button type="button" class="op2-poi-card__ponto" data-action="irParaCard"
+                data-aba="pontos" data-uuid="{{poiUuid}}"
+                data-tooltip="{{localize 'OP2.Painel.EmPonto' poi=poiNome}}">
+                <i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>{{poiNome}}</span>
+              </button>
+            {{/if}}
+            <strong data-tooltip="{{nome}}">{{nomeCurto}}</strong>
+          </div>
           {{#if oculto}}<span class="op2-tag op2-tag--pequena op2-poi-card__oculto-tag">{{localize "OP2.Painel.OcultoTag"}}</span>{{/if}}
           <span class="op2-poi-card__tags">
             {{#each abordagens}}<span class="op2-tag op2-tag--pequena">{{this}}</span>{{/each}}

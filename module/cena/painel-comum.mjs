@@ -17,6 +17,7 @@
  */
 import { SYSTEM_ID } from "../config.mjs";
 import { periciasDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs";
+import { semPrefixoDoPonto } from "./desafios.mjs";
 import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerrar-investigacao.mjs";
 import {
   estaAtiva, alternarAtiva,
@@ -327,6 +328,7 @@ export function PainelInvestigacaoMixin(Base) {
       const saida = [];
       for (const desafio of desafios) {
         const { abordagens, generico, hackTecnico, hackSocial } = desafio.system;
+        const ponto = pontoDoDesafio(investigacao, desafio.uuid);
         const nota = desafio.flags?.[SYSTEM_ID]?.notaDoMestre ?? "";
         const resolvido = (abordagens.arrombar && desafio.system.pontuacaoAtual >= desafio.system.pontuacaoAlvo)
           || (abordagens.destrancar && desafio.system.destrancado)
@@ -338,8 +340,11 @@ export function PainelInvestigacaoMixin(Base) {
           nome: desafio.name,
           img: desafio.img,
           // O ponto a que pertence, se algum ponto da investigação o lista.
-          poiNome: pontoDoDesafio(investigacao, desafio.uuid)?.name ?? "",
-          poiUuid: pontoDoDesafio(investigacao, desafio.uuid)?.uuid ?? "",
+          poiNome: ponto?.name ?? "",
+          poiUuid: ponto?.uuid ?? "",
+          // Os desafios se chamam "<Ponto> — <Coisa>": com o ponto logo acima, o
+          // prefixo só repete. O nome inteiro fica na dica e no filtro.
+          nomeCurto: semPrefixoDoPonto(desafio.name, ponto?.name),
           oculto: ocultos.includes(desafio.uuid),
           recolhido: recolhidos.has(desafio.uuid),
           notasAbertas: notas.has(desafio.uuid),
