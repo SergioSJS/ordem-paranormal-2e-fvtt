@@ -1031,3 +1031,18 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   &--passado { opacity: 0.6; }
   &--proximo { border: 1px solid var(--op2-vermelho); }
 }
+
+// A senha do Destrancar no cadastro do desafio: valor em mono, botões ao lado.
+.op2-desafio-senha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--op2-e2);
+  margin: var(--op2-e2) 0;
+
+  &__valor {
+    font-family: var(--op2-fonte-mono);
+    font-size: 1.2rem;
+    letter-spacing: 0.15em;
+  }
+}

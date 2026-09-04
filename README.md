@@ -125,7 +125,8 @@ no braço.
 - **Arrombar** (§7.2) — 1 PV por tentativa, acumula RA até a pontuação alvo.
 - **Destrancar** (§7.1) — minigame de Mastermind. A senha nasce sozinha na primeira
   tentativa; cada palpite volta posição a posição (✓ exato, ↓ alto, ↑ baixo) no card e
-  no histórico do app, e o mestre vê a senha.
+  no histórico. A senha, "gerar senha" e o histórico ficam no cadastro do desafio, que é
+  do mestre; a tela do jogador só tem o palpite.
 - **Hackear** (§7.3) — técnico (com cronômetro de 10s) e social (banco de perguntas do
   mestre), cada um com o próprio gate de rodada.
 - **Genérico** — qualquer outra situação: o mestre diz a perícia e o rótulo.
@@ -207,7 +208,7 @@ As caixas laterais e o texto de mestre viram os **dez desafios de acesso** com o
 do livro: `ARROMBAR (DT 10, PA 10)`, `DESTRANCAR (senha: 3d6, 3 tentativas)`, a tabela
 de faixas do Hack Técnico (uma conta por faixa no painel; segundos por faixa no
 computador), as seis perguntas do Hack Social do celular, a estante como obstáculo de
-Sustentar. A senha é sorteada na primeira tentativa de Destrancar, e o mestre pode sortear outra no app. Os handouts citados (*"Mostre o HANDOUT 06"*) viram a imagem
+Sustentar. A senha é sorteada na primeira tentativa de Destrancar, ou pelo mestre no cadastro do desafio. Os handouts citados (*"Mostre o HANDOUT 06"*) viram a imagem
 na descrição de mestre do ponto.
 
 E o que não é ponto nem desafio também entra: a faca de churrasco e os dois molhos de

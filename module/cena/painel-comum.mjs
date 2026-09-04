@@ -342,6 +342,8 @@ export function PainelInvestigacaoMixin(Base) {
           pontuacaoAtual: desafio.system.pontuacaoAtual,
           pontuacaoAlvo: desafio.system.pontuacaoAlvo,
           destrancarTentativas: desafio.system.destrancarTentativas,
+          // A senha é do mestre: aparece no card dele para acompanhar os palpites.
+          senha: ehGM && abordagens.destrancar ? desafio.system.senha.join(" ") : "",
           maxTentativas: desafio.system.maxTentativas,
           quebrado: desafio.system.quebrado,
           destrancado: desafio.system.destrancado,

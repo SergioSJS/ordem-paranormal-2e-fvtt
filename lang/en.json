@@ -566,7 +566,7 @@
       "Abordagens": "Possible approaches",
       "AbordagensAjuda": "Check only what makes sense on this object. A jammed door can't be hacked; an electronic panel can't be forced open.",
       "SemAbordagem": "No approach checked on this challenge — the GM needs to pick at least one on its sheet.",
-      "SenhaAjuda": "The code itself is generated and checked by the Unlock app, at play time.",
+      "SenhaAjuda": "The code is generated here, or on its own at the first Unlock attempt. Generating another resets the history.",
       "Generico": "Challenge",
       "GenericoAjuda": "For what the playtest doesn't name: boarded-up planks, a rusted gate, a high window. Pick the skill and the name shown on the button.",
       "GenericoRotulo": "Action name",
@@ -598,7 +598,11 @@
       "CustoPV": "Cost {custo} HP.",
       "ArrombarSucesso": "the RA ({ra}) is added to the score.",
       "ArrombarFalha": "did not reach DC {dt}; the score does not advance.",
-      "ArrombarCritico": "the RA ({ra}) is added to the score, ignoring the DC."
+      "ArrombarCritico": "the RA ({ra}) is added to the score, ignoring the DC.",
+      "LimparSenha": "Clear code",
+      "HistoricoDestrancar": "Unlock attempts",
+      "SenhaNenhuma": "No code generated yet.",
+      "SenhaNaFicha": "The code and the history live on the challenge sheet."
     },
     "Ferramenta": {
       "Rotulo": "Tool",

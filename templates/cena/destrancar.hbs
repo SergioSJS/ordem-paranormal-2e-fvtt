@@ -13,15 +13,7 @@
     </header>
 
     {{#if ehGM}}
-      <div class="op2-destrancar__mestre">
-        {{#if senha.length}}
-          <p class="op2-ajuda">{{localize "OP2.Desafio.SenhaMestre"}}: <strong>{{#each senha}}{{this}} {{/each}}</strong></p>
-        {{/if}}
-        <button type="button" class="op2-botao op2-botao--pequeno" data-action="gerarSenha"
-          data-tooltip="{{localize 'OP2.Desafio.DestrancarSenhaAuto' tamanho=tamanhoSenha faces=facesSenha}}">
-          <i class="fa-solid fa-dice" aria-hidden="true"></i> {{localize "OP2.Desafio.GerarSenha"}}
-        </button>
-      </div>
+      <p class="op2-ajuda">{{localize "OP2.Desafio.SenhaNaFicha"}}</p>
     {{/if}}
 
     {{!-- Histórico: cada palpite com a resposta posição a posição (spec §7.1). --}}

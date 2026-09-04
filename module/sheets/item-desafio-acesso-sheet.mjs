@@ -5,6 +5,7 @@
 import { PERICIAS } from "../config.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
 import { OP2ItemSheet } from "./item-sheet.mjs";
+import { gerarSenhaDestrancar, posicoesDoPalpite } from "../cena/acoes-desafio.mjs";
 
 export class DesafioAcessoSheet extends OP2ItemSheet {
   static DEFAULT_OPTIONS = {
@@ -21,19 +22,45 @@ export class DesafioAcessoSheet extends OP2ItemSheet {
       removerPerguntaHack: DesafioAcessoSheet.#removerPerguntaHack,
       iniciarTimerHack: DesafioAcessoSheet.#iniciarTimerHack,
       adicionarLinhaHack: DesafioAcessoSheet.#adicionarLinhaHack,
+      gerarSenha: DesafioAcessoSheet.#gerarSenha,
+      limparSenha: DesafioAcessoSheet.#limparSenha,
     },
   };
 
   /** Segundos restantes do timer do hack técnico — cliente-only, nunca persiste. */
   #timerId = null;
 
+  /** Sorteia a senha com o tamanho e as faces do cadastro; zera o histórico. */
+  static async #gerarSenha() {
+    if (!this.isEditable) return;
+    await gerarSenhaDestrancar(this.item.uuid);
+  }
+
+  static async #limparSenha() {
+    if (!this.isEditable) return;
+    await this.item.update({
+      "system.senha": [], "system.historicoDestrancar": [], "system.destrancarTentativas": 0, "system.destrancado": false,
+    });
+  }
+
   async _prepareContext(opcoes) {
     const contexto = await super._prepareContext(opcoes);
     const { pontuacaoAtual, pontuacaoAlvo } = this.item.system;
 
+    const { senha, historicoDestrancar } = this.item.system;
+
     return {
       ...contexto,
       percentualProgresso: Math.min(100, Math.round((pontuacaoAtual / pontuacaoAlvo) * 100)),
+      // A senha do Destrancar e o histórico de palpites são do mestre: moram aqui, no
+      // cadastro do desafio, não na tela de ações do jogador (achado em uso real).
+      senha,
+      temSenha: senha.length > 0,
+      historicoDestrancar: historicoDestrancar.map((linha, indice) => ({
+        numero: indice + 1,
+        posicoes: posicoesDoPalpite(linha.palpite, linha.resultado),
+        quem: game.actors.get(linha.atorId)?.name ?? "",
+      })),
       perguntasHack: this.item.system.hackSocial.perguntas.map((pergunta, indice) => ({ ...pergunta, indice })),
       // Sem nenhuma abordagem marcada a ficha não tem o que configurar — o aviso
       // substitui os blocos em vez de mostrar campos que não valem para nada.

@@ -566,7 +566,7 @@
       "Abordagens": "Abordagens possíveis",
       "AbordagensAjuda": "Marque só o que faz sentido neste objeto. Uma porta emperrada não se hackeia; um painel eletrônico não se arromba no braço.",
       "SemAbordagem": "Nenhuma abordagem marcada neste desafio — o mestre precisa escolher pelo menos uma na ficha dele.",
-      "SenhaAjuda": "A senha em si é gerada e conferida pelo app de Destrancar, na hora de jogar.",
+      "SenhaAjuda": "A senha é sorteada aqui, ou sozinha na primeira tentativa de Destrancar. Gerar outra zera o histórico.",
       "Generico": "Desafio",
       "GenericoAjuda": "Para o que o playtest não nomeia: uma tábua pregada, um portão enferrujado, uma janela alta. Escolha a perícia e o nome que aparece no botão.",
       "GenericoRotulo": "Nome da ação",
@@ -598,7 +598,11 @@
       "CustoPV": "Custou {custo} PV.",
       "ArrombarSucesso": "a RA ({ra}) entra na pontuação.",
       "ArrombarFalha": "não alcançou a DT {dt}; a pontuação não avança.",
-      "ArrombarCritico": "a RA ({ra}) entra na pontuação, ignorando a DT."
+      "ArrombarCritico": "a RA ({ra}) entra na pontuação, ignorando a DT.",
+      "LimparSenha": "Limpar senha",
+      "HistoricoDestrancar": "Tentativas de Destrancar",
+      "SenhaNenhuma": "Nenhuma senha sorteada ainda.",
+      "SenhaNaFicha": "A senha e o histórico ficam no cadastro do desafio."
     },
     "Ferramenta": {
       "Rotulo": "Ferramenta",

@@ -3,10 +3,10 @@
  *
  * O jogador monta um palpite (um valor por posição, sem rolar) e recebe a resposta
  * posição a posição: exato, alto ou baixo. Nunca a contagem agregada — é ele quem
- * deduz a senha, não o sistema que entrega de bandeja. O mestre gera a senha e ela
- * fica oculta em `system.senha`; a UI simplesmente nunca renderiza esse campo para
- * quem não é o mestre (o mesmo nível de confiança informal que o resto do sistema
- * usa para segredos de POI — ver docs/ARQUITETURA.md).
+ * deduz a senha, não o sistema que entrega de bandeja. Esta tela é do jogador: a
+ * senha e o histórico moram no cadastro do desafio, que é do mestre (achado em uso
+ * real: "isso deveria estar no cadastro do desafio, não na tela de ações do
+ * jogador"). `system.senha` nunca é renderizado aqui.
  *
  * A senha nasce sozinha na primeira abertura do app (ou na primeira tentativa):
  * exigir que o mestre fosse na ficha gerar à mão travava a mesa (achado em uso
@@ -27,7 +27,6 @@ export class DestrancarApp extends HandlebarsApplicationMixin(ApplicationV2) {
       incrementar: DestrancarApp.#incrementar,
       decrementar: DestrancarApp.#decrementar,
       tentar: DestrancarApp.#tentar,
-      gerarSenha: DestrancarApp.#gerarSenha,
     },
   };
 
@@ -81,7 +80,6 @@ export class DestrancarApp extends HandlebarsApplicationMixin(ApplicationV2) {
       ehGM: game.user.isGM,
       nome: desafio.name,
       temSenha,
-      senha: game.user.isGM ? sistema.senha : null,
       tamanhoSenha: sistema.tamanhoSenha,
       facesSenha: sistema.facesSenha,
       tentativas: sistema.destrancarTentativas,
@@ -119,36 +117,6 @@ export class DestrancarApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render();
   }
 
-  static async #gerarSenha() {
-    if (!game.user.isGM) return;
-    const desafio = await carregarDesafio(this.desafioUuid);
-    if (!desafio) return;
-
-    const config = await foundry.applications.api.DialogV2.prompt({
-      window: { title: game.i18n.localize("OP2.Desafio.GerarSenha") },
-      content: `
-        <div class="form-group">
-          <label>${game.i18n.localize("OP2.Desafio.TamanhoSenha")}</label>
-          <input type="number" name="tamanho" value="${desafio.system.tamanhoSenha}" min="1" max="8">
-        </div>
-        <div class="form-group">
-          <label>${game.i18n.localize("OP2.Desafio.FacesSenha")}</label>
-          <input type="number" name="faces" value="${desafio.system.facesSenha}" min="2" max="12">
-        </div>`,
-      ok: {
-        callback: (_evento, botao) => ({
-          tamanho: Number(botao.form.elements.tamanho.value),
-          facesSenha: Number(botao.form.elements.faces.value),
-        }),
-      },
-      rejectClose: false,
-    });
-    if (!config) return;
-
-    await gerarSenhaDestrancar(this.desafioUuid, config);
-    this.palpite = null;
-    this.render();
-  }
 }
 
 /* -- registro: reabre a mesma instância por desafio, e atualiza sozinha -- */

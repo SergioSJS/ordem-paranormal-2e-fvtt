@@ -2066,9 +2066,21 @@ const relato = await page.evaluate(async () => {
     const appEl = appDestrancar.element;
     ok("app do Destrancar renderizou", Boolean(appEl));
     ok("histórico mostra as 2 tentativas", appEl?.querySelectorAll(".op2-destrancar__historico tr").length === 2);
-    ok("mestre vê a senha na tela do app", Boolean(appEl?.textContent.includes(senha.join(" "))));
+    // A senha e o histórico são do mestre e moram no cadastro do desafio — a tela de
+    // ações do jogador não tem nem a senha nem "gerar" (achado em uso real).
+    ok("a tela do jogador não mostra a senha nem tem 'gerar senha'",
+      !appEl?.textContent.includes(senha.join(" ")) && !appEl?.querySelector('[data-action="gerarSenha"]'));
     ok("já destrancado não mostra mais o botão Tentar", !appEl?.querySelector('[data-action="tentar"]'));
     await appDestrancar.close();
+
+    await fechadura.sheet.render(true);
+    await esperar(800);
+    const fichaFechadura = fechadura.sheet.element;
+    ok("o cadastro do desafio mostra a senha, o botão de gerar e o histórico de palpites",
+      Boolean(fichaFechadura?.textContent.includes(senha.join(" ")))
+      && Boolean(fichaFechadura?.querySelector('[data-action="gerarSenha"]'))
+      && fichaFechadura?.querySelectorAll(".op2-destrancar__historico tr").length === 2);
+    await fechadura.sheet.close();
 
     await fechadura.delete();
     await cofreDigital.delete();

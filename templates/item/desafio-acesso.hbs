@@ -131,7 +131,52 @@
             {{#unless editavel}}disabled{{/unless}}>
         </label>
       </div>
+      {{!-- A senha e o histórico moram no cadastro do desafio — é do mestre. A tela de
+            ações do jogador só tem o palpite (achado em uso real). --}}
+      <div class="op2-desafio-senha">
+        <span class="op2-acoes__subtitulo">{{localize "OP2.Desafio.SenhaMestre"}}</span>
+        {{#if temSenha}}
+          <strong class="op2-desafio-senha__valor">{{#each senha}}{{this}} {{/each}}</strong>
+        {{else}}
+          <span class="op2-ajuda">{{localize "OP2.Desafio.SenhaNenhuma"}}</span>
+        {{/if}}
+        {{#if editavel}}
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="gerarSenha"
+            data-tooltip="{{localize 'OP2.Desafio.DestrancarSenhaAuto' tamanho=sistema.tamanhoSenha faces=sistema.facesSenha}}">
+            <i class="fa-solid fa-dice" aria-hidden="true"></i> {{localize "OP2.Desafio.GerarSenha"}}
+          </button>
+          {{#if temSenha}}
+            <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="limparSenha">
+              <i class="fa-solid fa-eraser" aria-hidden="true"></i> {{localize "OP2.Desafio.LimparSenha"}}
+            </button>
+          {{/if}}
+        {{/if}}
+      </div>
       <p class="op2-ajuda">{{localize "OP2.Desafio.SenhaAjuda"}}</p>
+      {{#if historicoDestrancar.length}}
+        <span class="op2-acoes__subtitulo">{{localize "OP2.Desafio.HistoricoDestrancar"}}</span>
+        <table class="op2-destrancar__historico">
+          <tbody>
+            {{#each historicoDestrancar}}
+              <tr>
+                <td class="op2-destrancar__numero">{{numero}}</td>
+                <td>
+                  <div class="op2-destrancar__linha">
+                    {{#each posicoes}}
+                      <span class="op2-destrancar__pos op2-destrancar__pos--{{valor}}" data-tooltip="{{rotulo}}">
+                        <span class="op2-destrancar__num">{{palpite}}</span>
+                        <i class="fa-solid {{icone}}" aria-hidden="true"></i>
+                      </span>
+                    {{/each}}
+                  </div>
+                </td>
+                <td class="op2-ajuda">{{quem}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+        <p class="op2-ajuda">{{localize "OP2.Desafio.DestrancarLegenda"}}</p>
+      {{/if}}
       <label class="op2-campo op2-campo--inline">
         <input type="checkbox" name="system.destrancado" {{#if sistema.destrancado}}checked{{/if}}
           {{#unless editavel}}disabled{{/unless}}>
