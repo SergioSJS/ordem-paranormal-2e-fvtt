@@ -9,6 +9,7 @@ import { rolarFalhaCritica, aplicarFalhaCritica, aplicarDano } from "../dice/fal
 import { testarCompartilhamento, registrarTravaDeCena } from "../cena/acoes-investigacao.mjs";
 import { rolarSobrecarga } from "../cena/rodada.mjs";
 import { marcarHackSocialResolvido, marcarHackTecnicoResolvido } from "../cena/acoes-desafio.mjs";
+import { iniciarHackTecnico, encerrarHackTecnico } from "../cena/timer-hack.mjs";
 import { rolarTesteDeQueda } from "../cena/ferimentos.mjs";
 import { defender } from "../cena/acoes-combate.mjs";
 import { concederPasso } from "../cena/acoes-recurso.mjs";
@@ -122,6 +123,17 @@ const ACOES = {
     await marcarHackSocialResolvido(dataset.desafioUuid);
   },
 
+  // O problema do hack técnico na mesa: o mestre revela e inicia o contador em toda
+  // tela, depois dá o veredito (spec §7.3).
+  async "iniciar-hack-tecnico"(_ator, dataset) {
+    await iniciarHackTecnico(dataset.desafioUuid, dataset.atorId || null, Number(dataset.faixa ?? -1));
+  },
+  async "hack-tecnico-acertou"(_ator, dataset) {
+    await encerrarHackTecnico(dataset.desafioUuid, dataset.atorId || null, true);
+  },
+  async "hack-tecnico-errou"(_ator, dataset) {
+    await encerrarHackTecnico(dataset.desafioUuid, dataset.atorId || null, false);
+  },
   async "marcar-hack-tecnico-resolvido"(_ator, dataset) {
     await marcarHackTecnicoResolvido(dataset.desafioUuid);
   },

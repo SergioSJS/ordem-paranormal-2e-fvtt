@@ -45,6 +45,8 @@ const TEMPLATES = [
   `${RAIZ}/cena/destrancar.hbs`,
   `${RAIZ}/cena/laboratorio.hbs`,
   `${RAIZ}/cena/radio.hbs`,
+  `${RAIZ}/cena/timer-hack.hbs`,
+  `${RAIZ}/chat/hack-timer.hbs`,
   `${RAIZ}/actor/acoes-investigacao.hbs`,
 ];
 

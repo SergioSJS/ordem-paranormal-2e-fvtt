@@ -1769,7 +1769,7 @@ const relato = await page.evaluate(async () => {
     // A ficha segue as abordagens: bloco de hack só existe se o mestre marcou a
     // abordagem naquele obstáculo (achado em uso real — a ficha despejava tudo).
     ok("ficha não mostra bloco de hack num desafio que não é de hackear",
-      !desafioEl.querySelector('[data-action="iniciarTimerHack"]')
+      !desafioEl.querySelector('[data-action="iniciarHackFaixa"]')
       && !desafioEl.querySelector('[data-action="adicionarPerguntaHack"]'));
 
     await fechadura.update({ "system.abordagens.hackTecnico": true, "system.abordagens.hackSocial": true });
@@ -1811,17 +1811,34 @@ const relato = await page.evaluate(async () => {
         hack?.linha?.desafio === "16 x 5 = 80");
       ok("e o desafio NÃO se resolve sozinho: quem confere a conta é o mestre",
         fechadura.system.hackTecnico.resolvido === false);
-      // Dois cards: o do jogador com o problema (sem botão de mestre) e o do mestre,
-      // criado no cliente dele, com o problema e o botão de marcar resolvido.
+      // O fluxo é do mestre (achado em uso real: o card do jogador vinha com "sucesso"
+      // e a conta com a resposta): o jogador só sabe o total e que o mestre prepara.
+      // "=" sai escapado no HTML (`&#x3D;`): compara-se o texto renderizado.
+      const texto = (m) => new DOMParser().parseFromString(m?.content ?? "", "text/html").body.textContent;
       const cardHack = game.messages.contents.at(-1);
       const cardJogador = game.messages.contents.at(-2);
-      ok("o card do mestre traz o problema e o botão de marcar resolvido",
-        /16 x 5 = 80/.test(cardHack?.content ?? "")
-        && /marcar-hack-tecnico-resolvido/.test(cardHack?.content ?? "") && cardHack.whisper.length > 0);
-      ok("o card do jogador traz o problema, sem nada de mestre",
-        /16 x 5 = 80/.test(cardJogador?.content ?? "") && !/marcar-hack|op2-card__so-mestre/.test(cardJogador?.content ?? ""));
-      await game.op2.marcarHackTecnicoResolvido(fechadura.uuid);
-      ok("marcar resolvido fecha o painel", fechadura.system.hackTecnico.resolvido === true);
+      ok("o card do mestre traz a conta com a resposta e o botão de revelar/iniciar",
+        /16 x 5 = 80/.test(texto(cardHack)) && /iniciar-hack-tecnico/.test(cardHack?.content ?? "")
+        && cardHack.whisper.length > 0);
+      ok("o card do jogador não tem a conta nem veredito — só 'o mestre prepara'",
+        !/16 x 5/.test(texto(cardJogador)) && !/marcar-hack|desfecho--sucesso/.test(cardJogador?.content ?? "")
+        && texto(cardJogador).includes(game.i18n.format("OP2.Desafio.HackAguardaMestre", { total: hack.roll.total })));
+      // O mestre revela: a conta sem a resposta e o contador abrem na tela de todos.
+      await game.op2.iniciarHackTecnico(fechadura.uuid, ator.id, 0);
+      await esperar(600);
+      const timerEl = document.querySelector(".op2-timer-hack");
+      const cardProblema = game.messages.contents.at(-1);
+      ok("a janela do problema abre com a conta sem a resposta e um contador",
+        Boolean(timerEl) && /16 x 5 = \?/.test(timerEl?.textContent ?? "") && Boolean(timerEl?.querySelector("[data-restante]")));
+      ok("o mestre vê a resposta na janela; o card público não a traz",
+        /80/.test(timerEl?.querySelector(".op2-timer-hack__mestre")?.textContent ?? "")
+        && !cardProblema.whisper?.length && /16 x 5 = \?/.test(texto(cardProblema))
+        && !/\b80\b/.test(texto(cardProblema)));
+      await game.op2.encerrarHackTecnico(fechadura.uuid, ator.id, true);
+      await esperar(400);
+      ok("Acertou resolve o desafio e publica o veredito",
+        fechadura.system.hackTecnico.resolvido === true && /desfecho--sucesso/.test(game.messages.contents.at(-1)?.content ?? ""));
+      await foundry.applications.instances.get("op2-timer-hack")?.close();
       await fechadura.update({ "system.hackTecnico.tabela": [], "system.hackTecnico.resolvido": false });
 
     }

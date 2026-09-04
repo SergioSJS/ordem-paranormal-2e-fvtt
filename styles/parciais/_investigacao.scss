@@ -1046,3 +1046,84 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
     letter-spacing: 0.15em;
   }
 }
+
+// O problema do hack técnico na tela de todo mundo: conta grande, contador enorme.
+.op2-timer-hack .window-content { background: var(--op2-fundo); }
+
+.op2-timer-hack__corpo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--op2-e2);
+  padding: var(--op2-e3);
+  text-align: center;
+
+  &--acertou .op2-timer-hack__contador { color: var(--op2-sucesso); }
+  &--errou .op2-timer-hack__contador { color: var(--op2-vermelho-claro); }
+}
+
+.op2-timer-hack__topo {
+  display: flex;
+  align-items: center;
+  gap: var(--op2-e2);
+  font-family: var(--op2-fonte-display);
+  letter-spacing: 0.03em;
+}
+
+.op2-timer-hack__pergunta {
+  margin: var(--op2-e2) 0 0;
+  font-family: var(--op2-fonte-mono);
+  font-size: 2.6rem;
+  line-height: 1.1;
+
+  &--oral {
+    font-family: var(--op2-fonte-corpo);
+    font-size: 1.1rem;
+    color: var(--op2-texto-fraco);
+  }
+}
+
+.op2-timer-hack__contador {
+  font-family: var(--op2-fonte-display);
+  font-size: 7.5rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.op2-timer-hack--esgotado .op2-timer-hack__contador { color: var(--op2-vermelho-claro); }
+
+.op2-timer-hack__rotulo {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--op2-texto-fraco);
+}
+
+.op2-timer-hack__esgotado {
+  margin: 0;
+  font-family: var(--op2-fonte-display);
+  font-size: 1.4rem;
+  text-transform: uppercase;
+  color: var(--op2-vermelho-claro);
+}
+
+.op2-timer-hack__verdito {
+  margin: 0;
+  font-family: var(--op2-fonte-display);
+  font-size: 1.6rem;
+  text-transform: uppercase;
+}
+
+.op2-timer-hack__mestre {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--op2-e2);
+  margin-top: var(--op2-e2);
+}
+
+.op2-timer-hack__botoes { display: flex; gap: var(--op2-e2); }
+
+.op2-card__pergunta { font-family: var(--op2-fonte-mono); font-size: 1.3rem; }

@@ -1,0 +1,44 @@
+{{!-- O problema do hack técnico na tela de todo mundo: conta grande, contador
+      maior ainda. A resposta só existe no cliente do mestre. --}}
+<div class="op2-timer-hack__corpo{{#if verdito}} op2-timer-hack__corpo--{{verdito}}{{/if}}">
+  <header class="op2-timer-hack__topo">
+    <span class="op2-tag op2-tag--pequena">{{localize "OP2.Desafio.HackTecnico"}}</span>
+    <span class="op2-timer-hack__nome">{{desafioNome}}{{#if atorNome}} · {{atorNome}}{{/if}}</span>
+  </header>
+
+  {{#if pergunta}}
+    <p class="op2-timer-hack__pergunta">{{pergunta}}</p>
+  {{else}}
+    <p class="op2-timer-hack__pergunta op2-timer-hack__pergunta--oral">{{localize "OP2.Desafio.HackProblemaOral"}}</p>
+  {{/if}}
+
+  <div class="op2-timer-hack__contador" data-restante>{{restante}}</div>
+  <p class="op2-timer-hack__rotulo">{{localize "OP2.Desafio.HackProblemaTitulo" segundos=segundos}}</p>
+  <p class="op2-timer-hack__esgotado" data-esgotado {{#unless esgotado}}hidden{{/unless}}>
+    {{localize "OP2.Desafio.HackTempoEsgotado"}}
+  </p>
+
+  {{#if verdito}}
+    <p class="op2-timer-hack__verdito">
+      {{#if (op2Eq verdito "acertou")}}
+        <i class="fa-solid fa-unlock" aria-hidden="true"></i> {{localize "OP2.Desafio.HackAcertou"}}
+      {{else}}
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i> {{localize "OP2.Desafio.HackErrou"}}
+      {{/if}}
+    </p>
+  {{else if ehGM}}
+    <div class="op2-timer-hack__mestre">
+      {{#if resposta}}
+        <p class="op2-ajuda">{{localize "OP2.Desafio.HackRespostaMestre"}}: <strong>{{resposta}}</strong></p>
+      {{/if}}
+      <div class="op2-timer-hack__botoes">
+        <button type="button" class="op2-botao" data-action="acertou">
+          <i class="fa-solid fa-check" aria-hidden="true"></i> {{localize "OP2.Desafio.HackAcertou"}}
+        </button>
+        <button type="button" class="op2-botao op2-botao--perigo" data-action="errou">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i> {{localize "OP2.Desafio.HackErrou"}}
+        </button>
+      </div>
+    </div>
+  {{/if}}
+</div>

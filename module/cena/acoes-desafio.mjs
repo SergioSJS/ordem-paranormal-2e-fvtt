@@ -454,18 +454,28 @@ export async function hackTecnico(ator, desafioUuid, { rapido = false } = {}) {
     desafioNome: desafio.name,
     atorId: ator.id,
     desafioUuid: desafio.uuid,
+    total: roll.total,
     sucesso,
     tecnico: true,
+    comTabela: temTabela,
     // Sem faixa alcançada o painel não devolveu nada — nem por isso o hack falhou de
     // vez: dá para tentar de novo na rodada seguinte.
-    problema: linha?.desafio ?? "",
-    faixa: linha?.rolagem ?? "",
-    segundos: linha?.segundos ?? 0,
     semResposta: temTabela && !linha,
   };
-  await enviarCard(ator, "hackear", cartao, { whisper: sussurroPara(ator) });
-  // O que é do mestre (conferir a resposta, marcar resolvido) nasce no cliente dele.
-  if (sucesso) await enviarCardAoMestre(ator, "hackear", { ...cartao, soMestre: true }, { tipo: "desafio" });
+  // Com tabela, o jogador não recebe veredito nem a conta: o mestre prepara a mesa,
+  // revela o problema e inicia o contador (`timer-hack.mjs`). Antes o card do jogador
+  // já vinha com "sucesso" e a conta com a resposta (achado em uso real).
+  await enviarCard(ator, "hackear", { ...cartao, aguardaMestre: temTabela && Boolean(linha) }, { whisper: sussurroPara(ator) });
+  if (sucesso) {
+    await enviarCardAoMestre(ator, "hackear", {
+      ...cartao,
+      soMestre: true,
+      faixa: linha?.rolagem ?? "",
+      problema: linha?.desafio ?? "",
+      segundos: linha?.segundos > 0 ? linha.segundos : 10,
+      indiceFaixa: linha ? desafio.system.hackTecnico.tabela.indexOf(linha) : -1,
+    }, { tipo: "desafio" });
+  }
 
   return { roll, sucesso, linha };
 }

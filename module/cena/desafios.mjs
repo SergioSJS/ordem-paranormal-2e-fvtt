@@ -118,3 +118,15 @@ export function tentativasPorRodadaDeDestrancar(dadoCrime) {
 export function tentativasDeDestrancarNaRodada(historico, atorId, rodada) {
   return (historico ?? []).filter((h) => h.atorId === atorId && h.rodada === rodada).length;
 }
+
+/**
+ * O livro imprime a conta do painel com a resposta ("16 x 5 = 80"). Para a mesa vai
+ * só o enunciado; a resposta fica com o mestre. Texto sem "=" é enunciado inteiro.
+ * @returns {{ enunciado: string, resposta: string }}
+ */
+export function separarProblema(texto) {
+  const partes = String(texto ?? "").split("=");
+  if (partes.length < 2) return { enunciado: String(texto ?? "").trim(), resposta: "" };
+  const resposta = partes.pop().trim();
+  return { enunciado: partes.join("=").trim(), resposta };
+}

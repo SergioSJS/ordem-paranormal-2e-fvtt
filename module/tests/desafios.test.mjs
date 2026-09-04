@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  separarProblema,
   acumularArrombar, arrombou, excedeuTentativas, danoDeAlcancar, avaliarPalpite, venceuDestrancar,
   podeTentarHackNestaRodada, chancesDeErroHackSocial,
   linhaDaTabelaDeHack, tentativasPorRodadaDeDestrancar, tentativasDeDestrancarNaRodada,
@@ -98,4 +99,11 @@ test("a contagem da rodada é o histórico do desafio, por ator e rodada", () =>
   assert.equal(tentativasDeDestrancarNaRodada(historico, "b", 2), 1);
   assert.equal(tentativasDeDestrancarNaRodada(historico, "a", 3), 0);
   assert.equal(tentativasDeDestrancarNaRodada(undefined, "a", 1), 0);
+});
+
+test("separarProblema: a conta do painel vai sem a resposta; sem '=' vai inteira", () => {
+  assert.deepEqual(separarProblema("16 x 5 = 80"), { enunciado: "16 x 5", resposta: "80" });
+  assert.deepEqual(separarProblema("23 x 4 - 25 = 67"), { enunciado: "23 x 4 - 25", resposta: "67" });
+  assert.deepEqual(separarProblema("Qual a raiz de 144?"), { enunciado: "Qual a raiz de 144?", resposta: "" });
+  assert.deepEqual(separarProblema(""), { enunciado: "", resposta: "" });
 });

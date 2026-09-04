@@ -207,6 +207,12 @@
             <input type="number" name="system.hackTecnico.tabela.{{@index}}.segundos" value="{{segundos}}"
               min="0" step="1" size="3" aria-label="{{localize 'OP2.Desafio.HackTabelaSegundos'}}"
               {{#unless @root.editavel}}disabled{{/unless}}>
+            {{#if @root.editavel}}
+              <button type="button" class="op2-botao-icone" data-action="iniciarHackFaixa" data-indice="{{@index}}"
+                aria-label="{{localize 'OP2.Desafio.HackIniciar'}}" data-tooltip="{{localize 'OP2.Desafio.HackIniciar'}}">
+                <i class="fa-solid fa-play" aria-hidden="true"></i>
+              </button>
+            {{/if}}
           </div>
         {{/each}}
         {{#if editavel}}
@@ -221,10 +227,9 @@
         <div class="op2-desafio-hack__timer">
           <input type="number" class="op2-desafio-hack__segundos" data-timer-segundos
             value="10" min="1" step="1" aria-label="{{localize 'OP2.Desafio.HackTabelaSegundos'}}">
-          <button type="button" class="op2-botao op2-botao--pequeno" data-action="iniciarTimerHack">
-            {{localize "OP2.Desafio.HackTimerIniciar"}}
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="iniciarHackFaixa" data-indice="-1">
+            <i class="fa-solid fa-play" aria-hidden="true"></i> {{localize "OP2.Desafio.HackTimerIniciar"}}
           </button>
-          <span class="op2-desafio-hack__timer-valor" data-timer-hack></span>
         </div>
         <p class="op2-ajuda">{{localize "OP2.Desafio.HackTimerAjuda"}}</p>
       {{/if}}

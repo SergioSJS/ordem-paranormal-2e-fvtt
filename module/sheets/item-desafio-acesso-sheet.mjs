@@ -6,6 +6,7 @@ import { PERICIAS } from "../config.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
 import { OP2ItemSheet } from "./item-sheet.mjs";
 import { gerarSenhaDestrancar, posicoesDoPalpite } from "../cena/acoes-desafio.mjs";
+import { iniciarHackTecnico } from "../cena/timer-hack.mjs";
 
 export class DesafioAcessoSheet extends OP2ItemSheet {
   static DEFAULT_OPTIONS = {
@@ -20,15 +21,12 @@ export class DesafioAcessoSheet extends OP2ItemSheet {
       ajustarTentativas: DesafioAcessoSheet.#ajustarTentativas,
       adicionarPerguntaHack: DesafioAcessoSheet.#adicionarPerguntaHack,
       removerPerguntaHack: DesafioAcessoSheet.#removerPerguntaHack,
-      iniciarTimerHack: DesafioAcessoSheet.#iniciarTimerHack,
+      iniciarHackFaixa: DesafioAcessoSheet.#iniciarHackFaixa,
       adicionarLinhaHack: DesafioAcessoSheet.#adicionarLinhaHack,
       gerarSenha: DesafioAcessoSheet.#gerarSenha,
       limparSenha: DesafioAcessoSheet.#limparSenha,
     },
   };
-
-  /** Segundos restantes do timer do hack técnico — cliente-only, nunca persiste. */
-  #timerId = null;
 
   /** Sorteia a senha com o tamanho e as faces do cadastro; zera o histórico. */
   static async #gerarSenha() {
@@ -72,17 +70,6 @@ export class DesafioAcessoSheet extends OP2ItemSheet {
     };
   }
 
-  _onRender(contexto, opcoes) {
-    super._onRender(contexto, opcoes);
-    clearInterval(this.#timerId);
-    this.#timerId = null;
-  }
-
-  _onClose(opcoes) {
-    super._onClose(opcoes);
-    clearInterval(this.#timerId);
-  }
-
   /**
    * Stepper do progresso — bookkeeping manual do mestre sem rolar Arrombar
    * (alguém forçou fora do sistema, correção de valor). Mesma trava em
@@ -121,29 +108,13 @@ export class DesafioAcessoSheet extends OP2ItemSheet {
   }
 
   /**
-   * Timer visual de 10s do hack técnico (spec §7.3) — cliente-only, nunca grava
-   * no Item: é só o cronômetro que a spec pede como ferramenta de mestre, a
-   * dificuldade do problema em si continua sendo julgamento da mesa
-   * (docs/LACUNAS.md).
+   * Revela o problema e inicia o contador na tela de todo mundo (`timer-hack.mjs`):
+   * por faixa da tabela, ou um timer avulso com os segundos do campo, para o mestre
+   * ditar a conta em voz alta.
    */
-  static #iniciarTimerHack(_evento, alvo) {
-    clearInterval(this.#timerId);
-    const mostrador = this.element.querySelector("[data-timer-hack]");
-    if (!mostrador) return;
-
-    // A faixa da tabela pode dar mais (ou menos) tempo que os 10s padrão.
-    const escolhido = Number(this.element.querySelector("[data-timer-segundos]")?.value);
-    let restante = Number.isInteger(escolhido) && escolhido > 0 ? escolhido : 10;
-    alvo.disabled = true;
-    mostrador.textContent = restante;
-    this.#timerId = setInterval(() => {
-      restante -= 1;
-      mostrador.textContent = Math.max(restante, 0);
-      if (restante <= 0) {
-        clearInterval(this.#timerId);
-        this.#timerId = null;
-        alvo.disabled = false;
-      }
-    }, 1000);
+  static async #iniciarHackFaixa(_evento, alvo) {
+    const indice = Number(alvo.dataset.indice);
+    const segundos = Number(this.element.querySelector("[data-timer-segundos]")?.value) || undefined;
+    await iniciarHackTecnico(this.item.uuid, null, indice >= 0 ? indice : -1, { segundos: indice >= 0 ? undefined : segundos });
   }
 }

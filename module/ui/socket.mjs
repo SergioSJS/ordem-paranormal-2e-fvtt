@@ -17,13 +17,34 @@ const CANAL = `system.${SYSTEM_ID}`;
 /** @type {Record<string, (dados: object) => Promise<unknown>>} */
 const ACOES = {};
 
+/** O que todo cliente executa quando o mestre manda (o contador do hack técnico). */
+const TODOS = {};
+
+export function registrarAcaoDeTodos(nome, executar) {
+  TODOS[nome] = executar;
+}
+
+/**
+ * Manda para todos os OUTROS clientes — quem emite não recebe o próprio evento e
+ * executa o que quiser localmente (às vezes com mais dados, como a resposta do
+ * problema, que só o mestre pode ter).
+ */
+export function paraTodos(nome, dados) {
+  game.socket.emit(CANAL, { acao: nome, dados, todos: true });
+}
+
 /** Registra o que o mestre sabe executar em nome de um jogador. */
 export function registrarAcaoDeMestre(nome, executar) {
   ACOES[nome] = executar;
 }
 
 export function registrarSocket() {
-  game.socket.on(CANAL, async ({ acao, dados } = {}) => {
+  game.socket.on(CANAL, async ({ acao, dados, todos = false } = {}) => {
+    if (todos) {
+      const executar = TODOS[acao];
+      if (!executar) return void console.warn(`${SYSTEM_ID} | ação de todos desconhecida: ${acao}`);
+      return void await executar(dados);
+    }
     if (game.users.activeGM?.id !== game.user.id) return;
     const executar = ACOES[acao];
     if (!executar) return void console.warn(`${SYSTEM_ID} | ação de mestre desconhecida: ${acao}`);

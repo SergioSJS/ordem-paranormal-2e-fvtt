@@ -127,7 +127,8 @@ no braço.
   tentativa; cada palpite volta posição a posição (✓ exato, ↓ alto, ↑ baixo) no card e
   no histórico. A senha, "gerar senha" e o histórico ficam no cadastro do desafio, que é
   do mestre; a tela do jogador só tem o palpite.
-- **Hackear** (§7.3) — técnico (com cronômetro de 10s) e social (banco de perguntas do
+- **Hackear** (§7.3) — técnico: o jogador rola, só o mestre recebe a conta e a resposta,
+  revela para a mesa com um contador grande na tela de todos e dá o veredito; social (banco de perguntas do
   mestre), cada um com o próprio gate de rodada.
 - **Genérico** — qualquer outra situação: o mestre diz a perícia e o rótulo.
 
