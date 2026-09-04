@@ -431,7 +431,7 @@
       "MoverParaBaixo": "Move down in order",
       "LimparRevelacao": "Undo this line's discovery (for everyone)",
       "RevelacaoLimpa": "Discovery undone for: {nomes}.",
-      "Eventos": "Scene script",
+      "Eventos": "Events",
       "FiltrarPontos": "Filter points…",
       "RecolherTodos": "Collapse all",
       "ExpandirTodos": "Expand all",
@@ -443,7 +443,7 @@
         "pontos": "Points of interest",
         "desafios": "Challenges"
       },
-      "PreparacaoAjuda": "Investigation setup: who takes part, the round-by-round script and mental overload. Drag actors, points and challenges onto the panel.",
+      "PreparacaoAjuda": "Investigation setup: who takes part, the events with their own script and mental overload. Drag actors, points, challenges and events onto the panel.",
       "ProximoEvento": "Next scripted event: round {rodada}.",
       "ProximoEventoTag": "Next",
       "OcultoTag": "Hidden",

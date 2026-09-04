@@ -708,7 +708,7 @@ export function PainelInvestigacaoMixin(Base) {
       const [item] = await Item.createDocuments([{
         name: game.i18n.localize("OP2.Evento.Novo"),
         type: "evento",
-        img: `systems/${SYSTEM_ID}/assets/icons/tipos/ponto-interesse.svg`,
+        img: "icons/svg/clockwork.svg",
       }]);
       await vincularEvento(investigacao, item.uuid);
       item.sheet.render(true);

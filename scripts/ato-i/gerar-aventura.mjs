@@ -353,7 +353,7 @@ function eventoDaMaldicao() {
     _id: ident("evento-ato-i-maldicao"),
     name: "A Maldição do Ídolo de Pedra",
     type: "evento",
-    img: "systems/ordem-paranormal-2e/assets/icons/tipos/ponto-interesse.svg",
+    img: "icons/svg/clockwork.svg",
     system: {
       gatilho: "<p>Quando o grupo <strong>observar o Ídolo de Pedra</strong>. Nesse momento, leia a"
         + " narração da rodada 0 e dispare o evento: a rodada de agora vira a rodada 0 dele.</p>",
