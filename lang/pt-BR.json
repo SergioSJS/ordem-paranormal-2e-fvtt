@@ -246,7 +246,7 @@
       "ExaminarSemInfo": "O exame não revelou nenhuma informação nova.",
       "PerderPD": "Perder {custo} PD",
       "PDPago": "{ator} perdeu {custo} PD ao examinar sem descobrir nada.",
-      "InteragirQuem": "{ator} interage com o ponto de interesse. Resolva pela descrição contextual:",
+      "InteragirQuem": "{ator} interage com {poi}.",
       "RecapitularAviso": "Interprete a recapitulação de tudo que o grupo descobriu. Se o mestre julgar coerente, faça um teste de Intuição (DT {dt}). Após um sucesso, Recapitular trava para o grupo nesta cena.",
       "RecapitularSucesso": "{ator} recapitulou a investigação. O mestre pode conceder uma nova pista — registrar trava a ação para o grupo nesta cena.",
       "CompartilharAjuda": "O aliado testa a perícia de Compartilhar (DT {dt}) como ação livre.",
@@ -277,14 +277,20 @@
       "DtQueFaltava": "Mestre: a menor DT que falta nesta perícia é {dt}.",
       "SemRolar": "sem rolar",
       "ExaminarAchou": "o teste revelou {quantidade} informação(ões) nova(s).",
-      "ExaminarSoGratis": "o teste não alcançou nada novo; as {quantidade} linha(s) acima vieram pelo tamanho do seu dado.",
+      "ExaminarSoGratis": "{quantidade} linha(s) pelo tamanho do seu dado, sem rolar.",
       "CriticoExaminar": "revela o que faltava desta perícia, ignorando a DT.",
-      "ExaminarPeloDado": "Pelo dado",
       "EventosFichaAjuda": "O que acontece em cada rodada marcada. Ao apertar \"Nova rodada\", a narração vai para o card (leia em voz alta) e o efeito só para você.",
       "EventoNarracao": "Narração (para os jogadores)",
       "EventoEfeito": "Efeito (só do mestre)",
       "AdicionarEvento": "Novo evento",
-      "RemoverEvento": "Remover evento"
+      "RemoverEvento": "Remover evento",
+      "InteragirDica": "Agir sobre o ponto sem teste. O mestre narra o que acontece.",
+      "InteragirAguarde": "Sem teste. O mestre narra o que acontece.",
+      "InteragirSoMestre": "Só você vê isto — a descrição contextual é do mestre. Narre o resultado para a mesa.",
+      "InteragirSemContextual": "Este ponto não tem descrição contextual. Narre pelo bom senso.",
+      "ExaminarGratisTambem": "Mais {quantidade} linha(s) vieram pelo tamanho do seu dado, sem rolar.",
+      "ExaminarRestante": "A rolagem ({total}) não alcançou o que ainda falta desta perícia.",
+      "ExaminarNadaMais": "Não sobrou nada desta perícia neste ponto."
     },
     "Dialog": {
       "Teste": {
@@ -430,7 +436,8 @@
       },
       "PreparacaoAjuda": "Montagem da investigação: quem participa, o roteiro rodada a rodada e a sobrecarga mental. Arraste atores, pontos e desafios para o painel.",
       "ProximoEvento": "Próximo evento do roteiro: rodada {rodada}.",
-      "ProximoEventoTag": "Próximo"
+      "ProximoEventoTag": "Próximo",
+      "OcultoTag": "Oculto"
     },
     "Rodada": {
       "Titulo": "Rodada {rodada}",
@@ -528,7 +535,7 @@
       "SustentarSoltou": "{ator} não aguentou mais e soltou o que sustentava.",
       "Destrancar": "Destrancar",
       "Destrancou": "Destrancou!",
-      "DestrancarTentativa": "Tentativa registrada — veja o histórico.",
+      "DestrancarTentativa": "Tentativa registrada.",
       "JaDestrancado": "Esta fechadura já foi destrancada.",
       "SenhaAusente": "O mestre ainda não gerou a senha desta fechadura.",
       "GerarSenha": "Gerar senha",
@@ -577,7 +584,20 @@
       "DestrancarTetoRodada": "Já foram as {teto} tentativa(s) desta rodada (Crime {dado}). Espere a próxima.",
       "DestrancarNaRodada": "{usadas}/{teto} tentativas nesta rodada (Crime {dado}).",
       "Resolvido": "Resolvido",
-      "Pendente": "Pendente"
+      "Pendente": "Pendente",
+      "DestrancarLegenda": "✓ exato · ↓ alto: abaixe este número · ↑ baixo: suba este número",
+      "DestrancarResultado": {
+        "exato": "exato",
+        "alto": "alto — abaixe",
+        "baixo": "baixo — suba"
+      },
+      "DestrancarSenhaAuto": "A senha nasce sozinha na primeira tentativa ({tamanho} posições de 1 a {faces}). Gerar outra zera o histórico.",
+      "DestrancarGerando": "Gerando a senha…",
+      "Palpite": "Palpite",
+      "CustoPV": "Custou {custo} PV.",
+      "ArrombarSucesso": "a RA ({ra}) entra na pontuação.",
+      "ArrombarFalha": "não alcançou a DT {dt}; a pontuação não avança.",
+      "ArrombarCritico": "a RA ({ra}) entra na pontuação, ignorando a DT."
     },
     "Ferramenta": {
       "Rotulo": "Ferramenta",

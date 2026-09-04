@@ -484,8 +484,17 @@ export function PainelInvestigacaoMixin(Base) {
     static #alternarNotasMestre(_evento, alvo) {
       const { uuid } = alvo.dataset;
       const aberto = alternarNaLista(CHAVE_NOTAS, uuid);
-      this.element.querySelector(`[data-poi-card="${uuid}"]`)?.classList.toggle("op2-poi-card--notas", aberto);
+      const card = this.element.querySelector(`[data-poi-card="${uuid}"]`);
+      card?.classList.toggle("op2-poi-card--notas", aberto);
       alvo.classList.toggle("ativo", aberto);
+      // Abrir as notas num card recolhido expande o card: as notas ficam no corpo,
+      // e sem isto o clique parecia não fazer nada (achado em uso real).
+      if (aberto && card?.classList.contains("op2-poi-card--recolhido")) {
+        const recolhidos = lerLista(CHAVE_RECOLHIDOS);
+        recolhidos.delete(uuid);
+        gravarLista(CHAVE_RECOLHIDOS, recolhidos);
+        card.classList.remove("op2-poi-card--recolhido");
+      }
     }
 
     static #recolherTodos() {

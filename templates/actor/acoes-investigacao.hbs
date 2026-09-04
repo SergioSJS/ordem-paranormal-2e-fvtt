@@ -17,51 +17,69 @@
       {{/if}}
     </header>
 
+    {{!-- Um ícone por ação e o rótulo num span próprio: o ícone nunca some, e é o
+          texto que encolhe se faltar largura (achado em uso real: "Usar habilidade
+          ou item" já batia na borda do botão). --}}
     <section class="op2-painel-secao">
       <h3 class="op2-painel-titulo">{{localize "OP2.Acoes.Livres"}}</h3>
       <div class="op2-acoes__grupo">
         <button type="button" class="op2-botao op2-botao--pequeno" data-action="recapitular"
-          {{#if recapitularUsado.usado}}disabled{{/if}}>
-          {{localize "OP2.Investigacao.Recapitular"}}
-          {{#if recapitularUsado.usado}}<span class="op2-painel-trava">· {{recapitularUsado.nome}}</span>{{/if}}
+          {{#if recapitularUsado.usado}}disabled{{/if}} data-tooltip="{{localize 'OP2.Investigacao.Recapitular'}}">
+          <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+          <span class="op2-acoes__rotulo">{{localize "OP2.Investigacao.Recapitular"}}
+            {{#if recapitularUsado.usado}}<span class="op2-painel-trava">· {{recapitularUsado.nome}}</span>{{/if}}</span>
         </button>
         <button type="button" class="op2-botao op2-botao--pequeno" data-action="compartilhar"
-          {{#unless temAliados}}disabled data-tooltip="{{localize 'OP2.Acoes.SemAliado'}}"{{/unless}}
+          {{#unless temAliados}}disabled data-tooltip="{{localize 'OP2.Acoes.SemAliado'}}"{{else}}data-tooltip="{{localize 'OP2.Investigacao.Compartilhar'}}"{{/unless}}
           {{#if compartilharUsado.usado}}disabled{{/if}}>
-          {{localize "OP2.Investigacao.Compartilhar"}}
-          {{#if compartilharUsado.usado}}<span class="op2-painel-trava">· {{compartilharUsado.nome}}</span>{{/if}}
+          <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
+          <span class="op2-acoes__rotulo">{{localize "OP2.Investigacao.Compartilhar"}}
+            {{#if compartilharUsado.usado}}<span class="op2-painel-trava">· {{compartilharUsado.nome}}</span>{{/if}}</span>
         </button>
         <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="atacar"
-          {{#unless temAlvosDeAtaque}}disabled data-tooltip="{{localize 'OP2.Acoes.SemAlvo'}}"{{/unless}}>
-          {{localize "OP2.Combate.Atacar"}}
+          {{#unless temAlvosDeAtaque}}disabled data-tooltip="{{localize 'OP2.Acoes.SemAlvo'}}"{{else}}data-tooltip="{{localize 'OP2.Combate.Atacar'}}"{{/unless}}>
+          <i class="fa-solid fa-hand-fist" aria-hidden="true"></i>
+          <span class="op2-acoes__rotulo">{{localize "OP2.Combate.Atacar"}}</span>
         </button>
         <button type="button" class="op2-botao op2-botao--pequeno" data-action="usarRecurso"
-          {{#unless temRecursos}}disabled data-tooltip="{{localize 'OP2.Recurso.SemItens'}}"{{/unless}}>
-          {{localize "OP2.Recurso.Titulo"}}
+          {{#unless temRecursos}}disabled data-tooltip="{{localize 'OP2.Recurso.SemItens'}}"{{else}}data-tooltip="{{localize 'OP2.Recurso.Titulo'}}"{{/unless}}>
+          <i class="fa-solid fa-wand-sparkles" aria-hidden="true"></i>
+          <span class="op2-acoes__rotulo">{{localize "OP2.Recurso.Titulo"}}</span>
         </button>
         <button type="button" class="op2-botao op2-botao--pequeno" data-action="ajudar"
           {{#if temAliados}}data-tooltip="{{localize 'OP2.Ajuda.EscolhaAjuda'}}"
           {{else}}disabled data-tooltip="{{localize 'OP2.Ajuda.SemAliados'}}"{{/if}}>
-          {{localize "OP2.Ajuda.Titulo"}}
+          <i class="fa-solid fa-handshake-angle" aria-hidden="true"></i>
+          <span class="op2-acoes__rotulo">{{localize "OP2.Ajuda.Titulo"}}</span>
         </button>
-        <button type="button" class="op2-botao op2-botao--pequeno" data-action="alcancar" data-modo="seguro">
-          {{localize "OP2.Desafio.AlcancarSeguro"}}
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="alcancar" data-modo="seguro"
+          data-tooltip="{{localize 'OP2.Desafio.AlcancarSeguro'}}">
+          <i class="fa-solid fa-person-walking" aria-hidden="true"></i>
+          <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.AlcancarSeguro"}}</span>
         </button>
-        <button type="button" class="op2-botao op2-botao--pequeno" data-action="alcancar" data-modo="arriscado">
-          {{localize "OP2.Desafio.AlcancarArriscado"}}
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="alcancar" data-modo="arriscado"
+          data-tooltip="{{localize 'OP2.Desafio.AlcancarArriscado'}}">
+          <i class="fa-solid fa-person-running" aria-hidden="true"></i>
+          <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.AlcancarArriscado"}}</span>
         </button>
         {{#if sustentando}}
-          <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="pararDeSustentar">
-            {{localize "OP2.Desafio.PararDeSustentar"}}
+          <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="pararDeSustentar"
+            data-tooltip="{{localize 'OP2.Desafio.PararDeSustentar'}}">
+            <i class="fa-solid fa-hand" aria-hidden="true"></i>
+            <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.PararDeSustentar"}}</span>
           </button>
         {{else}}
-          <button type="button" class="op2-botao op2-botao--pequeno" data-action="sustentar">
-            {{localize "OP2.Desafio.Sustentar"}}
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="sustentar"
+            data-tooltip="{{localize 'OP2.Desafio.Sustentar'}}">
+            <i class="fa-solid fa-weight-hanging" aria-hidden="true"></i>
+            <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.Sustentar"}}</span>
           </button>
         {{/if}}
         {{#if temLaser}}
-          <button type="button" class="op2-botao op2-botao--pequeno" data-action="usarLaser">
-            {{localize "OP2.Ferramenta.Subtipo.laser"}}
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="usarLaser"
+            data-tooltip="{{localize 'OP2.Ferramenta.Subtipo.laser'}}">
+            <i class="fa-solid fa-satellite-dish" aria-hidden="true"></i>
+            <span class="op2-acoes__rotulo">{{localize "OP2.Ferramenta.Subtipo.laser"}}</span>
           </button>
         {{/if}}
       </div>
@@ -77,18 +95,21 @@
           <div class="op2-acoes__alvo-topo">
             <img src="{{img}}" alt=""> <strong>{{nome}}</strong>
           </div>
-          {{!-- Investigar um ponto é examinar ou interagir com ele — não existe
+          {{!-- Investigar um ponto é interagir ou examinar com ele — não existe
                 uma terceira ação "Investigar" (spec §6.3: a ação se resolve nas
-                duas sub-ações). Examinar já entrega de graça o que o tamanho do
-                dado alcança e rola pelo resto. --}}
+                duas sub-ações). Interagir vem primeiro: é agir sem teste, o mestre
+                narra. Examinar já entrega de graça o que o tamanho do dado alcança
+                e rola pelo resto. --}}
           <div class="op2-acoes__grupo">
+            <button type="button" class="op2-botao op2-botao--pequeno" data-action="interagir"
+              data-poi-uuid="{{uuid}}" data-tooltip="{{localize 'OP2.Investigacao.InteragirDica'}}">
+              <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i>
+              <span class="op2-acoes__rotulo">{{localize "OP2.Investigacao.Interagir"}}</span>
+            </button>
             <button type="button" class="op2-botao op2-botao--pequeno" data-action="examinar"
               data-poi-uuid="{{uuid}}" data-tooltip="{{localize 'OP2.Painel.ExaminarDica'}}">
-              {{localize "OP2.Investigacao.Examinar"}}
-            </button>
-            <button type="button" class="op2-botao op2-botao--pequeno" data-action="interagir"
-              data-poi-uuid="{{uuid}}">
-              {{localize "OP2.Investigacao.Interagir"}}
+              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+              <span class="op2-acoes__rotulo">{{localize "OP2.Investigacao.Examinar"}}</span>
             </button>
           </div>
           {{#if ferramentas.length}}
@@ -98,8 +119,9 @@
                 {{#each ferramentas}}
                   <button type="button" class="op2-botao op2-botao--pequeno"
                     data-action="{{#if (op2Eq chave 'laboratorio')}}usarLaboratorio{{else if (op2Eq chave 'radio')}}usarRadio{{else}}usarFerramenta{{/if}}"
-                    data-poi-uuid="{{../uuid}}" data-ferramenta="{{chave}}">
-                    {{rotulo}}
+                    data-poi-uuid="{{../uuid}}" data-ferramenta="{{chave}}" data-tooltip="{{rotulo}}">
+                    <i class="fa-solid {{#if (op2Eq chave 'laboratorio')}}fa-flask{{else if (op2Eq chave 'radio')}}fa-radio{{else}}fa-screwdriver-wrench{{/if}}" aria-hidden="true"></i>
+                    <span class="op2-acoes__rotulo">{{rotulo}}</span>
                   </button>
                 {{/each}}
               </div>
@@ -125,38 +147,48 @@
           <div class="op2-acoes__grupo">
             {{#if abordagens.arrombar}}
               <button type="button" class="op2-botao op2-botao--pequeno" data-action="arrombar"
-                data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}>
-                {{localize "OP2.Desafio.Arrombar"}}
+                data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}
+                data-tooltip="{{localize 'OP2.Desafio.Arrombar'}}">
+                <i class="fa-solid fa-hammer" aria-hidden="true"></i>
+                <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.Arrombar"}}</span>
               </button>
             {{/if}}
             {{#if abordagens.destrancar}}
               <button type="button" class="op2-botao op2-botao--pequeno" data-action="destrancar"
-                data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}>
-                {{localize "OP2.Desafio.Destrancar"}}
+                data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}
+                data-tooltip="{{localize 'OP2.Desafio.Destrancar'}}">
+                <i class="fa-solid fa-key" aria-hidden="true"></i>
+                <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.Destrancar"}}</span>
               </button>
             {{/if}}
             {{#if abordagens.hackTecnico}}
               <button type="button" class="op2-botao op2-botao--pequeno" data-action="hackTecnico"
-                data-desafio-uuid="{{uuid}}" {{#if hackTecnicoResolvido}}disabled{{/if}}>
-                {{localize "OP2.Desafio.HackTecnico"}}
+                data-desafio-uuid="{{uuid}}" {{#if hackTecnicoResolvido}}disabled{{/if}}
+                data-tooltip="{{localize 'OP2.Desafio.HackTecnico'}}">
+                <i class="fa-solid fa-laptop-code" aria-hidden="true"></i>
+                <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.HackTecnico"}}</span>
               </button>
             {{/if}}
             {{#if abordagens.hackSocial}}
               <button type="button" class="op2-botao op2-botao--pequeno" data-action="hackSocial"
-                data-desafio-uuid="{{uuid}}" {{#if hackSocialResolvido}}disabled{{/if}}>
-                {{localize "OP2.Desafio.HackSocial"}}
+                data-desafio-uuid="{{uuid}}" {{#if hackSocialResolvido}}disabled{{/if}}
+                data-tooltip="{{localize 'OP2.Desafio.HackSocial'}}">
+                <i class="fa-solid fa-comments" aria-hidden="true"></i>
+                <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.HackSocial"}}</span>
               </button>
             {{/if}}
             {{#if abordagens.sustentar}}
               <button type="button" class="op2-botao op2-botao--pequeno" data-action="sustentarDesafio"
-                data-desafio-uuid="{{uuid}}">
-                {{localize "OP2.Desafio.Sustentar"}} (DT {{sustentarDt}})
+                data-desafio-uuid="{{uuid}}" data-tooltip="{{localize 'OP2.Desafio.Sustentar'}} (DT {{sustentarDt}})">
+                <i class="fa-solid fa-weight-hanging" aria-hidden="true"></i>
+                <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.Sustentar"}} (DT {{sustentarDt}})</span>
               </button>
             {{/if}}
             {{#if abordagens.generico}}
               <button type="button" class="op2-botao op2-botao--pequeno" data-action="desafioGenerico"
-                data-desafio-uuid="{{uuid}}" {{#if genericoResolvido}}disabled{{/if}}>
-                {{genericoRotulo}}
+                data-desafio-uuid="{{uuid}}" {{#if genericoResolvido}}disabled{{/if}} data-tooltip="{{genericoRotulo}}">
+                <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+                <span class="op2-acoes__rotulo">{{genericoRotulo}}</span>
               </button>
             {{/if}}
             {{#unless temAlgumaAbordagem}}

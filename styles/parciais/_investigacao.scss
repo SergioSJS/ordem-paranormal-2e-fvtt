@@ -239,7 +239,16 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
 
   // Oculto = preparado com antecedência, ainda não revelado (só o mestre vê isto,
   // já filtrado do lado do jogador na própria leitura de contexto).
-  &--oculto { opacity: 0.55; }
+  // Oculto dos jogadores: só o mestre vê este card, e precisa ler nele — apagar o
+  // card inteiro deixava o texto ilegível (achado em uso real). A marca é a borda
+  // tracejada e a tag "oculto"; o texto fica no contraste normal.
+  &--oculto {
+    border-left-style: dashed;
+    border-left-color: var(--op2-texto-fraco);
+    img { filter: grayscale(1); opacity: 0.7; }
+  }
+
+  &__oculto-tag { font-size: 0.6rem; }
 
   &__basica { margin: var(--op2-e2) 0; font-size: 0.85rem; }
 
@@ -402,7 +411,11 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
 
     // Oculto: mesmo tratamento visual dos cards de POI/desafio — só o mestre vê a
     // linha, os jogadores nunca recebem esses dados (filtrado na leitura de contexto).
-    &--oculto { opacity: 0.55; }
+    // O nome fica legível; a marca é o retrato apagado e o nome em texto fraco.
+    &--oculto {
+      img { filter: grayscale(1); opacity: 0.7; }
+      > span:not(.op2-tag) { color: var(--op2-texto-fraco); }
+    }
 
     // Um grupo de botões (editar + desvincular) fica sempre na ponta direita. O
     // `margin-left: auto` precisa estar só no primeiro — com dois irmãos com auto
@@ -492,11 +505,40 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
     width: 100%;
     border-collapse: collapse;
 
-    td { padding: var(--op2-e1) var(--op2-e2) var(--op2-e1) 0; font-family: var(--op2-fonte-mono); }
-
-    .fa-check { color: var(--op2-sucesso); }
-    .fa-arrow-up, .fa-arrow-down { color: var(--op2-texto-fraco); margin-right: 0.2rem; }
+    td { padding: var(--op2-e1) var(--op2-e2) var(--op2-e1) 0; }
   }
+
+  &__numero {
+    width: 1.5rem;
+    font-family: var(--op2-fonte-mono);
+    color: var(--op2-texto-fraco);
+  }
+
+  // Um palpite: cada posição é o número testado com a resposta embaixo
+  // (✓ exato, ↓ alto, ↑ baixo). Serve ao histórico do app e ao card de chat.
+  &__linha {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--op2-e1);
+  }
+
+  &__pos {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 2rem;
+    padding: 0.15rem 0.3rem;
+    border: 1px solid var(--op2-linha-forte);
+    border-radius: var(--op2-raio);
+    font-family: var(--op2-fonte-mono);
+    line-height: 1.1;
+
+    i { font-size: 0.7rem; color: var(--op2-texto-fraco); }
+    &--exato { border-color: var(--op2-sucesso); i { color: var(--op2-sucesso); } }
+    &--alto, &--baixo { i { color: var(--op2-critico); } }
+  }
+
+  &__num { font-size: 1.05rem; }
 
   &__palpite {
     display: flex;
@@ -648,18 +690,27 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   &__grupo {
     display: grid;
     gap: var(--op2-e1);
-    grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
 
     .op2-botao {
       display: flex;
       align-items: center;
       width: 100%;
       justify-content: center;
+      gap: 0.45em;
       padding: 0.4em 0.6em;
       white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis;
+
+      // O ícone nunca some; é o rótulo que encolhe se faltar largura.
+      > i { flex: 0 0 auto; }
     }
+  }
+
+  &__rotulo {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__alvo {

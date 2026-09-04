@@ -172,3 +172,22 @@
 .op2-card__narracao p,
 .op2-card__efeito p { margin: 0 0 var(--op2-e1); }
 .op2-card__narracao { font-style: italic; }
+
+// Card só do mestre (Interagir): a descrição contextual é bastidor. A faixa diz
+// que ninguém mais vê — senão o mestre achava que a mesa inteira leu (achado em
+// uso real).
+.op2-card--mestre { border-left-style: dashed; }
+
+.op2-card__so-mestre {
+  margin: var(--op2-e1) 0;
+  font-family: var(--op2-fonte-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--op2-critico);
+}
+
+.op2-card__contextual {
+  padding-left: var(--op2-e2);
+  border-left: 2px dashed var(--op2-critico);
+}

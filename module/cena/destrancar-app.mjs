@@ -7,8 +7,12 @@
  * fica oculta em `system.senha`; a UI simplesmente nunca renderiza esse campo para
  * quem não é o mestre (o mesmo nível de confiança informal que o resto do sistema
  * usa para segredos de POI — ver docs/ARQUITETURA.md).
+ *
+ * A senha nasce sozinha na primeira abertura do app (ou na primeira tentativa):
+ * exigir que o mestre fosse na ficha gerar à mão travava a mesa (achado em uso
+ * real). O mestre continua podendo gerar outra — o que zera o histórico.
  */
-import { gerarSenhaDestrancar, tentarDestrancar, carregarDesafio } from "./acoes-desafio.mjs";
+import { gerarSenhaDestrancar, tentarDestrancar, carregarDesafio, posicoesDoPalpite } from "./acoes-desafio.mjs";
 import { tentativasPorRodadaDeDestrancar, tentativasDeDestrancarNaRodada } from "./desafios.mjs";
 import { rodadaAtual } from "./rodada.mjs";
 
@@ -38,6 +42,9 @@ export class DestrancarApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.palpite = null;
   }
 
+  /** Geração em andamento — não pedir duas vezes enquanto o socket não volta. */
+  #gerando = false;
+
   async _prepareContext() {
     const desafio = await carregarDesafio(this.desafioUuid);
     if (!desafio) return { existe: false };
@@ -52,6 +59,14 @@ export class DestrancarApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const encerrado = sistema.quebrado || sistema.destrancado;
 
+    // Sem senha e ainda em jogo: gera agora. O mestre grava direto e o hook de
+    // `updateItem` rerrenderiza; o jogador pede pelo socket e o mesmo hook traz a
+    // senha quando ela chega.
+    if (!temSenha && !encerrado && !this.#gerando) {
+      this.#gerando = true;
+      gerarSenhaDestrancar(this.desafioUuid).finally(() => { this.#gerando = false; });
+    }
+
     // Teto por rodada pelo dado de Crime de quem vai tentar (spec §7.1).
     const ator = game.user.character;
     const dadoCrime = ator?.system?.pericias?.crime?.dadoEfetivo ?? "d4";
@@ -60,6 +75,7 @@ export class DestrancarApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
     return {
       existe: true,
+      gerando: !temSenha && !encerrado,
       naRodada, tetoRodada, dadoCrime,
       esgotouRodada: naRodada >= tetoRodada,
       ehGM: game.user.isGM,
@@ -74,12 +90,9 @@ export class DestrancarApp extends HandlebarsApplicationMixin(ApplicationV2) {
       destrancado: sistema.destrancado,
       encerrado,
       palpite: this.palpite,
-      historico: sistema.historicoDestrancar.map((linha) => ({
-        palpite: linha.palpite,
-        resultado: linha.resultado.map((r) => ({
-          valor: r,
-          icone: r === "exato" ? "fa-check" : r === "alto" ? "fa-arrow-down" : "fa-arrow-up",
-        })),
+      historico: sistema.historicoDestrancar.map((linha, indice) => ({
+        numero: indice + 1,
+        posicoes: posicoesDoPalpite(linha.palpite, linha.resultado),
       })),
     };
   }

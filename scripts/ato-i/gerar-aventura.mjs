@@ -171,6 +171,10 @@ function pontosDoPorao() {
  * do ambiente), então caixa que só tem Alcançar não vira desafio — a DT fica na nota
  * do mestre do próprio ponto.
  */
+// O extrator nomeia o desafio pelo ponto; "Edgar e Kênia" é um ponto só, mas só
+// Edgar está acorrentado (achado em uso real).
+const NOMES_DE_DESAFIO = { "Edgar e Kênia — Correntes": "Edgar — Correntes" };
+
 function desafioDoPonto(ponto) {
   const d = ponto.desafio;
   // Alcançar é ação avulsa (spec §7.4) e a senha impressa do painel da saída não é
@@ -204,7 +208,7 @@ function desafioDoPonto(ponto) {
 
   return {
     _id: ident(`desafio-ato-i-${ponto.nome}`),
-    name: nome, type: "desafio-acesso",
+    name: NOMES_DE_DESAFIO[nome] ?? nome, type: "desafio-acesso",
     img: "systems/ordem-paranormal-2e/assets/icons/tipos/desafio.svg",
     system: {
       abordagens: {

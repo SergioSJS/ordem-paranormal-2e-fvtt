@@ -8,7 +8,8 @@
  * mestre no chat — o texto exige que ele julgue a interpretação antes.
  */
 import { SYSTEM_ID, DT_RECAPITULAR, DT_COMPARTILHAR, CUSTO_PD_EXAMINAR } from "../config.mjs";
-import { resolverInvestigacao, resolverExaminar, chaveInfo, motivoSemRevelacao } from "./investigacao.mjs";
+import { resolverInvestigacao, resolverExaminar, chaveInfo, motivoSemRevelacao, descobrivel,
+} from "./investigacao.mjs";
 import { alvosDaCenaAtiva, alvosMarcados } from "./encerrar-investigacao.mjs";
 import { investigacaoAtiva } from "./investigacao-ativa.mjs";
 import { rolarTeste, rotuloDePericia, renderizar } from "../dice/teste.mjs";
@@ -236,6 +237,12 @@ export async function examinar(ator, poiUuid, chavePericia, { rapido = false } =
   const marcar = (ids, semRolar) => infosPorId(poi, ids)
     .map((info) => ({ ...info, rotuloPericia: rotuloDePericia(info.pericia), semRolar }));
 
+  // O que ainda falta desta perícia depois desta ação: o card diz se a rolagem "não
+  // alcançou o resto" ou se simplesmente não havia mais nada para achar.
+  const reveladosAgora = idsRevelados(ator, poiUuid);
+  const restantes = poi.system.informacoes
+    .filter((info) => descobrivel(info) && info.pericia === chavePericia && !reveladosAgora.has(info.id)).length;
+
   // "Quando examina um ponto de interesse e recebe uma informação nova, você recupera
   // 1 PD" (Amor pela Descoberta): houve informação nova, de graça ou pelo teste.
   const pdRecuperado = await recuperarPdAoDescobrir(ator);
@@ -251,16 +258,16 @@ export async function examinar(ator, poiUuid, chavePericia, { rapido = false } =
     temInfos: true,
     ...rolagem,
     // O desfecho de Examinar não é o dado contra uma DT: é ter achado algo ou
-    // não. Só o teste (`revelaveis`) conta como sucesso — o que veio de graça
-    // pelo tamanho do dado já era do personagem antes de rolar.
-    // Três desfechos, não dois: o teste achou (sucesso), o teste não achou mas o dado
-    // já tinha entregue (pelo dado — não é falha, o jogador recebeu pista), ou nada
-    // (falha, que só chega aqui sem cobrar PD quando… nunca: esse caso é o card de
-    // custo). "FALHA" com pista na tela confundia (achado em uso real).
-    desfechoTeste: revelaveis.length ? "sucesso" : (gratis.length ? "peloDado" : "falha"),
+    // não. Chegou aqui, achou — de graça pelo tamanho do dado, pelo teste, ou os
+    // dois — e o card diz SUCESSO. "Pelo dado — o teste não alcançou nada novo" com
+    // uma pista na tela lia como falha (achado em uso real: "se pelo dado eu
+    // alcancei sim algo novo"). O detalhe de onde cada linha veio fica nas linhas
+    // de baixo; a rolagem que não alcançou o resto é nota, não desfecho.
+    desfechoTeste: "sucesso",
     atorId: ator.id,
     quantidadeTeste: revelaveis.length,
     quantidadeGratis: gratis.length,
+    restantes,
     pdRecuperado,
   }, { whisper: sussurroPara(ator) });
 
@@ -285,14 +292,26 @@ async function recuperarPdAoDescobrir(ator) {
   };
 }
 
+/**
+ * INTERAGIR (spec §6.3.2): agir sobre o ponto sem teste — o mestre narra o que
+ * acontece. Dois cards: a mesa fica sabendo que o personagem agiu (sem texto
+ * nenhum), e só o mestre recebe a descrição contextual, que é bastidor cheio de
+ * spoiler. O card do mestre diz que é só dele — senão ele achava que todos viram
+ * (achado em uso real).
+ */
 export async function interagir(ator, poiUuid) {
   const poi = await carregarPoi(poiUuid);
   if (!poi) return null;
 
-  await enviarCard(ator, "interagir", {
+  const quemInterage = game.i18n.format("OP2.Investigacao.InteragirQuem", { ator: ator.name, poi: poi.name });
+  await enviarCard(ator, "interagir", { poiNome: poi.name, quemInterage, soMestre: false });
+
+  const contextual = poi.system.descricaoContextual?.trim() ?? "";
+  return enviarCard(ator, "interagir", {
     poiNome: poi.name,
-    quemInterage: game.i18n.format("OP2.Investigacao.InteragirQuem", { ator: ator.name }),
-    descricaoContextual: await editorDeTexto().enrichHTML(poi.system.descricaoContextual, { relativeTo: poi }),
+    quemInterage,
+    soMestre: true,
+    descricaoContextual: contextual ? await editorDeTexto().enrichHTML(contextual, { relativeTo: poi }) : "",
   }, { whisper: game.users.filter((u) => u.isGM).map((u) => u.id) });
 }
 

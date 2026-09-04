@@ -4,6 +4,17 @@
     <span class="op2-card__dt">{{desafioNome}}</span>
   </header>
 
+  {{!-- O palpite, posição a posição, com a resposta do Mastermind (spec §7.1). --}}
+  <div class="op2-destrancar__linha">
+    {{#each posicoes}}
+      <span class="op2-destrancar__pos op2-destrancar__pos--{{valor}}" data-tooltip="{{rotulo}}">
+        <span class="op2-destrancar__num">{{palpite}}</span>
+        <i class="fa-solid {{icone}}" aria-hidden="true"></i>
+      </span>
+    {{/each}}
+  </div>
+  <p class="op2-ajuda">{{localize "OP2.Desafio.DestrancarLegenda"}}</p>
+
   {{#if venceu}}
     <p class="op2-card__desfecho op2-card__desfecho--sucesso">
       <i class="fa-solid fa-lock-open" aria-hidden="true"></i> {{localize "OP2.Desafio.Destrancou"}}
@@ -13,9 +24,12 @@
       <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{localize "OP2.Desafio.Quebrou"}}
     </p>
   {{else}}
-    <p class="op2-ajuda">{{localize "OP2.Desafio.DestrancarTentativa"}}</p>
+    <p class="op2-ajuda">
+      {{localize "OP2.Desafio.Tentativas"}}: {{tentativas}}{{#if maxTentativas}} / {{maxTentativas}}{{/if}}
+      · {{localize "OP2.Desafio.DestrancarNaRodada" usadas=naRodada teto=tetoRodada dado=dadoCrime}}
+    </p>
   {{/if}}
-  {{#if tetoRodada}}
-    <p class="op2-ajuda">{{localize "OP2.Desafio.DestrancarNaRodada" usadas=naRodada teto=tetoRodada dado=dadoCrime}}</p>
-  {{/if}}
+
+  {{!-- Só o mestre: contra o que o palpite foi testado. --}}
+  <p class="op2-ajuda" data-op2-gm>{{localize "OP2.Desafio.SenhaMestre"}}: <strong>{{senha}}</strong></p>
 </div>

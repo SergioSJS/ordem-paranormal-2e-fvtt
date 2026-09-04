@@ -1993,8 +1993,16 @@ const relato = await page.evaluate(async () => {
       name: "Fechadura Numérica", type: "desafio-acesso", system: { maxTentativas: 0 },
     });
 
-    ok("sem senha, tentar recusa (mestre precisa gerar antes)",
-      await game.op2.tentarDestrancar(ator, fechadura.uuid, [1, 1, 1]) === null);
+    // A senha nasce sozinha na primeira tentativa (achado em uso real: exigir que
+    // o mestre fosse na ficha gerar à mão travava a mesa).
+    const primeiraSemSenha = await game.op2.tentarDestrancar(ator, fechadura.uuid, [1, 1, 1, 1]);
+    await esperar(300);
+    ok("sem senha, a primeira tentativa gera a senha sozinha e já responde",
+      primeiraSemSenha?.resultado?.length === 4 && fechadura.system.senha.length === 4);
+    const cardDestrancar = [...game.messages].at(-1)?.content ?? "";
+    ok("o card do Destrancar mostra o palpite posição a posição, e a senha só para o mestre",
+      /op2-destrancar__pos--/.test(cardDestrancar) && /data-op2-gm/.test(cardDestrancar)
+      && cardDestrancar.includes(fechadura.system.senha.join(" ")));
 
     // Teto por rodada pelo dado de Crime (spec §7.1): com d4, uma tentativa por
     // rodada. Testado num ator próprio para não travar o fluxo abaixo, que precisa de
@@ -2894,8 +2902,12 @@ const relato = await page.evaluate(async () => {
     const peloDado = await comDados(0.5, () => game.op2.examinar(ator, poi.uuid, "percepcao", { rapido: true }));
     await esperar(400);
     ok("o dado d6 entrega a linha de DT 5 sem rolar", peloDado?.revelaveis?.includes("c1") && peloDado.perdePD === false);
-    ok("o card diz 'pelo dado', não 'falha'", /op2-card__desfecho--parcial/.test(ultimaMensagem()?.content ?? "")
-      && !/op2-card__desfecho--falha"/.test(ultimaMensagem()?.content ?? ""));
+    // Achou uma linha: é SUCESSO, com a nota de que veio pelo tamanho do dado e de
+    // que a rolagem não alcançou o resto (achado em uso real: "pelo dado" lia como falha).
+    ok("o card diz SUCESSO e explica que a linha veio pelo tamanho do dado",
+      /op2-card__desfecho--sucesso/.test(ultimaMensagem()?.content ?? "")
+      && !/op2-card__desfecho--falha"/.test(ultimaMensagem()?.content ?? "")
+      && (ultimaMensagem()?.content ?? "").includes(game.i18n.format("OP2.Investigacao.ExaminarSoGratis", { quantidade: 1 })));
 
     // 4. Card da rodada com o roteiro em HTML (nada de <p> cru) e botão que diz o dado.
     await inv.update({ "system.eventos": [{ rodada: 1, narracao: "<p>O símbolo pulsa.</p>", efeito: "<p>Cada um perde 1 PD.</p>" }],

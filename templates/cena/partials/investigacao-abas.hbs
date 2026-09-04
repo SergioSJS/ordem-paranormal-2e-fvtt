@@ -161,6 +161,7 @@
           </button>
           <img src="{{img}}" alt="">
           <strong>{{nome}}</strong>
+          {{#if oculto}}<span class="op2-tag op2-tag--pequena op2-poi-card__oculto-tag">{{localize "OP2.Painel.OcultoTag"}}</span>{{/if}}
           {{#if linhasTotal}}
             <span class="op2-poi-card__resumo" data-tooltip="{{localize 'OP2.Painel.LinhasResumoDica'}}">
               {{linhasVisiveis}}/{{linhasTotal}}
@@ -275,6 +276,7 @@
           </button>
           <img src="{{img}}" alt="">
           <strong>{{nome}}</strong>
+          {{#if oculto}}<span class="op2-tag op2-tag--pequena op2-poi-card__oculto-tag">{{localize "OP2.Painel.OcultoTag"}}</span>{{/if}}
           <span class="op2-poi-card__tags">
             {{#each abordagens}}<span class="op2-tag op2-tag--pequena">{{this}}</span>{{/each}}
             {{#if resolvido}}<span class="op2-tag op2-tag--pequena op2-tag--ok">{{localize "OP2.Desafio.Resolvido"}}</span>{{/if}}

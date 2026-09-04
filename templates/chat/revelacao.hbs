@@ -35,18 +35,27 @@
         <i class="fa-solid fa-star" aria-hidden="true"></i>
         {{localize "OP2.Critico"}} — {{localize "OP2.Investigacao.CriticoExaminar"}}
       </p>
-    {{else if (op2Eq desfechoTeste "sucesso")}}
+    {{else}}
+      {{!-- Achou algo: é SUCESSO, venha a linha do teste ou do tamanho do dado. O
+            detalhe de onde veio fica embaixo; a rolagem que não alcançou o resto é
+            nota, não desfecho (achado em uso real: "pelo dado" lia como falha). --}}
       <p class="op2-card__desfecho op2-card__desfecho--sucesso">
         <i class="fa-solid fa-check" aria-hidden="true"></i>
-        {{localize "OP2.Sucesso"}} — {{localize "OP2.Investigacao.ExaminarAchou" quantidade=quantidadeTeste}}
+        {{localize "OP2.Sucesso"}} —
+        {{#if quantidadeTeste}}
+          {{localize "OP2.Investigacao.ExaminarAchou" quantidade=quantidadeTeste}}
+        {{else}}
+          {{localize "OP2.Investigacao.ExaminarSoGratis" quantidade=quantidadeGratis}}
+        {{/if}}
       </p>
-    {{else}}
-      {{!-- O teste não passou, mas o tamanho do dado já tinha entregue algo: não é
-            falha nem aposta perdida (não custa PD) — o jogador recebeu pista. --}}
-      <p class="op2-card__desfecho op2-card__desfecho--parcial">
-        <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
-        {{localize "OP2.Investigacao.ExaminarPeloDado"}} — {{localize "OP2.Investigacao.ExaminarSoGratis" quantidade=quantidadeGratis}}
-      </p>
+      {{#if quantidadeTeste}}{{#if quantidadeGratis}}
+        <p class="op2-ajuda">{{localize "OP2.Investigacao.ExaminarGratisTambem" quantidade=quantidadeGratis}}</p>
+      {{/if}}{{/if}}
+      {{#unless quantidadeTeste}}
+        <p class="op2-ajuda">
+          {{#if restantes}}{{localize "OP2.Investigacao.ExaminarRestante" total=total}}{{else}}{{localize "OP2.Investigacao.ExaminarNadaMais"}}{{/if}}
+        </p>
+      {{/unless}}
     {{/if}}
   {{/if}}
 

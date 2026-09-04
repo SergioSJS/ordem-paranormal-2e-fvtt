@@ -246,7 +246,7 @@
       "ExaminarSemInfo": "The examination revealed no new information.",
       "PerderPD": "Lose {custo} DP",
       "PDPago": "{ator} lost {custo} DP examining without finding anything.",
-      "InteragirQuem": "{ator} interacts with the point of interest. Resolve it with the contextual description:",
+      "InteragirQuem": "{ator} interacts with {poi}.",
       "RecapitularAviso": "Roleplay the recap of everything the group has found. If the GM deems it coherent, make an Insight check (DT {dt}). After a success, Recap locks for the group in this scene.",
       "RecapitularSucesso": "{ator} recapped the investigation. The GM may grant a new clue — registering locks the action for the group in this scene.",
       "CompartilharAjuda": "The ally rolls the Share skill (DT {dt}) as a free action.",
@@ -277,14 +277,20 @@
       "DtQueFaltava": "GM: the lowest remaining DT for this skill is {dt}.",
       "SemRolar": "no roll",
       "ExaminarAchou": "the roll revealed {quantidade} new piece(s) of information.",
-      "ExaminarSoGratis": "the roll reached nothing new; the {quantidade} line(s) above came from your die size.",
+      "ExaminarSoGratis": "{quantidade} line(s) from your die size, without rolling.",
       "CriticoExaminar": "reveals what was left for this skill, ignoring the DT.",
-      "ExaminarPeloDado": "By the die",
       "EventosFichaAjuda": "What happens on each marked round. On \"New round\", the narration goes to the card (read it aloud) and the effect only to you.",
       "EventoNarracao": "Narration (for the players)",
       "EventoEfeito": "Effect (GM only)",
       "AdicionarEvento": "New event",
-      "RemoverEvento": "Remove event"
+      "RemoverEvento": "Remove event",
+      "InteragirDica": "Act on the point with no test. The GM narrates what happens.",
+      "InteragirAguarde": "No test. The GM narrates what happens.",
+      "InteragirSoMestre": "Only you can see this — the contextual description is the GM's. Narrate the outcome to the table.",
+      "InteragirSemContextual": "This point has no contextual description. Narrate by common sense.",
+      "ExaminarGratisTambem": "{quantidade} more line(s) came from your die size, without rolling.",
+      "ExaminarRestante": "The roll ({total}) did not reach what is still left for this skill.",
+      "ExaminarNadaMais": "Nothing left for this skill at this point."
     },
     "Dialog": {
       "Teste": {
@@ -430,7 +436,8 @@
       },
       "PreparacaoAjuda": "Investigation setup: who takes part, the round-by-round script and mental overload. Drag actors, points and challenges onto the panel.",
       "ProximoEvento": "Next scripted event: round {rodada}.",
-      "ProximoEventoTag": "Next"
+      "ProximoEventoTag": "Next",
+      "OcultoTag": "Hidden"
     },
     "Rodada": {
       "Titulo": "Round {rodada}",
@@ -528,7 +535,7 @@
       "SustentarSoltou": "{ator} couldn't take it anymore and let go.",
       "Destrancar": "Pick Lock",
       "Destrancou": "Unlocked!",
-      "DestrancarTentativa": "Attempt logged — check the history.",
+      "DestrancarTentativa": "Attempt recorded.",
       "JaDestrancado": "This lock has already been picked.",
       "SenhaAusente": "The GM hasn't generated this lock's code yet.",
       "GerarSenha": "Generate code",
@@ -577,7 +584,20 @@
       "DestrancarTetoRodada": "That's all {teto} attempt(s) for this round (Crime {dado}). Wait for the next one.",
       "DestrancarNaRodada": "{usadas}/{teto} attempts this round (Crime {dado}).",
       "Resolvido": "Solved",
-      "Pendente": "Pending"
+      "Pendente": "Pending",
+      "DestrancarLegenda": "✓ exact · ↓ high: lower this number · ↑ low: raise this number",
+      "DestrancarResultado": {
+        "exato": "exact",
+        "alto": "high — lower it",
+        "baixo": "low — raise it"
+      },
+      "DestrancarSenhaAuto": "The code is generated on the first attempt ({tamanho} positions from 1 to {faces}). Generating another resets the history.",
+      "DestrancarGerando": "Generating the code…",
+      "Palpite": "Guess",
+      "CustoPV": "Cost {custo} HP.",
+      "ArrombarSucesso": "the RA ({ra}) is added to the score.",
+      "ArrombarFalha": "did not reach DC {dt}; the score does not advance.",
+      "ArrombarCritico": "the RA ({ra}) is added to the score, ignoring the DC."
     },
     "Ferramenta": {
       "Rotulo": "Tool",

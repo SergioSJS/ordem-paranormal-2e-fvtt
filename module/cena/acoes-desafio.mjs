@@ -85,6 +85,10 @@ export async function arrombar(ator, desafioUuid, { rapido = false } = {}) {
     chavePericia: "atletismo",
     dt: desafio.system.dtObjeto,
     rapido,
+    // Um card só, com os dados dentro: o card genérico de teste ainda oferecia
+    // "Dano RA/RB", que não existe aqui, e o de Arrombar vinha depois sem os dados
+    // (achado em uso real: "as lógicas de desafio estão estranhas").
+    semCard: true,
     contexto: `${game.i18n.localize("OP2.Desafio.Arrombar")} — ${desafio.name}`,
   });
   if (!roll) return null;
@@ -111,11 +115,21 @@ export async function arrombar(ator, desafioUuid, { rapido = false } = {}) {
   await enviarCard(ator, "arrombar", {
     titulo: game.i18n.localize("OP2.Desafio.Arrombar"),
     desafioNome: desafio.name,
+    atorId: ator.id,
+    componentes: roll.dados,
+    total: roll.total,
+    ra: roll.ra,
+    critico: roll.critico,
+    falhaCritica: roll.falhaCritica,
+    dt: desafio.system.dtObjeto,
+    custoPv: CUSTO_PV_ARROMBAR,
     sucesso: roll.sucesso,
     conseguiu,
     quebrado,
     pontuacaoAtual,
     pontuacaoAlvo: desafio.system.pontuacaoAlvo,
+    tentativasUsadas,
+    maxTentativas: desafio.system.maxTentativas,
   }, { whisper: sussurroPara(ator) });
 
   return { roll, desafio, arrombou: conseguiu, quebrado };
@@ -312,7 +326,7 @@ export async function gerarSenhaDestrancar(desafioUuid, { tamanho, facesSenha } 
  * @returns {Promise<{resultado: string[], venceu: boolean, quebrado: boolean}|null>}
  */
 export async function tentarDestrancar(ator, desafioUuid, palpite) {
-  const desafio = await carregarDesafio(desafioUuid);
+  let desafio = await carregarDesafio(desafioUuid);
   if (!desafio) return null;
   if (desafio.system.quebrado) {
     ui.notifications.warn(game.i18n.localize("OP2.Desafio.JaQuebrado"));
@@ -322,9 +336,16 @@ export async function tentarDestrancar(ator, desafioUuid, palpite) {
     ui.notifications.warn(game.i18n.localize("OP2.Desafio.JaDestrancado"));
     return null;
   }
+  // A senha nasce sozinha na primeira tentativa: exigir que o mestre fosse na ficha
+  // gerar à mão travava a mesa (achado em uso real). O mestre grava na hora; o
+  // jogador pede pelo socket e a senha chega em seguida — tenta de novo.
   if (!desafio.system.senha.length) {
-    ui.notifications.warn(game.i18n.localize("OP2.Desafio.SenhaAusente"));
-    return null;
+    await gerarSenhaDestrancar(desafioUuid);
+    desafio = await carregarDesafio(desafioUuid);
+    if (!desafio?.system.senha.length) {
+      ui.notifications.info(game.i18n.localize("OP2.Desafio.DestrancarGerando"));
+      return null;
+    }
   }
 
   // Teto por rodada pelo dado de Crime (spec §7.1): d4 = 1 … d12 = 5. O histórico do
@@ -356,11 +377,19 @@ export async function tentarDestrancar(ator, desafioUuid, palpite) {
     "system.historicoDestrancar": historicoDestrancar,
   });
 
+  // O card mostra o palpite posição a posição com a resposta (exato/alto/baixo):
+  // "tentativa registrada, veja o histórico" não dizia nada (achado em uso real).
+  // A senha vai só para o mestre (`data-op2-gm`), para ele acompanhar o que se
+  // testa contra o quê.
   await enviarCard(ator, "destrancar", {
     titulo: game.i18n.localize("OP2.Desafio.Destrancar"),
     desafioNome: desafio.name,
     venceu,
     quebrado,
+    posicoes: posicoesDoPalpite(palpite, resultado),
+    senha: desafio.system.senha.join(" "),
+    tentativas: destrancarTentativas,
+    maxTentativas: desafio.system.maxTentativas,
     naRodada: naRodada + 1,
     tetoRodada,
     dadoCrime,
@@ -377,6 +406,17 @@ export async function tentarDestrancar(ator, desafioUuid, palpite) {
  * nova tentativa na rodada seguinte.
  * @returns {Promise<{roll: OP2Roll, sucesso: boolean}|null>}
  */
+/** Cada posição do palpite com a resposta, para o card e para o histórico do app. */
+export function posicoesDoPalpite(palpite, resultado) {
+  const icones = { exato: "fa-check", alto: "fa-arrow-down", baixo: "fa-arrow-up" };
+  return resultado.map((valor, i) => ({
+    valor,
+    palpite: palpite[i],
+    icone: icones[valor],
+    rotulo: game.i18n.localize(`OP2.Desafio.DestrancarResultado.${valor}`),
+  }));
+}
+
 export async function hackTecnico(ator, desafioUuid, { rapido = false } = {}) {
   const desafio = await carregarDesafio(desafioUuid);
   if (!desafio) return null;

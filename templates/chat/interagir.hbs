@@ -1,9 +1,22 @@
-<div class="op2 op2-card op2-card--investigacao">
+{{!-- Dois cards por Interagir: o público só anuncia a ação; o do mestre traz a
+      descrição contextual e diz que é só dele (achado em uso real). --}}
+<div class="op2 op2-card op2-card--investigacao{{#if soMestre}} op2-card--mestre{{/if}}">
   <header class="op2-card__topo">
     <span class="op2-tag op2-tag--pequena">{{localize "OP2.Investigacao.Interagir"}}</span>
     <span class="op2-card__dt">{{poiNome}}</span>
   </header>
 
   <p class="op2-card__texto">{{quemInterage}}</p>
-  <div class="op2-card__texto">{{{descricaoContextual}}}</div>
+  {{#if soMestre}}
+    <p class="op2-card__so-mestre">
+      <i class="fa-solid fa-user-secret" aria-hidden="true"></i> {{localize "OP2.Investigacao.InteragirSoMestre"}}
+    </p>
+    {{#if descricaoContextual}}
+      <div class="op2-card__texto op2-card__contextual">{{{descricaoContextual}}}</div>
+    {{else}}
+      <p class="op2-ajuda">{{localize "OP2.Investigacao.InteragirSemContextual"}}</p>
+    {{/if}}
+  {{else}}
+    <p class="op2-ajuda">{{localize "OP2.Investigacao.InteragirAguarde"}}</p>
+  {{/if}}
 </div>

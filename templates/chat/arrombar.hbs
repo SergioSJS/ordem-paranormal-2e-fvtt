@@ -1,8 +1,41 @@
 <div class="op2 op2-card op2-card--{{#if conseguiu}}sucesso{{else}}{{#if quebrado}}falha{{else}}investigacao{{/if}}{{/if}}">
   <header class="op2-card__topo">
     <span class="op2-tag op2-tag--pequena">{{titulo}}</span>
-    <span class="op2-card__dt">{{desafioNome}}</span>
+    <span class="op2-card__dt">{{desafioNome}} · DT {{dt}}</span>
   </header>
+
+  {{!-- Os dados vivem no card da própria ação, como no Examinar. --}}
+  {{#if componentes}}
+    <div class="op2-card__dados">
+      {{#each componentes}}
+        <span class="op2-card__dado{{#unless contado}} descartado{{/unless}}"
+          data-tooltip="{{componente.rotulo}}">{{op2DadoResultado this}}</span>
+      {{/each}}
+      <span class="op2-card__igual" aria-hidden="true">=</span>
+      <span class="op2-card__total">{{total}}</span>
+    </div>
+  {{/if}}
+
+  {{#if falhaCritica}}
+    {{> (op2Caminho "partials/falha-critica") atorId=atorId}}
+  {{else if critico}}
+    <p class="op2-card__desfecho op2-card__desfecho--critico">
+      <i class="fa-solid fa-star" aria-hidden="true"></i>
+      {{localize "OP2.Critico"}} — {{localize "OP2.Desafio.ArrombarCritico" ra=ra}}
+    </p>
+  {{else if sucesso}}
+    <p class="op2-card__desfecho op2-card__desfecho--sucesso">
+      <i class="fa-solid fa-check" aria-hidden="true"></i>
+      {{localize "OP2.Sucesso"}} — {{localize "OP2.Desafio.ArrombarSucesso" ra=ra}}
+    </p>
+  {{else}}
+    <p class="op2-card__desfecho op2-card__desfecho--falha">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      {{localize "OP2.Falha"}} — {{localize "OP2.Desafio.ArrombarFalha" dt=dt}}
+    </p>
+  {{/if}}
+
+  <p class="op2-ajuda">{{localize "OP2.Desafio.CustoPV" custo=custoPv}}</p>
 
   {{#if conseguiu}}
     <p class="op2-card__desfecho op2-card__desfecho--sucesso">
@@ -14,8 +47,8 @@
     </p>
   {{else}}
     <p class="op2-ajuda">
-      {{localize "OP2.Desafio.Progresso"}}: {{pontuacaoAtual}} / {{pontuacaoAlvo}}
-      {{#unless sucesso}} — {{localize "OP2.Falha"}}{{/unless}}
+      {{localize "OP2.Desafio.Progresso"}}: <strong>{{pontuacaoAtual}} / {{pontuacaoAlvo}}</strong>
+      {{#if maxTentativas}} · {{localize "OP2.Desafio.Tentativas"}}: {{tentativasUsadas}} / {{maxTentativas}}{{/if}}
     </p>
   {{/if}}
 </div>
