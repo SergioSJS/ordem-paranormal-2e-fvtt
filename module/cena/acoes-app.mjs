@@ -24,6 +24,7 @@ import { ajudar } from "./acoes-ajuda.mjs";
 import { atacar } from "./acoes-combate.mjs";
 import { usarHabilidadeOuItem } from "./acoes-recurso.mjs";
 import { abrirDestrancar } from "./destrancar-app.mjs";
+import { guardarRolagem, restaurarRolagem, esquecerRolagem } from "../ui/rolagem.mjs";
 import { abrirLaboratorio } from "./laboratorio-app.mjs";
 import { abrirRadio } from "./radio-app.mjs";
 
@@ -52,6 +53,7 @@ function contextoDoDesafio(desafio) {
   };
 }
 
+/** O corpo da janela de ações rola dentro do `.window-content`, fora da parte. */
 export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     classes: ["op2", "op2-acoes"],
@@ -105,6 +107,7 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
 
   _onClose(opcoes) {
     super._onClose(opcoes);
+    esquecerRolagem(this);
     if (this.#hookAtor) Hooks.off("updateActor", this.#hookAtor);
     this.#hookAtor = null;
   }
@@ -113,8 +116,20 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     return `${game.i18n.localize("OP2.Acoes.Titulo")} — ${this.ator.name}`;
   }
 
+  /** Agir rerrenderiza a janela — sem isto a lista de pontos voltava ao topo. */
+  _preSyncPartState(partId, newElement, priorElement, state) {
+    super._preSyncPartState(partId, newElement, priorElement, state);
+    guardarRolagem(this, priorElement, state, [""]);
+  }
+
+  _syncPartState(partId, newElement, priorElement, state) {
+    super._syncPartState(partId, newElement, priorElement, state);
+    restaurarRolagem(this);
+  }
+
   _onRender(contexto, opcoes) {
     super._onRender(contexto, opcoes);
+    restaurarRolagem(this);
     // `data-action` num <select> reage ao próprio clique de abrir e fecha o menu
     // nativo no meio (achado em uso real, no painel) — listener manual, como todo
     // outro <select> do sistema.

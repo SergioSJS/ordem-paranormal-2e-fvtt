@@ -26,6 +26,7 @@ import {
 import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada } from "./rodada.mjs";
 import { cicloVisibilidadeInfo, limparRevelacao } from "./acoes-investigacao.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
+import { guardarRolagem, restaurarRolagem, esquecerRolagem } from "../ui/rolagem.mjs";
 
 /**
  * Toda janela aberta que mostra uma investigação — o painel e as fichas — para
@@ -44,6 +45,12 @@ export function rerrenderizarJanelasDeInvestigacao() {
  * @template {typeof foundry.applications.api.ApplicationV2} Base
  * @param {Base} Base
  */
+/**
+ * Os contêineres que rolam nesta tela: as duas colunas quando a janela é larga, e a
+ * própria raiz da parte quando ela empilha (container query abaixo de ~42rem).
+ */
+const ROLAGEM = ["", ".op2-painel-lateral", ".op2-painel-principal"];
+
 export function PainelInvestigacaoMixin(Base) {
   class PainelInvestigacaoComum extends Base {
     static DEFAULT_OPTIONS = {
@@ -395,6 +402,21 @@ export function PainelInvestigacaoMixin(Base) {
     /* -- render ------------------------------------------------------------ */
 
     /**
+     * Toda ação de mestre aqui grava no documento e rerrenderiza a janela: sem guardar
+     * a rolagem, mostrar/esconder um ponto jogava a lista de volta ao topo (achado em
+     * uso real).
+     */
+    _preSyncPartState(partId, newElement, priorElement, state) {
+      super._preSyncPartState(partId, newElement, priorElement, state);
+      guardarRolagem(this, priorElement, state, ROLAGEM);
+    }
+
+    _syncPartState(partId, newElement, priorElement, state) {
+      super._syncPartState(partId, newElement, priorElement, state);
+      restaurarRolagem(this);
+    }
+
+    /**
      * `dragDrop` em `DEFAULT_OPTIONS` é opção do ApplicationV1 — o ApplicationV2
      * ignora, e o painel ficava com `draggable="true"` no HTML sem nenhum handler
      * ligado: arrastar não reordenava nada (achado em uso real). O caminho do V2 é
@@ -437,18 +459,24 @@ export function PainelInvestigacaoMixin(Base) {
       });
       this.#aplicarFiltro();
 
-      if (!game.user.isGM) return;
-      // A tabela de sobrecarga e o roteiro gravam na investigação a cada campo editado.
-      for (const campo of this.element.querySelectorAll("[data-sobrecarga-campo]")) {
-        campo.addEventListener("change", () => this.#gravarTabela());
+      if (game.user.isGM) {
+        // A tabela de sobrecarga e o roteiro gravam na investigação a cada campo editado.
+        for (const campo of this.element.querySelectorAll("[data-sobrecarga-campo]")) {
+          campo.addEventListener("change", () => this.#gravarTabela());
+        }
+        for (const campo of this.element.querySelectorAll("[data-evento-campo]")) {
+          campo.addEventListener("change", () => this.#gravarEventos());
+        }
       }
-      for (const campo of this.element.querySelectorAll("[data-evento-campo]")) {
-        campo.addEventListener("change", () => this.#gravarEventos());
-      }
+
+      // De novo no fim: o filtro e as classes acima mudam a altura do conteúdo, e a
+      // rolagem restaurada na troca do HTML seria cortada pela altura antiga.
+      restaurarRolagem(this);
     }
 
     _onClose(opcoes) {
       janelasDeInvestigacao.delete(this);
+      esquecerRolagem(this);
       return super._onClose(opcoes);
     }
 
@@ -531,6 +559,7 @@ export function PainelInvestigacaoMixin(Base) {
         card.classList.remove("op2-poi-card--recolhido");
       }
       card.hidden = false;
+      esquecerRolagem(this);
       card.scrollIntoView({ block: "center", behavior: "smooth" });
       card.classList.remove("op2-poi-card--foco");
       void card.offsetWidth; // reinicia a animação se o card já estava em foco

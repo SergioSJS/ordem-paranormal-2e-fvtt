@@ -3065,6 +3065,29 @@ const relato = await page.evaluate(async () => {
       !el.querySelector("details[data-secao='pontos']") && !el.querySelector("details[data-secao='ordem']")
       && ["participantes", "sobrecarga", ...(temRoteiro ? ["eventos"] : [])]
         .every((n) => el.querySelector(`.op2-painel-aba[data-tab='preparacao'] details[data-secao='${n}']`)));
+    // Alternar a visibilidade de um ponto grava no documento e rerrenderiza a janela:
+    // a rolagem tem que ficar onde estava (achado em uso real: "o scroll sobe para o
+    // topo, comportamento irritante").
+    {
+      painel.changeTab("pontos", "principal");
+      await painel.render();
+      await esperar(500);
+      const lista = painel.element.querySelector(".op2-painel-principal");
+      if (lista && lista.scrollHeight > lista.clientHeight + 40) {
+        lista.scrollTop = 60;
+        const antes = lista.scrollTop;
+        painel.element.querySelector(`[data-poi-card="${poi.uuid}"] [data-action="alternarOculto"]`)?.click();
+        await esperar(700);
+        const depois = painel.element.querySelector(".op2-painel-principal")?.scrollTop ?? 0;
+        ok(`mostrar/esconder um ponto não joga a lista de volta ao topo (${antes} → ${depois})`,
+          Math.abs(depois - antes) <= 4);
+        painel.element.querySelector(`[data-poi-card="${poi.uuid}"] [data-action="alternarOculto"]`)?.click();
+        await esperar(500);
+      } else {
+        ok("lista curta demais para testar a rolagem preservada (sem regressão a medir)", true);
+      }
+    }
+
     const secoes = [...el.querySelectorAll("details[data-secao]")];
     ok("toda seção da Preparação nasce fechada", secoes.length === (temRoteiro ? 3 : 2) && secoes.every((d) => !d.open));
     el.querySelector('details[data-secao="participantes"]').open = true;
