@@ -64,8 +64,8 @@ Foundry pela palavra-chave. Os cards de desafio mostram a abordagem e o estado d
 a nota do mestre escondida até pedir.
 
 O **roteiro da cena** (o que acontece em cada rodada marcada, como a maldição do Ato I)
-se edita na ficha da investigação: rodada, narração para ler em voz alta e efeito só do
-mestre. "Nova rodada" põe a narração no card.
+se edita na aba Preparação, no painel ou na ficha: rodada, narração para ler em voz
+alta e efeito só do mestre. "Nova rodada" põe a narração no card.
 
 **Não existe uma ação "Investigar".** Investigar um ponto é **Examinar** ou
 **Interagir** — as duas sub-ações em que a ação se resolve. Examinar faz os dois passos
@@ -74,8 +74,11 @@ da regra com a mesma perícia:
 1. **sem rolar**, entrega tudo com DT ≤ ao tamanho do seu dado;
 2. **rolando**, tenta o que ficou acima disso.
 
-Só custa 1 PD quando os dois vêm vazios — e aí o card diz por quê (a perícia não serve
-ali, o dado é pequeno, ou já se descobriu tudo).
+Achou uma linha por qualquer dos dois passos, o card diz **sucesso** e de onde ela
+veio. Só custa 1 PD quando os dois vêm vazios — e aí o card diz por quê (a perícia não
+serve ali, o dado é pequeno, ou já se descobriu tudo). **Interagir** é agir sobre o
+ponto sem teste: a mesa vê que o personagem agiu, e só o mestre recebe a descrição
+contextual, num card que avisa que é só dele — ele narra o que acontece.
 
 ![Card de Examinar](docs/img/card-examinar.png)
 
@@ -120,7 +123,9 @@ no braço.
 ![Ficha de desafio](docs/img/ficha-desafio.png)
 
 - **Arrombar** (§7.2) — 1 PV por tentativa, acumula RA até a pontuação alvo.
-- **Destrancar** (§7.1) — minigame de Mastermind, com histórico de palpites.
+- **Destrancar** (§7.1) — minigame de Mastermind. A senha nasce sozinha na primeira
+  tentativa; cada palpite volta posição a posição (✓ exato, ↓ alto, ↑ baixo) no card e
+  no histórico do app, e o mestre vê a senha.
 - **Hackear** (§7.3) — técnico (com cronômetro de 10s) e social (banco de perguntas do
   mestre), cada um com o próprio gate de rodada.
 - **Genérico** — qualquer outra situação: o mestre diz a perícia e o rótulo.
@@ -202,8 +207,7 @@ As caixas laterais e o texto de mestre viram os **dez desafios de acesso** com o
 do livro: `ARROMBAR (DT 10, PA 10)`, `DESTRANCAR (senha: 3d6, 3 tentativas)`, a tabela
 de faixas do Hack Técnico (uma conta por faixa no painel; segundos por faixa no
 computador), as seis perguntas do Hack Social do celular, a estante como obstáculo de
-Sustentar. A senha **não** vem sorteada — quem sorteia é o mestre, na ficha, senão ela
-viajaria à vista de todos. Os handouts citados (*"Mostre o HANDOUT 06"*) viram a imagem
+Sustentar. A senha é sorteada na primeira tentativa de Destrancar, e o mestre pode sortear outra no app. Os handouts citados (*"Mostre o HANDOUT 06"*) viram a imagem
 na descrição de mestre do ponto.
 
 E o que não é ponto nem desafio também entra: a faca de churrasco e os dois molhos de
