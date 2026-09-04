@@ -13,6 +13,7 @@ import { resolverInvestigacao, resolverExaminar, chaveInfo, motivoSemRevelacao, 
 import { alvosDaCenaAtiva, alvosMarcados } from "./encerrar-investigacao.mjs";
 import { investigacaoAtiva } from "./investigacao-ativa.mjs";
 import { rolarTeste, rotuloDePericia, renderizar } from "../dice/teste.mjs";
+import { enviarCardAoMestre } from "../ui/card-mestre.mjs";
 import { escolherPericia } from "../dice/pericia-dialog.mjs";
 import { comoMestre, registrarAcaoDeMestre } from "../ui/socket.mjs";
 import { lerConfig } from "../settings/register.mjs";
@@ -296,7 +297,9 @@ async function recuperarPdAoDescobrir(ator) {
  * INTERAGIR (spec §6.3.2): agir sobre o ponto sem teste — o mestre narra o que
  * acontece. Dois cards: a mesa fica sabendo que o personagem agiu (sem texto
  * nenhum), e só o mestre recebe a descrição contextual, que é bastidor cheio de
- * spoiler. O card do mestre diz que é só dele — senão ele achava que todos viram
+ * spoiler. O card do mestre nasce no cliente DELE (`enviarCardAoMestre`): um
+ * sussurro criado pelo jogador tem o jogador como autor, e o autor sempre vê a
+ * própria mensagem — foi assim que o "só você vê" apareceu para o jogador
  * (achado em uso real).
  */
 export async function interagir(ator, poiUuid) {
@@ -307,12 +310,12 @@ export async function interagir(ator, poiUuid) {
   await enviarCard(ator, "interagir", { poiNome: poi.name, quemInterage, soMestre: false });
 
   const contextual = poi.system.descricaoContextual?.trim() ?? "";
-  return enviarCard(ator, "interagir", {
+  return enviarCardAoMestre(ator, "interagir", {
     poiNome: poi.name,
     quemInterage,
     soMestre: true,
     descricaoContextual: contextual ? await editorDeTexto().enrichHTML(contextual, { relativeTo: poi }) : "",
-  }, { whisper: game.users.filter((u) => u.isGM).map((u) => u.id) });
+  });
 }
 
 /**

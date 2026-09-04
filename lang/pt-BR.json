@@ -374,7 +374,8 @@
       "DanoAplicado": "{quantidade} de dano em {alvos}.",
       "AplicarDano": "Aplicar dano",
       "DanoNosSelecionados": "Aplica nos tokens selecionados na cena; sem seleção, em quem rolou.",
-      "FalhaCriticaExplica": "Todos os dados em 1: rola 1d8 na tabela de falha crítica (spec §4.4). O mestre decide o efeito."
+      "FalhaCriticaExplica": "Todos os dados em 1: rola 1d8 na tabela de falha crítica (spec §4.4). O mestre decide o efeito.",
+      "SoMestre": "Só você vê isto."
     },
     "Cena": {
       "Encerrar": "Encerrar cena",

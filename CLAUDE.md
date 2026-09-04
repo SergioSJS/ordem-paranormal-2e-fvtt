@@ -62,6 +62,11 @@ permanentes). Validação em v13 **adiada por decisão do projeto** — o sistem
 - **Card com rolagem própria (Examinar, sobrecarga) mostra a falha crítica.** O partial
   `partials/falha-critica.hbs` leva o desfecho e o botão do mestre; `chat/dano.hbs` é o
   card de dano avulso. Nunca `roll.toMessage()` cru: o card do core não diz o que é.
+- **Card só do mestre nasce no cliente do mestre.** Sussurro criado pelo jogador tem o
+  jogador como autor, e o Foundry mostra toda mensagem ao próprio autor — o "só você vê"
+  do Interagir apareceu para o jogador. Bastidor (contextual, perguntas do hack social,
+  senha) vai por `enviarCardAoMestre()` (`module/ui/card-mestre.mjs`), pela ponte
+  `comoMestre()`; `data-op2-gm` só esconde do DOM, não é segredo.
 - **O core arredonda `button` e deixa a janela translúcida.** Botão pequeno nosso pede
   `border-radius: 0`; janela do sistema fixa fundo opaco e `backdrop-filter: none`.
 - Commits: Conventional Commits, em português.

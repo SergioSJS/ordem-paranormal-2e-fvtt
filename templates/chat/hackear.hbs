@@ -1,56 +1,67 @@
-<div class="op2 op2-card op2-card--{{#if sucesso}}sucesso{{else}}falha{{/if}}">
+{{!-- Dois cards por hack: o do jogador (sucesso/falha e, no técnico, o problema a
+      resolver) e o do mestre (conferir, perguntas e respostas, marcar resolvido),
+      que nasce no cliente do mestre — `soMestre`. --}}
+<div class="op2 op2-card op2-card--{{#if sucesso}}sucesso{{else}}falha{{/if}}{{#if soMestre}} op2-card--mestre{{/if}}">
   <header class="op2-card__topo">
     <span class="op2-tag op2-tag--pequena">{{titulo}}</span>
     <span class="op2-card__dt">{{desafioNome}}</span>
   </header>
 
-  {{#if sucesso}}
-    <p class="op2-card__desfecho op2-card__desfecho--sucesso">
-      <i class="fa-solid fa-unlock" aria-hidden="true"></i> {{localize "OP2.Desafio.HackSucesso"}}
+  {{#if soMestre}}
+    <p class="op2-card__so-mestre">
+      <i class="fa-solid fa-user-secret" aria-hidden="true"></i> {{localize "OP2.Chat.SoMestre"}}
     </p>
-  {{else}}
-    <p class="op2-card__desfecho op2-card__desfecho--falha">
-      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{localize "OP2.Desafio.HackFalha"}}
-    </p>
-    <p class="op2-ajuda">{{localize "OP2.Desafio.HackEsperaRodada"}}</p>
-  {{/if}}
-
-  {{#if tecnico}}
-    {{!-- Painel com tabela: o teste não abre nada, entrega o problema a resolver. --}}
-    {{#if problema}}
-      <p class="op2-card__desfecho">
-        <i class="fa-solid fa-microchip" aria-hidden="true"></i>
-        {{localize "OP2.Desafio.HackTecnicoFaixa" faixa=faixa}}
-        {{#if segundos}}<strong>· {{localize "OP2.Desafio.HackTecnicoSegundos" segundos=segundos}}</strong>{{/if}}
-      </p>
-      <p class="op2-card__infos"><strong>{{problema}}</strong></p>
+    {{#if tecnico}}
+      {{#if problema}}
+        <p class="op2-ajuda">{{localize "OP2.Desafio.HackTecnicoFaixa" faixa=faixa}}: <strong>{{problema}}</strong></p>
+      {{else}}
+        <p class="op2-ajuda">{{localize "OP2.Desafio.HackTecnicoAjudaMestre"}}</p>
+      {{/if}}
       <button type="button" class="op2-botao op2-botao--pequeno" data-op2-gm
         data-op2-acao="marcar-hack-tecnico-resolvido" data-ator-id="{{atorId}}" data-desafio-uuid="{{desafioUuid}}">
         {{localize "OP2.Desafio.HackMarcarResolvido"}}
       </button>
-    {{else if semResposta}}
-      <p class="op2-ajuda">{{localize "OP2.Desafio.HackTecnicoSemFaixa"}}</p>
-    {{else if sucesso}}
-      <p class="op2-ajuda" data-op2-gm>{{localize "OP2.Desafio.HackTecnicoAjudaMestre"}}</p>
     {{/if}}
-  {{/if}}
-
-  {{#if social}}
-    <p class="op2-ajuda" data-op2-gm>
-      {{localize "OP2.Desafio.HackSocialChances" chances=chancesDeErro necessarias=respostasNecessarias}}
-    </p>
-    {{#if perguntas.length}}
-      <ul class="op2-card__infos" data-op2-gm>
-        {{#each perguntas}}
-          <li>{{pergunta}} — <strong>{{resposta}}</strong></li>
-        {{/each}}
-      </ul>
-    {{/if}}
-    {{#if sucesso}}
+    {{#if social}}
+      <p class="op2-ajuda">
+        {{localize "OP2.Desafio.HackSocialChances" chances=chancesDeErro necessarias=respostasNecessarias}}
+      </p>
+      {{#if perguntas.length}}
+        <ul class="op2-card__infos">
+          {{#each perguntas}}
+            <li>{{pergunta}} — <strong>{{resposta}}</strong></li>
+          {{/each}}
+        </ul>
+      {{/if}}
       <button type="button" class="op2-botao op2-botao--pequeno" data-op2-gm
         data-op2-acao="marcar-hack-social-resolvido" data-ator-id="{{atorId}}" data-desafio-uuid="{{desafioUuid}}">
         {{localize "OP2.Desafio.HackMarcarResolvido"}}
       </button>
+    {{/if}}
+  {{else}}
+    {{#if sucesso}}
+      <p class="op2-card__desfecho op2-card__desfecho--sucesso">
+        <i class="fa-solid fa-unlock" aria-hidden="true"></i> {{localize "OP2.Desafio.HackSucesso"}}
+      </p>
+    {{else}}
+      <p class="op2-card__desfecho op2-card__desfecho--falha">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{localize "OP2.Desafio.HackFalha"}}
+      </p>
+      <p class="op2-ajuda">{{localize "OP2.Desafio.HackEsperaRodada"}}</p>
+    {{/if}}
+
+    {{#if tecnico}}
+      {{!-- Painel com tabela: o teste não abre nada, entrega o problema a resolver. --}}
+      {{#if problema}}
+        <p class="op2-card__desfecho">
+          <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+          {{localize "OP2.Desafio.HackTecnicoFaixa" faixa=faixa}}
+          {{#if segundos}}<strong>· {{localize "OP2.Desafio.HackTecnicoSegundos" segundos=segundos}}</strong>{{/if}}
+        </p>
+        <p class="op2-card__infos"><strong>{{problema}}</strong></p>
+      {{else if semResposta}}
+        <p class="op2-ajuda">{{localize "OP2.Desafio.HackTecnicoSemFaixa"}}</p>
+      {{/if}}
     {{/if}}
   {{/if}}
 </div>

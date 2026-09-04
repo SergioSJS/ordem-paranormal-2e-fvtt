@@ -17,6 +17,7 @@ import {
   tentativasPorRodadaDeDestrancar, tentativasDeDestrancarNaRodada,
 } from "./desafios.mjs";
 import { rolarTeste, renderizar, enviarParaChat, rotuloDePericia } from "../dice/teste.mjs";
+import { enviarCardAoMestre } from "../ui/card-mestre.mjs";
 import { aplicarDano } from "../dice/falha-critica.mjs";
 import { stepDie } from "../dice/escada.mjs";
 import { OP2Roll } from "../dice/op2-roll.mjs";
@@ -379,15 +380,13 @@ export async function tentarDestrancar(ator, desafioUuid, palpite) {
 
   // O card mostra o palpite posição a posição com a resposta (exato/alto/baixo):
   // "tentativa registrada, veja o histórico" não dizia nada (achado em uso real).
-  // A senha vai só para o mestre (`data-op2-gm`), para ele acompanhar o que se
-  // testa contra o quê.
+  // A senha NÃO vai no card: ele nasce no cliente do jogador. O mestre a vê no app.
   await enviarCard(ator, "destrancar", {
     titulo: game.i18n.localize("OP2.Desafio.Destrancar"),
     desafioNome: desafio.name,
     venceu,
     quebrado,
     posicoes: posicoesDoPalpite(palpite, resultado),
-    senha: desafio.system.senha.join(" "),
     tentativas: destrancarTentativas,
     maxTentativas: desafio.system.maxTentativas,
     naRodada: naRodada + 1,
@@ -449,21 +448,26 @@ export async function hackTecnico(ator, desafioUuid, { rapido = false } = {}) {
     "system.hackTecnico.resolvido": temTabela ? false : roll.sucesso,
   });
 
-  await enviarCard(ator, "hackear", {
+  const sucesso = temTabela ? Boolean(linha) : roll.sucesso;
+  const cartao = {
     titulo: game.i18n.localize("OP2.Desafio.HackTecnico"),
     desafioNome: desafio.name,
-    sucesso: temTabela ? Boolean(linha) : roll.sucesso,
-    tecnico: true,
+    atorId: ator.id,
     desafioUuid: desafio.uuid,
+    sucesso,
+    tecnico: true,
     // Sem faixa alcançada o painel não devolveu nada — nem por isso o hack falhou de
     // vez: dá para tentar de novo na rodada seguinte.
     problema: linha?.desafio ?? "",
     faixa: linha?.rolagem ?? "",
     segundos: linha?.segundos ?? 0,
     semResposta: temTabela && !linha,
-  }, { whisper: sussurroPara(ator) });
+  };
+  await enviarCard(ator, "hackear", cartao, { whisper: sussurroPara(ator) });
+  // O que é do mestre (conferir a resposta, marcar resolvido) nasce no cliente dele.
+  if (sucesso) await enviarCardAoMestre(ator, "hackear", { ...cartao, soMestre: true }, { tipo: "desafio" });
 
-  return { roll, sucesso: temTabela ? Boolean(linha) : roll.sucesso, linha };
+  return { roll, sucesso, linha };
 }
 
 /** O painel abriu: quem confere a resposta do jogador é o mestre (spec §7.3). */
@@ -506,17 +510,26 @@ export async function hackSocial(ator, desafioUuid, { rapido = false } = {}) {
 
   await gravarNoDesafio(desafio, { "system.hackSocial.ultimaTentativaRodada": rodada });
 
-  await enviarCard(ator, "hackear", {
+  const cartao = {
     titulo: game.i18n.localize("OP2.Desafio.HackSocial"),
     desafioNome: desafio.name,
     atorId: ator.id,
     desafioUuid: desafio.uuid,
     sucesso: roll.sucesso,
     social: true,
-    chancesDeErro,
-    respostasNecessarias: desafio.system.hackSocial.respostasNecessarias,
-    perguntas: roll.sucesso ? desafio.system.hackSocial.perguntas : [],
-  }, { whisper: sussurroPara(ator) });
+  };
+  await enviarCard(ator, "hackear", cartao, { whisper: sussurroPara(ator) });
+  // Perguntas, respostas e o botão de marcar são bastidor: nascem no cliente do
+  // mestre — num card do jogador, ele veria as respostas (achado em uso real).
+  if (roll.sucesso) {
+    await enviarCardAoMestre(ator, "hackear", {
+      ...cartao,
+      soMestre: true,
+      chancesDeErro,
+      respostasNecessarias: desafio.system.hackSocial.respostasNecessarias,
+      perguntas: desafio.system.hackSocial.perguntas,
+    }, { tipo: "desafio" });
+  }
 
   return { roll, sucesso: roll.sucesso, chancesDeErro };
 }

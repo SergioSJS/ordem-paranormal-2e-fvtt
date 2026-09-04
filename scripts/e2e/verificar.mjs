@@ -1811,10 +1811,15 @@ const relato = await page.evaluate(async () => {
         hack?.linha?.desafio === "16 x 5 = 80");
       ok("e o desafio NÃO se resolve sozinho: quem confere a conta é o mestre",
         fechadura.system.hackTecnico.resolvido === false);
+      // Dois cards: o do jogador com o problema (sem botão de mestre) e o do mestre,
+      // criado no cliente dele, com o problema e o botão de marcar resolvido.
       const cardHack = game.messages.contents.at(-1);
-      ok("o card traz o problema e o botão de marcar resolvido",
+      const cardJogador = game.messages.contents.at(-2);
+      ok("o card do mestre traz o problema e o botão de marcar resolvido",
         /16 x 5 = 80/.test(cardHack?.content ?? "")
-        && /marcar-hack-tecnico-resolvido/.test(cardHack?.content ?? ""));
+        && /marcar-hack-tecnico-resolvido/.test(cardHack?.content ?? "") && cardHack.whisper.length > 0);
+      ok("o card do jogador traz o problema, sem nada de mestre",
+        /16 x 5 = 80/.test(cardJogador?.content ?? "") && !/marcar-hack|op2-card__so-mestre/.test(cardJogador?.content ?? ""));
       await game.op2.marcarHackTecnicoResolvido(fechadura.uuid);
       ok("marcar resolvido fecha o painel", fechadura.system.hackTecnico.resolvido === true);
       await fechadura.update({ "system.hackTecnico.tabela": [], "system.hackTecnico.resolvido": false });
@@ -2000,9 +2005,9 @@ const relato = await page.evaluate(async () => {
     ok("sem senha, a primeira tentativa gera a senha sozinha e já responde",
       primeiraSemSenha?.resultado?.length === 4 && fechadura.system.senha.length === 4);
     const cardDestrancar = [...game.messages].at(-1)?.content ?? "";
-    ok("o card do Destrancar mostra o palpite posição a posição, e a senha só para o mestre",
-      /op2-destrancar__pos--/.test(cardDestrancar) && /data-op2-gm/.test(cardDestrancar)
-      && cardDestrancar.includes(fechadura.system.senha.join(" ")));
+    ok("o card do Destrancar mostra o palpite posição a posição, e a senha não entra nele",
+      /op2-destrancar__pos--/.test(cardDestrancar) && !/data-op2-gm/.test(cardDestrancar)
+      && !cardDestrancar.includes(fechadura.system.senha.join(" ")));
 
     // Teto por rodada pelo dado de Crime (spec §7.1): com d4, uma tentativa por
     // rodada. Testado num ator próprio para não travar o fluxo abaixo, que precisa de
@@ -2908,6 +2913,31 @@ const relato = await page.evaluate(async () => {
       /op2-card__desfecho--sucesso/.test(ultimaMensagem()?.content ?? "")
       && !/op2-card__desfecho--falha"/.test(ultimaMensagem()?.content ?? "")
       && (ultimaMensagem()?.content ?? "").includes(game.i18n.format("OP2.Investigacao.ExaminarSoGratis", { quantidade: 1 })));
+
+    // 3b. Interagir: card público sem segredo; o do mestre nasce no cliente do mestre.
+    //     Um sussurro criado pelo jogador tem o jogador como autor, e o autor sempre vê a
+    //     própria mensagem (achado em uso real: "meu jogador recebeu 'só você vê isto'").
+    {
+      const antes = game.messages.size;
+      await game.op2.interagir(ator, poi.uuid);
+      await esperar(400);
+      const [publico, doMestre] = [...game.messages].slice(antes);
+      ok("como mestre, Interagir gera o card público e o card do mestre, nesta ordem",
+        Boolean(publico) && !publico.whisper?.length && !publico.content.includes("SEGREDO-DO-MESTRE")
+        && Boolean(doMestre) && doMestre.whisper?.length > 0 && doMestre.content.includes("SEGREDO-DO-MESTRE")
+        && /op2-card__so-mestre/.test(doMestre.content));
+
+      // Como jogador (sem mestre para receber a ponte): só o card público existe —
+      // nenhum card com a contextual nasce no cliente do jogador.
+      Object.defineProperty(game.user, "isGM", { value: false, configurable: true });
+      const antesJogador = game.messages.size;
+      await game.op2.interagir(ator, poi.uuid);
+      await esperar(400);
+      delete game.user.isGM;
+      const doJogador = [...game.messages].slice(antesJogador);
+      ok("como jogador, Interagir não cria nenhum card com a descrição contextual",
+        doJogador.length === 1 && !doJogador[0].content.includes("SEGREDO-DO-MESTRE") && !doJogador[0].whisper?.length);
+    }
 
     // 4. Card da rodada com o roteiro em HTML (nada de <p> cru) e botão que diz o dado.
     await inv.update({ "system.eventos": [{ rodada: 1, narracao: "<p>O símbolo pulsa.</p>", efeito: "<p>Cada um perde 1 PD.</p>" }],

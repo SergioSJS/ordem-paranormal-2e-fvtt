@@ -374,7 +374,8 @@
       "DanoAplicado": "{quantidade} damage to {alvos}.",
       "AplicarDano": "Apply damage",
       "DanoNosSelecionados": "Applies to the tokens selected on the scene; with no selection, to whoever rolled.",
-      "FalhaCriticaExplica": "All dice on 1: roll 1d8 on the critical failure table (spec §4.4). The GM decides the effect."
+      "FalhaCriticaExplica": "All dice on 1: roll 1d8 on the critical failure table (spec §4.4). The GM decides the effect.",
+      "SoMestre": "Only you can see this."
     },
     "Cena": {
       "Encerrar": "End scene",
