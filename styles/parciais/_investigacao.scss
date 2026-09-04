@@ -885,6 +885,10 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   .op2-painel-rodada { font-size: 0.85rem; }
   .op2-painel-proximo { margin: 0; }
   .op2-painel-ordem__linha { padding-inline: 0; }
+
+  // Título de seção como <h3>, não <summary>: o core dá ao h3 o tamanho de
+  // cabeçalho de janela — aqui é um rótulo de lista.
+  h3.op2-painel-titulo { font-size: 1rem; margin: 0 0 var(--op2-e1); }
 }
 
 .op2-painel-principal {
@@ -901,11 +905,15 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
     background: var(--op2-fundo);
   }
 
+  // Cada aba do tamanho do próprio rótulo, numa linha: "Pontos de interesse"
+  // dividido em três partes iguais quebrava em duas linhas e vazava do botão.
   .op2-aba {
+    flex: 1 1 auto;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--op2-e1);
+    white-space: nowrap;
   }
 }
 
@@ -920,23 +928,31 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   }
 }
 
+// Janela estreita: uma coluna só, e quem rola é o corpo inteiro. As colunas
+// precisam de `flex: none` e `min-height: auto` — como itens de flex com
+// `min-height: 0` elas encolhiam para caber na altura e o conteúdo vazava uma
+// por cima da outra (achado no print).
 @container (max-width: 42rem) {
   .op2-painel-corpo--jogo {
     display: flex;
     flex-direction: column;
     gap: var(--op2-e3);
+    overflow-y: auto;
+  }
+
+  .op2-painel-corpo--jogo > .op2-painel-lateral,
+  .op2-painel-corpo--jogo > .op2-painel-principal {
+    flex: none;
+    min-height: auto;
     overflow: visible;
   }
 
   .op2-painel-corpo--jogo > .op2-painel-lateral {
-    overflow: visible;
     padding-right: 0;
     padding-bottom: var(--op2-e3);
     border-right: 0;
     border-bottom: 1px solid var(--op2-linha);
   }
-
-  .op2-painel-principal { overflow: visible; }
 }
 
 .op2-tag--ok { border-color: var(--op2-sucesso); color: var(--op2-sucesso); }
