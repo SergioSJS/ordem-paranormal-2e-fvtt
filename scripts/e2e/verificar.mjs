@@ -1319,6 +1319,10 @@ const relato = await page.evaluate(async () => {
     await esperar(400);
 
     ok("POI oculto some da tela do jogador", !painelEl?.textContent.includes("Quadro na Parede"));
+    ok("jogador não tem a aba Preparação — só Pontos de interesse e Desafios",
+      [...painelEl.querySelectorAll(".op2-abas [data-tab]")].map((b) => b.dataset.tab).join(",") === "pontos,desafios"
+      && !painelEl.querySelector(".op2-painel-aba[data-tab='preparacao']")
+      && Boolean(painelEl.querySelector(".op2-painel-aba.active")));
 
     // O quadro na tela do jogador é só o que o mestre abriu + o que ESTE
     // personagem descobriu. Antes bastava não ser rascunho pra linha aparecer
@@ -2901,22 +2905,46 @@ const relato = await page.evaluate(async () => {
     ok("a sobrecarga rolada vira card do sistema, com a rolagem guardada e o dano aplicado",
       /op2-card/.test(cardDano?.content ?? "") && cardDano?.rolls?.length === 1 && ator.system.recursos.pd.value === pdAntes - 4);
 
-    // 5. Painel: seções recolhidas por padrão, cards recolhíveis, notas do mestre, filtro.
-    localStorage.removeItem("op2.painel.secoes");
+    // 5. Painel: duas colunas (controles + ordem | cena em abas), seções da
+    //    Preparação recolhidas por padrão, cards recolhíveis, notas do mestre, filtro.
+    localStorage.removeItem("op2.painel.secoes"); localStorage.removeItem("op2.painel.aba");
     const painel = game.op2.painelInvestigacao();
     await painel.render(true);
     await esperar(1200);
     const el = painel.element;
+    ok("a coluna da esquerda tem o seletor, os botões de rodada e a ordem das rodadas — e só isso",
+      Boolean(el.querySelector(".op2-painel-lateral [data-seletor-investigacao]"))
+      && Boolean(el.querySelector(".op2-painel-lateral [data-action='novaRodada']"))
+      && Boolean(el.querySelector(".op2-painel-lateral [data-action='encerrarCena']"))
+      && Boolean(el.querySelector(".op2-painel-lateral .op2-painel-ordem [data-ator-ordem]"))
+      && !el.querySelector(".op2-painel-lateral [data-poi-card]") && !el.querySelector(".op2-painel-lateral details"));
+    const abas = [...el.querySelectorAll(".op2-abas [data-tab]")].map((b) => b.dataset.tab);
+    ok(`a cena fica em três abas, Preparação primeiro (${abas.join(", ")})`, abas.join(",") === "preparacao,pontos,desafios");
+    ok("sem preferência guardada o painel abre em Pontos de interesse",
+      el.querySelector(".op2-painel-aba[data-tab='pontos']")?.classList.contains("active") === true
+      && el.querySelector(".op2-painel-aba[data-tab='preparacao']")?.classList.contains("active") === false);
+    ok("as colunas ficam lado a lado de verdade: a ordem à esquerda dos cards",
+      el.querySelector(".op2-painel-lateral").getBoundingClientRect().right
+        <= el.querySelector(".op2-painel-principal").getBoundingClientRect().left
+      && el.querySelector(".op2-painel-lateral .op2-painel-ordem").getBoundingClientRect().height > 0);
+    const temRoteiro = (inv.system.eventos?.length ?? 0) > 0;
+    ok("pontos e desafios deixaram de ser seções; participantes, roteiro e sobrecarga moram na Preparação",
+      !el.querySelector("details[data-secao='pontos']") && !el.querySelector("details[data-secao='ordem']")
+      && ["participantes", "sobrecarga", ...(temRoteiro ? ["eventos"] : [])]
+        .every((n) => el.querySelector(`.op2-painel-aba[data-tab='preparacao'] details[data-secao='${n}']`)));
     const secoes = [...el.querySelectorAll("details[data-secao]")];
-    ok("toda seção do painel é recolhível e nasce fechada",
-      secoes.length >= 5 && secoes.every((d) => !d.open) && ["participantes", "pontos", "desafios", "ordem"].every((n) => secoes.some((d) => d.dataset.secao === n)));
-    el.querySelector('details[data-secao="pontos"]').open = true;
-    el.querySelector('details[data-secao="pontos"]').dispatchEvent(new Event("toggle"));
+    ok("toda seção da Preparação nasce fechada", secoes.length === (temRoteiro ? 3 : 2) && secoes.every((d) => !d.open));
+    el.querySelector('details[data-secao="participantes"]').open = true;
+    el.querySelector('details[data-secao="participantes"]').dispatchEvent(new Event("toggle"));
+    painel.changeTab("desafios", "principal");
     await painel.render();
     await esperar(800);
-    ok("seção aberta continua aberta depois de rerrenderizar (guardada no navegador)",
-      painel.element.querySelector('details[data-secao="pontos"]')?.open === true
-      && painel.element.querySelector('details[data-secao="desafios"]')?.open === false);
+    ok("seção aberta e aba escolhida continuam depois de rerrenderizar (guardadas no navegador)",
+      painel.element.querySelector('details[data-secao="participantes"]')?.open === true
+      && painel.element.querySelector('details[data-secao="sobrecarga"]')?.open === false
+      && painel.element.querySelector(".op2-painel-aba[data-tab='desafios']")?.classList.contains("active") === true
+      && localStorage.getItem("op2.painel.aba") === "desafios");
+    painel.changeTab("pontos", "principal");
     const elPainel = painel.element;
     const card = elPainel?.querySelector(`[data-poi-card="${poi.uuid}"]`);
     ok(`o card do ponto tem o corpo, o resumo de linhas (1 descoberta de 2) e o botão de notas do mestre (${card?.querySelector(".op2-poi-card__resumo")?.textContent?.trim()})`,
@@ -2994,7 +3022,7 @@ const relato = await page.evaluate(async () => {
         invAtoI.system.poisOcultos.length === invAtoI.system.pois.length && invAtoI.system.desafiosOcultos.length === invAtoI.system.desafios.length);
     }
 
-    localStorage.removeItem("op2.painel.recolhidos"); localStorage.removeItem("op2.painel.notas"); localStorage.removeItem("op2.painel.secoes");
+    localStorage.removeItem("op2.painel.recolhidos"); localStorage.removeItem("op2.painel.notas"); localStorage.removeItem("op2.painel.secoes"); localStorage.removeItem("op2.painel.aba");
     await game.user.update({ character: null });
     for (const d of [hack, porta, poi, poiVisivel, ator, inv]) await d.delete().catch(() => {});
     return passos;

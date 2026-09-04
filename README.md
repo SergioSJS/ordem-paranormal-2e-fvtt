@@ -43,10 +43,15 @@ pela própria ficha.
 
 ![Painel de investigação](docs/img/painel-investigacao.png)
 
-Trinta pontos numa lista precisam de navegação: cada seção do painel (participantes, pontos,
-desafios, ordem das rodadas, roteiro, sobrecarga) **recolhe e expande**, nasce recolhida e o
-que você abre fica guardado no seu navegador. Cada card também **recolhe e expande** (o
-estado fica no seu navegador), há **recolher/expandir todos** e um **filtro por nome**.
+O painel tem duas colunas. À esquerda, o que muda a cada rodada: qual investigação está
+à vista, **Nova rodada**, **Encerrar cena**, o que o roteiro e a sobrecarga trazem na
+próxima rodada e a **ordem das rodadas** com quem já agiu. À direita, a cena em três abas:
+**Preparação** (participantes, roteiro rodada a rodada e sobrecarga mental — só o mestre
+vê), **Pontos de interesse** e **Desafios**. A ordem fica parada enquanto você percorre
+trinta pontos; numa janela estreita as colunas empilham. A aba escolhida e as seções
+abertas da Preparação ficam guardadas no seu navegador. Cada card também **recolhe e
+expande** (o estado fica no seu navegador), há **recolher/expandir todos** e um **filtro
+por nome**.
 O card recolhido mostra o resumo *linhas à vista / total*. Cada linha do quadro é uma
 linha só — estado, DT num selo, texto, quem descobriu. O mestre tem, por card, um botão
 de **notas do mestre** que abre a descrição contextual inteira ali mesmo, sem abrir a

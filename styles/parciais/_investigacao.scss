@@ -113,6 +113,8 @@
 // que ele pode rolar, sem impor um teto próprio que brigue com o resize.
 .op2-painel-investigacao .window-content {
   overflow-y: auto;
+  // As colunas empilham pela largura da janela, não da tela (container query).
+  container-type: inline-size;
   // Opaco: o core deixa a janela translúcida e o mapa atravessava o painel, o
   // que embaralhava a leitura das listas (achado em uso real).
   background: var(--op2-fundo);
@@ -831,6 +833,110 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   font-family: var(--op2-fonte-mono);
   font-size: 0.72rem;
   color: var(--op2-texto-fraco);
+}
+
+// Duas colunas (achado em uso real: "a navegação está bem ruim"). À esquerda o que
+// muda a cada rodada — qual investigação, os botões de rodada, a ordem de quem age;
+// à direita a cena em abas. Cada coluna rola por conta própria: a ordem fica parada
+// enquanto o mestre percorre trinta pontos. Abaixo de ~42rem de largura as colunas
+// empilham de novo.
+.op2-painel-corpo--jogo {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0 var(--op2-e3);
+}
+
+.op2-painel-lateral {
+  display: flex;
+  flex-direction: column;
+  gap: var(--op2-e3);
+  min-height: 0;
+
+  .op2-painel-corpo--jogo > & {
+    overflow-y: auto;
+    padding-right: var(--op2-e2);
+    border-right: 1px solid var(--op2-linha);
+  }
+
+  // Numa coluna de 15rem o seletor ocupa a linha inteira e os botões vêm abaixo.
+  .op2-painel-investigacao-seletor {
+    .op2-campo--inline { flex: 1 1 100%; }
+    select { flex: 1; min-width: 0; }
+  }
+
+  &__botoes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--op2-e2);
+  }
+
+  .op2-painel-topo {
+    flex-direction: column;
+    align-items: stretch;
+
+    &__acoes { flex-direction: column; }
+    .op2-botao { justify-content: center; }
+  }
+
+  .op2-painel-rodada { font-size: 0.85rem; }
+  .op2-painel-proximo { margin: 0; }
+  .op2-painel-ordem__linha { padding-inline: 0; }
+}
+
+.op2-painel-principal {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+
+  // As abas ficam no topo enquanto a lista rola.
+  .op2-abas {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--op2-fundo);
+  }
+
+  .op2-aba {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--op2-e1);
+  }
+}
+
+.op2-painel-aba {
+  display: none;
+  padding-top: var(--op2-e3);
+
+  &.active {
+    display: flex;
+    flex-direction: column;
+    gap: var(--op2-e3);
+  }
+}
+
+@container (max-width: 42rem) {
+  .op2-painel-corpo--jogo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--op2-e3);
+    overflow: visible;
+  }
+
+  .op2-painel-corpo--jogo > .op2-painel-lateral {
+    overflow: visible;
+    padding-right: 0;
+    padding-bottom: var(--op2-e3);
+    border-right: 0;
+    border-bottom: 1px solid var(--op2-linha);
+  }
+
+  .op2-painel-principal { overflow: visible; }
 }
 
 .op2-tag--ok { border-color: var(--op2-sucesso); color: var(--op2-sucesso); }

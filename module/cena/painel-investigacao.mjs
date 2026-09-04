@@ -42,7 +42,9 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
     // com uma investigação cheia a janela passava da tela e nada rolava. Um
     // número, como as fichas de ator já usam, dá ao core uma altura de verdade
     // pra clampar/redimensionar em vez de brigar com CSS por cima.
-    position: { width: 640, height: 720 },
+    // Duas colunas (controles + ordem | cena em abas) pedem largura; abaixo de
+    // ~42rem o CSS empilha as colunas de novo.
+    position: { width: 940, height: 720 },
     // Só gestão: vincular, revelar, ordenar, rodada, sobrecarga. Ação de
     // personagem (investigar, arrombar, ferramenta…) mora na ficha dele
     // (`acoes-app.mjs`) — no painel não dá pra saber quem age.
@@ -76,6 +78,38 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
   /** O filtro por nome vive na instância: sobrevive a rerrenderizações do painel. */
   #filtro = "";
 
+  /**
+   * A cena em abas, Preparação primeiro: o mestre monta (participantes, roteiro,
+   * sobrecarga) antes de jogar. O jogador não tem Preparação — o que ele vê de
+   * participantes já está na ordem das rodadas, à esquerda.
+   */
+  static TABS = {
+    principal: {
+      tabs: [{ id: "preparacao" }, { id: "pontos" }, { id: "desafios" }],
+      initial: "pontos",
+      labelPrefix: "OP2.Painel.Aba",
+    },
+  };
+
+  constructor(opcoes) {
+    super(opcoes);
+    this.tabGroups.principal = abaInicial(game.user.isGM);
+  }
+
+  /** @override — jogador não vê a aba de preparação. */
+  _prepareTabs(grupo) {
+    if (!game.user.isGM && this.tabGroups[grupo] === "preparacao") this.tabGroups[grupo] = "pontos";
+    const abas = super._prepareTabs(grupo);
+    if (!game.user.isGM) delete abas.preparacao;
+    return abas;
+  }
+
+  /** @override — a aba escolhida é preferência de tela: fica no navegador. */
+  changeTab(aba, grupo, opcoes) {
+    super.changeTab(aba, grupo, opcoes);
+    if (grupo === "principal") gravarAba(aba);
+  }
+
   static PARTS = {
     corpo: { template: "systems/ordem-paranormal-2e/templates/cena/painel-investigacao.hbs" },
   };
@@ -101,7 +135,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       .filter(({ trava }) => trava?.usado)
       .map(({ trava, rotulo }) => ({ rotulo, nome: trava.nome }));
 
-    return {
+    const contexto = {
       temInvestigacao: Boolean(investigacao),
       nomeInvestigacao: investigacao?.name ?? "",
       // Mestre navega/prepara qualquer investigação; jogador só as que o mestre
@@ -120,6 +154,7 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
       filtro: this.#filtro,
       // Toda seção nasce recolhida; o que o usuário abriu fica guardado no navegador.
       secoes: lerSecoes(),
+      tabs: this._prepareTabs("principal"),
       pois: investigacao ? await this.#contextoPois(investigacao, ehGM) : [],
       desafios: investigacao ? await this.#contextoDesafios(investigacao, ehGM) : [],
       ordem: this.#contextoOrdem(investigacao, ehGM),
@@ -143,6 +178,11 @@ export class PainelInvestigacao extends HandlebarsApplicationMixin(ApplicationV2
           }))
         : [],
     };
+    // O que a próxima rodada traz, na coluna dos controles: o roteiro mora na aba
+    // de Preparação, mas "Nova rodada" se decide à esquerda.
+    contexto.proximoEvento = contexto.eventos.find((e) => e.proximo)?.rodada ?? null;
+    contexto.contagens = { pontos: contexto.pois.length, desafios: contexto.desafios.length };
+    return contexto;
   }
 
   /**
@@ -747,6 +787,28 @@ function alternarNaLista(chave, uuid) {
 /** Comparação de nomes sem acento nem caixa, para o filtro. */
 function normalizar(texto) {
   return String(texto ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+}
+
+const CHAVE_ABA = "op2.painel.aba";
+
+/** A última aba escolhida; sem registro, Pontos de interesse. Jogador nunca cai em Preparação. */
+function abaInicial(ehGM) {
+  let aba = null;
+  try {
+    aba = window.localStorage.getItem(CHAVE_ABA);
+  } catch {
+    // Sem storage: começa em Pontos de interesse.
+  }
+  if (!["preparacao", "pontos", "desafios"].includes(aba)) aba = "pontos";
+  return aba === "preparacao" && !ehGM ? "pontos" : aba;
+}
+
+function gravarAba(aba) {
+  try {
+    window.localStorage.setItem(CHAVE_ABA, aba);
+  } catch {
+    // Sem storage: dura só esta tela.
+  }
 }
 
 const CHAVE_SECOES = "op2.painel.secoes";

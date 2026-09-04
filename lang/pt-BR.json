@@ -423,7 +423,14 @@
       "ExpandirTodos": "Expandir todos",
       "RecolherExpandir": "Recolher / expandir",
       "NotasMestre": "Notas do mestre (só você vê)",
-      "LinhasResumoDica": "Linhas do quadro à vista / total"
+      "LinhasResumoDica": "Linhas do quadro à vista / total",
+      "Aba": {
+        "preparacao": "Preparação",
+        "pontos": "Pontos de interesse",
+        "desafios": "Desafios"
+      },
+      "PreparacaoAjuda": "Montagem da investigação: quem participa, o roteiro rodada a rodada e a sobrecarga mental. Arraste atores, pontos e desafios para o painel.",
+      "ProximoEvento": "Próximo evento do roteiro: rodada {rodada}."
     },
     "Rodada": {
       "Titulo": "Rodada {rodada}",

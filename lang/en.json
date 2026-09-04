@@ -423,7 +423,14 @@
       "ExpandirTodos": "Expand all",
       "RecolherExpandir": "Collapse / expand",
       "NotasMestre": "GM notes (only you see them)",
-      "LinhasResumoDica": "Grid lines in view / total"
+      "LinhasResumoDica": "Grid lines in view / total",
+      "Aba": {
+        "preparacao": "Setup",
+        "pontos": "Points of interest",
+        "desafios": "Challenges"
+      },
+      "PreparacaoAjuda": "Investigation setup: who takes part, the round-by-round script and mental overload. Drag actors, points and challenges onto the panel.",
+      "ProximoEvento": "Next scripted event: round {rodada}."
     },
     "Rodada": {
       "Titulo": "Round {rodada}",
