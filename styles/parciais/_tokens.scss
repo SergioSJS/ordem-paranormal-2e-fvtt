@@ -27,10 +27,15 @@
   --op2-perfil-analista-claro: #6ba6ec;
   --op2-perfil-vigilante-claro: #86b943;
 
-  // O acento da ficha aberta. Vermelho do sistema por padrão; a ficha de personagem
-  // troca pelo perfil dela.
+  // O acento da ficha aberta. Segue o tema da tela; a ficha de personagem troca o
+  // tema inteiro pelo perfil dela.
   --op2-acento: var(--op2-vermelho);
   --op2-acento-claro: var(--op2-vermelho-claro);
+
+  // Vermelho de PERIGO: não é tema, é sinal. Numa ficha de Analista (azul) ou de
+  // Vigilante (verde), apagar continua sendo vermelho — senão o botão destrutivo
+  // ficava da mesma cor do resto.
+  --op2-perigo: #c8321e;
   --op2-e1: 0.25rem;
   --op2-e2: 0.5rem;
   --op2-e3: 0.75rem;

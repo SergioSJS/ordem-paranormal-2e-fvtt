@@ -7,39 +7,31 @@
   }
 }
 
-// A cor do perfil (spec §1: executor, analista, vigilante) entra como acento da ficha
-// daquele personagem — o livro dá identidade própria a cada um. É acento, não tema: o
-// vermelho do sistema continua sendo a cor da moldura e dos botões; muda o que é
-// identidade do personagem — o traço do nome, o contorno do retrato, a aba ativa e a
-// própria tag do perfil.
-.op2-ficha--personagem[data-perfil="executor"] {
-  --op2-acento: var(--op2-perfil-executor);
-  --op2-acento-claro: var(--op2-perfil-executor-claro);
+// A ficha INTEIRA veste a cor do perfil, como na diagramação do livro: na ficha da
+// Eloísa (Analista) o azul está na moldura, no nome, nas tags de seção, nos dados,
+// nas trilhas de PV/PD — em tudo que na do Executor é vermelho. Por isso a troca é no
+// token, não em regras avulsas: todo componente da ficha já lê `--op2-vermelho`.
+.op2-ficha--personagem[data-perfil="analista"],
+.op2-acoes[data-perfil="analista"] {
+  --op2-vermelho: var(--op2-perfil-analista);
+  --op2-vermelho-claro: var(--op2-perfil-analista-claro);
+  --op2-vermelho-escuro: #24589e;
 }
 
-.op2-ficha--personagem[data-perfil="analista"] {
-  --op2-acento: var(--op2-perfil-analista);
-  --op2-acento-claro: var(--op2-perfil-analista-claro);
+.op2-ficha--personagem[data-perfil="vigilante"],
+.op2-acoes[data-perfil="vigilante"] {
+  --op2-vermelho: var(--op2-perfil-vigilante);
+  --op2-vermelho-claro: var(--op2-perfil-vigilante-claro);
+  --op2-vermelho-escuro: #345818;
 }
 
-.op2-ficha--personagem[data-perfil="vigilante"] {
-  --op2-acento: var(--op2-perfil-vigilante);
-  --op2-acento-claro: var(--op2-perfil-vigilante-claro);
-}
+// O Executor é o vermelho do sistema — o mesmo do livro, que já era o tema.
 
 .op2-ficha--personagem {
-  .op2-nome { border-bottom-color: var(--op2-acento-claro); }
+  // O contorno do retrato entra na cor do perfil, como a moldura da página.
+  .op2-cabecalho__retrato { border-color: color-mix(in srgb, var(--op2-vermelho-claro) 55%, transparent); }
 
-  .op2-cabecalho__retrato { border-color: color-mix(in srgb, var(--op2-acento-claro) 55%, transparent); }
-
-  .op2-aba.active { box-shadow: inset 0 -2px var(--op2-acento-claro); }
-
-  // A tag do perfil é o próprio rótulo colorido do livro.
-  .op2-tag--perfil {
-    background: var(--op2-acento);
-
-    select { color: #fff; }
-  }
+  .op2-tag--perfil select { color: #fff; }
 }
 
 // Duas colunas: a ficha à esquerda, as perícias sempre visíveis à direita —
@@ -469,6 +461,10 @@
   border-bottom: 1px solid var(--op2-linha);
   grid-area: abas;
 }
+
+// O core desenha um contorno próprio na aba ativa, num laranja que não é do sistema —
+// numa ficha azul ou verde ele aparecia sozinho (achado na revisão visual).
+.op2 .op2-abas .op2-aba.active { outline-color: var(--op2-vermelho-claro); }
 
 .op2-aba {
   flex: 1 1 0;

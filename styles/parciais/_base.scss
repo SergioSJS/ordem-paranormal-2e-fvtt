@@ -164,8 +164,8 @@
   }
 
   &--perigo {
-    border-color: var(--op2-vermelho);
-    background: color-mix(in srgb, var(--op2-vermelho) 22%, transparent);
+    border-color: var(--op2-perigo);
+    background: color-mix(in srgb, var(--op2-perigo) 22%, transparent);
   }
 }
 
@@ -267,7 +267,7 @@
 .application.op2,
 .application.op2-ficha--poi,
 .application.op2-ficha--desafio {
-  --op2-borda-janela: #{rgba(#8f2315, 0.85)};
+  --op2-borda-janela: #{"color-mix(in srgb, var(--op2-vermelho-escuro) 85%, transparent)"};
 
   background: var(--op2-fundo);
   backdrop-filter: none;

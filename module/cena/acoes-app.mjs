@@ -178,6 +178,8 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
 
   _onRender(contexto, opcoes) {
     super._onRender(contexto, opcoes);
+    // A janela é a tela daquele personagem: veste a cor do perfil dele, como a ficha.
+    this.element.dataset.perfil = this.ator.system.perfil ?? "";
     restaurarRolagem(this);
 
     // Filtro por nome: esconde linhas no DOM, sem rerrenderizar. As abas têm um campo
