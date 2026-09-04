@@ -1,6 +1,10 @@
 <div class="op2 op2-card op2-card--investigacao">
   <header class="op2-card__topo">
-    <span class="op2-tag op2-tag--pequena">{{localize "OP2.Rodada.Titulo" rodada=nova}}</span>
+    {{#if soEvento}}
+      <span class="op2-tag op2-tag--pequena">{{localize "OP2.Evento.Gatilho"}}</span>
+    {{else}}
+      <span class="op2-tag op2-tag--pequena">{{localize "OP2.Rodada.Titulo" rodada=nova}}</span>
+    {{/if}}
   </header>
 
   {{!-- Roteiro dos eventos disparados: a narração é para ler em voz alta, o efeito é

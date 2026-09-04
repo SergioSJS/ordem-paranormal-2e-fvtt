@@ -32,6 +32,22 @@ page.on("console", (m) => {
 });
 
 await page.goto(`${URL}/join`, { waitUntil: "networkidle" });
+
+// O Foundry desabilita na tela de entrada quem ele ainda considera conectado, e a
+// sessão do run anterior fica de pé um tempo depois do navegador fechar: a rodada
+// seguinte travava em "option being selected is not enabled" (achado rodando duas
+// vezes seguidas). Espera a sessão cair; se insistir, entra assim mesmo — o servidor
+// aceita e derruba a antiga.
+await page.waitForFunction(() => {
+  const opcao = [...document.querySelectorAll("select[name='userid'] option")]
+    .find((o) => o.textContent.trim() === "Gamemaster");
+  return Boolean(opcao) && !opcao.disabled;
+}, null, { timeout: 20000 }).catch(async () => {
+  console.log("(a sessão anterior do Gamemaster ainda está de pé; entrando por cima)");
+  await page.evaluate(() => {
+    for (const o of document.querySelectorAll("select[name='userid'] option")) o.disabled = false;
+  });
+});
 await page.selectOption("select[name='userid']", { label: "Gamemaster" });
 await page.click("button[name='join'], button[type='submit']");
 await page.waitForURL("**/game");
@@ -1901,10 +1917,23 @@ const relato = await page.evaluate(async () => {
       ok("evento não disparado não fala, nem na rodada que bate com o número dele",
         !/símbolo pulsa/i.test(semGatilho));
 
-      // O gatilho: a rodada de agora vira a rodada 0 DO EVENTO.
+      // O gatilho: a rodada de agora vira a rodada 0 DO EVENTO, e a linha da rodada 0
+      // (a narração de ativação) vai ao chat na hora, não na rodada seguinte.
+      await maldicaoE2E.update({ "system.rodadas": [
+        { rodada: 0, narracao: "<p>O Ídolo observa de volta.</p>", efeito: "" },
+        { rodada: 2, narracao: "<p>O símbolo pulsa.</p>", efeito: "<p>Todos perdem 1 PD.</p>" },
+      ] });
+      const antesDoGatilho = game.messages.size;
       await game.op2.dispararEvento(maldicaoE2E, game.op2.rodadaAtual(invEvento));
+      const { publicarLinhaDoEvento } = await import("/systems/ordem-paranormal-2e/module/cena/rodada.mjs");
+      const { linhaDaRodada } = await import("/systems/ordem-paranormal-2e/module/cena/eventos.mjs");
+      await publicarLinhaDoEvento(maldicaoE2E, linhaDaRodada(maldicaoE2E.system, game.op2.rodadaAtual(invEvento)));
+      await esperar(400);
       ok("disparar guarda a rodada da cena como rodada 0 do evento",
         maldicaoE2E.system.disparado === true && maldicaoE2E.system.rodadaInicial === 1);
+      ok("a rodada 0 do evento vai ao chat no gatilho, sem esperar a rodada seguinte",
+        game.messages.size === antesDoGatilho + 1
+        && /Ídolo observa de volta/.test(game.messages.contents.at(-1)?.content ?? ""));
       await game.op2.avancarRodada();          // rodada 2 da cena = rodada 1 do evento
       const antesDaHora = game.messages.contents.at(-1)?.content ?? "";
       ok("a rodada 2 da cena não é a rodada 2 do evento quando ele começou na 1",

@@ -40,6 +40,15 @@ Nunca aponte para o seu User Data de trabalho: use um separado.
 > lsof packs/*/LOCK   # tem que sair vazio
 > ```
 
+> **Reinicie o servidor entre rodadas.** O Foundry marca como indisponível quem já está
+> conectado, e a sessão do run anterior fica de pé um tempo: a rodada seguinte trava na
+> tela de entrada com "option being selected is not enabled". Um `pkill` e um start
+> novo resolvem — foi o que custou duas rodadas aqui.
+>
+> A tela de entrada monta a lista de usuários por JavaScript, então esperar por
+> `name="userid"` com `curl` nunca casa. Espere o servidor responder em `/join` e
+> deixe o Playwright esperar pelo seletor.
+
 ```bash
 FVTT_APP="/Applications/Foundry Virtual Tabletop.app/Contents/Resources/app"
 DATA=/tmp/fvtt-e2e

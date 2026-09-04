@@ -94,6 +94,28 @@ export async function avancarRodada(investigacao = investigacaoAtiva()) {
   return nova;
 }
 
+/**
+ * A linha de um evento fora do avanço de rodada. Serve ao gatilho: a rodada 0 é o
+ * momento em que ele é puxado, e ela precisa chegar ao chat na hora — não na rodada
+ * seguinte (achado em uso real).
+ */
+export async function publicarLinhaDoEvento(item, linha) {
+  if (!linha || !(linha.narracao?.trim() || linha.efeito?.trim())) return null;
+  const conteudo = await renderizar("systems/ordem-paranormal-2e/templates/chat/rodada.hbs", {
+    soEvento: true,
+    eventos: [{
+      nome: item.name,
+      rodadaDoEvento: linha.rodada,
+      narracao: await editorDeTexto().enrichHTML(linha.narracao ?? "", { relativeTo: item }),
+      efeito: await editorDeTexto().enrichHTML(linha.efeito ?? "", { relativeTo: item }),
+    }],
+  });
+  return ChatMessage.create({
+    content: conteudo,
+    flags: { [SYSTEM_ID]: { tipo: "evento", eventoUuid: item.uuid } },
+  });
+}
+
 function editorDeTexto() {
   return foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
 }

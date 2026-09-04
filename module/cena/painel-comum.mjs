@@ -18,7 +18,7 @@
 import { SYSTEM_ID } from "../config.mjs";
 import { periciasDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs";
 import { semPrefixoDoPonto } from "./desafios.mjs";
-import { rodadaRelativa, proximaRodadaDaCena } from "./eventos.mjs";
+import { rodadaRelativa, proximaRodadaDaCena, linhaDaRodada } from "./eventos.mjs";
 import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerrar-investigacao.mjs";
 import {
   estaAtiva, alternarAtiva,
@@ -26,7 +26,7 @@ import {
   vincularPoi, removerPoi, vincularDesafio, removerDesafio, alternarOculto, moverParticipante, pontoDoDesafio,
   vincularEvento, removerEvento, eventosDaInvestigacao, dispararEvento, reiniciarEvento,
 } from "./investigacao-ativa.mjs";
-import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada } from "./rodada.mjs";
+import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada, publicarLinhaDoEvento } from "./rodada.mjs";
 import { cicloVisibilidadeInfo, limparRevelacao } from "./acoes-investigacao.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
 import { guardarRolagem, restaurarRolagem, esquecerRolagem } from "../ui/rolagem.mjs";
@@ -731,10 +731,11 @@ export function PainelInvestigacaoMixin(Base) {
       if (!game.user.isGM) return;
       const item = await fromUuid(alvo.dataset.uuid);
       if (item?.type !== "evento") return;
-      await dispararEvento(item, rodadaAtual(this.investigacao));
-      ui.notifications.info(game.i18n.format("OP2.Evento.Disparado", {
-        nome: item.name, rodada: rodadaAtual(this.investigacao),
-      }));
+      const rodada = rodadaAtual(this.investigacao);
+      await dispararEvento(item, rodada);
+      // A rodada 0 é o próprio gatilho: vai para o chat agora, não na rodada seguinte.
+      await publicarLinhaDoEvento(item, linhaDaRodada(item.system, rodada));
+      ui.notifications.info(game.i18n.format("OP2.Evento.Disparado", { nome: item.name, rodada }));
     }
 
     static async #reiniciarEvento(_evento, alvo) {
