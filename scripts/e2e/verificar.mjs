@@ -3044,26 +3044,27 @@ const relato = await page.evaluate(async () => {
       await esperar(300);
       ok("vincular o ponto à investigação traz o desafio dele, visível como o ponto",
         inv.system.desafios.includes(portaZ.uuid) && !inv.system.desafiosOcultos.includes(portaZ.uuid));
-      await painel.render();
-      await esperar(800);
-      const cardDeposito = painel.element.querySelector(`[data-poi-card="${deposito.uuid}"]`);
-      const cardPorta = painel.element.querySelector(`[data-poi-card="${portaZ.uuid}"]`);
+      const painelDesafio = game.op2.painelInvestigacao();
+      await painelDesafio.render(true);
+      await esperar(900);
+      const cardDeposito = painelDesafio.element.querySelector(`[data-poi-card="${deposito.uuid}"]`);
+      const cardPorta = painelDesafio.element.querySelector(`[data-poi-card="${portaZ.uuid}"]`);
       const fichaPorta = cardDeposito?.querySelector(`.op2-poi-card__desafio[data-action="irParaCard"][data-uuid="${portaZ.uuid}"]`);
       ok("o card do ponto mostra o desafio dele, e o card do desafio diz o ponto",
         Boolean(fichaPorta) && (cardPorta?.textContent ?? "").includes("Depósito Z")
         && Boolean(cardPorta?.querySelector(`[data-action="irParaCard"][data-aba="pontos"][data-uuid="${deposito.uuid}"]`)));
       // Clicar na ficha do desafio no card do ponto troca de aba, expande o card e o destaca.
-      painel.changeTab("pontos", "principal");
+      painelDesafio.changeTab("pontos", "principal");
       localStorage.setItem("op2.painel.recolhidos", JSON.stringify([portaZ.uuid]));
       cardPorta?.classList.add("op2-poi-card--recolhido");
       fichaPorta?.click();
       await esperar(300);
       ok("clicar no desafio do ponto vai para a aba Desafios, expande o card e o destaca",
-        painel.tabGroups.principal === "desafios"
-        && painel.element.querySelector(".op2-painel-aba[data-tab='desafios']")?.classList.contains("active")
+        painelDesafio.tabGroups.principal === "desafios"
+        && painelDesafio.element.querySelector(".op2-painel-aba[data-tab='desafios']")?.classList.contains("active")
         && !cardPorta?.classList.contains("op2-poi-card--recolhido") && cardPorta?.classList.contains("op2-poi-card--foco")
         && !(JSON.parse(localStorage.getItem("op2.painel.recolhidos") ?? "[]")).includes(portaZ.uuid));
-      painel.changeTab("pontos", "principal");
+      painelDesafio.changeTab("pontos", "principal");
       // A janela de ações tem três abas: o desafio mora na de Desafios, com o ponto
       // como rótulo, e o ponto ganha um atalho que troca de aba já filtrando por ele
       // (achado em uso real: numa lista só, desafio e ponto se embaralhavam).
