@@ -113,9 +113,12 @@ mestre. Um jogador com dois personagens sempre sabe qual dos dois está agindo.
 
 ![Janela de ações](docs/img/acoes-investigacao.png)
 
-Ações livres (Recapitular, Compartilhar, Ajudar, Usar habilidade ou item, Alcançar,
-Sustentar, Atacar), os pontos de interesse com Examinar/Interagir e as ferramentas que
-aquele personagem carrega, e os desafios com as abordagens que o mestre habilitou.
+Três abas, porque a lista cresce a cada coisa revelada: **Ações** (as livres —
+Recapitular, Compartilhar, Ajudar, Usar habilidade ou item, Alcançar, Sustentar,
+Atacar), **Pontos de interesse** (Interagir, Examinar e as ferramentas que aquele
+personagem carrega) e **Desafios** (só as abordagens que o mestre habilitou naquele
+obstáculo). Cada lista tem filtro por nome; o desafio mostra o ponto a que pertence, e
+o ponto que tem desafios traz um atalho que abre a aba já filtrada por ele.
 
 Quando uma ação precisa de perícia, a escolha usa a mesma lista da ficha:
 
