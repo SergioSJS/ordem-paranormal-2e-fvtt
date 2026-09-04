@@ -115,21 +115,24 @@ export async function desmarcarDoMapa(uuid) {
  * janela de ações do personagem dele — que é de onde ele age.
  */
 export async function abrirMarcador(uuid) {
-  const { abrirPainelInvestigacao } = await import("./painel-investigacao.mjs");
-  const { abrirAcoesInvestigacao } = await import("./acoes-app.mjs");
   const ponto = await fromUuid(uuid);
-  const aba = ponto?.type === "desafio-acesso" ? "desafios" : "pontos";
+  if (!ponto) return;
 
-  if (!game.user.isGM) {
-    const personagem = game.user.character;
-    if (personagem) {
-      const app = await abrirAcoesInvestigacao(personagem);
-      app?.focarCard?.(uuid, aba);
-      return;
-    }
+  // O mestre vai para a ficha do ponto — é o cadastro dele, com quadro, notas e
+  // desafios. O jogador não tem permissão nesse Item (nem deveria ver o quadro
+  // inteiro): para ele o marcador abre a janela de ações, no card daquele ponto.
+  if (game.user.isGM) {
+    ponto.sheet.render(true);
+    return;
   }
-  const painel = await abrirPainelInvestigacao();
-  painel?.focarCard?.(uuid, aba);
+  const { abrirAcoesInvestigacao } = await import("./acoes-app.mjs");
+  const personagem = game.user.character;
+  if (!personagem) {
+    ui.notifications.warn(game.i18n.localize("OP2.Marcador.SemPersonagem"));
+    return;
+  }
+  const app = abrirAcoesInvestigacao(personagem);
+  await app?.focarCard?.(uuid, ponto.type === "desafio-acesso" ? "desafios" : "pontos");
 }
 
 /** Redesenha a visão dos marcadores: revelar um ponto acende o dele na hora. */
@@ -162,6 +165,15 @@ function classeDeNota(Base) {
       if (!uuid || !this.controlIcon) return;
       // 0.55, não menos: com ícone escuro o marcador oculto sumia do mapa do mestre.
       this.controlIcon.alpha = game.user.isGM && !liberadoParaAMesa(uuid) ? 0.55 : 1;
+    }
+
+    /**
+     * Sem diário vinculado, o core devolve `false` aqui — e o gerente de mouse nem
+     * chega a chamar o duplo clique: o marcador ficava inerte no mapa (achado em uso
+     * real, medido: chamar o handler na mão abria, o clique não).
+     */
+    _canView(usuario) {
+      return pontoDoMarcador(this.document) ? true : super._canView(usuario);
     }
 
     /** @override */

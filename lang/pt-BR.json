@@ -819,7 +819,8 @@
       "Ajuda": "Arraste o ponto para o mapa: o marcador nasce só do mestre e acende para os jogadores quando o ponto deixa de estar oculto.",
       "Marcar": "Marcar no mapa",
       "Desmarcar": "Tirar o marcador do mapa",
-      "SemCena": "Abra a cena do mapa antes de marcar o ponto."
+      "SemCena": "Abra a cena do mapa antes de marcar o ponto.",
+      "SemPersonagem": "Escolha um personagem para agir a partir do marcador."
     }
   }
 }

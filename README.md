@@ -71,8 +71,8 @@ a nota do mestre escondida até pedir.
 O ponto de interesse também vive no mapa: **arraste o card do ponto (ou o Item, do
 diretório) para a cena** e ele vira um marcador ali, com o ícone do próprio ponto e o
 nome como rótulo — ou clique no alfinete no card, que põe o marcador no meio do que você
-está vendo. Clicar duas vezes no marcador abre o card do ponto: o mestre cai no painel,
-o jogador na janela de ações dele.
+está vendo. Clicar duas vezes no marcador abre o ponto: o mestre na ficha dele, o
+jogador na janela de ações, no card daquele ponto.
 
 O marcador **nasce só do mestre** e acende para os jogadores no momento em que o ponto
 deixa de estar oculto na investigação — a mesma regra do painel e da janela de ações.

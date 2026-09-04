@@ -819,7 +819,8 @@
       "Ajuda": "Drag the point onto the map: the marker starts GM-only and lights up for players once the point is no longer hidden.",
       "Marcar": "Place marker on the map",
       "Desmarcar": "Remove the map marker",
-      "SemCena": "Open the map scene before placing the marker."
+      "SemCena": "Open the map scene before placing the marker.",
+      "SemPersonagem": "Pick a character to act from this marker."
     }
   }
 }

@@ -1497,6 +1497,19 @@ const relato = await page.evaluate(async () => {
     ok("soltar o ponto no mapa cria o marcador ali",
       marcadoresDoPonto(cena, poi.uuid)[0]?.x === 300);
 
+    // O clique só chega ao marcador se `_canView` deixar: sem diário vinculado, o core
+    // devolve false e o gerente de mouse nem chama o duplo clique (achado em uso real:
+    // "arrastei e criou a marca, mas dois cliques não abrem nada").
+    {
+      const objeto = canvas.notes.placeables.find((n) => pontoDoMarcador(n.document) === poi.uuid);
+      ok("o marcador aceita clique mesmo sem diário vinculado", objeto?._canView(game.user) === true);
+      await poi.sheet.close();
+      objeto?._onClickLeft2(new PointerEvent("dblclick"));
+      await esperar(900);
+      ok("dois cliques no marcador abrem a ficha do ponto", poi.sheet.rendered === true);
+      await poi.sheet.close();
+    }
+
     // Ponto apagado não deixa marcador órfão no mapa.
     const efemero = await Item.create({ name: "Ponto Efêmero", type: "ponto-interesse" });
     await game.op2.marcarNoMapa(efemero.uuid, { x: 100, y: 100, cena });
