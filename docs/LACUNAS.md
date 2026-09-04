@@ -342,11 +342,17 @@ Todas as caixas de acesso do porão têm campo no `desafio-acesso`:
   Não é o minigame de Destrancar, que sorteia; vira informação na descrição de mestre do
   ponto, e o desafio não existe.
 
-- **A Dívida Precisa Ser Paga** — a investigação ganhou `eventos` (rodada, narração,
-  efeito). `avancarRodada()` põe a narração no card da rodada que começa e o efeito só
-  para o mestre; o painel lista o roteiro com a próxima rodada em destaque. O que não
-  cabe em campo (ativação, "A Dívida Foi Paga", "Ídolo Quebrado") vira o diário de
-  mestre "A Maldição do Ídolo de Pedra".
+- **A Dívida Precisa Ser Paga** — vira um Item `evento`: gatilho, descrição e rodadas
+  **contadas a partir do gatilho** (0, 4, 7, 10, 13, 14). O livro não conta da rodada 0
+  da cena: a maldição começa quando o grupo observa o Ídolo, que pode cair em qualquer
+  rodada (achado em uso real, na terceira rodada de teste manual). O mestre dispara no
+  painel — a rodada de agora vira a rodada 0 do evento, e a narração de ativação vai ao
+  chat na hora. `avancarRodada()` junta no card o que cada evento disparado tiver para
+  aquela rodada. O que não cabe em campo ("A Dívida Foi Paga", "Ídolo Quebrado") vira o
+  diário de mestre "A Maldição do Ídolo de Pedra".
+
+  A decisão de mesa que fica de fora: o sistema não adivinha o gatilho. Ninguém marca
+  "o grupo viu o Ídolo" para o sistema — é o mestre que aperta o botão quando acontece.
 - **Linhas condicionais** ("apenas Victor", "se o ídolo for quebrado") entram como
   rascunho: Examinar não as alcança, o mestre libera quando a condição acontece. "ou
   Tecnologia" é perícia alternativa e segue descobrível — o sistema testa uma perícia
