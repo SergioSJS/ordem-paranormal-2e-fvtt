@@ -7,6 +7,25 @@
     <span class="op2-card__dt">{{desafioNome}}</span>
   </header>
 
+  {{!-- Os dados vivem no card da própria ação: o card genérico de teste saía público
+        e ainda oferecia "Dano RA/RB", que não existe aqui (achado em uso real). --}}
+  {{#unless soMestre}}
+    {{#if componentes}}
+      <div class="op2-card__dados">
+        {{#each componentes}}
+          <span class="op2-card__dado{{#unless contado}} descartado{{/unless}}"
+            data-tooltip="{{componente.rotulo}}">{{op2DadoResultado this}}</span>
+        {{/each}}
+        <span class="op2-card__igual" aria-hidden="true">=</span>
+        <span class="op2-card__total">{{total}}</span>
+        {{#if dt}}<span class="op2-card__dt">DT {{dt}}</span>{{/if}}
+      </div>
+    {{/if}}
+    {{#if falhaCritica}}
+      {{> (op2Caminho "partials/falha-critica") atorId=atorId}}
+    {{/if}}
+  {{/unless}}
+
   {{#if soMestre}}
     <p class="op2-card__so-mestre">
       <i class="fa-solid fa-user-secret" aria-hidden="true"></i> {{localize "OP2.Chat.SoMestre"}}

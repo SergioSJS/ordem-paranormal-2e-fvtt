@@ -78,3 +78,13 @@ test("compatibilidade declarada cobre v13 e v14", () => {
   assert.equal(compatibility.minimum, "13");
   assert.equal(compatibility.verified, "14");
 });
+
+// Sem `"socket": true` no manifesto, o servidor não relaia o canal `system.<id>`: o
+// jogador pede ao mestre para gravar no desafio e nada acontece, o card só do mestre
+// nunca nasce, o contador do hack não abre na tela de ninguém. Como o mestre executa
+// tudo direto (sem passar pelo socket), o bug só aparecia com dois clientes — e os
+// testes rodam como mestre (achado em uso real, na terceira rodada de teste manual).
+test("system.json declara o canal de socket usado por comoMestre/paraTodos", () => {
+  const manifesto = JSON.parse(readFileSync(join(RAIZ, "system.json"), "utf8"));
+  assert.equal(manifesto.socket, true, "o sistema fala pelo socket: declare \"socket\": true");
+});

@@ -433,6 +433,10 @@ export async function hackTecnico(ator, desafioUuid, { rapido = false } = {}) {
     chavePericia: "tecnologia",
     dt: desafio.system.dtObjeto,
     rapido,
+    // Um card só, sussurrado, com os dados dentro: o card genérico saía PÚBLICO —
+    // a mesa inteira via a rolagem do hack — e ainda oferecia "Dano RA/RB", que não
+    // existe aqui (achado em uso real).
+    semCard: true,
     contexto: `${game.i18n.localize("OP2.Desafio.HackTecnico")} — ${desafio.name}`,
   });
   if (!roll) return null;
@@ -453,8 +457,12 @@ export async function hackTecnico(ator, desafioUuid, { rapido = false } = {}) {
     titulo: game.i18n.localize("OP2.Desafio.HackTecnico"),
     desafioNome: desafio.name,
     atorId: ator.id,
-    desafioUuid: desafio.uuid,
+    dt: desafio.system.dtObjeto,
+    componentes: roll.dados,
     total: roll.total,
+    critico: roll.critico,
+    falhaCritica: roll.falhaCritica,
+    desafioUuid: desafio.uuid,
     sucesso,
     tecnico: true,
     comTabela: temTabela,
@@ -512,6 +520,7 @@ export async function hackSocial(ator, desafioUuid, { rapido = false } = {}) {
     chavePericia: "intuicao",
     dt: desafio.system.dtObjeto,
     rapido,
+    semCard: true,
     contexto: `${game.i18n.localize("OP2.Desafio.HackSocial")} — ${desafio.name}`,
   });
   if (!roll) return null;
@@ -524,6 +533,11 @@ export async function hackSocial(ator, desafioUuid, { rapido = false } = {}) {
     titulo: game.i18n.localize("OP2.Desafio.HackSocial"),
     desafioNome: desafio.name,
     atorId: ator.id,
+    dt: desafio.system.dtObjeto,
+    componentes: roll.dados,
+    total: roll.total,
+    critico: roll.critico,
+    falhaCritica: roll.falhaCritica,
     desafioUuid: desafio.uuid,
     sucesso: roll.sucesso,
     social: true,
@@ -576,6 +590,7 @@ export async function desafioGenerico(ator, desafioUuid, { rapido = false } = {}
     chavePericia: desafio.system.generico.pericia,
     dt: desafio.system.dtObjeto,
     rapido,
+    semCard: true,
     contexto: `${rotulo} — ${desafio.name}`,
   });
   if (!roll) return null;
@@ -585,6 +600,12 @@ export async function desafioGenerico(ator, desafioUuid, { rapido = false } = {}
   await enviarCard(ator, "hackear", {
     titulo: rotulo,
     desafioNome: desafio.name,
+    atorId: ator.id,
+    dt: desafio.system.dtObjeto,
+    componentes: roll.dados,
+    total: roll.total,
+    critico: roll.critico,
+    falhaCritica: roll.falhaCritica,
     sucesso: roll.sucesso,
   }, { whisper: sussurroPara(ator) });
 
