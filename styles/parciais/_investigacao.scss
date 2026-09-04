@@ -204,7 +204,8 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   font-size: 0.8rem;
 }
 
-.op2-painel-pois {
+.op2-painel-pois,
+.op2-painel-eventos__lista {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1037,28 +1038,252 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
 
 .op2-tag--ok { border-color: var(--op2-sucesso); color: var(--op2-sucesso); }
 
-// Editor do roteiro na ficha da investigação: um bloco por evento.
+// Uma rodada do roteiro, na ficha do evento: recolhida mostra o número e o começo da
+// narração; aberta, os campos. Com seis rodadas de duas caixas de texto cada, tudo
+// aberto era uma parede de textarea sem hierarquia (achado em uso real).
 .op2-evento-editor {
-  padding: var(--op2-e2);
-  border: 1px dashed var(--op2-linha);
+  // Sem os `min-width: 0` a linha do cabeçalho (número + rodada da cena + resumo, tudo
+  // sem quebra) virava a largura mínima do bloco, e a ficha inteira passava a rolar de
+  // lado (medido: conteúdo de 881px numa janela de 550px).
+  min-width: 0;
+  border: 1px solid var(--op2-linha);
   border-radius: var(--op2-raio);
+  background: var(--op2-superficie);
   & + & { margin-top: var(--op2-e2); }
 
   &__topo {
+    display: flex;
+    overflow: hidden;
+    min-width: 0;
+    align-items: center;
+    padding: var(--op2-e2);
+    gap: var(--op2-e2);
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker { display: none; }
+    &:hover { background: var(--op2-superficie-alta); }
+  }
+
+  // O número da rodada é a âncora da leitura: sempre na mesma coluna, em display.
+  &__marca {
+    flex: 0 0 auto;
+    padding: 0.05rem 0.4rem;
+    border: 1px solid var(--op2-linha-forte);
+    border-radius: var(--op2-raio);
+    color: var(--op2-texto-fraco);
+    font-family: var(--op2-fonte-display);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  &__resumo {
+    overflow: hidden;
+    min-width: 0;
+    flex: 1 1 auto;
+    color: var(--op2-texto-fraco);
+    font-size: 0.85rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // Em que rodada da cena a linha cai. Como etiqueta vermelha cheia ela gritava mais
+  // que a narração e ainda quebrava em duas linhas (achado na revisão visual).
+  &__cena {
+    flex: 0 0 auto;
+    padding: 0.1rem 0.45rem;
+    border: 1px solid var(--op2-linha-forte);
+    border-radius: var(--op2-raio);
+    color: var(--op2-texto-fraco);
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  &__corpo {
+    display: flex;
+    flex-direction: column;
+    padding: 0 var(--op2-e2) var(--op2-e2);
+    border-top: 1px solid var(--op2-linha);
+    gap: var(--op2-e2);
+    padding-top: var(--op2-e2);
+  }
+
+  &__campos {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--op2-e2);
     input[type="number"] { width: 4.5rem; }
-    .op2-tag { margin-right: auto; }
   }
 
   textarea { width: 100%; }
 
-  // O editor também é a leitura do mestre: o que já passou apaga, a próxima
-  // rodada marcada fica em destaque — como a lista só de leitura que ele substituiu.
+  // O que já passou apaga; a rodada que cai agora fica em destaque.
   &--passado { opacity: 0.6; }
-  &--proximo { border: 1px solid var(--op2-vermelho); }
+
+  &--proximo {
+    border-color: var(--op2-vermelho);
+
+    .op2-evento-editor__marca {
+      border-color: var(--op2-vermelho);
+      color: var(--op2-vermelho-claro);
+    }
+  }
+
+  &[open] .op2-evento-editor__resumo { display: none; }
+}
+
+// Ficha do evento: janela de altura fixa, corpo que rola. Sem isto o roteiro crescia
+// para fora da janela e as últimas rodadas ficavam inalcançáveis (achado em uso real).
+.op2-ficha--evento {
+  .window-content {
+    display: flex;
+    overflow: hidden;
+    flex-direction: column;
+  }
+
+  .op2-item-ficha {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+  }
+
+  // Gatilho e descrição são uma ou duas frases: a caixa de 6rem da ficha de item
+  // empurrava o roteiro inteiro para fora da janela.
+  .op2-item-ficha prose-mirror { min-height: 3.5rem; }
+}
+
+.op2-evento-roteiro__topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--op2-e2);
+
+  .op2-ajuda { margin: 0; }
+}
+
+.op2-evento-roteiro__ferramentas {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--op2-e1);
+}
+
+// O card do evento no painel: o roteiro à vista, com o mesmo corpo dos pontos.
+.op2-evento-card {
+  &__gatilho,
+  &__descricao {
+    padding: var(--op2-e2);
+    border-left: 2px solid var(--op2-linha-forte);
+    background: var(--op2-superficie);
+
+    p { margin: 0.15rem 0 0; }
+  }
+
+  &__gatilho { border-left-color: var(--op2-vermelho); }
+
+  // O estado ocupa a linha inteira, abaixo do título.
+  &__estado {
+    display: flex;
+    align-items: center;
+    flex-basis: 100%;
+    flex-wrap: wrap;
+    gap: var(--op2-e2);
+  }
+
+  // Estado é informação de bastidor, não alarme: fica em contorno, e a etiqueta
+  // vermelha cheia sobra para o que exige ação nesta rodada.
+  &__chip {
+    padding: 0.1rem 0.45rem;
+    border: 1px solid var(--op2-linha-forte);
+    border-radius: var(--op2-raio);
+    color: var(--op2-texto-fraco);
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+
+    &--disparado {
+      border-color: var(--op2-vermelho);
+      color: var(--op2-vermelho-claro);
+    }
+  }
+
+  &__roteiro {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    gap: var(--op2-e1);
+  }
+
+  // Número à esquerda, texto à direita: a coluna fixa deixa correr o olho pelas
+  // rodadas sem ler o texto todo.
+  &__linha {
+    display: grid;
+    align-items: start;
+    padding: var(--op2-e2);
+    border-radius: var(--op2-raio);
+    column-gap: var(--op2-e2);
+    grid-template-columns: 1.6rem minmax(0, 1fr);
+
+    & + & { border-top: 1px solid var(--op2-linha); }
+
+    &--passou { opacity: 0.55; }
+
+    &--agora {
+      background: var(--op2-superficie-alta);
+      box-shadow: inset 2px 0 0 var(--op2-vermelho);
+    }
+  }
+
+  &__rodada {
+    display: flex;
+    width: 1.6rem;
+    height: 1.6rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--op2-linha-forte);
+    border-radius: 50%;
+    color: var(--op2-texto-fraco);
+    font-family: var(--op2-fonte-display);
+    font-size: 0.8rem;
+  }
+
+  &__linha--agora &__rodada {
+    border-color: var(--op2-vermelho);
+    color: var(--op2-vermelho-claro);
+  }
+
+  &__texto {
+    min-width: 0;
+    font-size: 0.88rem;
+
+    p { margin: 0 0 0.25rem; }
+    p:last-child { margin-bottom: 0; }
+  }
+
+  &__na-cena {
+    display: block;
+    margin-bottom: var(--op2-e1);
+    color: var(--op2-texto-fraco);
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__efeito {
+    margin-top: var(--op2-e1);
+    padding: var(--op2-e1) var(--op2-e2);
+    border: 1px dashed var(--op2-linha);
+    border-radius: var(--op2-raio);
+  }
 }
 
 // A senha do Destrancar no cadastro do desafio: valor em mono, botões ao lado.
@@ -1361,4 +1586,9 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   letter-spacing: 0.03em;
 }
 
-.op2-evento-roteiro { display: flex; flex-direction: column; gap: var(--op2-e2); }
+.op2-evento-roteiro {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--op2-e2);
+}

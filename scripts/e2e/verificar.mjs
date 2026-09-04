@@ -910,9 +910,18 @@ const relato = await page.evaluate(async () => {
       const pastas = noMundo("Folder");
       const raizes = pastas.filter((f) => !f.folder);
       ok("e organiza o que importou em pastas, uma raiz por diretório",
-        pastas.length === 8 && raizes.length === 5
+        pastas.length === 10 && raizes.length === 5
         && raizes.every((f) => f.name === "Ato I — O Porão")
         && new Set(raizes.map((f) => f.type)).size === 5);
+
+      // Nada solto na raiz: a maldição e a faca de churrasco caíam entre as pastas, e
+      // ninguém adivinha o que "Molho de Chaves 2" faz ali (achado em uso real).
+      const raizItens = raizes.find((f) => f.type === "Item");
+      const subpastas = pastas.filter((f) => f.folder?.id === raizItens?.id).map((f) => f.name).sort();
+      const soltosNaRaiz = noMundo("Item").filter((i) => i.folder?.id === raizItens?.id);
+      ok(`cada tipo de item tem a sua pasta, e nada fica solto na raiz (${soltosNaRaiz.map((i) => i.name).join(", ") || "nenhum solto"})`,
+        subpastas.join("|") === "Desafios de Acesso|Eventos|Itens de Mesa|Pontos de Interesse"
+        && soltosNaRaiz.length === 0);
       const naPasta = (nome) => {
         const alvo = pastas.find((f) => f.name === nome);
         return noMundo("Item").concat(noMundo("Actor")).filter((d) => d.folder?.id === alvo?.id);
@@ -1929,7 +1938,10 @@ const relato = await page.evaluate(async () => {
     {
       const maldicaoE2E = await Item.create({
         name: "Maldição de teste", type: "evento",
-        system: { rodadas: [{ rodada: 2, narracao: "<p>O símbolo pulsa.</p>", efeito: "<p>Todos perdem 1 PD.</p>" }] },
+        system: {
+          gatilho: "<p>Quando o grupo observar o Ídolo.</p>",
+          rodadas: [{ rodada: 2, narracao: "<p>O símbolo pulsa.</p>", efeito: "<p>Todos perdem 1 PD.</p>" }],
+        },
       });
       const invEvento = await Actor.create({
         name: "Cena com roteiro", type: "investigacao",
@@ -1973,9 +1985,17 @@ const relato = await page.evaluate(async () => {
       await esperar(600);
       const elRoteiro = painelRoteiro?.element ?? document.querySelector("#op2-painel-investigacao");
       ok("o painel lista o evento e mostra em que rodada dele a cena está",
-        elRoteiro?.querySelectorAll(".op2-evento-linha").length === 1
+        elRoteiro?.querySelectorAll(".op2-evento-card").length === 1
         && /Maldição de teste/.test(elRoteiro.textContent)
-        && Boolean(elRoteiro.querySelector(".op2-evento-linha--disparado")));
+        && Boolean(elRoteiro.querySelector(".op2-evento-card__chip--disparado")));
+      // Ler o roteiro não pode exigir abrir a ficha e entrar no editor: o card traz o
+      // gatilho e cada rodada, com a que cai agora em destaque (achado em uso real).
+      const cardEvento = elRoteiro?.querySelector(".op2-evento-card");
+      ok("o card do evento mostra o roteiro sem abrir a ficha",
+        /O símbolo pulsa/.test(cardEvento?.querySelector(".op2-evento-card__roteiro")?.textContent ?? "")
+        && /observar/i.test(cardEvento?.querySelector(".op2-evento-card__gatilho")?.textContent ?? "")
+        && cardEvento.querySelectorAll(".op2-evento-card__linha").length
+          === maldicaoE2E.system.rodadas.length);
       // O painel é um só (singleton): fechar aqui derrubava o `painel` que as
       // verificações do laser, mais adiante, ainda usam.
       await game.op2.avancarRodada();          // rodada 3 da cena = rodada 2 do evento
@@ -3278,6 +3298,28 @@ const relato = await page.evaluate(async () => {
     await esperar(600);
     ok("o texto digitado vira parágrafos HTML no roteiro do evento",
       eventoUso.system.rodadas[1]?.narracao === "<p>Primeiro parágrafo.</p><p>Segundo.</p>");
+
+    // A janela tem altura fixa e o roteiro cresce: quem rola é o corpo, e nunca de
+    // lado — a ficha subiu sem barra de rolagem nenhuma e as últimas rodadas ficaram
+    // inalcançáveis (achado em uso real).
+    for (let i = 0; i < 6; i += 1) eventoUso.sheet.element?.querySelector('[data-action="adicionarRodada"]')?.click();
+    await esperar(1200);
+    const corpoEvento = eventoUso.sheet.element?.querySelector(".op2-item-ficha");
+    ok(`a ficha do evento rola no vertical e não estoura na horizontal (${corpoEvento?.scrollHeight}/${corpoEvento?.clientHeight} × ${corpoEvento?.scrollWidth}/${corpoEvento?.clientWidth})`,
+      Boolean(corpoEvento) && corpoEvento.scrollHeight > corpoEvento.clientHeight
+      && corpoEvento.scrollWidth <= corpoEvento.clientWidth + 1);
+    // Recolhida, a rodada mostra o começo da narração: dá para ler o roteiro inteiro
+    // sem abrir uma de cada vez.
+    const linhaEvento = eventoUso.sheet.element?.querySelector("[data-rodada-linha]");
+    eventoUso.sheet.element?.querySelector('[data-action="recolherRodadas"]')?.click();
+    await esperar(600);
+    ok("rodada recolhida resume a narração no cabeçalho",
+      !eventoUso.sheet.element?.querySelector("[data-rodada-linha]")?.open
+      && /símbolo pulsa/i.test(eventoUso.sheet.element?.querySelector(".op2-evento-editor__resumo")?.textContent ?? ""));
+    eventoUso.sheet.element?.querySelector('[data-action="expandirRodadas"]')?.click();
+    await esperar(600);
+    ok("expandir todas abre as rodadas de volta",
+      Boolean(linhaEvento) && [...eventoUso.sheet.element.querySelectorAll("[data-rodada-linha]")].every((d) => d.open));
     await eventoUso.sheet.close();
 
     // 8. Um ícone por ponto na aventura do Ato I.

@@ -271,6 +271,11 @@ const pastas = {
 pastas.pregerados = pasta("Actor", "Pré-gerados", pastas.atores._id, 100);
 pastas.pontos = pasta("Item", "Pontos de Interesse", pastas.itens._id, 100);
 pastas.desafios = pasta("Item", "Desafios de Acesso", pastas.itens._id, 200);
+// A maldição e a faca de churrasco caíam soltas na raiz do diretório, no meio das
+// duas pastas — ninguém adivinha o que "Molho de Chaves 2" faz ali (achado em uso
+// real). Uma aventura pode ter vários eventos, e cada tipo merece a sua pasta.
+pastas.eventos = pasta("Item", "Eventos", pastas.itens._id, 300);
+pastas.itensDeMesa = pasta("Item", "Itens de Mesa", pastas.itens._id, 400);
 
 
 /** A faca de churrasco e os dois molhos de chaves, do texto do livro. */
@@ -429,7 +434,7 @@ function enigmaDaEstante() {
 
 const pontos = pontosDoPorao().map(em(pastas.pontos));
 const desafios = pontosBrutos().map(desafioDoPonto).filter(Boolean).map(em(pastas.desafios));
-const itens = itensDoPorao().map(em(pastas.itens));
+const itens = itensDoPorao().map(em(pastas.itensDeMesa));
 const maldicao = eventoDaMaldicao();
 const pregerados = ler("ato-i-personagens").map(semChave).map(em(pastas.pregerados));
 const diarios = [...ler("ato-i-handouts").map(semChave), diarioDoRoteiro(), diarioDaMaldicao()]
@@ -484,7 +489,7 @@ const aventura = {
     "vista dos jogadores: abra a ficha do desafio e use <em>Gerar senha</em>.</p>",
   ].join("\n"),
   actors: [...pregerados, investigacao],
-  items: [...pontos, ...desafios, ...itens, ...(maldicao ? [em(pastas.itens)(maldicao)] : [])],
+  items: [...pontos, ...desafios, ...itens, ...(maldicao ? [em(pastas.eventos)(maldicao)] : [])],
   journal: diarios,
   scenes: [cena],
   playlists: trilha,

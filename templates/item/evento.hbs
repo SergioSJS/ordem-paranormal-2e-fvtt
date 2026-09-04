@@ -23,39 +23,65 @@
 
   {{!-- As rodadas são contadas a partir do gatilho: a rodada 0 é o momento em que ele
         é puxado, seja na rodada 1 ou na 50 da cena. --}}
+  {{!-- As rodadas são contadas a partir do gatilho: a rodada 0 é o momento em que ele
+        é puxado, seja na rodada 1 ou na 50 da cena. Cada uma recolhe, e o cabeçalho
+        mostra o começo da narração — dá para ler o roteiro inteiro sem abrir nada. --}}
   <fieldset class="op2-evento-roteiro">
     <legend>{{localize "OP2.Evento.Roteiro"}}</legend>
-    <p class="op2-ajuda">{{localize "OP2.Evento.RoteiroAjuda"}}</p>
+    <div class="op2-evento-roteiro__topo">
+      <p class="op2-ajuda">{{localize "OP2.Evento.RoteiroAjuda"}}</p>
+      {{#if rodadas.length}}
+        <span class="op2-evento-roteiro__ferramentas">
+          <button type="button" class="op2-botao-icone" data-action="recolherRodadas"
+            aria-label="{{localize 'OP2.Evento.RecolherTudo'}}" data-tooltip="{{localize 'OP2.Evento.RecolherTudo'}}">
+            <i class="fa-solid fa-compress" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="op2-botao-icone" data-action="expandirRodadas"
+            aria-label="{{localize 'OP2.Evento.ExpandirTudo'}}" data-tooltip="{{localize 'OP2.Evento.ExpandirTudo'}}">
+            <i class="fa-solid fa-expand" aria-hidden="true"></i>
+          </button>
+        </span>
+      {{/if}}
+    </div>
     {{#unless rodadas.length}}
       <p class="op2-ajuda">{{localize "OP2.Evento.SemRodadas"}}</p>
     {{/unless}}
     {{#each rodadas}}
-      <div class="op2-evento-editor{{#if agora}} op2-evento-editor--proximo{{/if}}" data-rodada-linha>
-        <div class="op2-evento-editor__topo">
-          <label class="op2-campo op2-campo--inline">
-            <span>{{localize "OP2.Evento.RodadaDoEvento"}}</span>
-            <input type="number" data-rodada-campo="rodada" value="{{rodada}}" min="0" step="1"
-              {{#unless @root.editavel}}disabled{{/unless}}>
-          </label>
+      <details class="op2-evento-editor{{#if agora}} op2-evento-editor--proximo{{/if}}"
+        data-rodada-linha data-indice="{{indice}}" {{#if aberta}}open{{/if}}>
+        <summary class="op2-evento-editor__topo">
+          <span class="op2-evento-editor__marca">{{localize "OP2.Evento.RodadaCurta" rodada=rodada}}</span>
           {{#if naCena}}
-            <span class="op2-tag op2-tag--pequena">{{localize "OP2.Evento.NaCena" rodada=naCena}}</span>
+            <span class="op2-evento-editor__cena">{{localize "OP2.Evento.NaCena" rodada=naCena}}</span>
           {{/if}}
-          {{#if @root.editavel}}
-            <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="removerRodada"
-              data-indice="{{indice}}" aria-label="{{localize 'OP2.Evento.RemoverRodada'}}">
-              <i class="fa-solid fa-trash" aria-hidden="true"></i>
-            </button>
-          {{/if}}
+          <span class="op2-evento-editor__resumo">{{resumo}}</span>
+        </summary>
+
+        <div class="op2-evento-editor__corpo">
+          <div class="op2-evento-editor__campos">
+            <label class="op2-campo op2-campo--inline">
+              <span>{{localize "OP2.Evento.RodadaDoEvento"}}</span>
+              <input type="number" data-rodada-campo="rodada" value="{{rodada}}" min="0" step="1"
+                {{#unless @root.editavel}}disabled{{/unless}}>
+            </label>
+            {{#if @root.editavel}}
+              <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="removerRodada"
+                data-indice="{{indice}}" aria-label="{{localize 'OP2.Evento.RemoverRodada'}}"
+                data-tooltip="{{localize 'OP2.Evento.RemoverRodada'}}">
+                <i class="fa-solid fa-trash" aria-hidden="true"></i>
+              </button>
+            {{/if}}
+          </div>
+          <label class="op2-campo">
+            <span>{{localize "OP2.Investigacao.EventoNarracao"}}</span>
+            <textarea data-rodada-campo="narracao" rows="4" {{#unless @root.editavel}}disabled{{/unless}}>{{narracao}}</textarea>
+          </label>
+          <label class="op2-campo">
+            <span>{{localize "OP2.Investigacao.EventoEfeito"}}</span>
+            <textarea data-rodada-campo="efeito" rows="3" {{#unless @root.editavel}}disabled{{/unless}}>{{efeito}}</textarea>
+          </label>
         </div>
-        <label class="op2-campo">
-          <span>{{localize "OP2.Investigacao.EventoNarracao"}}</span>
-          <textarea data-rodada-campo="narracao" rows="3" {{#unless @root.editavel}}disabled{{/unless}}>{{narracao}}</textarea>
-        </label>
-        <label class="op2-campo">
-          <span>{{localize "OP2.Investigacao.EventoEfeito"}}</span>
-          <textarea data-rodada-campo="efeito" rows="2" {{#unless @root.editavel}}disabled{{/unless}}>{{efeito}}</textarea>
-        </label>
-      </div>
+      </details>
     {{/each}}
     {{#if editavel}}
       <button type="button" class="op2-botao op2-botao--pequeno" data-action="adicionarRodada">

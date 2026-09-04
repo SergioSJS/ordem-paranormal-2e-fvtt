@@ -168,23 +168,7 @@ export function PainelInvestigacaoMixin(Base) {
       // Os eventos com roteiro próprio (só o mestre): cada um conta as rodadas a
       // partir do gatilho, então o que importa aqui é se já foi disparado e o que vem
       // na próxima rodada DA CENA.
-      const eventos = ehGM
-        ? eventosDaInvestigacao(investigacao).map((item) => {
-          const relativa = rodadaRelativa(item.system, rodada);
-          const proxima = proximaRodadaDaCena(item.system, rodada);
-          return {
-            uuid: item.uuid,
-            nome: item.name,
-            img: item.img,
-            disparado: item.system.disparado,
-            rodadaInicial: item.system.rodadaInicial,
-            relativa: Math.max(relativa, 0),
-            totalRodadas: item.system.rodadas.length,
-            proximaDaCena: proxima,
-            proximaEhAgora: proxima === rodada,
-          };
-        })
-        : [];
+      const eventos = ehGM ? await this.#contextoEventos(investigacao, rodada) : [];
 
       const contexto = {
         ...base,
@@ -321,6 +305,47 @@ export function PainelInvestigacaoMixin(Base) {
         });
       }
       return pois;
+    }
+
+    /**
+     * Os eventos com roteiro próprio (só o mestre). O card traz o roteiro inteiro:
+     * antes só havia o nome e um lápis, e ler a maldição exigia abrir a ficha e
+     * entrar no editor (achado em uso real). Cada linha diz em que rodada DA CENA
+     * cai, o que já passou apaga e a de agora fica em destaque.
+     */
+    async #contextoEventos(investigacao, rodada) {
+      const editor = foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
+      const recolhidos = lerLista(CHAVE_RECOLHIDOS);
+
+      return Promise.all(eventosDaInvestigacao(investigacao).map(async (item) => {
+        const sistema = item.system;
+        const relativa = rodadaRelativa(sistema, rodada);
+        const proxima = proximaRodadaDaCena(sistema, rodada);
+        const enriquecer = (html) => editor.enrichHTML(html ?? "", { relativeTo: item });
+
+        return {
+          uuid: item.uuid,
+          nome: item.name,
+          img: item.img,
+          disparado: sistema.disparado,
+          rodadaInicial: sistema.rodadaInicial,
+          relativa: Math.max(relativa, 0),
+          totalRodadas: sistema.rodadas.length,
+          proximaDaCena: proxima,
+          proximaEhAgora: proxima === rodada,
+          recolhido: recolhidos.has(item.uuid),
+          gatilho: await enriquecer(sistema.gatilho),
+          descricao: await enriquecer(sistema.descricao),
+          rodadas: await Promise.all(sistema.rodadas.map(async (linha) => ({
+            rodada: linha.rodada,
+            naCena: sistema.disparado && sistema.rodadaInicial >= 0 ? sistema.rodadaInicial + linha.rodada : null,
+            agora: sistema.disparado && relativa === linha.rodada,
+            passou: sistema.disparado && relativa > linha.rodada,
+            narracao: await enriquecer(linha.narracao),
+            efeito: await enriquecer(linha.efeito),
+          }))),
+        };
+      }));
     }
 
     async #contextoDesafios(investigacao, ehGM) {

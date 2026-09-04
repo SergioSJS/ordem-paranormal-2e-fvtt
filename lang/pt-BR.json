@@ -805,7 +805,12 @@
       "Abrir": "Abrir a ficha do evento",
       "Desvincular": "Desvincular da investigação",
       "SemEventos": "Nenhum evento nesta investigação. Arraste um Evento para cá ou crie um.",
-      "PainelAjuda": "Eventos com roteiro próprio. As rodadas contam a partir do gatilho — dispare quando acontecer na mesa."
+      "PainelAjuda": "Eventos com roteiro próprio. As rodadas contam a partir do gatilho — dispare quando acontecer na mesa.",
+      "RoteiroContagem": "{total} rodadas no roteiro",
+      "LinhaVazia": "linha em branco",
+      "RodadaCurta": "Rodada {rodada}",
+      "ExpandirTudo": "Expandir todas as rodadas",
+      "RecolherTudo": "Recolher todas as rodadas"
     },
     "TYPES": {}
   }

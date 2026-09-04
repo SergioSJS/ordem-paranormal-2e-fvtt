@@ -805,7 +805,12 @@
       "Abrir": "Open the event sheet",
       "Desvincular": "Unlink from the investigation",
       "SemEventos": "No events in this investigation. Drag an Event here or create one.",
-      "PainelAjuda": "Events with their own script. Rounds count from the trigger — fire it when it happens at the table."
+      "PainelAjuda": "Events with their own script. Rounds count from the trigger — fire it when it happens at the table.",
+      "RoteiroContagem": "{total} rounds in the script",
+      "LinhaVazia": "empty line",
+      "RodadaCurta": "Round {rodada}",
+      "ExpandirTudo": "Expand every round",
+      "RecolherTudo": "Collapse every round"
     },
     "TYPES": {}
   }

@@ -52,41 +52,96 @@
       {{#unless eventos.length}}
         <p class="op2-ajuda">{{localize "OP2.Evento.SemEventos"}}</p>
       {{/unless}}
-      <ol class="op2-painel-ordem">
+      <ol class="op2-painel-eventos__lista">
         {{#each eventos}}
-          <li class="op2-painel-ordem__linha op2-evento-linha{{#if disparado}} op2-evento-linha--disparado{{/if}}">
-            <img src="{{img}}" alt="">
-            <div class="op2-acoes__identidade">
-              <span class="op2-acoes__ponto">
-                {{#if disparado}}
-                  {{localize "OP2.Evento.EmAndamento" relativa=relativa rodada=rodadaInicial}}
-                {{else}}
-                  {{localize "OP2.Evento.EstadoParado"}}
-                {{/if}}
-                {{#if proximaEhAgora}} · {{localize "OP2.Evento.CaiAgora"}}{{/if}}
+          {{!-- O mesmo card dos pontos: recolhe, expande e entra no "recolher todos".
+                O roteiro fica à vista — ler a maldição não pode exigir abrir a ficha
+                e entrar no editor (achado em uso real). --}}
+          <li class="op2-poi-card op2-evento-card{{#if recolhido}} op2-poi-card--recolhido{{/if}}{{#if disparado}} op2-evento-card--disparado{{/if}}"
+            data-poi-card="{{uuid}}" data-nome="{{nome}}">
+            <header class="op2-poi-card__topo">
+              <button type="button" class="op2-botao-icone op2-poi-card__recolher" data-action="alternarRecolhido"
+                data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.RecolherExpandir'}}"
+                data-tooltip="{{localize 'OP2.Painel.RecolherExpandir'}}">
+                <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+              </button>
+              <img src="{{img}}" alt="">
+              <strong>{{nome}}</strong>
+              <span class="op2-poi-card__resumo" data-tooltip="{{localize 'OP2.Evento.RoteiroContagem' total=totalRodadas}}">
+                {{totalRodadas}}
               </span>
-              <span>{{nome}} <span class="op2-painel-contagem">{{totalRodadas}}</span></span>
+              <span class="op2-poi-card__acoes-gm">
+                {{#if disparado}}
+                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="reiniciarEvento" data-uuid="{{uuid}}"
+                    aria-label="{{localize 'OP2.Evento.Reiniciar'}}" data-tooltip="{{localize 'OP2.Evento.Reiniciar'}}">
+                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                  </button>
+                {{else}}
+                  <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="dispararEvento"
+                    data-uuid="{{uuid}}" data-tooltip="{{localize 'OP2.Evento.DispararAjuda'}}">
+                    <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+                    <span class="op2-acoes__rotulo">{{localize "OP2.Evento.Disparar"}}</span>
+                  </button>
+                {{/if}}
+                <button type="button" class="op2-botao op2-botao--pequeno" data-action="abrirEvento" data-uuid="{{uuid}}"
+                  aria-label="{{localize 'OP2.Evento.Abrir'}}" data-tooltip="{{localize 'OP2.Evento.Abrir'}}">
+                  <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="desvincularEvento"
+                  data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Evento.Desvincular'}}"
+                  data-tooltip="{{localize 'OP2.Evento.Desvincular'}}">
+                  <i class="fa-solid fa-link-slash" aria-hidden="true"></i>
+                </button>
+              </span>
+
+              {{!-- Estado na própria linha: espremido ao lado do nome, o título
+                    quebrava em duas linhas (achado na revisão visual). --}}
+              <span class="op2-evento-card__estado">
+                <span class="op2-evento-card__chip{{#if disparado}} op2-evento-card__chip--disparado{{/if}}">
+                  {{#if disparado}}
+                    {{localize "OP2.Evento.EmAndamento" relativa=relativa rodada=rodadaInicial}}
+                  {{else}}
+                    {{localize "OP2.Evento.EstadoParado"}}
+                  {{/if}}
+                </span>
+                {{#if proximaEhAgora}}
+                  <span class="op2-tag op2-tag--pequena">{{localize "OP2.Evento.CaiAgora"}}</span>
+                {{/if}}
+              </span>
+            </header>
+
+            <div class="op2-poi-card__corpo">
+              {{#if gatilho}}
+                <div class="op2-evento-card__gatilho">
+                  <span class="op2-acoes__subtitulo">{{localize "OP2.Evento.Gatilho"}}</span>
+                  {{{gatilho}}}
+                </div>
+              {{/if}}
+              {{#if descricao}}<div class="op2-evento-card__descricao">{{{descricao}}}</div>{{/if}}
+
+              {{#unless rodadas.length}}
+                <p class="op2-ajuda">{{localize "OP2.Evento.SemRodadas"}}</p>
+              {{/unless}}
+              <ol class="op2-evento-card__roteiro">
+                {{#each rodadas}}
+                  <li class="op2-evento-card__linha{{#if agora}} op2-evento-card__linha--agora{{/if}}{{#if passou}} op2-evento-card__linha--passou{{/if}}">
+                    <span class="op2-evento-card__rodada" data-tooltip="{{localize 'OP2.Evento.RodadaDoEventoCurta' rodada=rodada}}">{{rodada}}</span>
+                    <div class="op2-evento-card__texto">
+                      {{#if naCena}}
+                        <span class="op2-evento-card__na-cena">{{localize "OP2.Evento.NaCena" rodada=naCena}}</span>
+                      {{/if}}
+                      {{{narracao}}}
+                      {{#if efeito}}
+                        <div class="op2-evento-card__efeito">
+                          <span class="op2-acoes__subtitulo">{{localize "OP2.Investigacao.EventoEfeito"}}</span>
+                          {{{efeito}}}
+                        </div>
+                      {{/if}}
+                    </div>
+                  </li>
+                {{/each}}
+              </ol>
             </div>
-            {{#if disparado}}
-              <button type="button" class="op2-botao op2-botao--pequeno" data-action="reiniciarEvento" data-uuid="{{uuid}}"
-                data-tooltip="{{localize 'OP2.Evento.Reiniciar'}}">
-                <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
-              </button>
-            {{else}}
-              <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-action="dispararEvento"
-                data-uuid="{{uuid}}" data-tooltip="{{localize 'OP2.Evento.DispararAjuda'}}">
-                <i class="fa-solid fa-bolt" aria-hidden="true"></i>
-                <span class="op2-acoes__rotulo">{{localize "OP2.Evento.Disparar"}}</span>
-              </button>
-            {{/if}}
-            <button type="button" class="op2-botao-icone" data-action="abrirEvento" data-uuid="{{uuid}}"
-              aria-label="{{localize 'OP2.Evento.Abrir'}}" data-tooltip="{{localize 'OP2.Evento.Abrir'}}">
-              <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
-            </button>
-            <button type="button" class="op2-botao-icone" data-action="desvincularEvento" data-uuid="{{uuid}}"
-              aria-label="{{localize 'OP2.Evento.Desvincular'}}">
-              <i class="fa-solid fa-link-slash" aria-hidden="true"></i>
-            </button>
           </li>
         {{/each}}
       </ol>
