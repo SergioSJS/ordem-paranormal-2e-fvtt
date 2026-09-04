@@ -25,7 +25,8 @@
  */
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { ident, semAcento, tituloLegivel, pasta, em, escapar, html, iconeDoPonto } from "../aventura/comum.mjs";
+import { ident, semAcento, tituloLegivel, pasta, em, escapar, html, iconeDoPonto, eventoDaMaldicao }
+  from "../aventura/comum.mjs";
 
 const FONTES = "packs/sources";
 const DESTINO = join(FONTES, "ato-ii-aventura", "ato-ii.json");
@@ -119,6 +120,7 @@ pastas.agentes = pasta("Actor", "Agentes", pastas.atores._id, 100);
 pastas.pontos = pasta("Item", "Pontos de Interesse", pastas.itens._id, 100);
 pastas.desafios = pasta("Item", "Desafios de Acesso", pastas.itens._id, 200);
 pastas.ferramentas = pasta("Item", "Ferramentas da Ordem", pastas.itens._id, 300);
+pastas.eventos = pasta("Item", "Eventos", pastas.itens._id, 400);
 
 /* --------------------------------------------------------------------- trilha -- */
 
@@ -483,6 +485,22 @@ function diarioDaMaldicao() {
   };
 }
 
+/**
+ * A maldição como evento do Ato II. Aqui ela nasce parada: os agentes não fizeram o
+ * ritual, e só atraem a manifestação se danificarem o Ídolo (p. 87). O mestre dispara
+ * no painel na hora em que isso acontecer, e a rodada de então vira a rodada 0.
+ */
+function maldicaoDoAtoII() {
+  if (!existsSync(ATO_I_MALDICAO)) return null;
+  const aviso = (dados.caixaMaldicao ?? []).map((t) => `<p>${escapar(t)}</p>`).join("");
+  return eventoDaMaldicao({
+    id: "evento-ato-ii-maldicao",
+    gatilho: `${aviso}<p><strong>Dispare quando o Ídolo for danificado ou destruído</strong>: a`
+      + " rodada de agora vira a rodada 0 do evento.</p>",
+    dados: lerJson(ATO_I_MALDICAO),
+  });
+}
+
 /* --------------------------------------------------------------------- montagem -- */
 
 const pontosOrdenados = [...dados.pontos].sort((a, b) => a.numero - b.numero);
@@ -497,6 +515,7 @@ const cena = em(pastas.cenas)(cenaFonte);
 const diarios = [diarioDoRoteiro(), diarioDasMecanicas(), diarioDeHandouts(), diarioDosAgentes(), diarioDaMaldicao()]
   .filter(Boolean).map(em(pastas.diarios));
 const trilha = em(pastas.trilhas)(playlist);
+const maldicao = maldicaoDoAtoII();
 
 const investigacao = {
   _id: ident("investigacao-ato-ii"),
@@ -514,9 +533,9 @@ const investigacao = {
     // "Este Ato II introduz uma importante regra: a sobrecarga mental" (p. 77) — a
     // progressão do porão é a tabela padrão do sistema (spec §7.6).
     sobrecarga: { ativa: true },
-    // Os agentes não estão amaldiçoados: a Dívida só volta se quebrarem o Ídolo (p. 87),
-    // e aí o mestre segue o diário da maldição.
-    eventos: [],
+    // Os agentes não estão amaldiçoados: a Dívida só volta se quebrarem o Ídolo (p. 87).
+    // O evento fica vinculado e parado; quem dispara é o mestre, no painel.
+    eventos: maldicao ? [`Item.${maldicao._id}`] : [],
   },
   effects: [], folder: pastas.atores._id, sort: 0, ownership: { default: 0 }, flags: {},
 };
@@ -545,7 +564,7 @@ const aventura = {
     "pasta do sistema.</p>",
   ].join("\n"),
   actors: [...agentes, investigacao],
-  items: [...pontos, ...desafios, ...ferramentas],
+  items: [...pontos, ...desafios, ...ferramentas, ...(maldicao ? [em(pastas.eventos)(maldicao)] : [])],
   journal: diarios,
   scenes: [cena],
   playlists: [trilha],
@@ -562,7 +581,7 @@ mkdirSync(join(FONTES, "ato-ii-aventura"), { recursive: true });
 writeFileSync(DESTINO, `${JSON.stringify(aventura, null, 2)}\n`);
 console.log(`${aventura.name} → ${DESTINO}`);
 console.log(`  atores ${aventura.actors.length} (${agentes.length} agentes + investigação)`);
-console.log(`  itens ${aventura.items.length} (${pontos.length} pontos, ${desafios.length} desafios, ${ferramentas.length} ferramentas)`);
+console.log(`  itens ${aventura.items.length} (${pontos.length} pontos, ${desafios.length} desafios, ${ferramentas.length} ferramentas${maldicao ? ", 1 evento" : ""})`);
 console.log(`  linhas de quadro ${linhasDeQuadro}, leituras de ferramenta ${leituras}`);
 console.log(`  cenas ${aventura.scenes.length}, diários ${aventura.journal.length}, trilhas ${aventura.playlists.length}, pastas ${aventura.folders.length}`);
 console.log(`  extras esperados do zip: ${EXTRAS.length}`);

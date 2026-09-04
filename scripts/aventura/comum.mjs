@@ -113,3 +113,41 @@ export function iconeDoPonto(nome, { handouts = [], padrao }) {
   const regra = ICONE_POR_PALAVRA.find(([re]) => re.test(chave));
   return regra ? regra[1] : padrao;
 }
+
+/**
+ * A maldição do Ídolo como Item `evento`: o gatilho e a tabela de rodadas do livro.
+ *
+ * Os dois atos usam a mesma tabela (`build/ato-i-maldicao.json`) e mudam só o
+ * gatilho — no Ato I o grupo já está amaldiçoado e basta observar o Ídolo; no Ato II
+ * os agentes só atraem a manifestação se quebrarem a estatueta (p. 87). Um `_id` por
+ * ato, para os dois poderem conviver no mesmo mundo.
+ */
+export function eventoDaMaldicao({ id, gatilho, dados }) {
+  const { regras, eventos } = dados ?? {};
+  if (!eventos?.length) return null;
+
+  return {
+    _id: ident(id),
+    name: "A Maldição do Ídolo de Pedra",
+    type: "evento",
+    img: "icons/svg/clockwork.svg",
+    system: {
+      gatilho,
+      descricao: (regras?.caixas ?? []).map((c) => `<p><strong>${c.titulo}:</strong> ${c.texto}</p>`).join(""),
+      rodadas: eventos.map((e) => ({
+        rodada: e.rodada,
+        // A rodada 0 é a ativação: a narração e o teste de Disciplina vêm do texto que
+        // antecede a tabela no livro, não da célula (que está vazia).
+        narracao: e.rodada === 0
+          ? (regras?.narracao ? `<p>${regras.narracao}</p>` : "")
+          : (e.narracao ? `<p>${e.narracao}</p>` : ""),
+        efeito: e.rodada === 0
+          ? (regras?.ativacao ? `<p>${regras.ativacao}</p>` : "")
+          : (e.efeito ? `<p>${e.efeito}</p>` : ""),
+      })),
+      disparado: false,
+      rodadaInicial: -1,
+    },
+    effects: [], folder: null, sort: 0, ownership: { default: 0 }, flags: {},
+  };
+}

@@ -18,7 +18,8 @@
  */
 import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { ident, semAcento, palavras, afinidade, arquivoPublico, tituloLegivel, pasta, em, iconeDoPonto } from "../aventura/comum.mjs";
+import { ident, semAcento, palavras, afinidade, arquivoPublico, tituloLegivel, pasta, em, iconeDoPonto, eventoDaMaldicao }
+  from "../aventura/comum.mjs";
 
 const FONTES = "packs/sources";
 const DESTINO = join(FONTES, "ato-i-aventura", "ato-i.json");
@@ -349,36 +350,14 @@ function diarioDoRoteiro() {
  * da cena. No livro ela só começa quando o grupo observa o Ídolo de Pedra — pode ser na
  * rodada 1 ou na 20 (achado em uso real).
  */
-function eventoDaMaldicao() {
+function maldicaoDoAtoI() {
   if (!existsSync(MALDICAO)) return null;
-  const { regras, eventos } = JSON.parse(readFileSync(MALDICAO, "utf8"));
-  if (!eventos?.length) return null;
-
-  return {
-    _id: ident("evento-ato-i-maldicao"),
-    name: "A Maldição do Ídolo de Pedra",
-    type: "evento",
-    img: "icons/svg/clockwork.svg",
-    system: {
-      gatilho: "<p>Quando o grupo <strong>observar o Ídolo de Pedra</strong>. Nesse momento, leia a"
-        + " narração da rodada 0 e dispare o evento: a rodada de agora vira a rodada 0 dele.</p>",
-      descricao: (regras?.caixas ?? []).map((c) => `<p><strong>${c.titulo}:</strong> ${c.texto}</p>`).join(""),
-      rodadas: eventos.map((e) => ({
-        rodada: e.rodada,
-        // A rodada 0 é a ativação: a narração e o teste de Disciplina vêm do texto que
-        // antecede a tabela no livro, não da célula (que está vazia).
-        narracao: e.rodada === 0
-          ? (regras?.narracao ? `<p>${regras.narracao}</p>` : "")
-          : (e.narracao ? `<p>${e.narracao}</p>` : ""),
-        efeito: e.rodada === 0
-          ? (regras?.ativacao ? `<p>${regras.ativacao}</p>` : "")
-          : (e.efeito ? `<p>${e.efeito}</p>` : ""),
-      })),
-      disparado: false,
-      rodadaInicial: -1,
-    },
-    effects: [], folder: null, sort: 0, ownership: { default: 0 }, flags: {},
-  };
+  return eventoDaMaldicao({
+    id: "evento-ato-i-maldicao",
+    gatilho: "<p>Quando o grupo <strong>observar o Ídolo de Pedra</strong>. Nesse momento, leia a"
+      + " narração da rodada 0 e dispare o evento: a rodada de agora vira a rodada 0 dele.</p>",
+    dados: JSON.parse(readFileSync(MALDICAO, "utf8")),
+  });
 }
 
 /** As regras da maldição que não cabem em campo nenhum: um diário só do mestre. */
@@ -435,7 +414,7 @@ function enigmaDaEstante() {
 const pontos = pontosDoPorao().map(em(pastas.pontos));
 const desafios = pontosBrutos().map(desafioDoPonto).filter(Boolean).map(em(pastas.desafios));
 const itens = itensDoPorao().map(em(pastas.itensDeMesa));
-const maldicao = eventoDaMaldicao();
+const maldicao = maldicaoDoAtoI();
 const pregerados = ler("ato-i-personagens").map(semChave).map(em(pastas.pregerados));
 const diarios = [...ler("ato-i-handouts").map(semChave), diarioDoRoteiro(), diarioDaMaldicao()]
   .filter(Boolean).map(em(pastas.diarios));

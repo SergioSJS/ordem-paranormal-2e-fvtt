@@ -273,8 +273,8 @@ como playlist, as dez ferramentas prontas para arrastar, os **25 pontos de inter
 com as **63 linhas de quadro** e o **setor de ferramentas** de cada um (44 leituras,
 conferidas contra a tabela *Locais de uso de cada ferramenta* do livro), os três
 desafios de acesso, o roteiro do ato com as instruções de mestre de cada ferramenta,
-as regras da maldição para o caso de quebrarem o Ídolo, e a investigação com tudo
-vinculado.
+a maldição como evento já vinculado — parado, porque no Ato II o gatilho é danificar o
+Ídolo (p. 87) —, e a investigação com tudo vinculado.
 
 ### As artes vêm do seu zip
 

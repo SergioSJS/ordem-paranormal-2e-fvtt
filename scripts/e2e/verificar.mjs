@@ -2917,6 +2917,26 @@ const relato = await page.evaluate(async () => {
       r.investigacao = inv.system.pois.length === 25 && inv.system.desafios.length === 3
         && inv.system.participantes.length === 5 && alvos.every((d) => d && !d.pack) && inv.system.sobrecarga.ativa === true;
 
+      // A maldição também vale no Ato II, mas só se quebrarem o Ídolo (p. 87): o evento
+      // vem vinculado e PARADO, para o mestre disparar na hora em que isso acontecer.
+      // Pelo uuid da investigação, não pelo nome: a maldição do Ato I pode estar no
+      // mesmo mundo, com o mesmo nome e o gatilho dela.
+      const maldicaoII = await fromUuid(inv.system.eventos[0] ?? "");
+      r.eventoAtoII = Boolean(maldicaoII) && maldicaoII.type === "evento"
+        && maldicaoII.system.disparado === false
+        && maldicaoII.system.rodadas.length === 6
+        && /danificarem ou destruírem/i.test(maldicaoII.system.gatilho);
+      r.eventoAtoIIDetalhe = maldicaoII
+        ? `${maldicaoII.name}, disparado=${maldicaoII.system.disparado}, ${maldicaoII.system.rodadas.length} rodadas`
+        : `nenhum evento em ${JSON.stringify(inv.system.eventos)}`;
+
+      // Nada solto na raiz do diretório de itens, como no Ato I.
+      const raizItensII = game.folders.find((f) => f.type === "Item" && f.name === "Ato II — O Porão");
+      r.pastasAtoII = Boolean(raizItensII)
+        && game.folders.filter((f) => f.folder?.id === raizItensII.id).map((f) => f.name).sort().join("|")
+          === "Desafios de Acesso|Eventos|Ferramentas da Ordem|Pontos de Interesse"
+        && game.items.filter((i) => i.folder?.id === raizItensII.id).length === 0;
+
       // O laser com a lista explícita do livro: dez pontos, e não "quem reage a algo".
       const agente = await Actor.create({ name: "Agente do Laser", type: "personagem", system: { tipo: "agente" } });
       await agente.createEmbeddedDocuments("Item", ["Laser de Varredura", "Rádio Modificado"]
@@ -2970,6 +2990,8 @@ const relato = await page.evaluate(async () => {
     relato.passos.push([mundo.arquivosNoMundo, "os dez tokens estão na pasta do mundo"]);
     relato.passos.push([mundo.servidos, "mapa, token, áudio, PDF e handout são servidos pelo Foundry"]);
     relato.passos.push([mundo.investigacao, "a investigação do Ato II resolve 25 pontos, 3 desafios e 5 agentes no mundo"]);
+    relato.passos.push([mundo.eventoAtoII, `a maldição vem no Ato II como evento parado, com o gatilho de quebrar o Ídolo (${mundo.eventoAtoIIDetalhe})`]);
+    relato.passos.push([mundo.pastasAtoII, "os itens do Ato II ficam em pastas por tipo, nada solto na raiz"]);
     relato.passos.push([mundo.laser, "o laser marca exatamente os dez pontos da lista do livro"]);
     relato.passos.push([mundo.radio, "o rádio do Depósito B joga em blocos, como o livro"]);
     relato.passos.push([mundo.painel, "o painel do mestre lista os 25 pontos e os 3 desafios do Ato II"]);

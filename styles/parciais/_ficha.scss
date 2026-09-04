@@ -772,16 +772,46 @@
   font-size: 0.78rem;
 }
 
-// O editor de texto rico (ProseMirror) vem com uma altura mínima grande por padrão
-// do core — sobrava bastante caixa vazia em descrições curtas de habilidade. E sem
-// fundo/borda própria ele se mistura com o preto da janela: a caixa de 6rem vira
-// espaço morto em vez de se ler como um campo de texto (achado em uso real).
+// O editor de texto rico (ProseMirror) vem sem fundo nem borda próprios e se mistura
+// com o preto da janela: a caixa vira espaço morto em vez de se ler como um campo de
+// texto (achado em uso real).
 .op2-item-ficha prose-mirror {
   min-height: 6rem;
   padding: 0.4rem 0.5rem;
   border: 1px solid var(--op2-linha);
   border-radius: var(--op2-raio);
   background: color-mix(in srgb, var(--op2-fundo) 70%, transparent);
+}
+
+// O ProseMirror é um flex column cujo miolo (`.editor-content` na leitura,
+// `.editor-container` na edição) rola sozinho. Filho de flex com rolagem própria tem
+// altura mínima zero, então a caixa inteira encolhia até o `min-height` do container
+// e escondia o resto: em leitura, 116px de texto numa caixa de 78, com a barra de
+// rolagem invisível; em edição, sobrava a barra de ferramentas e 15px de área de
+// digitar — não dava para ver o que se estava escrevendo (medido nas duas fichas).
+.op2 prose-mirror {
+  height: auto;
+
+  // Leitura: o texto todo à mostra. Quem rola é a ficha. O core põe o miolo em
+  // `position: absolute; inset: 0`, então ele não conta na altura e a caixa fica do
+  // tamanho do `min-height` — o resto do texto some (medido: 108px de texto numa
+  // caixa de 78, rolando por dentro, sem barra visível).
+  &.inactive .editor-content {
+    position: static;
+    overflow: visible;
+    flex: 0 0 auto;
+  }
+
+  // Edição: barra de ferramentas mais uma área de digitar de verdade.
+  &.active {
+    min-height: 14rem;
+
+    .editor-container {
+      overflow: auto;
+      min-height: 9rem;
+      max-height: 24rem;
+    }
+  }
 }
 
 }

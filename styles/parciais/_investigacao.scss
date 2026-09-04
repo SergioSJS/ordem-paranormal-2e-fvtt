@@ -1154,8 +1154,9 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   }
 
   // Gatilho e descrição são uma ou duas frases: a caixa de 6rem da ficha de item
-  // empurrava o roteiro inteiro para fora da janela.
-  .op2-item-ficha prose-mirror { min-height: 3.5rem; }
+  // empurrava o roteiro inteiro para fora da janela. Em edição a regra base devolve
+  // a altura de digitar.
+  .op2-item-ficha prose-mirror.inactive { min-height: 3.5rem; }
 }
 
 .op2-evento-roteiro__topo {

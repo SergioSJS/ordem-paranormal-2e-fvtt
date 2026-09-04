@@ -22,7 +22,8 @@ pré-gerados, handouts, 31 pontos com 86 linhas de quadro, 10 desafios, itens de
 roteiro e maldição rodada a rodada. Ato II (`Ato II — O Porão`): cena com as paredes
 transportadas, os cinco agentes, handouts e Compêndio em PDF, áudios EMF, as dez
 ferramentas, 25 pontos com 63 linhas e o setor de ferramentas (44 leituras), 3
-desafios, roteiro e mecânicas de mestre. **As artes do Ato II não entram no sistema:**
+desafios, roteiro, mecânicas de mestre e a maldição como evento parado (o gatilho ali
+é quebrar o Ídolo, p. 87). **As artes do Ato II não entram no sistema:**
 o importador (`module/ui/extras-aventura.mjs`) pede o zip da editora e sobe para
 `worlds/<mundo>/ato-ii/`. Pronto para a rodada de teste manual que fecha a v1.
 **Versão:** 0.0.1 (a v1 é decisão de release).
