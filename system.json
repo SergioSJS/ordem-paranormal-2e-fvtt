@@ -1,7 +1,7 @@
 {
   "id": "ordem-paranormal-2e",
   "title": "Ordem Paranormal 2 — Playtest (Não-Oficial)",
-  "description": "Sistema não-oficial para Foundry VTT do playtest alpha de Ordem Paranormal RPG 2. Dados em escada (d4→d12), testes com Rolagem Alta/Baixa, cenas de investigação e ferramentas da Ordo Realitas. Feito por fã, sem afiliação com os detentores dos direitos de Ordem Paranormal RPG. Não distribui textos, artes ou conteúdo protegido do jogo.",
+  "description": "Sistema não-oficial para Foundry VTT do playtest alpha de Ordem Paranormal RPG 2. Dados em escada (d4→d12), testes com Rolagem Alta/Baixa, cenas de investigação e ferramentas da Ordo Realitas. Traz a aventura do Ato I montada — cena, pré-gerados, handouts, 31 pontos de interesse, 10 desafios e o roteiro — a partir do material do playtest publicado pela editora. Feito por fã, sem afiliação com os detentores dos direitos de Ordem Paranormal RPG; o conteúdo do livro pertence a eles.",
   "version": "0.0.1",
   "socket": true,
   "compatibility": {

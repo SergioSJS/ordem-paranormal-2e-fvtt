@@ -369,15 +369,15 @@ Cole o manifesto no instalador de sistemas do Foundry:
 https://github.com/SergioSJS/ordem-paranormal-2e-fvtt/releases/latest/download/system.json
 ```
 
-Instalou, criou o mundo, jogou: o sistema não pede mais nada. Vêm com ele as regras
-(habilidades, ocupações, ferramentas), os cinco pré-gerados, a cena do porão, os
-handouts e a trilha do Ato I.
+Instalou, criou o mundo, jogou: **o Ato I vem inteiro e pronto**. Importe a aventura
+`Ato I — O Porão` e o mundo recebe a cena com as paredes, os cinco pré-gerados, os
+handouts e a trilha, os **31 pontos de interesse** com as 86 linhas de quadro, os **10
+desafios de acesso**, os itens de mesa, o roteiro do ato, a maldição como evento e a
+investigação com tudo vinculado. Nenhum comando, nenhum arquivo para providenciar.
 
-**As duas aventuras montadas — os pontos de interesse, o quadro de informações, os
-desafios e o roteiro — não vêm no pacote.** Esse texto é da editora, e o sistema não
-redistribui conteúdo do livro. Quem tem o PDF do playtest monta os compêndios na
-própria máquina, e isso hoje passa pelos scripts do repositório: veja
-[Gerar as aventuras a partir do seu PDF](#gerar-as-aventuras-a-partir-do-seu-pdf).
+O **Ato II** é outra história: as artes dele são exclusivas de assinante, e o texto sai
+do PDF que só quem assina tem. Quem tem o material monta o ato na própria máquina —
+veja [Gerar o Ato II a partir do seu PDF](#gerar-o-ato-ii-a-partir-do-seu-pdf).
 
 ## Desenvolvimento
 
@@ -408,22 +408,22 @@ hooks depreciados, CSS aplicado, texto cortado. O passo a passo está em
 Os prints deste README são gerados por `node scripts/e2e/capturar.mjs`, contra o mesmo
 Foundry descartável — nenhuma tela aqui é mockup.
 
-### Gerar as aventuras a partir do seu PDF
+### Gerar o Ato II a partir do seu PDF
 
-Isto **não faz parte da instalação** — só interessa a quem tem o PDF do playtest e quer
-os dois atos prontos no Foundry. Ponha o PDF em `docs/`, com Node 22+ e Python 3 na
+Isto **não faz parte da instalação** — o Ato I já vem montado. Só interessa a quem
+assina e quer o Ato II no Foundry. Ponha o PDF em `docs/`, com Node 22+ e Python 3 na
 máquina:
 
 ```bash
 npm install
-npm run ato-i:extrair  && npm run ato-i:gerar-aventura
 npm run ato-ii:extrair && npm run ato-ii:gerar-aventura
 npm run pack:build          # compila os compêndios
 npm run setup               # symlink para a pasta de sistemas do Foundry
 ```
 
-O extrator lê o texto do seu PDF e escreve em `packs/sources/`, que o `.gitignore`
-mantém fora do repositório. Nada do livro sai da sua máquina.
+O extrator lê o texto do seu PDF e escreve em `packs/sources/ato-ii-aventura/`, que o
+`.gitignore` mantém fora do repositório. As artes continuam vindo do zip da editora,
+pedido na hora de importar a aventura.
 
 Detalhes do loop local, teste em duas versões do Foundry e convenções: [CLAUDE.md](CLAUDE.md).
 

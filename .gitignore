@@ -7,9 +7,9 @@ docs/*.pdf
 docs/Arquivos para o público - Ato I/
 docs/Ordem-2-Playtest-Alpha-Ato-II-Extras/
 
-# A aventura é gerada do PDF (npm run ato-i:extrair && npm run ato-i:gerar-aventura):
-# o texto dos pontos de interesse é da editora, como o PDF e as artes.
-packs/sources/ato-i-aventura/
+# O Ato I vai montado no pacote: quem instala joga sem rodar nada. A aventura é
+# gerada do PDF (npm run ato-i:extrair && npm run ato-i:gerar-aventura) e, por decisão
+# do projeto, versionada. O Ato II continua fora — as artes dele são de assinante.
 packs/sources/ato-ii-aventura/
 build/
 

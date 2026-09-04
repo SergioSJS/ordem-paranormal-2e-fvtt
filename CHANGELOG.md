@@ -29,9 +29,10 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Notas
 
-- As aventuras dos atos I e II **não vêm no pacote publicado**: o texto é da editora.
-  Instalar e jogar não pede passo nenhum a mais; quem tem o PDF do playtest e quer os
-  atos montados gera os compêndios na própria máquina, pelos scripts do repositório
-  (README, "Gerar as aventuras a partir do seu PDF").
+- **O Ato I vem montado no pacote**: instalar, importar a aventura e jogar, sem passo
+  nenhum a mais. O conteúdo do ato vem do material de playtest publicado pela editora.
+- O **Ato II** não vem: as artes são exclusivas de assinante e o texto sai do PDF que
+  só quem assina tem. Quem tem o material monta o ato na própria máquina, pelos
+  scripts do repositório (README, "Gerar o Ato II a partir do seu PDF").
 - Sistema não-oficial, feito por fã, sem afiliação com os detentores dos direitos de
   Ordem Paranormal RPG.
