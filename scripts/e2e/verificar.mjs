@@ -2992,9 +2992,22 @@ const relato = await page.evaluate(async () => {
       await esperar(800);
       const cardDeposito = painel.element.querySelector(`[data-poi-card="${deposito.uuid}"]`);
       const cardPorta = painel.element.querySelector(`[data-poi-card="${portaZ.uuid}"]`);
+      const fichaPorta = cardDeposito?.querySelector(`.op2-poi-card__desafio[data-action="irParaCard"][data-uuid="${portaZ.uuid}"]`);
       ok("o card do ponto mostra o desafio dele, e o card do desafio diz o ponto",
-        Boolean(cardDeposito?.querySelector(`.op2-poi-card__desafio[data-desafio-uuid="${portaZ.uuid}"]`))
-        && (cardPorta?.textContent ?? "").includes("Depósito Z"));
+        Boolean(fichaPorta) && (cardPorta?.textContent ?? "").includes("Depósito Z")
+        && Boolean(cardPorta?.querySelector(`[data-action="irParaCard"][data-aba="pontos"][data-uuid="${deposito.uuid}"]`)));
+      // Clicar na ficha do desafio no card do ponto troca de aba, expande o card e o destaca.
+      painel.changeTab("pontos", "principal");
+      localStorage.setItem("op2.painel.recolhidos", JSON.stringify([portaZ.uuid]));
+      cardPorta?.classList.add("op2-poi-card--recolhido");
+      fichaPorta?.click();
+      await esperar(300);
+      ok("clicar no desafio do ponto vai para a aba Desafios, expande o card e o destaca",
+        painel.tabGroups.principal === "desafios"
+        && painel.element.querySelector(".op2-painel-aba[data-tab='desafios']")?.classList.contains("active")
+        && !cardPorta?.classList.contains("op2-poi-card--recolhido") && cardPorta?.classList.contains("op2-poi-card--foco")
+        && !(JSON.parse(localStorage.getItem("op2.painel.recolhidos") ?? "[]")).includes(portaZ.uuid));
+      painel.changeTab("pontos", "principal");
       const acoes = game.op2.acoesInvestigacao(ator);
       await esperar(800);
       const blocoPonto = [...acoes.element.querySelectorAll(".op2-acoes__alvo")].find((el) => el.textContent.includes("Depósito Z"));

@@ -443,7 +443,8 @@
       "ProximoEventoTag": "Next",
       "OcultoTag": "Hidden",
       "DesafiosDoPonto": "Challenges",
-      "EmPonto": "Challenge of {poi}"
+      "EmPonto": "Challenge of {poi}",
+      "IrParaDesafio": "Go to the challenge on the Challenges tab"
     },
     "Rodada": {
       "Titulo": "Round {rodada}",

@@ -77,6 +77,7 @@ export function PainelInvestigacaoMixin(Base) {
         alternarNotasMestre: PainelInvestigacaoComum.#alternarNotasMestre,
         recolherTodos: PainelInvestigacaoComum.#recolherTodos,
         expandirTodos: PainelInvestigacaoComum.#expandirTodos,
+        irParaCard: PainelInvestigacaoComum.#irParaCard,
       },
     };
 
@@ -331,6 +332,7 @@ export function PainelInvestigacaoMixin(Base) {
           img: desafio.img,
           // O ponto a que pertence, se algum ponto da investigação o lista.
           poiNome: pontoDoDesafio(investigacao, desafio.uuid)?.name ?? "",
+          poiUuid: pontoDoDesafio(investigacao, desafio.uuid)?.uuid ?? "",
           oculto: ocultos.includes(desafio.uuid),
           recolhido: recolhidos.has(desafio.uuid),
           notasAbertas: notas.has(desafio.uuid),
@@ -510,6 +512,30 @@ export function PainelInvestigacaoMixin(Base) {
       const cards = [...this.element.querySelectorAll("[data-poi-card]")];
       gravarLista(CHAVE_RECOLHIDOS, new Set([...lerLista(CHAVE_RECOLHIDOS), ...cards.map((c) => c.dataset.poiCard)]));
       for (const card of cards) card.classList.add("op2-poi-card--recolhido");
+    }
+
+    /**
+     * Do card do ponto ao card do desafio dele (e vice-versa): troca de aba, expande o
+     * card e leva até ele com um destaque — em vez de abrir a ficha (achado em uso
+     * real: "seria possível mudar para a aba de desafios e dar foco no desafio?").
+     */
+    static #irParaCard(_evento, alvo) {
+      const { aba, uuid } = alvo.dataset;
+      if (aba && this.tabGroups.principal !== aba) this.changeTab(aba, "principal");
+      const card = this.element.querySelector(`[data-poi-card="${uuid}"]`);
+      if (!card) return;
+      if (card.classList.contains("op2-poi-card--recolhido")) {
+        const recolhidos = lerLista(CHAVE_RECOLHIDOS);
+        recolhidos.delete(uuid);
+        gravarLista(CHAVE_RECOLHIDOS, recolhidos);
+        card.classList.remove("op2-poi-card--recolhido");
+      }
+      card.hidden = false;
+      card.scrollIntoView({ block: "center", behavior: "smooth" });
+      card.classList.remove("op2-poi-card--foco");
+      void card.offsetWidth; // reinicia a animação se o card já estava em foco
+      card.classList.add("op2-poi-card--foco");
+      setTimeout(() => card.classList.remove("op2-poi-card--foco"), 2500);
     }
 
     static #expandirTodos() {

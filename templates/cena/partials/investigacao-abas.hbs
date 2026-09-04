@@ -209,7 +209,8 @@
               <span class="op2-acoes__subtitulo">{{localize "OP2.Painel.DesafiosDoPonto"}}</span>
               {{#each desafios}}
                 <button type="button" class="op2-poi-card__desafio{{#if resolvido}} op2-poi-card__desafio--resolvido{{/if}}"
-                  data-action="abrirDesafio" data-desafio-uuid="{{uuid}}" {{#unless @root.ehGM}}disabled{{/unless}}>
+                  data-action="irParaCard" data-aba="desafios" data-uuid="{{uuid}}"
+                  data-tooltip="{{localize 'OP2.Painel.IrParaDesafio'}}">
                   <img src="{{img}}" alt=""> <span>{{nome}}</span>
                   {{#each abordagens}}<span class="op2-tag op2-tag--pequena">{{this}}</span>{{/each}}
                   {{#if resolvido}}<span class="op2-tag op2-tag--pequena op2-tag--ok">{{localize "OP2.Desafio.Resolvido"}}</span>{{/if}}
@@ -291,7 +292,13 @@
           </button>
           <img src="{{img}}" alt="">
           <strong>{{nome}}</strong>
-          {{#if poiNome}}<span class="op2-tag op2-tag--pequena op2-tag--tinta" data-tooltip="{{localize 'OP2.Painel.EmPonto' poi=poiNome}}">{{poiNome}}</span>{{/if}}
+          {{#if poiNome}}
+            <button type="button" class="op2-tag op2-tag--pequena op2-tag--tinta op2-poi-card__ponto"
+              data-action="irParaCard" data-aba="pontos" data-uuid="{{poiUuid}}"
+              data-tooltip="{{localize 'OP2.Painel.EmPonto' poi=poiNome}}">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{poiNome}}
+            </button>
+          {{/if}}
           {{#if oculto}}<span class="op2-tag op2-tag--pequena op2-poi-card__oculto-tag">{{localize "OP2.Painel.OcultoTag"}}</span>{{/if}}
           <span class="op2-poi-card__tags">
             {{#each abordagens}}<span class="op2-tag op2-tag--pequena">{{this}}</span>{{/each}}

@@ -1166,3 +1166,26 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
 
 // Na ficha do ponto: a lista dos desafios dele, alvo do arrastar-e-soltar.
 .op2-poi__desafios .op2-painel-ordem__linha > .op2-botao-icone:first-of-type { margin-left: auto; }
+
+// Chegar a um card vindo de outro (ponto → desafio, desafio → ponto): pisca a borda.
+.op2-poi-card--foco {
+  animation: op2-foco-card 2.5s ease-out;
+}
+
+@keyframes op2-foco-card {
+  0%, 60% { box-shadow: 0 0 0 2px var(--op2-vermelho-claro); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .op2-poi-card--foco { animation: none; box-shadow: 0 0 0 2px var(--op2-vermelho-claro); }
+}
+
+// O ponto de um desafio, no cabeçalho do card: uma tag clicável.
+.op2-poi-card__ponto {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  line-height: 1.2;
+}

@@ -443,7 +443,8 @@
       "ProximoEventoTag": "Próximo",
       "OcultoTag": "Oculto",
       "DesafiosDoPonto": "Desafios",
-      "EmPonto": "Desafio de {poi}"
+      "EmPonto": "Desafio de {poi}",
+      "IrParaDesafio": "Ir para o desafio na aba Desafios"
     },
     "Rodada": {
       "Titulo": "Rodada {rodada}",
