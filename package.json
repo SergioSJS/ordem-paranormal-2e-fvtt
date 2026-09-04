@@ -12,7 +12,7 @@
     "lint:fix": "eslint module/**/*.mjs --fix",
     "test": "node --test module/tests/*.test.mjs",
     "pack:build": "node scripts/build-packs.mjs",
-    "check": "npm run lint && npm test && npm run build:css",
+    "check": "npm run lint && npm run build:css && npm test",
     "preview": "npm run build:css && node scripts/preview.mjs",
     "e2e": "node scripts/e2e/verificar.mjs",
     "ato-i:cena": "node scripts/ato-i/importar-cena.mjs",
@@ -31,5 +31,8 @@
     "handlebars": "^4.7.9",
     "sass": "^1.70.0",
     "playwright": "^1.62.0"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

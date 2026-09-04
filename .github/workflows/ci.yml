@@ -17,7 +17,11 @@ jobs:
       - run: npm ci
       - name: Lint
         run: npm run lint
-      - name: Testes
-        run: npm test
+      # O CSS vem antes dos testes: `styles/op2.css` é gerado pelo sass e não vai para
+      # o repositório, e um dos testes confere que todo caminho do manifesto existe.
       - name: Build do CSS
         run: npm run build:css
+      - name: Testes
+        run: npm test
+      - name: Build dos compêndios
+        run: npm run pack:build

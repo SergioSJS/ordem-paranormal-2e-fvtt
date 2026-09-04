@@ -259,6 +259,7 @@
     "texture": {
       "src": "systems/ordem-paranormal-2e/assets/ato-ii/tokens/token-raven.png"
     },
+    "depth": 1,
     "actorLink": true,
     "disposition": 1,
     "sight": {

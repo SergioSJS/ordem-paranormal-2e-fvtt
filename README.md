@@ -369,6 +369,17 @@ Cole o manifesto no instalador de sistemas do Foundry:
 https://github.com/SergioSJS/ordem-paranormal-2e-fvtt/releases/latest/download/system.json
 ```
 
+O pacote traz o sistema e os compêndios de regras (habilidades, ocupações, ferramentas)
+mais os pré-gerados, as cenas, os handouts e a trilha do Ato I. **As duas aventuras não
+vêm no pacote:** o texto dos pontos de interesse é da editora, e o repositório não o
+redistribui. Quem tem o PDF do playtest gera os compêndios na sua máquina:
+
+```bash
+npm run ato-i:extrair  && npm run ato-i:gerar-aventura
+npm run ato-ii:extrair && npm run ato-ii:gerar-aventura
+npm run pack:build
+```
+
 ## Desenvolvimento
 
 ```bash

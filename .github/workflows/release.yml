@@ -23,13 +23,13 @@ jobs:
 
       - run: npm ci
 
+      # O CSS antes dos testes: ele é gerado pelo sass, não vai versionado, e um dos
+      # testes confere que todo caminho declarado no manifesto existe no disco.
       - name: Verificação
-        run: npm run lint && npm test
+        run: npm run lint && npm run build:css && npm test
 
-      - name: Build do CSS
-        run: npm run build:css
-
-      # Sem packs por enquanto (ver docs/LACUNAS.md); o script sai limpo se não houver.
+      # As aventuras dos atos são geradas do PDF da editora e não vivem no
+      # repositório: o script pula o que não tem fonte.
       - name: Build dos compêndios
         run: npm run pack:build
 
@@ -41,7 +41,28 @@ jobs:
           jq --arg ver "$VERSION" --arg dl "$DOWNLOAD" \
             '.version = $ver | .download = $dl' \
             system.json > system.tmp.json && mv system.tmp.json system.json
-          cat system.json
+
+      # Pack declarado sem banco no disco vira compêndio vazio na cara de quem
+      # instala. As aventuras dos atos só existem para quem tem o PDF da editora,
+      # então elas saem do manifesto publicado — e das pastas de compêndio junto.
+      - name: Tirar do manifesto os compêndios que não foram gerados
+        run: |
+          FORA=$(jq -r '.packs[].name' system.json \
+            | while read -r nome; do [ -d "packs/$nome" ] || echo "$nome"; done \
+            | jq -R . | jq -s .)
+          echo "sem banco no disco: $FORA"
+          jq --argjson fora "$FORA" '
+            .packs = [ .packs[] | select(.name as $n | $fora | index($n) | not) ]
+            | .packFolders = (.packFolders | walk(
+                if type == "object" and has("packs")
+                then .packs = [ .packs[] | select(. as $n | $fora | index($n) | not) ]
+                else . end))
+            | .packFolders = (.packFolders | walk(
+                if type == "object" and has("folders")
+                then .folders = [ .folders[] | select((.packs | length) > 0 or ((.folders // []) | length) > 0) ]
+                else . end))
+          ' system.json > system.tmp.json && mv system.tmp.json system.json
+          echo "compêndios publicados:"; jq -r '.packs[].name' system.json
 
       - name: Empacotar
         run: |

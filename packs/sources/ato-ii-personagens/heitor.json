@@ -259,6 +259,7 @@
     "texture": {
       "src": "systems/ordem-paranormal-2e/assets/ato-ii/tokens/token-heitor.png"
     },
+    "depth": 1,
     "actorLink": true,
     "disposition": 1,
     "sight": {

@@ -254,6 +254,7 @@
     "texture": {
       "src": "systems/ordem-paranormal-2e/assets/ato-ii/tokens/token-antonio.png"
     },
+    "depth": 1,
     "actorLink": true,
     "disposition": 1,
     "sight": {

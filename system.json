@@ -65,6 +65,30 @@
   "url": "https://github.com/SergioSJS/ordem-paranormal-2e-fvtt",
   "manifest": "https://github.com/SergioSJS/ordem-paranormal-2e-fvtt/releases/latest/download/system.json",
   "download": "https://github.com/SergioSJS/ordem-paranormal-2e-fvtt/releases/latest/download/ordem-paranormal-2e.zip",
+  "readme": "https://github.com/SergioSJS/ordem-paranormal-2e-fvtt#readme",
+  "bugs": "https://github.com/SergioSJS/ordem-paranormal-2e-fvtt/issues",
+  "changelog": "https://github.com/SergioSJS/ordem-paranormal-2e-fvtt/blob/main/CHANGELOG.md",
+  "media": [
+    {
+      "type": "cover",
+      "url": "https://raw.githubusercontent.com/SergioSJS/ordem-paranormal-2e-fvtt/main/docs/img/painel-investigacao.png"
+    },
+    {
+      "type": "screenshot",
+      "url": "https://raw.githubusercontent.com/SergioSJS/ordem-paranormal-2e-fvtt/main/docs/img/ficha-personagem.png",
+      "caption": "Ficha de personagem, com a escada de dados e a cor do perfil."
+    },
+    {
+      "type": "screenshot",
+      "url": "https://raw.githubusercontent.com/SergioSJS/ordem-paranormal-2e-fvtt/main/docs/img/painel-investigacao.png",
+      "caption": "Painel de investigação: rodadas, pontos de interesse e desafios."
+    },
+    {
+      "type": "screenshot",
+      "url": "https://raw.githubusercontent.com/SergioSJS/ordem-paranormal-2e-fvtt/main/docs/img/card-examinar.png",
+      "caption": "Card de Examinar no chat, com RA/RB e o que foi descoberto."
+    }
+  ],
   "license": "LICENSE",
   "grid": {
     "distance": 1.5,

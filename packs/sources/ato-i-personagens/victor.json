@@ -224,6 +224,7 @@
     "texture": {
       "src": "systems/ordem-paranormal-2e/assets/ato-i/tokens/token-victor.png"
     },
+    "depth": 1,
     "actorLink": true,
     "disposition": 1,
     "sight": {
