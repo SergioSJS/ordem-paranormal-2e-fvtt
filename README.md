@@ -369,16 +369,15 @@ Cole o manifesto no instalador de sistemas do Foundry:
 https://github.com/SergioSJS/ordem-paranormal-2e-fvtt/releases/latest/download/system.json
 ```
 
-O pacote traz o sistema e os compêndios de regras (habilidades, ocupações, ferramentas)
-mais os pré-gerados, as cenas, os handouts e a trilha do Ato I. **As duas aventuras não
-vêm no pacote:** o texto dos pontos de interesse é da editora, e o repositório não o
-redistribui. Quem tem o PDF do playtest gera os compêndios na sua máquina:
+Instalou, criou o mundo, jogou: o sistema não pede mais nada. Vêm com ele as regras
+(habilidades, ocupações, ferramentas), os cinco pré-gerados, a cena do porão, os
+handouts e a trilha do Ato I.
 
-```bash
-npm run ato-i:extrair  && npm run ato-i:gerar-aventura
-npm run ato-ii:extrair && npm run ato-ii:gerar-aventura
-npm run pack:build
-```
+**As duas aventuras montadas — os pontos de interesse, o quadro de informações, os
+desafios e o roteiro — não vêm no pacote.** Esse texto é da editora, e o sistema não
+redistribui conteúdo do livro. Quem tem o PDF do playtest monta os compêndios na
+própria máquina, e isso hoje passa pelos scripts do repositório: veja
+[Gerar as aventuras a partir do seu PDF](#gerar-as-aventuras-a-partir-do-seu-pdf).
 
 ## Desenvolvimento
 
@@ -408,6 +407,23 @@ hooks depreciados, CSS aplicado, texto cortado. O passo a passo está em
 
 Os prints deste README são gerados por `node scripts/e2e/capturar.mjs`, contra o mesmo
 Foundry descartável — nenhuma tela aqui é mockup.
+
+### Gerar as aventuras a partir do seu PDF
+
+Isto **não faz parte da instalação** — só interessa a quem tem o PDF do playtest e quer
+os dois atos prontos no Foundry. Ponha o PDF em `docs/`, com Node 22+ e Python 3 na
+máquina:
+
+```bash
+npm install
+npm run ato-i:extrair  && npm run ato-i:gerar-aventura
+npm run ato-ii:extrair && npm run ato-ii:gerar-aventura
+npm run pack:build          # compila os compêndios
+npm run setup               # symlink para a pasta de sistemas do Foundry
+```
+
+O extrator lê o texto do seu PDF e escreve em `packs/sources/`, que o `.gitignore`
+mantém fora do repositório. Nada do livro sai da sua máquina.
 
 Detalhes do loop local, teste em duas versões do Foundry e convenções: [CLAUDE.md](CLAUDE.md).
 

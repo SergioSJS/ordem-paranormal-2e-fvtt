@@ -30,7 +30,8 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 ### Notas
 
 - As aventuras dos atos I e II **não vêm no pacote publicado**: o texto é da editora.
-  Quem tem o PDF do playtest gera os compêndios localmente (`npm run ato-i:extrair &&
-  npm run ato-i:gerar-aventura`, o mesmo para `ato-ii`).
+  Instalar e jogar não pede passo nenhum a mais; quem tem o PDF do playtest e quer os
+  atos montados gera os compêndios na própria máquina, pelos scripts do repositório
+  (README, "Gerar as aventuras a partir do seu PDF").
 - Sistema não-oficial, feito por fã, sem afiliação com os detentores dos direitos de
   Ordem Paranormal RPG.
