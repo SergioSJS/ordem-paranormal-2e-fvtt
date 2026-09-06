@@ -21,7 +21,7 @@
  * notas simplesmente não aparecem. Tudo em docs/LACUNAS.md.
  */
 import {
-  ident, semAcento, tituloLegivel, pasta, em, escapar, html, iconeDoPonto, eventoDaMaldicao,
+  ident, semAcento, tituloLegivel, pasta, em, escapar, html, iconeDoPonto, eventoDaMaldicao, posicionarNaCena,
 } from "./comum.mjs";
 
 const RAIZ = "Ato II — O Porão";
@@ -522,7 +522,10 @@ export function montarAtoII(dados, fontes) {
     ...f, _id: ident(`ferramenta-ato-ii-${f.system.subtipo}`),
   })).map(em(pastas.ferramentas));
   const agentes = (fontes.agentes ?? []).map(em(pastas.agentes));
-  const cenas = fontes.cena ? [em(pastas.cenas)(fontes.cena)] : [];
+  const cenaPosicionada = posicionarNaCena(fontes.cena, fontes.posicoes ?? null, {
+    ato: "ato-ii", alvos: [...pontos, ...desafios], atores: agentes,
+  });
+  const cenas = cenaPosicionada ? [em(pastas.cenas)(cenaPosicionada)] : [];
   const diarios = [diarioDoRoteiro(), diarioDasMecanicas(), diarioDeHandouts(), diarioDosAgentes(), diarioDaMaldicao()]
     .filter(Boolean).map(em(pastas.diarios));
   const trilha = em(pastas.trilhas)(playlist);

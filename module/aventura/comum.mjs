@@ -170,6 +170,50 @@ export function eventoDaMaldicao({ id, gatilho, dados }) {
 }
 
 /**
+ * Marcadores dos pontos e tokens dos personagens na cena, a partir das posições
+ * capturadas de um mundo (`scripts/aventura/capturar-posicoes.mjs`): posição POR NOME,
+ * casada aqui com os documentos desta geração. A nota nasce como `marcarNoMapa` cria
+ * (sem autor, global, ícone do ponto, flag com o uuid) — quem decide a visão é o
+ * `isVisible` do sistema, pelo oculto da investigação. O token vem do protótipo do
+ * pré-gerado, vinculado ao ator.
+ *
+ * @param {object|null} cena o documento da cena, sem `notes`/`tokens`
+ * @param {{marcadores?: object[], tokens?: object[], initial?: object}|null} posicoes
+ * @param {{ato: string, alvos: object[], atores: object[]}} docs pontos e desafios (alvos) e atores desta geração
+ */
+export function posicionarNaCena(cena, posicoes, { ato, alvos, atores }) {
+  if (!cena || !posicoes) return cena;
+  const notes = (posicoes.marcadores ?? []).flatMap((m) => {
+    const alvo = alvos.find((d) => d.name === m.nome);
+    if (!alvo) return [];
+    return [{
+      _id: ident(`nota-${ato}-${m.nome}`),
+      x: m.x, y: m.y, author: null, text: alvo.name,
+      texture: { src: alvo.img }, iconSize: 60, global: true,
+      entryId: null, pageId: null,
+      flags: { "ordem-paranormal-2e": { marcador: `Item.${alvo._id}` } },
+    }];
+  });
+  const tokens = (posicoes.tokens ?? []).flatMap((t) => {
+    const ator = atores.find((a) => a.name === t.nome);
+    if (!ator) return [];
+    return [{
+      ...(ator.prototypeToken ?? {}),
+      _id: ident(`token-${ato}-${t.nome}`),
+      name: ator.name, actorId: ator._id, actorLink: true,
+      x: t.x, y: t.y,
+      elevation: t.elevation ?? 0, rotation: t.rotation ?? 0, hidden: Boolean(t.hidden),
+    }];
+  });
+  return {
+    ...cena,
+    ...(posicoes.initial ? { initial: posicoes.initial } : {}),
+    notes: [...(cena.notes ?? []), ...notes],
+    tokens: [...(cena.tokens ?? []), ...tokens],
+  };
+}
+
+/**
  * Handouts por número, a partir das páginas do diário de handouts que o sistema
  * embarca: o `src` de cada página é "…/handouts/handout-02-simbolo-no-teto.jpg", e é
  * pelo número que o texto do livro cita ("Mostre o HANDOUT 02 - …").

@@ -89,6 +89,40 @@ test("montarAtoI: as artes vêm do zip gratuito da editora, declarado nos flags"
   assert.match(aventura.img, /assets\/icons\//);
 });
 
+test("montarAtoI: posições capturadas viram marcadores e tokens na cena, com os ids desta geração", () => {
+  const fontes = {
+    ...fontesAtoI(),
+    pregerados: [{ _id: "a1", name: "Alan", type: "personagem", system: {}, items: [],
+      prototypeToken: { name: "Alan", texture: { src: "systems/ordem-paranormal-2e/assets/ato-i/tokens/token-alan.png" }, actorLink: true, disposition: 1 } }],
+    posicoes: {
+      initial: { x: 1000, y: 900, scale: 0.6 },
+      marcadores: [{ nome: "Depósito A, Molho de Chaves", x: 120, y: 340 }, { nome: "Depósito A, Molho de Chaves — PORTA TRANCADA", x: 50, y: 60 }, { nome: "Não Existe", x: 1, y: 1 }],
+      tokens: [{ nome: "Alan", x: 700, y: 800, elevation: 0 }, { nome: "Ninguém", x: 0, y: 0 }],
+    },
+  };
+  const aventura = montarAtoI(extraidoAtoI(), fontes);
+  const cena = aventura.scenes[0];
+  const molho = aventura.items.find((i) => i.name === "Depósito A, Molho de Chaves");
+  const porta = aventura.items.find((i) => i.type === "desafio-acesso");
+  assert.deepEqual(cena.initial, { x: 1000, y: 900, scale: 0.6 });
+  // Ponto e desafio casam pelo nome; o que não existe nesta geração fica de fora.
+  assert.equal(cena.notes.length, 2);
+  const nota = cena.notes.find((n) => n.text === molho.name);
+  assert.equal(nota.flags["ordem-paranormal-2e"].marcador, `Item.${molho._id}`);
+  assert.equal(nota.author, null);
+  assert.equal(nota.global, true);
+  assert.equal(nota.texture.src, molho.img);
+  assert.deepEqual([nota.x, nota.y], [120, 340]);
+  assert.equal(cena.notes.find((n) => n.text === porta.name).flags["ordem-paranormal-2e"].marcador, `Item.${porta._id}`);
+  assert.equal(cena.tokens.length, 1);
+  assert.equal(cena.tokens[0].actorId, "a1");
+  assert.equal(cena.tokens[0].actorLink, true);
+  assert.deepEqual([cena.tokens[0].x, cena.tokens[0].y], [700, 800]);
+  assert.match(cena.tokens[0].texture.src, /token-alan\.png$/);
+  // Ids estáveis: capturar de novo não duplica marcador nem token.
+  assert.equal(montarAtoI(extraidoAtoI(), fontes).scenes[0].notes[0]._id, cena.notes[0]._id);
+});
+
 test("montarAtoI: ids estáveis entre duas montagens", () => {
   const a = montarAtoI(extraidoAtoI(), fontesAtoI());
   const b = montarAtoI(extraidoAtoI(), fontesAtoI());

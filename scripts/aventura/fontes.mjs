@@ -6,13 +6,19 @@
  * Usado por `gerar-fontes.mjs` (que grava `assets/aventura/fontes-ato-*.json` para a
  * janela de aventuras) e pelos scripts `gerar-aventura.mjs` de `scripts/ato-i` e `scripts/ato-ii`.
  */
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { ident } from "../../module/aventura/comum.mjs";
 
 const FONTES = "packs/sources";
 
 export const semChave = ({ _key, ...resto }) => resto;
+
+/** As posições de marcadores e tokens capturadas de um mundo, se já houver. */
+const posicoes = (pasta) => {
+  const arquivo = join(FONTES, pasta, "posicoes.json");
+  return existsSync(arquivo) ? JSON.parse(readFileSync(arquivo, "utf8")) : null;
+};
 export const ler = (pasta) => readdirSync(join(FONTES, pasta))
   .filter((a) => a.endsWith(".json"))
   .map((a) => JSON.parse(readFileSync(join(FONTES, pasta, a), "utf8")));
@@ -47,7 +53,8 @@ export function comNivel(cena) {
 
 /** Remonta a cena: a fonte guarda arrays de id e os documentos embutidos em arquivos à parte. */
 export function cenaCompleta(pasta, { nivel = false } = {}) {
-  const arquivos = ler(pasta);
+  // `posicoes.json` não é documento: é o que `capturar-posicoes.mjs` escreve.
+  const arquivos = ler(pasta).filter((d) => d._key);
   const cena = arquivos.find((d) => d._key.startsWith("!scenes!"));
   if (!cena) return null;
   const embutidos = {};
@@ -70,6 +77,7 @@ export function fontesDoAtoI(opcoes = {}) {
     cena: cenaCompleta("ato-i-cenas", opcoes),
     handouts: ler("ato-i-handouts").map(semChave),
     trilha: ler("ato-i-musicas").map(semChave),
+    posicoes: posicoes("ato-i-cenas"),
   };
 }
 
@@ -79,5 +87,6 @@ export function fontesDoAtoII(opcoes = {}) {
     agentes: ler("ato-ii-personagens").map(semChave),
     cena: cenaCompleta("ato-ii-cenas", opcoes),
     ferramentas: ler("ferramentas").map(semChave),
+    posicoes: posicoes("ato-ii-cenas"),
   };
 }

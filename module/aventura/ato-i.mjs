@@ -18,7 +18,7 @@
  */
 import {
   ident, palavras, afinidade, arquivoPublico, tituloLegivel, pasta, em, iconeDoPonto, eventoDaMaldicao,
-  arquivosDeHandout,
+  arquivosDeHandout, posicionarNaCena,
 } from "./comum.mjs";
 
 const RAIZ = "Ato I — O Porão";
@@ -75,8 +75,9 @@ export const EXTRAS_DO_ATO_I = [
 /**
  * @param {{pontos?: object[], maldicao?: object|null, itens?: object|null, roteiro?: object|null}} extraido
  *   o que `extrairAtoI` devolve
- * @param {{pregerados: object[], cena: object|null, handouts: object[], trilha: object[]}} fontes
- *   documentos dos compêndios do sistema, sem `_key`
+ * @param {{pregerados: object[], cena: object|null, handouts: object[], trilha: object[], posicoes?: object}} fontes
+ *   documentos dos compêndios do sistema, sem `_key`; `posicoes` são os marcadores e
+ *   tokens capturados de um mundo (`scripts/aventura/capturar-posicoes.mjs`)
  * @returns {object} o `Adventure`, sem `_key`
  */
 export function montarAtoI(extraido, fontes) {
@@ -423,7 +424,11 @@ export function montarAtoI(extraido, fontes) {
   const diarios = [...(fontes.handouts ?? []), diarioDoRoteiro(), diarioDaMaldicao()]
     .filter(Boolean).map(em(pastas.diarios));
   const trilha = (fontes.trilha ?? []).map(em(pastas.trilhas));
-  const cenas = fontes.cena ? [em(pastas.cenas)(fontes.cena)] : [];
+  // Marcadores dos pontos e tokens dos pré-gerados onde o mestre da captura os deixou.
+  const cenaPosicionada = posicionarNaCena(fontes.cena, fontes.posicoes ?? null, {
+    ato: "ato-i", alvos: [...pontos, ...desafios], atores: pregerados,
+  });
+  const cenas = cenaPosicionada ? [em(pastas.cenas)(cenaPosicionada)] : [];
 
   const investigacao = {
     _id: ident("investigacao-ato-i"),

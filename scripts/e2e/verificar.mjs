@@ -2928,6 +2928,17 @@ const relato = await page.evaluate(async (boasVindas) => {
       const saida = pontos.find((p) => p.name === "Porta de Saída");
       ok("a senha impressa da porta de saída fica na descrição do mestre, sem virar minigame",
         /160322/.test(saida?.system.descricaoContextual ?? "") && !desafios.some((d) => d.name.includes("Saída")));
+      // Posições capturadas de um mundo (posicoes.json): marcadores e tokens já na cena.
+      const fontesAtoI = await (await fetch("systems/ordem-paranormal-2e/assets/aventura/fontes-ato-i.json")).json();
+      if (fontesAtoI.posicoes?.marcadores?.length) {
+        const marcadores = cena.notes.filter((n) => n.getFlag("ordem-paranormal-2e", "marcador"));
+        const alvos = await Promise.all(marcadores.map((n) => fromUuid(n.getFlag("ordem-paranormal-2e", "marcador"))));
+        ok(`a cena chega com os ${fontesAtoI.posicoes.marcadores.length} marcadores capturados, cada um apontando para o ponto do mundo`,
+          marcadores.length === fontesAtoI.posicoes.marcadores.length && alvos.every((d) => d && !d.pack && doAtoI(d)));
+        ok("e com os tokens dos pré-gerados, vinculados aos atores importados",
+          cena.tokens.size === fontesAtoI.posicoes.tokens.length
+          && cena.tokens.every((t) => t.actorLink && pregerados.some((a) => a.id === t.actorId)));
+      }
       const links = [...investigacao.system.pois, ...investigacao.system.desafios, ...investigacao.system.participantes];
       const alvos = await Promise.all(links.map((uuid) => fromUuid(uuid)));
       ok("a investigação importada resolve pontos, desafios e participantes no mundo",
