@@ -852,16 +852,20 @@
         "ato-i": "{pontos} points of interest, {linhas} clue rows, {desafios} challenges, curse over {rodadas} rounds, {itens} table items",
         "ato-ii": "{pontos} points of interest, {linhas} clue rows, {desafios} challenges, {leituras} tool readings"
       },
-      "Problemas": "Check: {n} warning(s) — the text and the tool matrix disagree somewhere; check the book",
+      "Problemas": "Check: {n} warning(s) — the text and what the book prints don't fully agree; check the book",
       "Motivo": {
         "trecho": "Could not find Act I in this PDF. Is it the Ordem Paranormal 2 playtest book?",
         "ausente": "This PDF does not include Act II — it only exists in the full playtest PDF.",
-        "falha": "Building failed. See the console (F12) for details."
+        "falha": "Building failed."
       },
       "Importado": "{nome}: imported into the world.",
       "MenuNome": "Playtest adventures",
       "MenuBotao": "Build from PDF",
-      "MenuAjuda": "Pick the playtest PDF and the system builds Act I (and Act II, if the PDF includes it) in this world's compendium."
+      "MenuAjuda": "Pick the playtest PDF and the system builds Act I (and Act II, if the PDF includes it) in this world's compendium.",
+      "NaoMontada": "Not built",
+      "ArtesFaltam": "Art: {faltam} of {total} files missing from the world folder — it's the publisher's {zip}",
+      "ArtesOk": "Art: all {total} files are in {pasta}",
+      "EnviarZip": "Upload the art zip"
     },
     "Licenca": {
       "Aviso": "This is unofficial content, published under the Ordem Paranormal Community License.",

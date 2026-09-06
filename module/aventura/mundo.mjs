@@ -48,21 +48,22 @@ export async function montarAventuras(linhas) {
     resultados.push({ ...ATOS[0], ok: true, aventura, resumo: resumoDoAtoI(atoI) });
   } catch (erro) {
     console.error(`${SYSTEM_ID} | aventuras: Ato I`, erro);
-    resultados.push({ ...ATOS[0], ok: false, motivo: "trecho" });
+    resultados.push({ ...ATOS[0], ok: false, motivo: "trecho", erro: erro.message });
   }
 
   try {
     const { dados, problemas } = extrairAtoII(linhas);
+    const avisos = [];
     const aventura = montarAtoII(dados, {
       atoIPontos: atoI?.pontos ?? [], atoIMaldicao: atoI?.maldicao ?? null,
       ...(await fontesDoSistema("ato-ii")),
-    });
-    resultados.push({ ...ATOS[1], ok: true, aventura, resumo: resumoDoAtoII(dados), problemas });
+    }, { avisos });
+    resultados.push({ ...ATOS[1], ok: true, aventura, resumo: resumoDoAtoII(dados), problemas: [...problemas, ...avisos] });
   } catch (erro) {
     // O PDF gratuito para no Ato I: não é erro, é o que ele traz.
     const semAtoII = /não traz o Ato II|não achei/i.test(erro.message);
     if (!semAtoII) console.error(`${SYSTEM_ID} | aventuras: Ato II`, erro);
-    resultados.push({ ...ATOS[1], ok: false, motivo: semAtoII ? "ausente" : "falha" });
+    resultados.push({ ...ATOS[1], ok: false, motivo: semAtoII ? "ausente" : "falha", erro: semAtoII ? "" : erro.message });
   }
   return resultados;
 }

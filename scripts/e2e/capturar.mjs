@@ -87,10 +87,17 @@ await page.waitForTimeout(1200);
 
 async function fotografar(nome, seletor, { antes } = {}) {
   if (antes) await page.evaluate(antes, dados);
+  // Janela que consulta o mundo antes de aparecer (a de aventuras confere as artes na
+  // pasta) leva mais de um segundo: esperar pelo elemento, não por um tempo fixo.
+  const apareceu = await page.waitForSelector(seletor, { timeout: 15000 }).catch(() => null);
+  if (!apareceu) return console.log(`(sem elemento) ${nome}`);
   await page.waitForTimeout(1200);
-  const el = await page.$(seletor);
-  if (!el) return console.log(`(sem elemento) ${nome}`);
-  await el.screenshot({ path: `${SAIDA}/${nome}.png` });
+  // Print da área do elemento, não do elemento: o print de elemento do Playwright espera
+  // ele "estável" e falha se a janela se re-renderiza ou anima nesse meio tempo (o
+  // handle de cima pode nem estar mais no DOM). A caixa é lida na hora.
+  const caixa = await (await page.$(seletor))?.boundingBox();
+  if (!caixa) return console.log(`(sem elemento) ${nome}`);
+  await page.screenshot({ path: `${SAIDA}/${nome}.png`, clip: caixa });
   console.log(`${SAIDA}/${nome}.png`);
 }
 

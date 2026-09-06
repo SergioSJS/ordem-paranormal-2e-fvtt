@@ -213,6 +213,11 @@ gratuito basta para o Ato I.
 
 ![Janela de aventuras do playtest](docs/img/aventuras-do-playtest.png)
 
+A janela também diz o que há das artes na pasta do mundo e oferece **Enviar zip das
+artes** antes de importar — é o zip gratuito do Ato I do site da editora, e o dos
+Arquivos Secretos para o Ato II. Se você importar sem enviar, o importador pede o zip
+na hora.
+
 **Importe `Ato I — O Porão`** e o mundo recebe a cena com as paredes, a trilha, os
 cinco pré-gerados, os handouts, os pontos de interesse com o quadro de informações
 preenchido, os desafios e uma investigação com tudo já vinculado — mesa montada.
@@ -338,6 +343,9 @@ completo do playtest (o gratuito para no Ato I, e a janela diz isso). O extrator
 p. 72–103, confere cada ponto contra a tabela *Locais de uso de cada ferramenta* do
 livro — divergência aparece na janela como aviso, para conferir no livro — e a aventura
 `Ato II — O Porão` fica no compêndio do mundo. Ao importar, ela pede o zip das artes.
+Contradição do próprio livro também vira aviso, não erro: a revisão 1.1 imprime "SEU
+FILHO," num conjunto do Rádio e "sua filha" na solução, e a montagem toma o conjunto
+mais parecido como verdadeiro e avisa.
 
 Para o desenvolvimento, os mesmos geradores rodam no Node e escrevem os packs locais que
 o e2e usa:

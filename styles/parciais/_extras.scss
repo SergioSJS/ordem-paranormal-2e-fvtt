@@ -111,6 +111,7 @@
     // Um ato por linha: nome e estado à esquerda, o que dá para fazer à direita.
     .op2-aventuras__ato {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       padding: var(--op2-e2);
       border: 1px solid var(--op2-linha);
@@ -119,6 +120,33 @@
       gap: var(--op2-e2);
 
       &--pronto { border-color: var(--op2-vermelho); }
+    }
+
+    // Os botões numa linha só, sem quebrar o texto; se não couberem ao lado do
+    // nome, descem inteiros para a linha de baixo.
+    .op2-aventuras__acoes {
+      display: flex;
+      flex-wrap: wrap;
+      margin-left: auto;
+      gap: var(--op2-e1);
+
+      .op2-botao { white-space: nowrap; flex: 0 0 auto; }
+    }
+
+    .op2-aventuras__artes {
+      margin-top: var(--op2-e1);
+      color: var(--op2-texto-fraco);
+      font-size: 0.85rem;
+
+      &--faltam { color: var(--op2-vermelho-claro); }
+    }
+
+    .op2-aventuras__erro-detalhe {
+      display: block;
+      margin-top: var(--op2-e1);
+      font-size: 0.75rem;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
     .op2-aventuras__identidade {

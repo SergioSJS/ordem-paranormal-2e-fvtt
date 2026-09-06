@@ -13,12 +13,14 @@
 
   <ol class="op2-aventuras__atos">
     {{#each atos}}
-      <li class="op2-aventuras__ato{{#if noMundo}} op2-aventuras__ato--pronto{{/if}}">
+      <li class="op2-aventuras__ato{{#if noMundo}} op2-aventuras__ato--pronto{{/if}}" data-ato="{{nome}}">
         <div class="op2-aventuras__identidade">
           <strong>{{rotulo}}</strong>
           <span class="op2-aventuras__estado">
             {{#if montado}}
               {{localize "OP2.Aventuras.Montado"}}
+            {{else if falhou}}
+              {{localize "OP2.Aventuras.NaoMontada"}}
             {{else if noMundo}}
               {{localize "OP2.Aventuras.NoMundo"}}
             {{else}}
@@ -28,6 +30,17 @@
           {{#if resumo}}<span class="op2-aventuras__resumo">{{resumo}}</span>{{/if}}
           {{#if motivo}}
             <span class="op2-aventuras__erro">{{localize (op2Concat "OP2.Aventuras.Motivo." motivo)}}</span>
+            {{#if erro}}<code class="op2-aventuras__erro-detalhe">{{erro}}</code>{{/if}}
+          {{/if}}
+          {{#if artes}}
+            <span class="op2-aventuras__artes{{#if artes.faltam}} op2-aventuras__artes--faltam{{/if}}">
+              <i class="fa-solid {{#if artes.faltam}}fa-file-zipper{{else}}fa-circle-check{{/if}}" aria-hidden="true"></i>
+              {{#if artes.faltam}}
+                {{localize "OP2.Aventuras.ArtesFaltam" faltam=artes.faltam total=artes.total zip=artes.zip}}
+              {{else}}
+                {{localize "OP2.Aventuras.ArtesOk" total=artes.total pasta=artes.pasta}}
+              {{/if}}
+            </span>
           {{/if}}
           {{#if problemas.length}}
             <details class="op2-aventuras__problemas">
@@ -38,12 +51,19 @@
         </div>
 
         {{#if noMundo}}
-          <button type="button" class="op2-botao op2-botao--pequeno" data-action="abrirAventura" data-ato="{{nome}}">
-            <i class="fa-solid fa-eye" aria-hidden="true"></i> {{localize "OP2.Aventuras.Ver"}}
-          </button>
-          <button type="button" class="op2-botao" data-action="importar" data-ato="{{nome}}">
-            <i class="fa-solid fa-file-import" aria-hidden="true"></i> {{localize "OP2.Aventuras.Importar"}}
-          </button>
+          <div class="op2-aventuras__acoes">
+            {{#if artes.faltam}}
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="enviarZip" data-ato="{{nome}}">
+                <i class="fa-solid fa-file-zipper" aria-hidden="true"></i> {{localize "OP2.Aventuras.EnviarZip"}}
+              </button>
+            {{/if}}
+            <button type="button" class="op2-botao op2-botao--pequeno" data-action="abrirAventura" data-ato="{{nome}}">
+              <i class="fa-solid fa-eye" aria-hidden="true"></i> {{localize "OP2.Aventuras.Ver"}}
+            </button>
+            <button type="button" class="op2-botao" data-action="importar" data-ato="{{nome}}">
+              <i class="fa-solid fa-file-import" aria-hidden="true"></i> {{localize "OP2.Aventuras.Importar"}}
+            </button>
+          </div>
         {{/if}}
       </li>
     {{/each}}

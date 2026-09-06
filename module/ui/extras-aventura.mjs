@@ -76,7 +76,8 @@ export async function arquivosPresentes(extras) {
   const raiz = pastaDosExtras(extras);
   const subpastas = new Set(extras.arquivos.map((a) => a.destino.split("/").slice(0, -1).join("/")));
   const presentes = new Set();
-  for (const sub of subpastas) {
+  // As subpastas de uma vez: cada browse é uma ida ao servidor.
+  await Promise.all([...subpastas].map(async (sub) => {
     const caminho = sub ? `${raiz}/${sub}` : raiz;
     try {
       const { files = [] } = await filePicker().browse("data", caminho);
@@ -87,7 +88,7 @@ export async function arquivosPresentes(extras) {
     } catch {
       // A pasta ainda não existe: nada presente.
     }
-  }
+  }));
   return presentes;
 }
 

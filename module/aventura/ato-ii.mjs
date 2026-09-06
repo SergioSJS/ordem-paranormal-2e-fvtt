@@ -89,6 +89,22 @@ function imagensDoAtoI(citacoes) {
     .map((n) => `<p><img src="${ATO_I}handouts/${HANDOUTS_ATO_I[n]}" alt="Handout ${n} (Ato I)"></p>`);
 }
 
+/** Parecença entre dois textos curtos, de 0 a 1 (distância de edição sobre o maior). */
+function semelhanca(a, b) {
+  if (!a.length && !b.length) return 1;
+  const linha = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i += 1) {
+    let anterior = linha[0];
+    linha[0] = i;
+    for (let j = 1; j <= b.length; j += 1) {
+      const atual = linha[j];
+      linha[j] = Math.min(linha[j] + 1, linha[j - 1] + 1, anterior + (a[i - 1] === b[j - 1] ? 0 : 1));
+      anterior = atual;
+    }
+  }
+  return 1 - linha[b.length] / Math.max(a.length, b.length);
+}
+
 const ROTULO = {
   compendio: "Compêndio da Ordem", camera: "Câmera Modificada", laboratorio: "Laboratório Portátil",
   lanternaUV: "Lanterna de Estouro Ultravioleta", laser: "Laser de Varredura", infravermelho: "Leitor Infravermelho",
@@ -103,7 +119,7 @@ const COLUNAS_DA_MATRIZ = ["camera", "laboratorio", "lanternaUV", "laser", "infr
  *   documentos dos compêndios do sistema, sem `_key`
  * @returns {object} o `Adventure`, sem `_key`
  */
-export function montarAtoII(dados, fontes) {
+export function montarAtoII(dados, fontes, { avisos = [] } = {}) {
   const atoIPontos = fontes.atoIPontos ?? [];
   const atoIMaldicao = fontes.atoIMaldicao ?? null;
 
@@ -214,16 +230,33 @@ export function montarAtoII(dados, fontes) {
    * que marca os falsos no livro se perde na extração: o que não está na solução é
    * falso.
    */
-  function conjuntosDoRadio({ conjuntos, solucao }) {
+  function conjuntosDoRadio({ conjuntos, solucao }, nomeDoPonto) {
     const norm = (t) => semAcento(t).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
     const pecas = conjuntos.map((original) => ({ original, norm: norm(original) }));
     let resto = norm(solucao.replace(/\b(Alan|Gustavo):/g, " "));
     const ordem = [];
     while (resto.length) {
-      const peca = pecas
-        .filter((c) => c.norm && (resto === c.norm || resto.startsWith(`${c.norm} `)))
+      let peca = pecas
+        .filter((c) => c.norm && !ordem.includes(c.original) && (resto === c.norm || resto.startsWith(`${c.norm} `)))
         .sort((a, b) => b.norm.length - a.norm.length)[0];
-      if (!peca) throw new Error(`rádio: a solução não casa com os conjuntos em "${resto.slice(0, 40)}…"`);
+      if (!peca) {
+        // O livro se contradiz: a revisão 1.1 imprime "SEU FILHO," no conjunto e "sua
+        // filha" na solução. A peça mais parecida com o começo do que falta entra, e
+        // o mestre recebe o aviso — em vez de a aventura inteira não montar.
+        const candidatas = pecas.filter((c) => c.norm && !ordem.includes(c.original))
+          .map((c) => ({ c, parecido: semelhanca(resto.slice(0, c.norm.length), c.norm) }))
+          .filter((x) => x.parecido >= 0.6)
+          .sort((a, b) => b.parecido - a.parecido);
+        peca = candidatas[0]?.c;
+        if (!peca) {
+          avisos.push(`${nomeDoPonto}: a solução do Rádio não casa com os conjuntos em "${resto.slice(0, 40)}…" — conferir no livro; os conjuntos restantes entram como falsos.`);
+          break;
+        }
+        avisos.push(`${nomeDoPonto}: o Rádio imprime "${peca.original}" no conjunto e "${resto.slice(0, peca.norm.length)}" na solução — o livro se contradiz; o conjunto entrou como verdadeiro.`);
+        resto = resto.slice(peca.norm.length).trim();
+        ordem.push(peca.original);
+        continue;
+      }
       ordem.push(peca.original);
       resto = resto.slice(peca.norm.length).trim();
     }
@@ -280,7 +313,7 @@ export function montarAtoII(dados, fontes) {
         // Com conjuntos, é o enigma (e a leitura inteira fica na nota do mestre, com a
         // solução); sem conjuntos, é uma leitura como as outras — o Ídolo só grita.
         ferramentas.radio = f.radio
-          ? { conjuntos: conjuntosDoRadio(f.radio), texto: "" }
+          ? { conjuntos: conjuntosDoRadio(f.radio, tituloLegivel(ponto.nome)), texto: "" }
           : { conjuntos: [], texto: leituraDaFerramenta(f, ponto) };
         if (f.radio) notas.push(`<p><strong>Rádio Modificado:</strong></p>${leituraDaFerramenta(f, ponto)}`);
         continue;

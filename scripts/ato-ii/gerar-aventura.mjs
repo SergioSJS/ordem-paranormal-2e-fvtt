@@ -26,11 +26,13 @@ if (!dados) {
   process.exit(1);
 }
 
+const avisos = [];
 const aventura = montarAtoII(dados, {
   atoIPontos: lerSeExiste(join(EXTRAIDOS, "ato-i-pontos.json")) ?? [],
   atoIMaldicao: lerSeExiste(join(EXTRAIDOS, "ato-i-maldicao.json")),
   ...fontesDoAtoII(),
-});
+}, { avisos });
+for (const a of avisos) console.warn(`  !! ${a}`);
 aventura._key = `!adventures!${aventura._id}`;
 
 mkdirSync(join("packs/sources", "ato-ii-aventura"), { recursive: true });

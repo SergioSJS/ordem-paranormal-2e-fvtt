@@ -21,6 +21,27 @@ const SAIDA = process.argv[3] ?? ".";
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1500, height: 1000 } });
 
+// Sinal de vida. A suíte roda em `page.evaluate` longos, e um diálogo aberto (ou um
+// laço na página) a prende para sempre sem nada no terminal — uma hora esperando, em
+// uso real. A cada 90 s: um print do estado em `e2e-andamento.png`, as janelas abertas
+// e as últimas linhas do console da página, em stderr. Se o print trava, a página
+// está bloqueada em JS; se sai e mostra um diálogo, é ele.
+const ultimosLogs = [];
+page.on("console", (m) => {
+  ultimosLogs.push(`${m.type()}: ${m.text().split("\n")[0].slice(0, 120)}`);
+  if (ultimosLogs.length > 8) ultimosLogs.shift();
+});
+const inicioDaSuite = Date.now();
+const sinalDeVida = setInterval(async () => {
+  const limite = (promessa, rotulo) => Promise.race([promessa, new Promise((r) => setTimeout(() => r(`${rotulo} travado (página bloqueada em JS?)`), 10000))]);
+  const print = await limite(page.screenshot({ path: join(SAIDA, "e2e-andamento.png") }).then(() => "print ok")
+    .catch((e) => `print falhou: ${e.message.split("\n")[0]}`), "print");
+  const janelas = await limite(page.evaluate(() => [...document.querySelectorAll(".application .window-title, .app .window-title")]
+    .map((el) => el.textContent.trim()).filter(Boolean).slice(0, 6).join(", ") || "nenhuma").catch((e) => `erro: ${e.message.split("\n")[0]}`), "janelas");
+  console.error(`[e2e ${Math.round((Date.now() - inicioDaSuite) / 1000)}s] ${print}; janelas: ${janelas}; console: ${ultimosLogs.slice(-3).join(" | ") || "nada"}`);
+}, 90000);
+sinalDeVida.unref?.();
+
 const erros = [];
 page.on("pageerror", (e) => erros.push(`pageerror: ${e.stack ?? e.message}`));
 page.on("console", (m) => {
@@ -539,17 +560,25 @@ const relato = await page.evaluate(async (boasVindas) => {
       const { alvosMarcados } = await import("/systems/ordem-paranormal-2e/module/cena/encerrar-investigacao.mjs");
       const cena = game.scenes.find((c) => c.name === "Alvos") ?? await Scene.create({ name: "Alvos", width: 1000, height: 1000 });
       await cena.activate();
+      // `activate()` resolve antes de o canvas trocar de cena: o redesenho vem depois,
+      // assíncrono, e derruba tudo que foi feito no canvas antigo — inclusive a mira.
+      // Sem esperar, o token criado agora era marcado no canvas que ia morrer, `atacar`
+      // não achava alvo e abria o diálogo "em quem?", e a suíte ficava presa nele para
+      // sempre (achado em uso real: uma hora esperando; intermitente, porque é corrida).
+      for (let i = 0; i < 300 && (!canvas.ready || canvas.scene?.id !== cena.id); i += 1) await esperar(200);
+      if (!canvas.ready || canvas.scene?.id !== cena.id) throw new Error("o canvas não trocou para a cena Alvos em 60 s");
+      await esperar(300);
       const [token] = await cena.createEmbeddedDocuments("Token", [{
         name: foraDaCena.name, actorId: foraDaCena.id, x: 500, y: 500, actorLink: true,
       }]);
       // O canvas desenha o token depois do documento existir; num mundo cheio isso
-      // passa de 700 ms, e sem o token marcado `atacar` abria o diálogo "em quem?" e a
-      // suíte ficava parada nele para sempre (achado em uso real: uma hora esperando).
+      // passa de 700 ms.
       for (let i = 0; i < 50 && !canvas.tokens.get(token.id); i += 1) await esperar(200);
       ok("o token novo desenhou no canvas", Boolean(canvas.tokens.get(token.id)));
-      canvas.tokens.get(token.id)?.setTarget(true, { releaseOthers: true });
-      await esperar(400);
       if (!canvas.tokens.get(token.id)) throw new Error("token não desenhou no canvas: atacar abriria o diálogo de alvo e a suíte travaria");
+      canvas.tokens.get(token.id).setTarget(true, { releaseOthers: true });
+      await esperar(400);
+      if (game.user.targets.size !== 1) throw new Error(`a mira não pegou (${game.user.targets.size} alvo(s)): atacar abriria o diálogo de alvo e a suíte travaria`);
 
       ok("alvo marcado no mapa vale mesmo fora da investigação",
         alvosMarcados({ exceto: ator }).map((a) => a.name).includes(foraDaCena.name));
@@ -2803,8 +2832,14 @@ const relato = await page.evaluate(async (boasVindas) => {
       prontos: document.querySelectorAll("#op2-aventuras .op2-aventuras__ato--pronto").length,
       resumos: [...document.querySelectorAll("#op2-aventuras .op2-aventuras__resumo")].map((el) => el.textContent.trim()),
       erros: [...document.querySelectorAll("#op2-aventuras .op2-aventuras__erro")].map((el) => el.textContent.trim()),
-      problemas: document.querySelectorAll("#op2-aventuras .op2-aventuras__problemas li").length,
+      problemas: [...document.querySelectorAll("#op2-aventuras .op2-aventuras__problemas li")].map((el) => el.textContent.trim()),
       lendo: Boolean(document.querySelector('#op2-aventuras [data-action="escolherPdf"]')?.disabled),
+      // Botão com texto quebrado em duas linhas: a altura do conteúdo passa de uma linha.
+      botoesQuebrados: [...document.querySelectorAll("#op2-aventuras .op2-botao")].filter((el) => {
+        const r = document.createRange();
+        r.selectNodeContents(el);
+        return r.getBoundingClientRect().height > 1.8 * parseFloat(getComputedStyle(el).fontSize);
+      }).map((el) => el.textContent.trim()),
     }));
     const completo = janela.prontos === 2;
     relato.dados.aventurasDoPdf.janela = janela;
@@ -2814,7 +2849,15 @@ const relato = await page.evaluate(async (boasVindas) => {
       ? /25 pontos de interesse, 63 linhas de quadro, 3 desafios, 34 leituras/.test(janela.resumos[1] ?? "")
       : janela.erros.some((t) => /não traz o Ato II/.test(t)),
     completo ? `e o Ato II (${janela.resumos[1]})` : "PDF sem Ato II: a janela diz isso, em vez de falhar"]);
-    relato.passos.push([janela.problemas === 0 && !janela.lendo, "a conferência do Ato II não acusa nada, e a janela volta a aceitar PDF"]);
+    // A revisão 1.1 do livro imprime "SEU FILHO," no conjunto do Rádio e "sua filha" na
+    // solução: a montagem avisa e segue. Qualquer outro problema é falha.
+    const contradicoes = janela.problemas.filter((t) => /o livro se contradiz/.test(t));
+    relato.passos.push([janela.problemas.length === contradicoes.length && !janela.lendo,
+      contradicoes.length
+        ? `a montagem só avisa a contradição do livro (${contradicoes.join("; ")}), e a janela volta a aceitar PDF`
+        : "a conferência do Ato II não acusa nada, e a janela volta a aceitar PDF"]);
+    relato.passos.push([janela.botoesQuebrados.length === 0,
+      `nenhum botão da janela quebra o texto em duas linhas${janela.botoesQuebrados.length ? ` (${janela.botoesQuebrados.join(", ")})` : ""}`]);
 
     const noPack = await page.evaluate(async (completo) => {
       const passos = [];
@@ -2882,12 +2925,18 @@ const relato = await page.evaluate(async (boasVindas) => {
       rmSync(join(process.env.OP2_E2E_DATA, "Data", "worlds", mundoId, "ato-i"), { recursive: true, force: true });
     }
     const zipAtoI = "docs/Ordem-2-Playtest-Alpha-Ato-I-Extras.zip";
-    await page.click('#op2-aventuras [data-action="importar"][data-ato="ato-i"]');
-    await page.waitForSelector(".op2-extras input[type=file]", { timeout: 20000 }).catch(() => {
-      throw new Error("importar o Ato I pela janela não pediu o zip: worlds/<mundo>/ato-i já tem os arquivos. "
+    if (!existsSync(zipAtoI)) throw new Error(`${zipAtoI} não existe: o e2e precisa do zip gratuito do Ato I em docs/.`);
+    // A janela diz o que falta das artes e oferece o zip antes de importar.
+    await page.evaluate(() => game.op2.aventuras());
+    await page.waitForSelector('#op2-aventuras [data-action="enviarZip"][data-ato="ato-i"]', { timeout: 20000 }).catch(() => {
+      throw new Error("a janela não ofereceu o zip das artes do Ato I: worlds/<mundo>/ato-i já tem os arquivos. "
         + "Rode com OP2_E2E_DATA apontando para o User Data descartável.");
     });
-    if (!existsSync(zipAtoI)) throw new Error(`${zipAtoI} não existe: o e2e precisa do zip gratuito do Ato I em docs/.`);
+    const artesAntes = await page.evaluate(() => document.querySelector('#op2-aventuras .op2-aventuras__ato[data-ato="ato-i"] .op2-aventuras__artes')?.textContent.trim() ?? "");
+    relato.passos.push([/faltam 36 de 36 arquivos/.test(artesAntes) && /Ordem-2-Playtest-Alpha-Ato-I-Extras\.zip/.test(artesAntes),
+      `a janela diz que faltam as artes do Ato I e qual zip é (${artesAntes})`]);
+    await page.click('#op2-aventuras [data-action="enviarZip"][data-ato="ato-i"]');
+    await page.waitForSelector(".op2-extras input[type=file]", { timeout: 20000 });
     await page.setInputFiles(".op2-extras input[type=file]", zipAtoI);
     await page.waitForSelector('.op2-extras [data-action="concluir"]', { timeout: 300000 });
     const envioAtoI = await page.evaluate(() => ({
@@ -2898,6 +2947,15 @@ const relato = await page.evaluate(async (boasVindas) => {
     relato.passos.push([envioAtoI.ok && envioAtoI.listas === 0 && /36 arquivo/.test(envioAtoI.texto),
       "o zip gratuito do Ato I traz todos os 36 arquivos que a aventura espera — nada aproximado, faltando ou recusado"]);
     await page.click('.op2-extras [data-action="concluir"]');
+    // Depois do envio a janela se refaz: artes completas, sem botão de zip.
+    await page.waitForFunction(() => !document.querySelector('#op2-aventuras [data-action="enviarZip"][data-ato="ato-i"]')
+      && /36 arquivos estão em/.test(document.querySelector('#op2-aventuras .op2-aventuras__ato[data-ato="ato-i"] .op2-aventuras__artes')?.textContent ?? ""),
+    null, { timeout: 20000 });
+    relato.passos.push([true, "depois do envio a janela mostra as artes completas na pasta do mundo, sem pedir zip"]);
+    await page.click('#op2-aventuras [data-action="importar"][data-ato="ato-i"]');
+    const pediuDeNovo = await page.waitForSelector(".op2-extras input[type=file]", { timeout: 4000 }).then(() => true).catch(() => false);
+    relato.passos.push([!pediuDeNovo, "importar com as artes na pasta não pede o zip de novo"]);
+    if (pediuDeNovo) throw new Error("o importador pediu o zip do Ato I com os 36 arquivos já na pasta do mundo.");
     await page.waitForFunction(() => game.folders.getName("Pré-gerados") && game.folders.getName("Itens de Mesa")
       && game.items.filter((i) => i.type === "ponto-interesse" && i.folder?.folder?.name === "Ato I — O Porão").length === 31,
     null, { timeout: 180000 });
@@ -3582,6 +3640,7 @@ console.log("\ndetalhes:", JSON.stringify(relato.dados, null, 1));
 console.log("erros do console:", erros.length ? [...new Set(erros)] : "nenhum");
 
 await page.screenshot({ path: `${SAIDA}/e2e-foundry.png` });
+clearInterval(sinalDeVida);
 await browser.close();
 
 if (falhas.length || erros.length) {

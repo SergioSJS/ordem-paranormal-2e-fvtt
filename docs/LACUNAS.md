@@ -442,7 +442,9 @@ lado.
   ponto, a solução é um conjunto verdadeiro com as peças separadas por " | ", e cada
   peça falsa um conjunto falso. O app mistura tudo num monte, sem marca; o jogador
   ordena e descarta. Sem "|" em lugar nenhum, o conjunto é lido palavra a palavra, como
-  antes.
+  antes. A revisão 1.1 se contradiz no "Altar" de Madeira: o conjunto imprime "SEU
+  FILHO," e a solução "sua filha" — a montagem toma o conjunto mais parecido (distância
+  de edição) como verdadeiro e deixa o aviso na janela, em vez de não montar o ato.
 - **Rádio sem enigma.** No Ídolo o rádio só "sai um som horripilante similar a gritos":
   reação sem nada para ordenar. O slot do rádio ganhou `texto` ao lado de `conjuntos`;
   sem conjuntos, usar o rádio revela o texto como qualquer outra ferramenta, sem teste.

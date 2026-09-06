@@ -13,6 +13,9 @@ import { join } from "node:path";
 import { documentoEmLinhas } from "../../module/extrator/grade.mjs";
 import { extrairAtoI } from "../../module/extrator/ato-i.mjs";
 import { extrairAtoII } from "../../module/extrator/ato-ii.mjs";
+import { montarAtoI } from "../../module/aventura/ato-i.mjs";
+import { montarAtoII } from "../../module/aventura/ato-ii.mjs";
+import { fontesDoAtoI, fontesDoAtoII } from "../aventura/fontes.mjs";
 
 const PDFJS = process.env.OP2_PDFJS
   ?? "/Applications/Foundry Virtual Tabletop.app/Contents/Resources/app/node_modules/@foundryvtt/pdfjs/build/pdf.mjs";
@@ -47,6 +50,28 @@ try {
 }
 for (const [nome, dados] of Object.entries(arquivos)) {
   writeFileSync(join(SAIDA, nome), `${JSON.stringify(dados, null, 2)}\n`);
+}
+
+// A montagem também — é o que a janela faz depois de extrair, e é onde uma
+// contradição do livro (o rádio da v1.1) derrubava a aventura inteira sem a
+// comparação da extração acusar nada.
+try {
+  const a1 = montarAtoI(atoI, fontesDoAtoI());
+  console.log(`montagem Ato I: ${a1.items.length} itens, ${a1.scenes.length} cena(s) — ok`);
+} catch (erro) {
+  console.log(`montagem Ato I: FALHOU — ${erro.message}`);
+  process.exitCode = 1;
+}
+if (atoII) {
+  const avisos = [];
+  try {
+    const a2 = montarAtoII(atoII.dados, { atoIPontos: atoI.pontos, atoIMaldicao: atoI.maldicao, ...fontesDoAtoII() }, { avisos });
+    console.log(`montagem Ato II: ${a2.items.length} itens — ok${avisos.length ? `, ${avisos.length} aviso(s)` : ""}`);
+    for (const a of avisos) console.log(`   !! ${a}`);
+  } catch (erro) {
+    console.log(`montagem Ato II: FALHOU — ${erro.message}`);
+    process.exitCode = 1;
+  }
 }
 const linhasDeQuadro = atoI.pontos.reduce((n, p) => n + p.informacoes.length, 0);
 const desafios = atoI.pontos.filter((p) => p.desafio).length;

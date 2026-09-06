@@ -94,6 +94,13 @@ node scripts/e2e/verificar.mjs http://localhost:30099 /tmp
 Sai com código 1 se alguma verificação falhar ou se houver erro no console do browser.
 Grava `e2e-foundry.png` na pasta de saída.
 
+O relatório só sai no fim (uns 5 minutos). No meio, a cada 90 s, o harness escreve em
+stderr um sinal de vida — `[e2e 180s] print ok; janelas: …; console: …` — e um print
+do estado em `e2e-andamento.png` na pasta de saída. **Silêncio por mais de 90 s é
+travamento**, não lentidão: um diálogo aberto prende o `page.evaluate` para sempre.
+Olhe o print e a lista de janelas para achar o diálogo; se o print "trava", a página
+está presa em JS.
+
 Com `docs/Ordem-2-Playtest-Alpha-Ato-II-Extras.zip` presente, o harness também importa
 o Ato II pelo caminho de verdade: entrega o zip ao importador pelo `<input type=file>`,
 espera o upload, e confere no mundo os caminhos, os arquivos servidos, o laser e o

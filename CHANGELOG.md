@@ -36,7 +36,9 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
   pacote — a Licença da Comunidade não permite. *Configurações → Aventuras do
   playtest*: o sistema lê o PDF do playtest no navegador, monta o Ato I (e o Ato II, se
   o PDF for o completo) e guarda no compêndio do mundo, pronto para importar. Lê as
-  revisões 1 e 1.1 do playtest e o PDF gratuito.
+  revisões 1 e 1.1 do playtest e o PDF gratuito; contradição do livro (o Rádio da 1.1)
+  vira aviso na janela, não erro. A janela mostra o que há das artes na pasta do mundo
+  e tem o botão de enviar o zip antes de importar.
 - **Nenhuma arte do livro vem no pacote.** As do Ato I são o zip gratuito do site da
   editora; as do Ato II vêm com a assinatura dos Arquivos Secretos. O sistema pede o
   zip de cada ato na hora de importar e guarda os arquivos na pasta do mundo.

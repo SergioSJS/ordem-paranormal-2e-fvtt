@@ -34,6 +34,12 @@ node scripts/extrator/rodar.mjs <pdf> <pasta-do-gabarito> --texto --completo
 - Escreve `build/js/*.json` (o que o Foundry montaria) e `build/js/texto.txt` (a grade,
   para olhar).
 - Compara com o gabarito e lista diferença por caminho (`ato-i-pontos[13].informacoes[4].dt`).
+- **Monta os dois atos** (`montarAtoI`/`montarAtoII`, os mesmos da janela) e imprime
+  `montagem Ato II: … ok` ou `FALHOU — <erro>`, com os avisos da montagem. Extração
+  idêntica não garante montagem: a revisão 1.1 passou na comparação e derrubava o Ato
+  II na janela, porque o Rádio imprime "SEU FILHO," no conjunto e "sua filha" na
+  solução. A montagem agora avisa e segue; a lição é que **a revisão só está testada
+  quando montou** — extração, montagem e e2e, nunca só a comparação.
 - `OP2_MAX_DIFS=80` mostra mais linhas.
 
 **Gabaritos:**
@@ -97,9 +103,11 @@ node scripts/extrator/rodar.mjs <pdf> <pasta-do-gabarito> --texto --completo
 1. Ponha os arquivos em `jambo-arquivos/vN/…`.
 2. Rode a revisão anterior e guarde: `cp -r build/js build/js-anterior`.
 3. Rode a nova contra `build/js-anterior` (`--completo --texto`), e também o PDF
-   gratuito da revisão.
+   gratuito da revisão. Olhe as linhas `montagem Ato I/II`: têm que dizer `ok`, e
+   cada aviso é uma contradição do livro para registrar em `docs/LACUNAS.md`.
 4. Classifique cada diferença. Texto que mudou no livro: legítimo. Estrutura que mudou
    (contagem de pontos, linhas, DTs, perícias): investigue.
 5. `npm run check` e, com o Foundry descartável, `npm run e2e` com `OP2_E2E_PDF`
-   apontando para o PDF novo.
+   apontando para o PDF novo — é ele que abre a janela, monta e importa de verdade.
+   Sem esse passo a revisão **não** está testada.
 6. Atualize esta skill se aprendeu uma regra nova.

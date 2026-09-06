@@ -159,6 +159,28 @@ const fontesAtoII = () => ({
   cena: { _id: "c2", name: "O Porão", walls: [] },
 });
 
+test("montarAtoII: o Rádio da revisão 1.1 se contradiz (\"SEU FILHO,\" vs \"sua filha\") — aviso, não erro", () => {
+  const dados = dadosAtoII();
+  const conjuntos = ["SEU FILHO,", "ELOÍSA", "ESTAMOS APENAS NOS DEFENDENDO", "NÃO TEMOS ESCOLHA"];
+  dados.pontos[0].ferramentas.push({
+    chave: "radio", rotulo: "Rádio Modificado", texto: "", handouts: [],
+    radio: { conjuntos, solucao: "Alan: sua filha Eloísa, estamos apenas nos defendendo." },
+  });
+  const avisos = [];
+  const aventura = montarAtoII(dados, fontesAtoII(), { avisos });
+  const radio = aventura.items.find((i) => i.name === "O Ídolo de Pedra").system.ferramentas.radio;
+  assert.equal(avisos.length, 1);
+  assert.match(avisos[0], /O Ídolo de Pedra: o Rádio imprime "SEU FILHO," no conjunto e "sua filha" na solução/);
+  assert.equal(radio.conjuntos[0].verdadeiro, true);
+  assert.equal(radio.conjuntos[0].frase, "SEU FILHO, | ELOÍSA | ESTAMOS APENAS NOS DEFENDENDO");
+  assert.deepEqual(radio.conjuntos.filter((c) => !c.verdadeiro).map((c) => c.frase), ["NÃO TEMOS ESCOLHA"]);
+  // Sem a contradição, nenhum aviso — e a mesma ordem.
+  const limpos = [];
+  dados.pontos[0].ferramentas.at(-1).radio.solucao = "Alan: seu filho, Eloísa, estamos apenas nos defendendo.";
+  montarAtoII(dados, fontesAtoII(), { avisos: limpos });
+  assert.deepEqual(limpos, []);
+});
+
 test("montarAtoII: o handout citado solto no texto ganha a imagem, com o número desta revisão do livro", () => {
   const aventura = montarAtoII(dadosAtoII(), fontesAtoII());
   const idolo = aventura.items.find((i) => i.name === "O Ídolo de Pedra");

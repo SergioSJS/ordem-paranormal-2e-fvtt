@@ -852,16 +852,20 @@
         "ato-i": "{pontos} pontos de interesse, {linhas} linhas de quadro, {desafios} desafios, maldição em {rodadas} rodadas, {itens} itens de mesa",
         "ato-ii": "{pontos} pontos de interesse, {linhas} linhas de quadro, {desafios} desafios, {leituras} leituras de ferramenta"
       },
-      "Problemas": "Conferência: {n} aviso(s) — o texto e a tabela de locais de uso não batem em tudo; confira no livro",
+      "Problemas": "Conferência: {n} aviso(s) — o que o texto diz e o que o livro imprime não batem em tudo; confira no livro",
       "Motivo": {
         "trecho": "Não achei o Ato I dentro deste PDF. É o livro do playtest de Ordem Paranormal 2?",
         "ausente": "Este PDF não traz o Ato II — ele só existe no PDF completo do playtest.",
-        "falha": "A montagem falhou. Veja o console (F12) para o detalhe."
+        "falha": "A montagem falhou."
       },
       "Importado": "{nome}: importado para o mundo.",
       "MenuNome": "Aventuras do playtest",
       "MenuBotao": "Montar do PDF",
-      "MenuAjuda": "Escolha o PDF do playtest e o sistema monta o Ato I (e o Ato II, se o PDF o trouxer) no compêndio deste mundo."
+      "MenuAjuda": "Escolha o PDF do playtest e o sistema monta o Ato I (e o Ato II, se o PDF o trouxer) no compêndio deste mundo.",
+      "NaoMontada": "Não montada",
+      "ArtesFaltam": "Artes: faltam {faltam} de {total} arquivos na pasta do mundo — é o {zip} da editora",
+      "ArtesOk": "Artes: os {total} arquivos estão em {pasta}",
+      "EnviarZip": "Enviar zip das artes"
     },
     "Licenca": {
       "Aviso": "Este é um conteúdo não oficial, publicado sob a Licença da Comunidade de Ordem Paranormal.",

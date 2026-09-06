@@ -8,6 +8,7 @@
  */
 import { SYSTEM_ID } from "../config.mjs";
 import { LICENCA, SELO } from "../ui/licenca.mjs";
+import { ExtrasApp, extrasDaAventura, arquivosPresentes, pastaDosExtras } from "../ui/extras-aventura.mjs";
 import { linhasDoPdf } from "./pdf.mjs";
 import { ATOS, montarEGuardar, aventuraNoMundo, documentoDaAventura } from "./mundo.mjs";
 
@@ -23,6 +24,7 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
       escolherPdf: AventurasApp.#escolherPdf,
       importar: AventurasApp.#importar,
       abrirAventura: AventurasApp.#abrirAventura,
+      enviarZip: AventurasApp.#enviarZip,
     },
   };
 
@@ -35,22 +37,30 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   async _prepareContext(opcoes) {
     const contexto = await super._prepareContext(opcoes);
-    const atos = ATOS.map((ato) => {
+    // Os dois atos de uma vez: conferir as artes na pasta do mundo é I/O (o documento do
+    // compêndio e o FilePicker), e em série a janela demorava para aparecer.
+    const atos = await Promise.all(ATOS.map(async (ato) => {
       const resultado = this.#estado.resultados?.find((r) => r.nome === ato.nome);
       const resumo = resultado?.resumo
         ? game.i18n.format(`OP2.Aventuras.Resumo.${ato.nome}`, resultado.resumo) : "";
+      const noMundo = Boolean(aventuraNoMundo(ato.aventura));
       return {
         ...ato,
         rotulo: game.i18n.localize(ato.rotulo),
-        noMundo: Boolean(aventuraNoMundo(ato.aventura)),
+        noMundo,
         montado: Boolean(resultado?.ok),
+        falhou: Boolean(resultado && !resultado.ok && resultado.motivo !== "ausente"),
         motivo: resultado && !resultado.ok ? resultado.motivo : null,
+        erro: resultado?.erro ?? "",
         resumo,
         // A conferência do Ato II (o texto de cada ponto contra a tabela de locais de
-        // uso): aviso, não erro — o mestre confere no livro.
+        // uso) e os avisos da montagem: aviso, não erro — o mestre confere no livro.
         problemas: resultado?.problemas ?? [],
+        // As artes vêm do zip da editora: dizer aqui o que já está na pasta do mundo
+        // e oferecer o envio, em vez de só pedir na hora de importar.
+        artes: noMundo ? await this.#artesDe(ato) : null,
       };
-    });
+    }));
     return { ...contexto, atos, ...this.#estado, licenca: LICENCA, selo: SELO };
   }
 
@@ -62,6 +72,28 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static #escolherPdf() {
     this.element.querySelector("[data-pdf]")?.click();
+  }
+
+  /** O que a aventura espera do zip, e o que já está na pasta do mundo. */
+  async #artesDe(ato) {
+    const aventura = await documentoDaAventura(ato.aventura);
+    const extras = extrasDaAventura(aventura);
+    if (!extras) return null;
+    const presentes = await arquivosPresentes(extras);
+    const faltam = extras.arquivos.filter((a) => !presentes.has(a.destino)).length;
+    return { total: extras.arquivos.length, faltam, zip: extras.zip, pasta: pastaDosExtras(extras) };
+  }
+
+  /** Sobe o zip das artes antes de importar — a mesma janela que a importação pede. */
+  static async #enviarZip(_evento, alvo) {
+    const ato = ATOS.find((a) => a.nome === alvo.dataset.ato);
+    const aventura = await documentoDaAventura(ato.aventura);
+    const extras = extrasDaAventura(aventura);
+    if (!aventura || !extras) return;
+    const presentes = await arquivosPresentes(extras);
+    const faltam = extras.arquivos.filter((a) => !presentes.has(a.destino));
+    await ExtrasApp.pedir(aventura, extras, faltam.length ? faltam : extras.arquivos, { permitirPular: false });
+    await this.render();
   }
 
   /** Lê o PDF, monta o que ele traz e guarda no compêndio do mundo. */
