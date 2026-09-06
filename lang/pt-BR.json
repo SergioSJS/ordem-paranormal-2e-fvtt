@@ -828,7 +828,7 @@
     },
     "Aventuras": {
       "Titulo": "Aventuras do playtest",
-      "Explicacao": "O texto das aventuras é do livro, e a Licença da Comunidade não permite redistribuí-lo. Escolha o PDF do playtest que você já tem: o sistema lê o texto aqui no navegador, monta os atos e guarda no compêndio deste mundo, prontos para importar. O arquivo não vai para lugar nenhum.",
+      "Explicacao": "O texto das aventuras é do livro, e a Licença da Comunidade não permite redistribuí-lo. Escolha o PDF do playtest que você já tem: o sistema lê o texto aqui no navegador, monta os atos e guarda no compêndio deste mundo, prontos para importar. O arquivo não vai para lugar nenhum. As artes vêm nos zips da editora, pedidos na hora de importar.",
       "Escolher": "Escolher o PDF do playtest",
       "Lendo": "Lendo o PDF…",
       "Progresso": "Página {pagina} de {total}",
@@ -870,14 +870,14 @@
         "ficha": "Ficha e motor de dados: escada d4→d12, dois dados somados, RA/RB, crítico e falha crítica com a tabela do livro.",
         "investigacao": "Cenas de investigação: pontos de interesse com o quadro Perícia · DT · Informação, Examinar, Interagir, Recapitular, Compartilhar, sobrecarga mental e o painel do mestre.",
         "desafios": "Desafios de acesso (Arrombar, Destrancar, Hackear, Sustentar) e as dez ferramentas da Ordo Realitas, com Laboratório Portátil e Rádio Modificado em janela própria.",
-        "compendios": "{n} compêndios: habilidades, ocupações, ferramentas, e os pré-gerados, a cena, os handouts e a trilha do Ato I."
+        "compendios": "{n} compêndios de regras: habilidades, ocupações e ferramentas. Pré-gerados, cena, handouts e trilha entram com a aventura de cada ato."
       },
       "AventurasTitulo": "As aventuras saem do seu PDF",
       "AventurasTexto": "O texto dos atos é do livro, e a Licença da Comunidade não permite redistribuí-lo. Escolha o PDF do playtest que você já tem: o sistema lê o texto aqui no navegador, monta cada ato como uma aventura e guarda no compêndio deste mundo, pronta para importar. O PDF gratuito basta para o Ato I.",
       "AtoNoMundo": "guardado neste mundo",
       "AtoFalta": "ainda não montado",
       "AbrirAventuras": "Aventuras do playtest",
-      "AtoII": "O Ato II só existe no PDF completo do playtest, e as artes dele vêm no zip que a editora entrega a quem assina os Arquivos Secretos — o sistema pede esse zip na hora de importar. Assinar é o que mantém o playtest vivo.",
+      "AtoII": "As artes vêm nos zips da editora: o do Ato I é o pacote gratuito do site; o do Ato II, dos Arquivos Secretos, que só assinantes têm — e o Ato II só existe no PDF completo. O sistema pede o zip na hora de importar. Assinar é o que mantém o playtest vivo.",
       "LinksTitulo": "Links",
       "Apoiar": "Apoie a editora — loja de Ordem Paranormal",
       "Site": "Site oficial de Ordem Paranormal",

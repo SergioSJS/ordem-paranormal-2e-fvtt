@@ -28,7 +28,8 @@ page.on("console", (m) => {
   const texto = m.text();
   // Ruído do headless, não do sistema.
   if (texto.includes("hardware acceleration")) return;
-  erros.push(texto.split("\n")[0]);
+  const onde = m.location()?.url ?? "";
+  erros.push(texto.split("\n")[0] + (onde ? ` ← ${onde.replace(/^https?:\/\/[^/]+\//, "")}` : ""));
 });
 
 // A licença copiada para o User Data descartável é assinada com o hostname da máquina;
@@ -97,6 +98,18 @@ const relato = await page.evaluate(async (boasVindas) => {
   const dados = {};
   const ok = (titulo, condicao) => passos.push([Boolean(condicao), titulo]);
   const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  // Os pré-gerados do Ato I vêm do bundle da janela de aventuras, sem as artes (que
+  // vêm do zip da editora, não do sistema): um ícone do core no lugar do retrato e do
+  // token, e a biografia sem a imagem do histórico — senão cada ficha aberta é um 404.
+  const fontesAtoI = await (await fetch("systems/ordem-paranormal-2e/assets/aventura/fontes-ato-i.json")).json();
+  const pregeradoSemArte = (nome) => {
+    const doc = foundry.utils.deepClone(fontesAtoI.pregerados.find((a) => a.name === nome));
+    doc.img = "icons/svg/mystery-man.svg";
+    foundry.utils.setProperty(doc, "prototypeToken.texture.src", "icons/svg/mystery-man.svg");
+    if (doc.system?.biografia) doc.system.biografia = doc.system.biografia.replace(/<img[^>]*>/g, "");
+    return doc;
+  };
 
   // Compêndio é LevelDB, e LevelDB aceita um processo só: com dois Foundry no ar, o
   // banco não abre e o mundo sobe sem compêndio algum — sem erro na tela. Sem esta
@@ -649,9 +662,7 @@ const relato = await page.evaluate(async (boasVindas) => {
   // Ímpeto pertence à habilidade que a concede — no cabeçalho ela aparecia até para
   // quem não tem Ímpeto nenhum (achado em uso real).
   {
-    const pack = game.packs.get("ordem-paranormal-2e.ato-i-personagens");
-    const entrada = [...pack.index].find((i) => i.name === "Alan");
-    const alan = await Actor.create((await pack.getDocument(entrada._id)).toObject());
+    const alan = await Actor.create(pregeradoSemArte("Alan"));
     await alan.items.getName("Ímpeto").update({ "system.impeto.preenchidos": 2 });
     await alan.sheet.render(true);
     await esperar(900);
@@ -763,12 +774,11 @@ const relato = await page.evaluate(async (boasVindas) => {
 
   // Compêndios: o que o mestre importa precisa bater com a ficha publicada.
   {
-    const pack = game.packs.get("ordem-paranormal-2e.ato-i-personagens");
-    ok("compêndio de pré-gerados do Ato I existe e tem os cinco", pack?.index.size === 5);
-    if (pack) {
-      const entrada = [...pack.index].find((i) => i.name === "Alan");
-      const alan = entrada && await pack.getDocument(entrada._id);
-      ok("Alan importa com os valores da ficha publicada",
+    // Os pré-gerados não são mais compêndio: vão dentro da aventura, a partir do bundle.
+    ok("o bundle da janela traz os cinco pré-gerados do Ato I", fontesAtoI.pregerados.length === 5);
+    {
+      const alan = fontesAtoI.pregerados.find((a) => a.name === "Alan");
+      ok("Alan vem com os valores da ficha publicada",
         alan?.system.atributos.mente.die === "d8"
         && alan?.system.recursos.pd.max === 16
         && alan?.system.pericias.percepcao.die === "d8"
@@ -818,19 +828,18 @@ const relato = await page.evaluate(async (boasVindas) => {
 
     // Uma cena só, com muros, no lugar dos três mapas: trocar de mapa no meio da
     // sessão perde tokens e estado. As paredes saem da diferença entre os arquivos.
-    const cenas = game.packs.get("ordem-paranormal-2e.ato-i-cenas");
-    ok("compêndio traz uma cena do Porão, não três", cenas?.index.size === 1);
-    if (cenas) {
-      const cena = await cenas.getDocument([...cenas.index][0]._id);
-      ok("a cena usa o mapa completo", cena._source.background?.src?.includes("completo") === true);
-      ok("a cena vem murada", cena.walls.size >= 30);
+    const cena = fontesAtoI.cena;
+    ok("o bundle traz uma cena do Porão, não três", cena?.name === "O Porão — Ato I");
+    if (cena) {
+      ok("a cena usa o mapa completo", cena.levels?.[0]?.background?.src?.includes("completo") === true);
+      ok("a cena vem murada", cena.walls.length >= 30);
       ok("e com portas secretas nas passagens escondidas",
         cena.walls.filter((p) => p.door === 2).length >= 4);
       // Com padding, o Foundry desloca o fundo e as paredes caem fora da arte.
       ok("sem padding, para as paredes baterem com a arte", cena.padding === 0);
       ok("visão por token ligada — é o que faz a parede valer", cena.tokenVision === true);
 
-      const importada = await Scene.create(cena.toObject());
+      const importada = await Scene.create(cena);
       // No v14 o fundo vira documento de nível na carga; se ele não chegar, a cena
       // importa em branco — foi o que aconteceu com o fundo escrito como nível no
       // compêndio, que o Foundry ignora (achado em uso real).
@@ -921,194 +930,8 @@ const relato = await page.evaluate(async (boasVindas) => {
       ok("os pontos que citam handout trazem a imagem na descrição do mestre",
         comHandout.length >= 10);
 
-      /* ---- o import de verdade: o compêndio certo não garante mundo certo ---- */
-      // Importar é o único jeito de saber se os UUIDs sobrevivem à travessia: no
-      // compêndio eles apontam para dentro da aventura, no mundo têm que apontar para
-      // os documentos criados.
-      const conteudo = {
-        Actor: [...aventura.actors], Item: [...aventura.items],
-        Scene: [...aventura.scenes], JournalEntry: [...aventura.journal],
-        Playlist: [...aventura.playlists], Folder: [...aventura.folders],
-      };
-      const colecao = {
-        Actor: game.actors, Item: game.items, Scene: game.scenes,
-        JournalEntry: game.journal, Playlist: game.playlists, Folder: game.folders,
-      };
-      // O import é `keepId`: limpar antes e depois deixa o teste repetível e não
-      // enche o mundo de teste a cada execução.
-      const limpar = async () => {
-        for (const [nome, docs] of Object.entries(conteudo)) {
-          for (const doc of docs) await colecao[nome].get(doc.id)?.delete().catch(() => {});
-        }
-      };
-      const noMundo = (nome) => conteudo[nome].map((d) => colecao[nome].get(d.id)).filter(Boolean);
-
-      await limpar();
-      await aventura.import({ dialog: false });
-      ok("importar a aventura cria tudo no mundo",
-        noMundo("Actor").length === 6 && noMundo("Item").length === 45   // 31 pontos, 10 desafios, 3 de mesa, 1 evento
-        && noMundo("Scene").length === 1 && noMundo("JournalEntry").length === 4
-        && noMundo("Playlist").length === 1);
-
-      // Sem pastas o import despeja 28 itens soltos na raiz do diretório.
-      const pastas = noMundo("Folder");
-      const raizes = pastas.filter((f) => !f.folder);
-      ok("e organiza o que importou em pastas, uma raiz por diretório",
-        pastas.length === 10 && raizes.length === 5
-        && raizes.every((f) => f.name === "Ato I — O Porão")
-        && new Set(raizes.map((f) => f.type)).size === 5);
-
-      // Nada solto na raiz: a maldição e a faca de churrasco caíam entre as pastas, e
-      // ninguém adivinha o que "Molho de Chaves 2" faz ali (achado em uso real).
-      const raizItens = raizes.find((f) => f.type === "Item");
-      const subpastas = pastas.filter((f) => f.folder?.id === raizItens?.id).map((f) => f.name).sort();
-      const soltosNaRaiz = noMundo("Item").filter((i) => i.folder?.id === raizItens?.id);
-      ok(`cada tipo de item tem a sua pasta, e nada fica solto na raiz (${soltosNaRaiz.map((i) => i.name).join(", ") || "nenhum solto"})`,
-        subpastas.join("|") === "Desafios de Acesso|Eventos|Itens de Mesa|Pontos de Interesse"
-        && soltosNaRaiz.length === 0);
-      const naPasta = (nome) => {
-        const alvo = pastas.find((f) => f.name === nome);
-        return noMundo("Item").concat(noMundo("Actor")).filter((d) => d.folder?.id === alvo?.id);
-      };
-      ok("com pontos, desafios e pré-gerados cada um na sua",
-        naPasta("Pontos de Interesse").length === 31
-        && naPasta("Desafios de Acesso").length === 10
-        && naPasta("Pré-gerados").length === 5);
-      ok("e nada solto fora de pasta",
-        [...noMundo("Actor"), ...noMundo("Item"), ...noMundo("Scene"),
-          ...noMundo("JournalEntry"), ...noMundo("Playlist")].every((d) => d.folder));
-
-      const pontosNoMundo = noMundo("Item").filter((i) => i.type === "ponto-interesse");
-      const linhasNoMundo = pontosNoMundo.flatMap((i) => i.system.informacoes);
-      ok("os pontos chegam ao mundo com o quadro preenchido",
-        pontosNoMundo.length === 31 && linhasNoMundo.length === 87
-        && linhasNoMundo.every((l) => l.pericia && l.dt > 0 && l.texto.length > 10));
-      // Linha com condição no livro ("apenas Victor", "se o ídolo for quebrado") entra
-      // como rascunho: Examinar não alcança, o mestre libera quando a condição acontece.
-      ok("e as linhas condicionais entram como rascunho, o resto descobrível",
-        linhasNoMundo.filter((l) => l.oculta).length === 6
-        && linhasNoMundo.every((l) => l.aberta === false)
-        && linhasNoMundo.filter((l) => l.oculta).every((l) => /<em>\(/.test(l.texto)));
-
-      const desafiosNoMundo = noMundo("Item").filter((i) => i.type === "desafio-acesso");
-      ok("os dez desafios de acesso chegam com os números do livro",
-        desafiosNoMundo.length === 10
-        && desafiosNoMundo.every((d) => d.system.dtObjeto > 0 && d.system.pontuacaoAlvo > 0
-          && Object.values(d.system.abordagens).some(Boolean)));
-      // Os dois pontos-chave têm "[EVIDÊNCIA-CHAVE]" no título: sem colchete no regex
-      // do extrator, eles não existiam e o quadro deles caía no ponto anterior.
-      ok("as duas evidências-chave do porão estão entre os pontos",
-        ["Celular de Gustavo", "Computador"].every((n) => pontosNoMundo.some((p) => p.name.includes(n))));
-
-      const celular = desafiosNoMundo.find((d) => d.name.includes("Celular"));
-      ok("o celular chega como Hack Social, com o banco de perguntas do livro",
-        celular?.system.abordagens.hackSocial === true
-        && celular.system.hackSocial.respostasNecessarias === 4
-        && celular.system.hackSocial.perguntas.length === 6
-        && celular.system.hackSocial.perguntas.some((p) => /Gustavo Alves de Campos/.test(p.resposta)));
-
-      const computador = desafiosNoMundo.find((d) => d.name.includes("Computador"));
-      ok("e o computador, com a faixa dizendo quantos segundos o jogador tem",
-        computador?.system.hackTecnico.tabela.length === 3
-        && computador.system.hackTecnico.tabela[0].segundos === 20
-        && computador.system.hackTecnico.tabela.every((l) => /23 x 4 - 25 = 67/.test(l.desafio)));
-
-      // Itens que o livro descreve na prosa, não em quadro nenhum.
-      const itensDeMesa = noMundo("Item").filter((i) => i.type === "equipamento");
-      const faca = itensDeMesa.find((i) => i.name.includes("Faca"));
-      ok("a faca de churrasco e os dois molhos de chaves viram itens",
-        itensDeMesa.length === 3 && faca?.system.arma === true
-        && itensDeMesa.filter((i) => i.name.startsWith("Molho")).length === 2);
-
-      // As correntes de Edgar: desafio que o livro descreve em caixa baixa, no texto.
-      const correntes = desafiosNoMundo.find((d) => d.name.includes("Correntes"));
-      ok("as correntes de Edgar viram desafio, mesmo sem caixa no livro",
-        correntes?.system.dtObjeto === 10 && correntes.system.pontuacaoAlvo === 10
-        && correntes.system.tamanhoSenha === 4 && correntes.system.facesSenha === 4
-        && correntes.system.maxTentativas === 2);
-      // Cada desafio pertence ao ponto de onde veio: o ponto lista o desafio.
-      const poisNoMundo = noMundo("Item").filter((i) => i.type === "ponto-interesse");
-      const pontoDeEdgar = poisNoMundo.find((p) => p.name.startsWith("Edgar"));
-      ok("o ponto de Edgar e Kênia lista as correntes como desafio dele",
-        pontoDeEdgar?.system.desafios.includes(`Item.${correntes.id}`)
-        && desafiosNoMundo.every((d) => poisNoMundo.some((p) => p.system.desafios.includes(`Item.${d.id}`))));
-
-      // A estante é enigma + Sustentar: abordagem genérica, não arrombamento.
-      // Os vinte livros das cinco prateleiras: é neles que os jogadores caçam os quatro.
-      const estantePonto = pontosNoMundo.find((p) => p.name === "Estante de Livros");
-      ok("a estante traz as cinco prateleiras com os vinte livros",
-        (estantePonto?.system.descricaoContextual.match(/<li>/g) ?? []).length === 20
-        && /Prateleira 5/.test(estantePonto.system.descricaoContextual));
-
-      const estante = desafiosNoMundo.find((d) => d.name.startsWith("Estante"));
-      ok("a estante entra como obstáculo de Sustentar, com DT, consequência e o enigma",
-        /Prateleira 2/.test(estante?.flags["ordem-paranormal-2e"]?.notaDoMestre ?? "")
-        && estante?.system.abordagens.sustentar === true
-        && estante.system.sustentar.dt === 7
-        && /1d4 PV/.test(estante.system.sustentar.aoFalhar));
-
-      // A senha impressa do painel da saída é informação de mestre, não minigame.
-      const saida = pontosNoMundo.find((p) => p.name === "Porta de Saída");
-      ok("e a senha impressa da porta de saída fica na descrição do mestre",
-        /160322/.test(saida?.system.descricaoContextual ?? "")
-        && !desafiosNoMundo.some((d) => d.name.includes("Saída")));
-
-      // O painel do Depósito A é Hack Técnico, não arrombamento — a caixa do livro diz.
-      const painel = desafiosNoMundo.find((d) => d.name.includes("Painel"));
-      ok("e o painel elétrico chega como Hack Técnico, com a tabela do livro em dado",
-        painel?.system.abordagens.hackTecnico === true
-        && !painel.system.abordagens.arrombar
-        && painel.system.hackTecnico.tabela.length === 4
-        && painel.system.hackTecnico.tabela[0].desafio === "16 x 5 = 80");
-
-      const investigacaoNoMundo = noMundo("Actor").find((a) => a.type === "investigacao");
-      const links = [
-        ...investigacaoNoMundo.system.pois,
-        ...investigacaoNoMundo.system.desafios,
-        ...investigacaoNoMundo.system.participantes,
-      ];
-      const alvosDoLink = await Promise.all(links.map((uuid) => fromUuid(uuid)));
-      ok("a investigação importada resolve pontos, desafios e participantes no mundo",
-        links.length === pontosNoMundo.length + desafiosNoMundo.length + 5
-        && alvosDoLink.every((d) => d && !d.pack));
-
-      // O roteiro da cena: "A Dívida Precisa Ser Paga" avisa o mestre na rodada certa.
-      // O que o mestre lê para abrir e fechar o ato ficava fora do compêndio.
-      const roteiro = noMundo("JournalEntry").find((j) => j.name.startsWith("Roteiro"));
-      ok("o roteiro do ato traz introdução, cena inicial e narração final",
-        roteiro?.pages.size === 3
-        && /O Paranormal não vem para nossa Realidade/.test(roteiro.pages.getName("Introdução")?.text.content ?? "")
-        && /Alan, Victor e Eloísa acordam/.test(roteiro.pages.getName("O Ídolo de Pedra, Ato I")?.text.content ?? "")
-        && /TODOS MORREM/.test(roteiro.pages.getName("Narração final")?.text.content ?? ""));
-
-      const diarioMaldicao = noMundo("JournalEntry").find((j) => j.name.includes("Maldição"));
-      ok("o diário da maldição vem com ativação, tabela e as duas caixas do livro",
-        diarioMaldicao?.pages.size === 4
-        && /teste de Disciplina \(DT 7\)/.test(diarioMaldicao.pages.contents
-          .map((pg) => pg.text.content).join(" "))
-        && ["A Dívida Foi Paga", "Ídolo Quebrado"].every((n) => diarioMaldicao.pages.getName(n)));
-
-      // A maldição é um Item de evento: as rodadas contam a partir do gatilho (o grupo
-      // observar o Ídolo), não do começo da cena (achado em uso real, lendo o livro).
-      const maldicaoNoMundo = noMundo("Item").find((i) => i.type === "evento");
-      ok("a maldição vira um evento com roteiro próprio, e a investigação aponta para ele",
-        maldicaoNoMundo?.name.includes("Maldição")
-        && maldicaoNoMundo.system.rodadas.map((r) => r.rodada).join() === "0,4,7,10,13,14"
-        && maldicaoNoMundo.system.disparado === false && maldicaoNoMundo.system.rodadaInicial === -1
-        && /Ídolo de Pedra/.test(maldicaoNoMundo.system.gatilho)
-        && investigacaoNoMundo.system.eventos.join() === `Item.${maldicaoNoMundo.id}`
-        // A rodada 0 é a ativação: o texto completo, não a célula "efeitos descritos acima".
-        && /teste de Disciplina \(DT 7\)/.test(
-          maldicaoNoMundo.system.rodadas.find((r) => r.rodada === 0)?.efeito ?? ""));
-
-
-      const cenaNoMundo = noMundo("Scene")[0];
-      ok("a cena importada tem mapa e as paredes do porão",
-        Boolean(cenaNoMundo._source.background?.src) && cenaNoMundo.walls.size >= 30);
-
-      await limpar();
-      ok("e apagar o que foi importado devolve o mundo ao estado anterior",
-        noMundo("Item").length === 0 && noMundo("Actor").length === 0);
+      // O import de verdade — com o zip das artes, a cena, o roteiro, a maldição e os
+      // desafios no mundo — é o bloco da janela de aventuras, mais abaixo.
     }
 
     // O Ato II: a mesma estrutura, mais o setor de ferramentas de cada ponto e as artes
@@ -1207,17 +1030,10 @@ const relato = await page.evaluate(async (boasVindas) => {
       && [...nomesDePasta].some((n) => n.startsWith("Ato I ")) && [...nomesDePasta].some((n) => n.startsWith("Ato II")));
 
     // As duas faixas liberadas, como playlist pronta.
-    const musicas = game.packs.get("ordem-paranormal-2e.ato-i-musicas");
-    ok("compêndio traz a trilha do Ato I", musicas?.index.size === 1);
-    if (musicas) {
-      const trilha = await musicas.getDocument([...musicas.index][0]._id);
-      ok("a trilha tem as duas faixas", trilha.sounds.size === 2);
-      ok("as faixas moram dentro do sistema",
-        trilha.sounds.every((s) => s.path.startsWith("systems/ordem-paranormal-2e/assets/ato-i/musicas/")));
-    }
-
-    ok("compêndio de handouts do Ato I existe",
-      game.packs.get("ordem-paranormal-2e.ato-i-handouts")?.index.size === 2);
+    ok("o bundle traz a trilha do Ato I, com as duas faixas no prefixo que o zip preenche",
+      fontesAtoI.trilha.length === 1 && fontesAtoI.trilha[0].sounds.length === 2
+      && fontesAtoI.trilha[0].sounds.every((x) => x.path.startsWith("systems/ordem-paranormal-2e/assets/ato-i/musicas/")));
+    ok("e os dois diários de handouts do Ato I", fontesAtoI.handouts.length === 2);
 
     // As 10 ferramentas da Ordo Realitas (spec §9), prontas para o mestre distribuir.
     const ferramentas = game.packs.get("ordem-paranormal-2e.ferramentas");
@@ -1227,7 +1043,7 @@ const relato = await page.evaluate(async (boasVindas) => {
     // como quadro quebrado na sidebar, nunca como erro (achado em uso real).
     {
       const caminhos = new Set();
-      for (const nome of ["habilidades", "ferramentas", "ato-i-personagens", "ato-i-handouts"]) {
+      for (const nome of ["habilidades", "ferramentas"]) {
         const p = game.packs.get(`ordem-paranormal-2e.${nome}`);
         if (!p) continue;
         for (const entrada of p.index) {
@@ -1246,9 +1062,6 @@ const relato = await page.evaluate(async (boasVindas) => {
       // As artes do Ato I passaram a viajar no sistema: acabou a exceção, toda imagem
       // que um compêndio cita tem que carregar.
       ok("nenhuma imagem de compêndio do sistema está quebrada", quebradas.length === 0);
-      const doAtoI = [...caminhos].filter((c) => c.includes("/assets/ato-i/"));
-      ok("e as do Ato I vêm do próprio sistema, não do User Data",
-        doAtoI.length >= 20 && doAtoI.every((c) => c.startsWith("systems/ordem-paranormal-2e/")));
 
       const icones = [...caminhos].filter((c) => c.includes("/assets/icons/"));
       ok("ferramentas e habilidades têm ícone próprio, não o padrão do tipo",
@@ -3022,19 +2835,120 @@ const relato = await page.evaluate(async (boasVindas) => {
       }
     }, doAtoI);
     await limparAtoI();
+    // As artes do Ato I não vêm no sistema: o hook segura a importação e pede o zip
+    // gratuito da editora, como no Ato II. Com o User Data à mão, zera a pasta antes.
+    const mundoId = await page.evaluate(() => game.world.id);
+    if (process.env.OP2_E2E_DATA) {
+      rmSync(join(process.env.OP2_E2E_DATA, "Data", "worlds", mundoId, "ato-i"), { recursive: true, force: true });
+    }
+    const zipAtoI = "docs/Ordem-2-Playtest-Alpha-Ato-I-Extras.zip";
     await page.click('#op2-aventuras [data-action="importar"][data-ato="ato-i"]');
+    await page.waitForSelector(".op2-extras input[type=file]", { timeout: 20000 }).catch(() => {
+      throw new Error("importar o Ato I pela janela não pediu o zip: worlds/<mundo>/ato-i já tem os arquivos. "
+        + "Rode com OP2_E2E_DATA apontando para o User Data descartável.");
+    });
+    if (!existsSync(zipAtoI)) throw new Error(`${zipAtoI} não existe: o e2e precisa do zip gratuito do Ato I em docs/.`);
+    await page.setInputFiles(".op2-extras input[type=file]", zipAtoI);
+    await page.waitForSelector('.op2-extras [data-action="concluir"]', { timeout: 300000 });
+    const envioAtoI = await page.evaluate(() => ({
+      ok: Boolean(document.querySelector(".op2-extras__ok")),
+      listas: document.querySelectorAll(".op2-extras__lista li").length,
+      texto: document.querySelector(".op2-extras__ok")?.textContent ?? "",
+    }));
+    relato.passos.push([envioAtoI.ok && envioAtoI.listas === 0 && /36 arquivo/.test(envioAtoI.texto),
+      "o zip gratuito do Ato I traz todos os 36 arquivos que a aventura espera — nada aproximado, faltando ou recusado"]);
+    await page.click('.op2-extras [data-action="concluir"]');
     await page.waitForFunction(() => game.folders.getName("Pré-gerados") && game.folders.getName("Itens de Mesa")
       && game.items.filter((i) => i.type === "ponto-interesse" && i.folder?.folder?.name === "Ato I — O Porão").length === 31,
     null, { timeout: 180000 });
-    const importado = await page.evaluate(() => ({
-      pregerados: game.actors.filter((a) => a.folder?.name === "Pré-gerados").length,
-      cenas: game.scenes.filter((s) => s.folder?.name === "Ato I — O Porão").length,
-      desafios: game.items.filter((i) => i.type === "desafio-acesso" && i.folder?.folder?.name === "Ato I — O Porão").length,
-      investigacao: game.actors.find((a) => a.type === "investigacao" && a.folder?.name === "Ato I — O Porão")?.system.pois.length,
-      estados: [...document.querySelectorAll("#op2-aventuras .op2-aventuras__estado")].map((el) => el.textContent.trim()),
-    }));
-    relato.passos.push([importado.pregerados === 5 && importado.cenas === 1 && importado.desafios === 10 && importado.investigacao === 31,
-      "importar pela janela cria a mesa do Ato I no mundo, nas pastas"]);
+
+    const mundoAtoI = await page.evaluate(async (mundoId) => {
+      const passos = [];
+      const ok = (titulo, condicao) => passos.push([Boolean(condicao), titulo]);
+      const raiz = `worlds/${mundoId}/ato-i`;
+      const doAtoI = (d) => d.folder?.name === "Ato I — O Porão" || d.folder?.folder?.name === "Ato I — O Porão";
+      const pontos = game.items.filter((i) => i.type === "ponto-interesse" && doAtoI(i));
+      const desafios = game.items.filter((i) => i.type === "desafio-acesso" && doAtoI(i));
+      const pregerados = game.actors.filter((a) => a.folder?.name === "Pré-gerados");
+      const cena = game.scenes.find((x) => doAtoI(x));
+      const diarios = game.journal.filter((j) => doAtoI(j));
+      const trilha = game.playlists.find((p) => doAtoI(p));
+      const investigacao = game.actors.find((a) => a.type === "investigacao" && doAtoI(a));
+
+      ok("importar pela janela cria a mesa do Ato I no mundo, nas pastas",
+        pregerados.length === 5 && Boolean(cena) && desafios.length === 10 && diarios.length === 4 && Boolean(trilha)
+        && investigacao?.system.pois.length === 31);
+      // As artes: tudo aponta para a pasta do mundo, nada para o sistema.
+      const alan = pregerados.find((a) => a.name === "Alan");
+      ok("os pré-gerados chegam com retrato e token na pasta do mundo",
+        alan?.img === `${raiz}/tokens/personagem-alan.png`
+        && alan.prototypeToken.texture.src === `${raiz}/tokens/token-alan.png`);
+      ok("a cena importada tem o mapa do zip e as paredes do porão",
+        (cena?._source.levels?.[0]?.background?.src ?? cena?._source.background?.src) === `${raiz}/mapas/mapa-03-o-porao-sala-secreta-duto-de-ventilacao-completo.jpg`
+        && cena.walls.size >= 30);
+      const paginasComImagem = diarios.flatMap((j) => j.pages.contents.filter((p) => p.src));
+      ok("os handouts e os históricos apontam para o zip enviado, e a trilha também",
+        paginasComImagem.length === 23 && paginasComImagem.every((p) => p.src.startsWith(`${raiz}/`))
+        && trilha.sounds.every((x) => x.path.startsWith(`${raiz}/musicas/`)));
+      // Cada arquivo que o mundo aponta tem que estar lá de verdade — o zip subiu 36.
+      const arquivos = new Set([alan?.img, alan?.prototypeToken.texture.src,
+        cena?._source.levels?.[0]?.background?.src, ...paginasComImagem.map((p) => p.src), ...trilha.sounds.map((x) => x.path)]);
+      const respostas = await Promise.all([...arquivos].map(async (c) => [c, (await fetch(`/${c}`, { method: "HEAD" }).catch(() => null))?.ok]));
+      ok("e o Foundry serve todos eles", respostas.every(([, okay]) => okay));
+      ok("os pontos que citam handout trazem a imagem da pasta do mundo na descrição do mestre",
+        pontos.filter((p) => p.system.descricaoContextual.includes(`${raiz}/handouts/`)).length >= 10
+        && !pontos.some((p) => p.system.descricaoContextual.includes("assets/ato-i/")));
+
+      // O quadro, os desafios e o roteiro, como o livro imprime.
+      const linhas = pontos.flatMap((p) => p.system.informacoes);
+      ok("os pontos chegam ao mundo com as 87 linhas do quadro, perícia e DT em todas",
+        linhas.length === 87 && linhas.every((l) => l.pericia && l.dt > 0 && l.texto.length > 10));
+      const deposito = desafios.find((d) => d.name.startsWith("Depósito A"));
+      const freezer = desafios.find((d) => d.name.includes("Freezer"));
+      ok("os desafios saem das caixas do PDF com DT, PA e senha, e a senha não vem sorteada",
+        deposito?.system.dtObjeto === 10 && deposito.system.pontuacaoAlvo === 10
+        && deposito.system.tamanhoSenha === 3 && deposito.system.maxTentativas === 3
+        && freezer?.system.pontuacaoAlvo === 12 && freezer.system.dtObjeto === 7
+        && desafios.every((d) => d.system.senha.length === 0));
+      const celular = desafios.find((d) => d.name.includes("Celular"));
+      ok("o celular chega como Hack Social, com o banco de perguntas do livro",
+        celular?.system.abordagens.hackSocial === true && celular.system.hackSocial.respostasNecessarias === 4
+        && celular.system.hackSocial.perguntas.length === 6);
+      const computador = desafios.find((d) => d.name.includes("Computador"));
+      const painel = desafios.find((d) => d.name.includes("Painel"));
+      ok("computador e painel chegam como Hack Técnico, com as tabelas do livro em dado",
+        computador?.system.hackTecnico.tabela.length === 3
+        && painel?.system.abordagens.hackTecnico === true && painel.system.hackTecnico.tabela.length === 4
+        && painel.system.hackTecnico.tabela[0].desafio === "16 x 5 = 80");
+      const estante = desafios.find((d) => d.name.startsWith("Estante"));
+      ok("a estante entra como obstáculo de Sustentar, com DT, consequência e o enigma",
+        /Prateleira 2/.test(estante?.flags["ordem-paranormal-2e"]?.notaDoMestre ?? "")
+        && estante?.system.abordagens.sustentar === true && estante.system.sustentar.dt === 7
+        && /1d4 PV/.test(estante.system.sustentar.aoFalhar));
+      const saida = pontos.find((p) => p.name === "Porta de Saída");
+      ok("a senha impressa da porta de saída fica na descrição do mestre, sem virar minigame",
+        /160322/.test(saida?.system.descricaoContextual ?? "") && !desafios.some((d) => d.name.includes("Saída")));
+      const links = [...investigacao.system.pois, ...investigacao.system.desafios, ...investigacao.system.participantes];
+      const alvos = await Promise.all(links.map((uuid) => fromUuid(uuid)));
+      ok("a investigação importada resolve pontos, desafios e participantes no mundo",
+        links.length === pontos.length + desafios.length + 5 && alvos.every((d) => d && !d.pack));
+      const roteiro = diarios.find((j) => j.name.startsWith("Roteiro"));
+      ok("o roteiro do ato traz introdução, cena inicial e narração final",
+        roteiro?.pages.size === 3
+        && /O Paranormal não vem para nossa Realidade/.test(roteiro.pages.getName("Introdução")?.text.content ?? "")
+        && /Alan, Victor e Eloísa acordam/.test(roteiro.pages.getName("O Ídolo de Pedra, Ato I")?.text.content ?? "")
+        && /TODOS MORREM/.test(roteiro.pages.getName("Narração final")?.text.content ?? ""));
+      const diarioMaldicao = diarios.find((j) => j.name.includes("Maldição"));
+      const maldicao = game.items.find((i) => i.type === "evento" && doAtoI(i));
+      ok("a maldição vem como diário de mestre e como evento com roteiro próprio, vinculado à investigação",
+        diarioMaldicao?.pages.size === 4
+        && maldicao?.system.rodadas.map((r) => r.rodada).join() === "0,4,7,10,13,14"
+        && maldicao.system.disparado === false
+        && investigacao.system.eventos.join() === `Item.${maldicao.id}`
+        && /teste de Disciplina \(DT 7\)/.test(maldicao.system.rodadas.find((r) => r.rodada === 0)?.efeito ?? ""));
+      return passos;
+    }, mundoId);
+    relato.passos.push(...mundoAtoI);
     await limparAtoI();
     await page.evaluate(() => document.querySelector("#op2-aventuras .header-control[data-action=close], #op2-aventuras [data-action=close]")?.click());
   }

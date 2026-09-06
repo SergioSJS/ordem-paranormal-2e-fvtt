@@ -7,6 +7,7 @@
  * leva o extrator; o texto vem do PDF de quem já tem o material.
  */
 import { SYSTEM_ID } from "../config.mjs";
+import { LICENCA, SELO } from "../ui/licenca.mjs";
 import { linhasDoPdf } from "./pdf.mjs";
 import { ATOS, montarEGuardar, aventuraNoMundo, documentoDaAventura } from "./mundo.mjs";
 
@@ -50,7 +51,7 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
         problemas: resultado?.problemas ?? [],
       };
     });
-    return { ...contexto, atos, ...this.#estado, licenca: LICENCA };
+    return { ...contexto, atos, ...this.#estado, licenca: LICENCA, selo: SELO };
   }
 
   _onRender(contexto, opcoes) {
@@ -108,12 +109,6 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
     aventura?.sheet.render(true);
   }
 }
-
-/** O aviso que a Licença da Comunidade de Ordem Paranormal exige em conteúdo de texto. */
-export const LICENCA = {
-  aviso: "OP2.Licenca.Aviso",
-  url: "https://ordemparanormal.com.br/licenca",
-};
 
 let instancia = null;
 

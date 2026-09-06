@@ -158,10 +158,16 @@
       ul { margin: var(--op2-e1) 0 0; padding-left: 1.2em; }
     }
 
-    // O aviso que a Licença da Comunidade exige, em pé de página.
+    // O aviso que a Licença da Comunidade exige, em pé de página, com o selo.
+    .op2-aventuras__selo {
+      flex: 0 0 auto;
+      width: 56px;
+      height: 56px;
+    }
+
     .op2-aventuras__licenca {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       padding-top: var(--op2-e2);
       border-top: 1px solid var(--op2-linha);
       color: var(--op2-texto-fraco);

@@ -257,10 +257,14 @@ automático, pela mesma regra de sempre: a mesa às vezes reinterpreta o que foi
 ## Redistribuição dos arquivos do Ato I
 
 Os arquivos públicos do Ato I (handouts, mapas, tokens, músicas) são material da
-editora, liberado de graça para o playtest. **Decisão:** viajam no sistema, em
-`assets/ato-i/` (`npm run ato-i:assets` refaz a cópia). O PDF e o texto extraído dele,
-não: ficam fora do repositório e do pacote — a aventura é montada dentro do Foundry, do
-PDF do próprio mestre (`module/extrator/`, `module/aventura/`).
+editora, liberado de graça para o playtest — liberado para USAR, não para redistribuir.
+**Decisão (revista em 2026-09):** não viajam no sistema. A aventura aponta para
+`assets/ato-i/` e declara em `flags.extras` os 36 arquivos que usa; o importador pede o
+zip gratuito do site (`Ordem-2-Playtest-Alpha-Ato-I-Extras.zip`) e guarda em
+`worlds/<mundo>/ato-i/`, como no Ato II. O PDF e o texto extraído dele idem: a aventura
+é montada dentro do Foundry, do PDF do próprio mestre (`module/extrator/`,
+`module/aventura/`). O único arquivo da editora no pacote é o selo da licença, que a
+própria licença pede.
 
 ## Redistribuição dos arquivos do Ato II
 
@@ -269,6 +273,10 @@ de quem o tem, montado no navegador como no Ato I, e as artes ficam no zip do me
 um prefixo que não existe (`assets/ato-ii/`); na importação, o sistema pede o zip,
 descompacta no navegador e guarda os arquivos em `worlds/<mundo>/ato-ii/` — pasta do
 mundo, não do sistema, para sobreviver a atualização. Nada da editora entra no pacote.
+
+Os handouts do Ato I que o Ato II cita (o símbolo, os e-mails) apontam para o prefixo do
+Ato I, e a aventura do Ato II declara em `extras.tambem` que esse prefixo também vira
+pasta do mundo — sem pedir zip: quem importou o Ato I já os tem lá.
 
 O casamento é pelo nome sem acento e sem pasta; o que não casa exato tenta por
 aproximação (mesma família de arquivo, todas as palavras do nome esperado presentes,

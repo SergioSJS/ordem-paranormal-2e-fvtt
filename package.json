@@ -20,7 +20,6 @@
     "ato-i:gerar-aventura": "node scripts/ato-i/gerar-aventura.mjs",
     "ato-i:extrair": "python3 scripts/ato-i/extrair-aventura.py",
     "reparar-pastas": "node scripts/reparar-pastas-compendio.mjs",
-    "ato-i:assets": "node scripts/ato-i/copiar-assets.mjs",
     "ato-ii:extrair": "python3 scripts/ato-ii/extrair-aventura.py",
     "ato-ii:gerar-cena": "node scripts/ato-ii/gerar-cena.mjs",
     "ato-ii:gerar-aventura": "node scripts/ato-ii/gerar-aventura.mjs"

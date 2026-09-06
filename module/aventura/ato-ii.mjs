@@ -557,7 +557,7 @@ export function montarAtoII(dados, fontes) {
   return {
     _id: ident("aventura-ato-ii"),
     name: "Ato II — O Porão",
-    img: `${ATO_I}handouts/handout-02-simbolo-no-teto.jpg`,
+    img: `${ICONES}/tipos/investigacao.svg`,
     caption: "<p>Os agentes da Ordem voltam ao porão com as ferramentas da Ordo Realitas: cena, agentes, handouts, pontos com setor de ferramentas e a investigação já vinculada.</p>",
     description: [
       "<p>Importa a mesa inteira do Ato II: a cena do porão, os cinco agentes prontos, os",
@@ -582,7 +582,13 @@ export function montarAtoII(dados, fontes) {
     folder: null, sort: 0, ownership: { default: 0 },
     flags: {
       "ordem-paranormal-2e": {
-        extras: { pasta: PASTA_EXTRAS, prefixo: PREFIXO, zip: ZIP, arquivos: EXTRAS_DO_ATO_II },
+        extras: {
+          pasta: PASTA_EXTRAS, prefixo: PREFIXO, zip: ZIP, arquivos: EXTRAS_DO_ATO_II,
+          // Os handouts e retratos do Ato I que o Ato II cita: o importador troca esse
+          // prefixo pela pasta do mundo também, sem pedir zip nenhum — quem importou o
+          // Ato I já os tem lá.
+          tambem: [{ prefixo: ATO_I, pasta: "ato-i" }],
+        },
       },
     },
   };

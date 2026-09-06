@@ -39,10 +39,10 @@ sheets/ · dialogs · chat   apresentação
 | `module/aventura/` | Do texto extraído ao `Adventure` (`ato-i.mjs`, `ato-ii.mjs`, `comum.mjs`), a janela que pede o PDF (`aventuras-app.mjs`), a leitura do PDF pelo pdf.js (`pdf.mjs`) e o compêndio do mundo (`mundo.mjs`). |
 | `scripts/extrator/rodar.mjs` | Roda o extrator num PDF pelo Node e compara com um gabarito — a ferramenta de revisão (`.claude/skills/revisar-extrator/`). |
 | `scripts/aventura/` | `fontes.mjs` lê de `packs/sources/` o que cada ato precisa dos compêndios (pré-gerados, cena, handouts, trilha, agentes, ferramentas); `gerar-fontes.mjs` grava isso em `assets/aventura/fontes-ato-*.json` no `pack:build`, com a cena no formato v14 (`levels`) — `Adventure.create` no cliente não migra o v13, e a cena chegava sem mapa. Os packs LevelDB ficam no v13: o servidor migra, e ignora `levels` inline. |
-| `scripts/ato-i/` | `gerar-aventura.mjs` monta o `Adventure` no Node, para o e2e; `extrair-aventura.py` é o extrator Python original, mantido como oráculo do gabarito; `importar-cena.mjs` traz a cena murada do mundo; `copiar-assets.mjs` recopia as artes. |
+| `scripts/ato-i/` | `gerar-aventura.mjs` monta o `Adventure` no Node, para o e2e; `extrair-aventura.py` é o extrator Python original, mantido como oráculo do gabarito; `importar-cena.mjs` traz a cena murada do mundo. |
 | `scripts/ato-ii/` | `gerar-aventura.mjs` monta o `Adventure` com `flags.extras` no Node; `extrair-aventura.py` é o oráculo Python; `gerar-cena.mjs` transporta as paredes do Ato I. `README.md` explica o pipeline. |
 | `scripts/reparar-pastas-compendio.mjs` | Refaz as pastas de compêndio de um mundo que as perdeu (o Foundry só as materializa quando a lista de packs muda). |
-| `assets/ato-i/` | As artes do Ato I que os compêndios referenciam. As do Ato II não existem aqui: o compêndio aponta para `assets/ato-ii/` e o importador troca pela pasta do mundo. |
+| `assets/licenca/` | O selo da Licença da Comunidade (branco para o sistema, preto para o README). É o único arquivo da editora no pacote. As artes dos atos não existem aqui: as aventuras apontam para `assets/ato-i/` e `assets/ato-ii/`, e o importador troca pela pasta do mundo depois de pedir o zip de cada ato. |
 | `assets/aventura/` | Os `fontes-ato-*.json` que a janela de aventuras busca com `fetch`. Gerados no `pack:build`, fora do git. |
 
 ## Decisões que valem repetir

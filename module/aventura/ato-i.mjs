@@ -10,7 +10,11 @@
  *
  * O texto da aventura não é público: as DTs, as perícias de cada linha do quadro e o
  * que cada pista revela são material do livro, que a Licença da Comunidade não deixa
- * redistribuir — por isso a aventura nunca vem pronta no pacote.
+ * redistribuir — por isso a aventura nunca vem pronta no pacote. As artes também não:
+ * o pacote gratuito do Ato I (mapas, handouts, tokens, trilha) é da editora, e o
+ * mestre o entrega na hora de importar, como no Ato II — o compêndio aponta para
+ * `assets/ato-i/`, e o importador (`module/ui/extras-aventura.mjs`) troca pela pasta do
+ * mundo. A lista do que a aventura espera vai em `flags.extras`.
  */
 import {
   ident, palavras, afinidade, arquivoPublico, tituloLegivel, pasta, em, iconeDoPonto, eventoDaMaldicao,
@@ -19,6 +23,54 @@ import {
 
 const RAIZ = "Ato I — O Porão";
 const ASSETS = "systems/ordem-paranormal-2e/assets";
+const PASTA_EXTRAS = "ato-i";
+const PREFIXO = `${ASSETS}/${PASTA_EXTRAS}/`;
+const ZIP = "Ordem-2-Playtest-Alpha-Ato-I-Extras.zip";
+
+/**
+ * O que a aventura espera do zip gratuito do Ato I: destino na pasta do mundo e o nome
+ * que a editora dá (o casamento é pelo nome sem acento e sem pasta, `zip.mjs`). Os
+ * mapas 01 e 02 são etapas do mesmo desenho (a cena usa o 03, completo, com portas
+ * secretas) e as fichas prontas não entram em documento nenhum.
+ */
+export const EXTRAS_DO_ATO_I = [
+  { destino: "handouts/handout-01-conversa-eloisa.png", nome: "Handouts/Handout 01 - Conversa Eloísa.png" },
+  { destino: "handouts/handout-02-simbolo-no-teto.jpg", nome: "Handouts/Handout 02 - Símbolo no Teto.jpg" },
+  { destino: "handouts/handout-03-rg-de-gustavo.jpg", nome: "Handouts/Handout 03 - RG de Gustavo.jpg" },
+  { destino: "handouts/handout-04-anotacoes-arqueologicas.jpg", nome: "Handouts/Handout 04 - Anotações Arqueológicas.jpg" },
+  { destino: "handouts/handout-05a-conversa-grupo.png", nome: "Handouts/Handout 05A - Conversa Grupo.png" },
+  { destino: "handouts/handout-05b-conversa-alan.png", nome: "Handouts/Handout 05B - Conversa Alan.png" },
+  { destino: "handouts/handout-05c-conversa-victor.png", nome: "Handouts/Handout 05C - Conversa Victor.png" },
+  { destino: "handouts/handout-06-estante-de-livros.jpg", nome: "Handouts/Handout 06 - Estante de Livros.jpg" },
+  { destino: "handouts/handout-07-poster-lutadores-de-rua.jpg", nome: "Handouts/Handout 07 - Pôster Lutadores de Rua.jpg" },
+  { destino: "handouts/handout-08-poster-unidos-do-invisivel-futebol-clube.jpg", nome: "Handouts/Handout 08 - Pôster Unidos do Invisível Futebol Clube.jpg" },
+  { destino: "handouts/handout-9-poster-eric-tufao-3-a-explosao-explosiva.jpg", nome: "Handouts/Handout 9 - Pôster Eric Tufão 3 - A Explosão Explosiva.jpg" },
+  { destino: "handouts/handout-10-thunderland-2008.jpg", nome: "Handouts/Handout 10 - Thunderland 2008.jpg" },
+  { destino: "handouts/handout-11-rg-de-alan.jpg", nome: "Handouts/Handout 11 - RG de Alan.jpg" },
+  { destino: "handouts/handout-12a-e-mail-de-gustavo-1.png", nome: "Handouts/Handout 12A - E-mail de Gustavo 1.png" },
+  { destino: "handouts/handout-12b-email-de-gustavo-2.png", nome: "Handouts/Handout 12B - Email de Gustavo 2.png" },
+  { destino: "handouts/handout-12c-e-mail-de-gustavo-3.png", nome: "Handouts/Handout 12C - E-mail de Gustavo 3.png" },
+  { destino: "handouts/handout-13-cadaver-de-gustavo.jpg", nome: "Handouts/Handout 13 - Cadáver de Gustavo.jpg" },
+  { destino: "handouts/handout-14-foto-de-aniversario.jpg", nome: "Handouts/Handout 14 - Foto de aniversário.jpg" },
+  { destino: "historicos/historico-alan.jpg", nome: "Históricos de personagem/Histórico - Alan.jpg" },
+  { destino: "historicos/historico-edgar.jpg", nome: "Históricos de personagem/Histórico - Edgar.jpg" },
+  { destino: "historicos/historico-eloisa.jpg", nome: "Históricos de personagem/Histórico - Eloísa.jpg" },
+  { destino: "historicos/historico-kenia.jpg", nome: "Históricos de personagem/Histórico - Kênia.jpg" },
+  { destino: "historicos/historico-victor.jpg", nome: "Históricos de personagem/Histórico - Victor.jpg" },
+  { destino: "mapas/mapa-03-o-porao-sala-secreta-duto-de-ventilacao-completo.jpg", nome: "Mapas/Mapa 03 - O Porão + Sala Secreta + Duto de Ventilação (completo).jpg" },
+  { destino: "musicas/musica-01-o-porao.mp3", nome: "Músicas/Música 01 - O Porão.mp3" },
+  { destino: "musicas/musica-02-o-idolo.mp3", nome: "Músicas/Música 02 - O Ídolo.mp3" },
+  { destino: "tokens/personagem-alan.png", nome: "Tokens/Personagem - Alan.png" },
+  { destino: "tokens/personagem-edgar.png", nome: "Tokens/Personagem - Edgar.png" },
+  { destino: "tokens/personagem-eloisa.png", nome: "Tokens/Personagem - Eloísa.png" },
+  { destino: "tokens/personagem-kenia.png", nome: "Tokens/Personagem - Kênia.png" },
+  { destino: "tokens/personagem-victor.png", nome: "Tokens/Personagem - Victor.png" },
+  { destino: "tokens/token-alan.png", nome: "Tokens/Token - Alan.png" },
+  { destino: "tokens/token-edgar.png", nome: "Tokens/Token - Edgar.png" },
+  { destino: "tokens/token-eloisa.png", nome: "Tokens/Token - Eloísa.png" },
+  { destino: "tokens/token-kenia.png", nome: "Tokens/Token - Kênia.png" },
+  { destino: "tokens/token-victor.png", nome: "Tokens/Token - Victor.png" },
+];
 
 /**
  * @param {{pontos?: object[], maldicao?: object|null, itens?: object|null, roteiro?: object|null}} extraido
@@ -404,7 +456,9 @@ export function montarAtoI(extraido, fontes) {
   return {
     _id: ident("aventura-ato-i"),
     name: "Ato I — O Porão",
-    img: `${ASSETS}/ato-i/handouts/handout-02-simbolo-no-teto.jpg`,
+    // Ícone do sistema, não um handout: a imagem da aventura aparece no compêndio
+    // antes do zip chegar.
+    img: `${ASSETS}/icons/tipos/investigacao.svg`,
     caption: "<p>A cena do porão montada: mapa, trilha, pré-gerados, handouts e a investigação já vinculada.</p>",
     description: [
       "<p>Importa a mesa inteira do Ato I: a cena do porão com muros e portas secretas, a",
@@ -417,6 +471,9 @@ export function montarAtoI(extraido, fontes) {
       "<p>Os desafios trazem os números das caixas do livro — DT do objeto, pontuação alvo",
       "e o tamanho da senha. <strong>A senha não vem sorteada</strong>, senão viajaria à",
       "vista dos jogadores: abra a ficha do desafio e use <em>Gerar senha</em>.</p>",
+      "<p><strong>O mapa, os handouts, os tokens e a trilha não vêm no sistema:</strong> são o",
+      "pacote gratuito do Ato I, que a editora publica no site. Ao importar, o sistema pede",
+      "esse zip, descompacta no navegador e guarda os arquivos na pasta deste mundo.</p>",
     ].join("\n"),
     actors: [...pregerados, investigacao],
     items: [...pontos, ...desafios, ...itens, ...(maldicao ? [em(pastas.eventos)(maldicao)] : [])],
@@ -424,7 +481,12 @@ export function montarAtoI(extraido, fontes) {
     scenes: cenas,
     playlists: trilha,
     folders: Object.values(pastas), macros: [], tables: [], cards: [], combats: [],
-    folder: null, sort: 0, ownership: { default: 0 }, flags: {},
+    folder: null, sort: 0, ownership: { default: 0 },
+    flags: {
+      "ordem-paranormal-2e": {
+        extras: { pasta: PASTA_EXTRAS, prefixo: PREFIXO, zip: ZIP, arquivos: EXTRAS_DO_ATO_I },
+      },
+    },
   };
 }
 

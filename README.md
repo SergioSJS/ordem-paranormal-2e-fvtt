@@ -1,5 +1,12 @@
 # Ordem Paranormal 2 — Playtest (Não-Oficial)
 
+<img src="assets/licenca/selo-preto.png" alt="Selo da Licença da Comunidade de Ordem Paranormal" width="140" align="right">
+
+> Este é um conteúdo não oficial, publicado sob a
+> [Licença da Comunidade de Ordem Paranormal](https://ordemparanormal.com.br/licenca).
+> Feito por fã, sem afiliação com os detentores dos direitos; o conteúdo do livro
+> pertence a eles — e por isso nem o texto nem as artes do livro vêm no pacote.
+
 Sistema para **Foundry VTT** do playtest alpha de *Ordem Paranormal RPG 2*.
 
 > Projeto não-oficial, feito por fã. Sem afiliação, patrocínio ou endosso dos detentores
@@ -171,28 +178,19 @@ próprio texto avisa que vai mudar.
 
 ## Compêndios do Ato I
 
-O sistema traz o que a editora liberou do Ato I: os cinco pré-gerados, os handouts, os
-tokens, o mapa do porão e as duas faixas da trilha. **As artes viajam junto**, em
-`assets/ato-i/` — o material do Ato I é liberado para uso, então não há passo de
-instalação: importou, funcionou.
-
-O pacote da editora tem nomes com acento e três versões do mesmo mapa; o que entra no
-sistema é a versão em slug e só o que algum compêndio referencia. Quando a editora
-atualizar o pacote, `npm run ato-i:assets` refaz a cópia.
-
-Os compêndios ficam em pastas, não soltos na lista:
+O que é nosso viaja no sistema: as regras em compêndio, e — dentro da aventura de cada
+ato — os cinco pré-gerados transcritos das fichas, a cena do porão murada, os diários
+de handouts e a trilha como playlist. **As artes não**: o mapa, os handouts, os tokens e
+as faixas são o pacote gratuito que a editora publica no site
+(`Ordem-2-Playtest-Alpha-Ato-I-Extras.zip`), e o sistema pede esse zip na hora de
+importar, do mesmo jeito que pede o do Ato II.
 
 ```
 Ordem Paranormal 2
-├── Regras
-│   ├── Habilidades          Foco Mental, Ímpeto, Avaliação, Mentoria, Prontidão…
-│   ├── Ocupações            Cientista, Operário, Artista, Professor…
-│   └── Ferramentas          as 10 da Ordo Realitas, com as cargas da regra
-└── Ato I — A Maldição do Ídolo de Pedra
-    ├── Pré-gerados          os cinco, com habilidades e tokens
-    ├── Cenas                o Porão, com muros e portas secretas
-    ├── Handouts             os 18 handouts e os 5 históricos
-    └── Trilha               as duas faixas
+└── Regras
+    ├── Habilidades          Foco Mental, Ímpeto, Avaliação, Mentoria, Prontidão…
+    ├── Ocupações            Cientista, Operário, Artista, Professor…
+    └── Ferramentas          as 10 da Ordo Realitas, com as cargas da regra
 ```
 
 ### A aventura sai do seu PDF
@@ -378,10 +376,15 @@ playtest e importe `Ato I — O Porão`. O mundo recebe a cena com as paredes, o
 pré-gerados, os handouts e a trilha, os **31 pontos de interesse** com as 87 linhas de
 quadro, os **10 desafios de acesso**, os itens de mesa, o roteiro do ato, a maldição
 como evento e a investigação com tudo vinculado. Nenhum comando, nenhum arquivo para
-providenciar além do PDF que você já tem — o gratuito basta para o Ato I.
+providenciar além do PDF e do zip gratuito do Ato I, que você já tem — o PDF gratuito
+basta para o Ato I.
 
 O **Ato II** vem pelo mesmo caminho, do PDF completo do playtest; as artes dele são
 exclusivas de assinante, e o sistema pede o zip da editora na hora de importar.
+
+Os dois zips são da editora, baixados sem extrair: o do Ato I é o pacote gratuito do
+site; o do Ato II vem com a assinatura dos Arquivos Secretos. Ao importar, o sistema
+pede o zip, descompacta no navegador e guarda os arquivos na pasta **do seu mundo**.
 
 A tela de boas-vindas diz isso tudo ao entrar no mundo — e *Configurações → Sobre e
 licença* a abre de novo a qualquer hora, com os links oficiais e a Licença da
@@ -439,7 +442,7 @@ Em desenvolvimento, versão 0.0.1.
 | 2 | Investigação: POIs, Examinar/Interagir, Recapitular, Compartilhar, rodadas, sobrecarga | pronta |
 | 3 | Desafios (Arrombar, Destrancar, Hackear, genérico), Alcançar, Sustentar, ferramentas da Ordo Realitas | pronta |
 | 4 | Testes opostos, Ajuda, usar habilidades e itens, combate simplificado, ferimentos e traumas | pronta |
-| Compêndios | Ato I e Ato II montados do PDF do mestre, dentro do Foundry; artes do Ato I no sistema, do Ato II pelo zip da editora | prontos |
+| Compêndios | Ato I e Ato II montados do PDF do mestre, dentro do Foundry; as artes dos dois atos pelos zips da editora | prontos |
 
 O playtest é explicitamente parcial: NEX, progressão por nível e traumas permanentes
 ainda não foram publicados. Onde o texto é ambíguo ou se contradiz, o sistema expõe um

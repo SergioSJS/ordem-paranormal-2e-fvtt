@@ -77,6 +77,18 @@ test("montarAtoI: a linha do quadro leva condição e DT alternativa no texto, e
   assert.doesNotMatch(molho.system.descricaoContextual, /handout-02/);
 });
 
+test("montarAtoI: as artes vêm do zip gratuito da editora, declarado nos flags", () => {
+  const aventura = montarAtoI(extraidoAtoI(), fontesAtoI());
+  const extras = aventura.flags["ordem-paranormal-2e"].extras;
+  assert.equal(extras.pasta, "ato-i");
+  assert.equal(extras.prefixo, "systems/ordem-paranormal-2e/assets/ato-i/");
+  assert.equal(extras.arquivos.length, 36);
+  assert.ok(extras.arquivos.some((a) => a.destino === "mapas/mapa-03-o-porao-sala-secreta-duto-de-ventilacao-completo.jpg"));
+  assert.ok(extras.arquivos.every((a) => a.nome && !a.destino.startsWith("/")));
+  // A imagem da aventura não depende do zip: aparece no compêndio antes dele.
+  assert.match(aventura.img, /assets\/icons\//);
+});
+
 test("montarAtoI: ids estáveis entre duas montagens", () => {
   const a = montarAtoI(extraidoAtoI(), fontesAtoI());
   const b = montarAtoI(extraidoAtoI(), fontesAtoI());
@@ -127,4 +139,6 @@ test("montarAtoII: o handout citado solto no texto ganha a imagem, com o número
   const extras = aventura.flags["ordem-paranormal-2e"].extras;
   assert.equal(extras.pasta, "ato-ii");
   assert.ok(extras.arquivos.some((a) => a.destino === "mapas/mapa-01-o-porao.jpg"));
+  // Os handouts do Ato I que o Ato II cita: o importador troca o prefixo deles também.
+  assert.deepEqual(extras.tambem, [{ prefixo: "systems/ordem-paranormal-2e/assets/ato-i/", pasta: "ato-i" }]);
 });

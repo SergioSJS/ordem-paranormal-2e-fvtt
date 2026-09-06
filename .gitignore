@@ -1,10 +1,13 @@
 # Nunca commitar material da editora. O PDF do playtest é a fonte da spec e dos
-# compêndios; os arquivos públicos do Ato I entram em assets/ato-i/ (npm run ato-i:assets);
-# os extras do Ato II são exclusivos de assinante e ficam fora do repositório.
+# compêndios; os arquivos públicos do Ato I e os extras do Ato II ficam fora do
+# repositório — o mestre entrega os zips na importação. Só o selo da licença viaja.
 *.pdf
 *.zip
 
-# O material da editora que o mantenedor usa para gerar e testar: PDFs, extras e selo.
+# O material da editora que o mantenedor usa para gerar e testar: PDFs e extras. As
+# artes do Ato I saíram do pacote (o mestre entrega o zip gratuito, como no Ato II);
+# assets/ato-i/ não existe mais.
+assets/ato-i/
 jambo-arquivos/
 docs/*.pdf
 docs/Arquivos para o público - Ato I/
@@ -20,8 +23,6 @@ build/
 # O que a janela de aventuras precisa dos compêndios, empacotado pelo pack:build.
 assets/aventura/
 
-# O selo da Licença da Comunidade é da editora: baixe-o para assets/licenca/ (README lá).
-assets/licenca/*.png
 
 node_modules/
 .DS_Store
@@ -41,11 +42,7 @@ e2e-foundry.png
 packs/habilidades/
 packs/ferramentas/
 packs/ocupacoes/
-packs/ato-i-personagens/
-packs/ato-i-handouts/
 packs/ato-i-aventura/
-packs/ato-i-cenas/
-packs/ato-i-musicas/
 packs/ato-ii-aventura/
 
 .fvtt-config

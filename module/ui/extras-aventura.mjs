@@ -17,7 +17,9 @@
  * Adventure, a V1 (padrão do core no v13 e no v14) ou a V2.
  *
  * A aventura declara o que espera em `flags.ordem-paranormal-2e.extras`:
- *   { pasta, prefixo, zip, arquivos: [{ destino, nome }] }
+ *   { pasta, prefixo, zip, arquivos: [{ destino, nome }], tambem?: [{ prefixo, pasta }] }
+ * `tambem` são prefixos de OUTRO ato que esta aventura cita (o Ato II mostra handouts do
+ * Ato I): só são reescritos para a pasta do mundo, sem pedir zip.
  * `destino` é "subpasta/slug.ext" dentro da pasta do mundo; `nome` é como a editora
  * chama o arquivo, para a mensagem de erro. O casamento com o zip é pelo slug do nome
  * (`zip.mjs`), então a codificação do nome no zip tanto faz.
@@ -305,7 +307,9 @@ export class ExtrasMenuApp extends HandlebarsApplicationMixin(ApplicationV2) {
   async _prepareContext() {
     const aventuras = [];
     for (const pack of game.packs) {
-      if (pack.metadata.type !== "Adventure" || pack.metadata.packageName !== SYSTEM_ID) continue;
+      // As aventuras montadas do PDF vivem no compêndio do mundo; as dos scripts, no do sistema.
+      if (pack.metadata.type !== "Adventure") continue;
+      if (pack.metadata.packageName !== SYSTEM_ID && pack.metadata.packageType !== "world") continue;
       const indice = await pack.getIndex({ fields: ["flags"] });
       for (const entrada of indice) {
         const extras = extrasDaAventura(entrada);
@@ -336,7 +340,10 @@ export function registrarExtrasDeAventura() {
     const extras = extrasDaAventura(adventure);
     if (!extras) return true;
     if (options?.[MARCA_RESOLVIDO]) {
-      const trocas = reescreverCaminhos(extras.prefixo, `${pastaDosExtras(extras)}/`, toCreate, toUpdate);
+      let trocas = reescreverCaminhos(extras.prefixo, `${pastaDosExtras(extras)}/`, toCreate, toUpdate);
+      for (const outro of extras.tambem ?? []) {
+        trocas += reescreverCaminhos(outro.prefixo, `worlds/${game.world.id}/${outro.pasta}/`, toCreate, toUpdate);
+      }
       console.log(`${SYSTEM_ID} | extras: ${trocas} caminho(s) apontados para ${pastaDosExtras(extras)}`);
       return true;
     }

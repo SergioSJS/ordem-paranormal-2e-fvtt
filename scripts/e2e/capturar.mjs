@@ -36,11 +36,12 @@ const dados = await page.evaluate(async () => {
     .filter((i) => ["ponto-interesse", "desafio-acesso"].includes(i.type)).map((i) => i.id));
   await ChatMessage.deleteDocuments(game.messages.map((m) => m.id));
 
-  const pack = game.packs.get("ordem-paranormal-2e.ato-i-personagens");
+  // Os pré-gerados vêm do bundle da janela de aventuras; as artes, da pasta do mundo,
+  // onde o e2e já subiu o zip do Ato I (sem ele, o retrato sai quebrado no print).
+  const fontes = await (await fetch("systems/ordem-paranormal-2e/assets/aventura/fontes-ato-i.json")).json();
   const importar = async (nome) => {
-    const entrada = [...pack.index].find((i) => i.name === nome);
-    const doc = await pack.getDocument(entrada._id);
-    return Actor.create(doc.toObject());
+    const doc = fontes.pregerados.find((a) => a.name === nome);
+    return Actor.create(JSON.parse(JSON.stringify(doc).replaceAll("systems/ordem-paranormal-2e/assets/ato-i/", `worlds/${game.world.id}/ato-i/`)));
   };
   const alan = await importar("Alan");
   const edgar = await importar("Edgar");

@@ -28,10 +28,14 @@ handouts e Compêndio em PDF, áudios EMF, as dez ferramentas, 25 pontos com 63 
 o setor de ferramentas (44 leituras), 3 desafios, roteiro, mecânicas de mestre e a
 maldição como evento parado (o gatilho ali é quebrar o Ídolo, p. 87). O extrator é
 byte-idêntico ao gabarito Python na revisão 1 do PDF e lê a 1.1 e o gratuito —
-`.claude/skills/revisar-extrator/` é o roteiro para a próxima revisão. **As artes do
-Ato II não entram no sistema:** o importador (`module/ui/extras-aventura.mjs`) pede o
-zip da editora e sobe para `worlds/<mundo>/ato-ii/`. Pronto para a rodada de teste
-manual que fecha a v1.
+`.claude/skills/revisar-extrator/` é o roteiro para a próxima revisão. **Nenhuma arte do
+livro entra no sistema:** cada aventura declara em `flags.extras` o que espera do zip
+da editora (o gratuito do Ato I, o de assinante do Ato II) e o importador
+(`module/ui/extras-aventura.mjs`) pede o zip e sobe para `worlds/<mundo>/ato-*/`. Os
+únicos compêndios embarcados são os de regras (habilidades, ocupações, ferramentas);
+pré-gerados, cena, handouts e trilha vão em `assets/aventura/fontes-ato-*.json`, para
+dentro da aventura. O selo da licença (`assets/licenca/`) é o único arquivo da editora
+no pacote. Pronto para a rodada de teste manual que fecha a v1.
 **Versão:** 0.0.1 (a v1 é decisão de release).
 **Próximo:** o que o playtest ainda não publicou (NEX, progressão, traumas
 permanentes). Validação em v13 **adiada por decisão do projeto** — o sistema declara
@@ -106,7 +110,6 @@ npm run setup        # symlink -> ~/Library/Application Support/FoundryVTT/Data/
 npm run watch:css    # sass em watch
 npm run check        # lint + testes + build do CSS — rode antes de commitar
 npm run pack:build   # compila os compêndios de packs/sources/
-npm run ato-i:assets # recopia as artes do Ato I para assets/ato-i/
 npm run ato-i:gerar-cena  # deriva as paredes do Porão comparando os três mapas
 npm run ato-i:cena   # traz a cena do seu mundo de volta para packs/sources/
 node scripts/extrator/rodar.mjs <pdf> [gabarito] --texto --completo  # extrai os dois atos para build/js/

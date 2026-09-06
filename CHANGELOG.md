@@ -34,7 +34,10 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
   playtest*: o sistema lê o PDF do playtest no navegador, monta o Ato I (e o Ato II, se
   o PDF for o completo) e guarda no compêndio do mundo, pronto para importar. Lê as
   revisões 1 e 1.1 do playtest e o PDF gratuito.
-- As artes do Ato I, liberadas pela editora, viajam no sistema; as do **Ato II** são
-  exclusivas de assinante, e o sistema pede o zip da editora ao importar.
+- **Nenhuma arte do livro vem no pacote.** As do Ato I são o zip gratuito do site da
+  editora; as do Ato II vêm com a assinatura dos Arquivos Secretos. O sistema pede o
+  zip de cada ato na hora de importar e guarda os arquivos na pasta do mundo.
+- O selo e o aviso da Licença da Comunidade na tela de boas-vindas, na janela de
+  aventuras, no README e na capa da listagem.
 - Sistema não-oficial, feito por fã, sem afiliação com os detentores dos direitos de
   Ordem Paranormal RPG.
