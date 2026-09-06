@@ -171,10 +171,10 @@ próprio texto avisa que vai mudar.
 
 ## Compêndios do Ato I
 
-O sistema traz o Ato I inteiro: os cinco pré-gerados, os handouts, os tokens, o mapa do
-porão e as duas faixas da trilha. **As artes viajam junto**, em `assets/ato-i/` — o
-material do Ato I é liberado para uso, então não há passo de instalação: importou,
-funcionou.
+O sistema traz o que a editora liberou do Ato I: os cinco pré-gerados, os handouts, os
+tokens, o mapa do porão e as duas faixas da trilha. **As artes viajam junto**, em
+`assets/ato-i/` — o material do Ato I é liberado para uso, então não há passo de
+instalação: importou, funcionou.
 
 O pacote da editora tem nomes com acento e três versões do mesmo mapa; o que entra no
 sistema é a versão em slug e só o que algum compêndio referencia. Quando a editora
@@ -188,39 +188,38 @@ Ordem Paranormal 2
 │   ├── Habilidades          Foco Mental, Ímpeto, Avaliação, Mentoria, Prontidão…
 │   ├── Ocupações            Cientista, Operário, Artista, Professor…
 │   └── Ferramentas          as 10 da Ordo Realitas, com as cargas da regra
-├── Ato I — A Maldição do Ídolo de Pedra
-│   ├── A Aventura           importa tudo abaixo de uma vez, já vinculado
-│   ├── Pré-gerados          os cinco, com habilidades e tokens
-│   ├── Cenas                o Porão, com muros e portas secretas
-│   ├── Handouts             os 18 handouts e os 5 históricos
-│   └── Trilha               as duas faixas
-└── Ato II — A Maldição do Ídolo de Pedra
-    └── A Aventura           os agentes voltam ao porão; as artes vêm do zip da editora
+└── Ato I — A Maldição do Ídolo de Pedra
+    ├── Pré-gerados          os cinco, com habilidades e tokens
+    ├── Cenas                o Porão, com muros e portas secretas
+    ├── Handouts             os 18 handouts e os 5 históricos
+    └── Trilha               as duas faixas
 ```
-
-**Comece pela Aventura.** Importar esse único documento traz a cena, a trilha, os
-pré-gerados, os handouts, os pontos de interesse do porão com o quadro de informações
-preenchido, os desafios e uma investigação com tudo já vinculado — mesa montada.
 
 ### A aventura sai do seu PDF
 
-O texto do Ato I é da editora, então **não vem no repositório nem no pacote do sistema**
-— mesma política do PDF e das artes. Quem tem o playtest gera na própria máquina:
+**O texto da aventura não está no pacote — ele sai do seu PDF.** O que o livro diz
+sobre cada ponto de interesse (perícia, DT, o que a pista revela, as caixas de desafio,
+a maldição, o roteiro) é texto da editora, e a Licença da Comunidade não permite
+redistribuí-lo. Então o sistema faz o trabalho em vez de copiar: **Configurações →
+Aventuras do playtest**, escolha o PDF do playtest que você já tem, e o sistema lê o
+texto ali no navegador, monta a aventura e guarda num compêndio do seu mundo
+(*Ordem Paranormal 2 — Aventuras*). O arquivo não sai da sua máquina, e o PDF
+gratuito basta para o Ato I.
 
-```bash
-# com o PDF em docs/Ordem-Paranormal-RPG-2-Playtest-Alpha-agentes.pdf
-npm run ato-i:extrair          # lê os pontos de interesse do PDF
-npm run ato-i:gerar-aventura   # monta a aventura com cena, trilha, handouts e tudo
-npm run pack:build
-```
+![Janela de aventuras do playtest](docs/img/aventuras-do-playtest.png)
 
-`extrair-aventura.py` lê o capítulo inteiro do PDF, não só as tabelas: 31 pontos de
-interesse com 86 linhas de quadro (perícias já nas chaves do sistema — `Aptidão
-(Humanas)` → `aptidao.humanas`), a descrição do que se vê e o texto de mestre que o livro
-põe depois de cada quadro, as caixas "CONTEÚDO" do que se revela ao vencer um desafio,
-os vinte livros das cinco prateleiras, a Mesa de Poker impressa na coluna da direita da
-Sala Secreta. O extrator é conferido contra o livro: cada célula de DT vira uma linha, e
-cada linha tem que ser idêntica à coluna *Informação* do PDF — 86 de 86.
+**Importe `Ato I — O Porão`** e o mundo recebe a cena com as paredes, a trilha, os
+cinco pré-gerados, os handouts, os pontos de interesse com o quadro de informações
+preenchido, os desafios e uma investigação com tudo já vinculado — mesa montada.
+
+O extrator lê o capítulo inteiro do PDF, não só as tabelas: 31 pontos de interesse com
+87 linhas de quadro (perícias já nas chaves do sistema — `Aptidão (Humanas)` →
+`aptidao.humanas`), a descrição do que se vê e o texto de mestre que o livro põe depois
+de cada quadro, as caixas "CONTEÚDO" do que se revela ao vencer um desafio, os vinte
+livros das cinco prateleiras, a Mesa de Poker impressa na coluna da direita da Sala
+Secreta. Ele é conferido contra o livro célula a célula, nas revisões 1 e 1.1 do
+playtest e no PDF gratuito — e quando a editora publicar outra, o
+[roteiro de revisão](.claude/skills/revisar-extrator/SKILL.md) diz como conferir.
 
 As condições do livro — *apenas Victor*, *se o ídolo for quebrado* — abrem o texto da
 linha e a deixam como **rascunho**: Examinar não alcança, o mestre libera quando a
@@ -240,7 +239,7 @@ narração final) e *A Maldição do Ídolo de Pedra* como diários de mestre; e
 maldição como **evento com roteiro próprio**, disparado quando o grupo acha o Ídolo — `Nova rodada` põe a narração no
 card e o efeito só para o mestre, e o painel mostra o que vem a seguir.
 
-Sem o PDF, o compêndio da aventura simplesmente não existe, e os demais funcionam
+Sem o PDF, a aventura simplesmente não existe, e os demais compêndios funcionam
 normalmente.
 
 **Os três mapas viram uma cena.** Os arquivos publicados são o mesmo desenho revelado em
@@ -327,18 +326,23 @@ e o jogador monta a frase. O app faz isso: um monte só com todas as peças que 
 de Tecnologia não removeu, sem marcar as falsas — ordenar e descartar é o jogo. Na ficha
 do ponto, as peças de um conjunto são escritas separadas por `|`.
 
-### Gerar
+### Montar o Ato II
+
+O Ato II sai do mesmo lugar: **Configurações → Aventuras do playtest**, com o PDF
+completo do playtest (o gratuito para no Ato I, e a janela diz isso). O extrator lê as
+p. 72–103, confere cada ponto contra a tabela *Locais de uso de cada ferramenta* do
+livro — divergência aparece na janela como aviso, para conferir no livro — e a aventura
+`Ato II — O Porão` fica no compêndio do mundo. Ao importar, ela pede o zip das artes.
+
+Para o desenvolvimento, os mesmos geradores rodam no Node e escrevem os packs locais que
+o e2e usa:
 
 ```bash
-npm run ato-ii:extrair          # lê as p. 72–103 do PDF e se confere contra o livro
+node scripts/extrator/rodar.mjs docs/<o PDF>.pdf   # extrai os dois atos para build/js/
 npm run ato-ii:gerar-cena       # transporta as paredes do Ato I para o mapa novo
-npm run ato-ii:gerar-aventura   # monta o Adventure
+npm run ato-ii:gerar-aventura   # monta o Adventure em packs/sources/
 npm run pack:build
 ```
-
-O extrator sai com erro se qualquer célula de DT não virar linha, se algum ponto reagir
-a uma ferramenta diferente do que a tabela do livro diz, ou se a solução de um rádio não
-casar com as peças. O passo a passo está em [scripts/ato-ii/README.md](scripts/ato-ii/README.md).
 
 ## Em português
 
@@ -369,15 +373,21 @@ Cole o manifesto no instalador de sistemas do Foundry:
 https://github.com/SergioSJS/ordem-paranormal-2e-fvtt/releases/latest/download/system.json
 ```
 
-Instalou, criou o mundo, jogou: **o Ato I vem inteiro e pronto**. Importe a aventura
-`Ato I — O Porão` e o mundo recebe a cena com as paredes, os cinco pré-gerados, os
-handouts e a trilha, os **31 pontos de interesse** com as 86 linhas de quadro, os **10
-desafios de acesso**, os itens de mesa, o roteiro do ato, a maldição como evento e a
-investigação com tudo vinculado. Nenhum comando, nenhum arquivo para providenciar.
+Instalou, criou o mundo: **Configurações → Aventuras do playtest**, escolha o PDF do
+playtest e importe `Ato I — O Porão`. O mundo recebe a cena com as paredes, os cinco
+pré-gerados, os handouts e a trilha, os **31 pontos de interesse** com as 87 linhas de
+quadro, os **10 desafios de acesso**, os itens de mesa, o roteiro do ato, a maldição
+como evento e a investigação com tudo vinculado. Nenhum comando, nenhum arquivo para
+providenciar além do PDF que você já tem — o gratuito basta para o Ato I.
 
-O **Ato II** é outra história: as artes dele são exclusivas de assinante, e o texto sai
-do PDF que só quem assina tem. Quem tem o material monta o ato na própria máquina —
-veja [Gerar o Ato II a partir do seu PDF](#gerar-o-ato-ii-a-partir-do-seu-pdf).
+O **Ato II** vem pelo mesmo caminho, do PDF completo do playtest; as artes dele são
+exclusivas de assinante, e o sistema pede o zip da editora na hora de importar.
+
+A tela de boas-vindas diz isso tudo ao entrar no mundo — e *Configurações → Sobre e
+licença* a abre de novo a qualquer hora, com os links oficiais e a Licença da
+Comunidade.
+
+![Tela de boas-vindas](docs/img/boas-vindas.png)
 
 ## Desenvolvimento
 
@@ -408,22 +418,14 @@ hooks depreciados, CSS aplicado, texto cortado. O passo a passo está em
 Os prints deste README são gerados por `node scripts/e2e/capturar.mjs`, contra o mesmo
 Foundry descartável — nenhuma tela aqui é mockup.
 
-### Gerar o Ato II a partir do seu PDF
+### Os geradores no Node
 
-Isto **não faz parte da instalação** — o Ato I já vem montado. Só interessa a quem
-assina e quer o Ato II no Foundry. Ponha o PDF em `docs/`, com Node 22+ e Python 3 na
-máquina:
-
-```bash
-npm install
-npm run ato-ii:extrair && npm run ato-ii:gerar-aventura
-npm run pack:build          # compila os compêndios
-npm run setup               # symlink para a pasta de sistemas do Foundry
-```
-
-O extrator lê o texto do seu PDF e escreve em `packs/sources/ato-ii-aventura/`, que o
-`.gitignore` mantém fora do repositório. As artes continuam vindo do zip da editora,
-pedido na hora de importar a aventura.
+A janela faz no navegador o que `scripts/extrator/rodar.mjs` e
+`scripts/ato-*/gerar-aventura.mjs` fazem no Node — é o mesmo código, em
+`module/extrator/` e `module/aventura/`. Os scripts existem para o e2e e para conferir
+uma revisão nova do PDF contra a anterior
+([`.claude/skills/revisar-extrator/SKILL.md`](.claude/skills/revisar-extrator/SKILL.md)).
+O que eles escrevem (`build/`, `packs/sources/ato-*-aventura/`) fica fora do repositório.
 
 Detalhes do loop local, teste em duas versões do Foundry e convenções: [CLAUDE.md](CLAUDE.md).
 
@@ -437,7 +439,7 @@ Em desenvolvimento, versão 0.0.1.
 | 2 | Investigação: POIs, Examinar/Interagir, Recapitular, Compartilhar, rodadas, sobrecarga | pronta |
 | 3 | Desafios (Arrombar, Destrancar, Hackear, genérico), Alcançar, Sustentar, ferramentas da Ordo Realitas | pronta |
 | 4 | Testes opostos, Ajuda, usar habilidades e itens, combate simplificado, ferimentos e traumas | pronta |
-| Compêndios | Ato I inteiro dentro do sistema; Ato II inteiro a partir do PDF e do zip da editora | prontos |
+| Compêndios | Ato I e Ato II montados do PDF do mestre, dentro do Foundry; artes do Ato I no sistema, do Ato II pelo zip da editora | prontos |
 
 O playtest é explicitamente parcial: NEX, progressão por nível e traumas permanentes
 ainda não foram publicados. Onde o texto é ambíguo ou se contradiz, o sistema expõe um

@@ -78,6 +78,13 @@ JSON
 
 `curl -s localhost:30099/api/status` deve responder com `"system":"ordem-paranormal-2e"`.
 
+> **`"active": false` e o log dizendo `Software license verification failed`?** A
+> assinatura da licença leva o hostname da máquina, e o macOS o troca de vez em quando
+> ("MacBook-Pro-de-…" vira "MBP-de-…"). O servidor sobe pedindo o aceite da EULA e não
+> ativa o mundo. O harness detecta, aceita a EULA na cópia descartável (reassina só ela,
+> com internet) e pede para reiniciar o servidor. O seu Foundry vai pedir o mesmo aceite
+> na próxima abertura.
+
 ## Rodando
 
 ```bash

@@ -98,6 +98,13 @@ await fotografar("ficha-personagem", ".op2-ficha--personagem", {
 });
 await page.evaluate(() => [...foundry.applications.instances.values()].forEach((a) => a.close?.()));
 
+// A tela de boas-vindas e a janela de aventuras: o que o mestre vê ao entrar, e de onde
+// as aventuras vêm. A janela mostra "guardada no mundo" quando o e2e já montou os atos.
+await fotografar("boas-vindas", "#op2-boas-vindas", { antes: () => game.op2.boasVindas() });
+await page.evaluate(() => [...foundry.applications.instances.values()].forEach((a) => a.close?.()));
+await fotografar("aventuras-do-playtest", "#op2-aventuras", { antes: () => game.op2.aventuras() });
+await page.evaluate(() => [...foundry.applications.instances.values()].forEach((a) => a.close?.()));
+
 await page.evaluate(() => localStorage.setItem("op2.painel.aba", "pontos"));
 await fotografar("painel-investigacao", "#op2-painel-investigacao", {
   antes: () => game.op2.painelInvestigacao(),

@@ -259,12 +259,13 @@ automático, pela mesma regra de sempre: a mesa às vezes reinterpreta o que foi
 Os arquivos públicos do Ato I (handouts, mapas, tokens, músicas) são material da
 editora, liberado de graça para o playtest. **Decisão:** viajam no sistema, em
 `assets/ato-i/` (`npm run ato-i:assets` refaz a cópia). O PDF e o texto extraído dele,
-não: ficam fora do repositório.
+não: ficam fora do repositório e do pacote — a aventura é montada dentro do Foundry, do
+PDF do próprio mestre (`module/extrator/`, `module/aventura/`).
 
 ## Redistribuição dos arquivos do Ato II
 
 O Ato II é exclusivo de assinante: PDF e zip de artes. **Decisão:** o texto sai do PDF
-de quem o tem, como no Ato I, e as artes ficam no zip do mestre. O compêndio aponta para
+de quem o tem, montado no navegador como no Ato I, e as artes ficam no zip do mestre. O compêndio aponta para
 um prefixo que não existe (`assets/ato-ii/`); na importação, o sistema pede o zip,
 descompacta no navegador e guarda os arquivos em `worlds/<mundo>/ato-ii/` — pasta do
 mundo, não do sistema, para sobreviver a atualização. Nada da editora entra no pacote.
@@ -358,7 +359,27 @@ Todas as caixas de acesso do porão têm campo no `desafio-acesso`:
   Tecnologia" é perícia alternativa e segue descobrível — o sistema testa uma perícia
   por linha, a alternativa fica no texto.
 
-## Ato II: o que o livro imprime errado, e as decisões
+## O extrator do PDF e as revisões do livro
+
+O extrator lê a diagramação, não um formato: colunas, DTs centralizadas, rótulos que
+valem para mais de uma linha, caixas de desafio. Cada régua de `module/extrator/grade.mjs`
+está comentada com o caso medido no PDF que a decidiu, e
+`.claude/skills/revisar-extrator/SKILL.md` é o roteiro para conferir uma revisão nova.
+Decisões que o livro obrigou:
+
+- **"DT 6 ou 10"** (Armário de Ferramentas, Ato I): o livro imprime duas DTs numa célula.
+  Entra com a primeira no campo e "(DT 6 ou 10)" no começo do texto da linha
+  (`dtAlternativa`); o sistema testa uma DT por linha.
+- **Rótulo entre duas linhas sem rótulo próprio** herda a perícia de cima — a convenção
+  do livro. A exceção é o rótulo impresso a três ou mais linhas da sua DT e no meio
+  exato das duas: é das duas ("Máquinas" da Estante no PDF gratuito, que reflui as
+  colunas). Medido em pontos no PDF em cinco casos antes de fechar a regra.
+- **Revisão 1.1 (setembro de 2026)** corrigiu os erros de diagramação do Ato II abaixo,
+  renumerou os handouts do Ato II para os números do zip, trocou "exclusivo Alan" por
+  "apenas Alan" e "1d4" por "d4". O extrator lê as duas revisões e o PDF gratuito; as
+  notas de "o livro imprime errado" só aparecem quando o erro está no texto.
+
+## Ato II: o que o livro imprime errado, e as decisões (revisão 1)
 
 Tudo abaixo mantém o texto do livro; o que muda é onde ele entra e o que o mestre lê ao
 lado.

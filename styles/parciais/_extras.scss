@@ -76,3 +76,191 @@
     }
   }
 }
+
+// A janela de aventuras: o mestre escolhe o PDF dele e o ato entra no mundo.
+@layer system {
+  .op2-aventuras {
+    .op2-aventuras__corpo {
+      display: flex;
+      flex-direction: column;
+      gap: var(--op2-e3);
+      padding: var(--op2-e1) 0;
+    }
+
+    .op2-aventuras__escolha {
+      display: flex;
+      align-items: center;
+      gap: var(--op2-e2);
+    }
+
+    .op2-aventuras__progresso {
+      color: var(--op2-texto-fraco);
+      font-family: var(--op2-fonte-mono);
+      font-size: 0.8rem;
+    }
+
+    .op2-aventuras__atos {
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      gap: var(--op2-e2);
+    }
+
+    // Um ato por linha: nome e estado à esquerda, o que dá para fazer à direita.
+    .op2-aventuras__ato {
+      display: flex;
+      align-items: center;
+      padding: var(--op2-e2);
+      border: 1px solid var(--op2-linha);
+      border-radius: var(--op2-raio);
+      background: var(--op2-superficie);
+      gap: var(--op2-e2);
+
+      &--pronto { border-color: var(--op2-vermelho); }
+    }
+
+    .op2-aventuras__identidade {
+      display: flex;
+      min-width: 0;
+      flex: 1 1 auto;
+      flex-direction: column;
+    }
+
+    .op2-aventuras__estado {
+      color: var(--op2-texto-fraco);
+      font-family: var(--op2-fonte-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .op2-aventuras__erro {
+      margin-top: var(--op2-e1);
+      color: var(--op2-vermelho-claro);
+      font-size: 0.85rem;
+    }
+
+    .op2-aventuras__resumo {
+      margin-top: var(--op2-e1);
+      color: var(--op2-texto-fraco);
+      font-size: 0.85rem;
+    }
+
+    // Os avisos da conferência do Ato II, fechados por padrão: são para conferir no
+    // livro, não para assustar.
+    .op2-aventuras__problemas {
+      margin-top: var(--op2-e1);
+      font-size: 0.8rem;
+
+      summary { cursor: pointer; color: var(--op2-vermelho-claro); }
+      ul { margin: var(--op2-e1) 0 0; padding-left: 1.2em; }
+    }
+
+    // O aviso que a Licença da Comunidade exige, em pé de página.
+    .op2-aventuras__licenca {
+      display: flex;
+      align-items: baseline;
+      padding-top: var(--op2-e2);
+      border-top: 1px solid var(--op2-linha);
+      color: var(--op2-texto-fraco);
+      font-size: 0.8rem;
+      gap: var(--op2-e2);
+
+      a { color: var(--op2-vermelho-claro); }
+    }
+  }
+}
+
+// A tela de boas-vindas / "Sobre e licença".
+@layer system {
+  .op2-boas-vindas {
+    .op2-boas-vindas__corpo {
+      display: flex;
+      flex-direction: column;
+      gap: var(--op2-e3);
+      padding: var(--op2-e1) 0;
+
+      h3 {
+        margin: 0 0 var(--op2-e1);
+        font-size: 0.8rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--op2-texto-fraco);
+      }
+
+      p { margin: 0 0 var(--op2-e1); }
+    }
+
+    .op2-boas-vindas__cabecalho {
+      display: flex;
+      align-items: center;
+      gap: var(--op2-e3);
+    }
+
+    // O selo, na proporção que a licença pede (pelo menos 10% da largura do "capa").
+    .op2-boas-vindas__selo {
+      flex: 0 0 auto;
+      width: 96px;
+      height: auto;
+    }
+
+    .op2-boas-vindas__versao { font-weight: 600; }
+    .op2-boas-vindas__aviso { color: var(--op2-texto-fraco); font-size: 0.85rem; }
+
+    .op2-boas-vindas__lista {
+      margin: 0;
+      padding-left: 1.2em;
+      li { margin-bottom: var(--op2-e1); }
+    }
+
+    .op2-boas-vindas__atos {
+      display: flex;
+      flex-direction: column;
+      margin: 0 0 var(--op2-e2);
+      padding: 0;
+      list-style: none;
+      gap: var(--op2-e1);
+
+      li { display: flex; align-items: baseline; gap: var(--op2-e1); }
+      .fa-circle-check { color: var(--op2-vermelho-claro); }
+      .fa-circle { color: var(--op2-texto-fraco); }
+    }
+
+    .op2-boas-vindas__estado {
+      color: var(--op2-texto-fraco);
+      font-family: var(--op2-fonte-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .op2-boas-vindas__links {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 0 0 var(--op2-e1);
+      padding: 0;
+      list-style: none;
+      gap: var(--op2-e1) var(--op2-e3);
+
+      a { color: var(--op2-vermelho-claro); }
+    }
+
+    .op2-boas-vindas__rodape {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: var(--op2-e2);
+      border-top: 1px solid var(--op2-linha);
+      gap: var(--op2-e2);
+    }
+
+    .op2-boas-vindas__mostrar {
+      display: flex;
+      align-items: center;
+      gap: var(--op2-e1);
+      font-size: 0.85rem;
+    }
+  }
+}

@@ -50,6 +50,8 @@ const TEMPLATES = [
   `${RAIZ}/chat/hack-timer.hbs`,
   `${RAIZ}/actor/acoes-investigacao.hbs`,
   `${RAIZ}/actor/partials/acoes-desafio.hbs`,
+  `${RAIZ}/aventura/aventuras.hbs`,
+  `${RAIZ}/ui/boas-vindas.hbs`,
 ];
 
 export function precarregarTemplates() {

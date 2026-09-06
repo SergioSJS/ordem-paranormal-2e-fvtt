@@ -36,6 +36,11 @@ const SETTINGS = {
   idiomaPadraoPtBR: {
     scope: "world", config: true, type: Boolean, default: true, requiresReload: true,
   },
+  // A tela de boas-vindas ao entrar no mundo: o mestre desliga quando não quiser mais
+  // (na própria tela ou aqui). "Sobre e licença", no menu, abre a mesma janela sempre.
+  boasVindas: {
+    scope: "world", config: true, type: Boolean, default: true,
+  },
   // Clique simples rola direto; Shift abre o diálogo. Invertível por preferência.
   cliqueAbreDialogo: {
     scope: "client", config: true, type: Boolean, default: false,

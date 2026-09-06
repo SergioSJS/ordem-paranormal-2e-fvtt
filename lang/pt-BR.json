@@ -513,6 +513,10 @@
       "cliqueAbreDialogo": {
         "name": "Clique abre o diálogo de teste",
         "hint": "Por padrão, o clique rola direto e Shift abre o diálogo. Ative para inverter."
+      },
+      "boasVindas": {
+        "name": "Boas-vindas ao entrar",
+        "hint": "Mostra a tela de boas-vindas (o que o sistema traz, aventuras do playtest, licença) ao mestre ao entrar no mundo. \"Sobre e licença\" abre a mesma tela a qualquer hora."
       }
     },
     "Desafio": {
@@ -821,6 +825,70 @@
       "Desmarcar": "Tirar o marcador do mapa",
       "SemCena": "Abra a cena do mapa antes de marcar o ponto.",
       "SemPersonagem": "Escolha um personagem para agir a partir do marcador."
+    },
+    "Aventuras": {
+      "Titulo": "Aventuras do playtest",
+      "Explicacao": "O texto das aventuras é do livro, e a Licença da Comunidade não permite redistribuí-lo. Escolha o PDF do playtest que você já tem: o sistema lê o texto aqui no navegador, monta os atos e guarda no compêndio deste mundo, prontos para importar. O arquivo não vai para lugar nenhum.",
+      "Escolher": "Escolher o PDF do playtest",
+      "Lendo": "Lendo o PDF…",
+      "Progresso": "Página {pagina} de {total}",
+      "Montando": "Montando as aventuras…",
+      "Montado": "Montada deste PDF — pronta para importar",
+      "NoMundo": "Guardada no mundo — pronta para importar",
+      "FaltaPdf": "Falta o PDF",
+      "Importar": "Importar para o mundo",
+      "Ver": "Ver antes de importar",
+      "PackRotulo": "Ordem Paranormal 2 — Aventuras",
+      "ErroLeitura": "Não consegui ler esse arquivo como PDF.",
+      "AtoI": "Ato I — O Porão",
+      "AtoII": "Ato II — O Porão",
+      "Resumo": {
+        "ato-i": "{pontos} pontos de interesse, {linhas} linhas de quadro, {desafios} desafios, maldição em {rodadas} rodadas, {itens} itens de mesa",
+        "ato-ii": "{pontos} pontos de interesse, {linhas} linhas de quadro, {desafios} desafios, {leituras} leituras de ferramenta"
+      },
+      "Problemas": "Conferência: {n} aviso(s) — o texto e a tabela de locais de uso não batem em tudo; confira no livro",
+      "Motivo": {
+        "trecho": "Não achei o Ato I dentro deste PDF. É o livro do playtest de Ordem Paranormal 2?",
+        "ausente": "Este PDF não traz o Ato II — ele só existe no PDF completo do playtest.",
+        "falha": "A montagem falhou. Veja o console (F12) para o detalhe."
+      },
+      "Importado": "{nome}: importado para o mundo.",
+      "MenuNome": "Aventuras do playtest",
+      "MenuBotao": "Montar do PDF",
+      "MenuAjuda": "Escolha o PDF do playtest e o sistema monta o Ato I (e o Ato II, se o PDF o trouxer) no compêndio deste mundo."
+    },
+    "Licenca": {
+      "Aviso": "Este é um conteúdo não oficial, publicado sob a Licença da Comunidade de Ordem Paranormal.",
+      "Link": "Ler a licença"
+    },
+    "BoasVindas": {
+      "Titulo": "Ordem Paranormal 2 — Playtest (Não-Oficial)",
+      "Versao": "Sistema não-oficial para Foundry VTT do playtest alpha de Ordem Paranormal RPG 2 — versão {versao}.",
+      "SeloAlt": "Selo da Licença da Comunidade de Ordem Paranormal",
+      "TrazTitulo": "O que vem no sistema",
+      "Traz": {
+        "ficha": "Ficha e motor de dados: escada d4→d12, dois dados somados, RA/RB, crítico e falha crítica com a tabela do livro.",
+        "investigacao": "Cenas de investigação: pontos de interesse com o quadro Perícia · DT · Informação, Examinar, Interagir, Recapitular, Compartilhar, sobrecarga mental e o painel do mestre.",
+        "desafios": "Desafios de acesso (Arrombar, Destrancar, Hackear, Sustentar) e as dez ferramentas da Ordo Realitas, com Laboratório Portátil e Rádio Modificado em janela própria.",
+        "compendios": "{n} compêndios: habilidades, ocupações, ferramentas, e os pré-gerados, a cena, os handouts e a trilha do Ato I."
+      },
+      "AventurasTitulo": "As aventuras saem do seu PDF",
+      "AventurasTexto": "O texto dos atos é do livro, e a Licença da Comunidade não permite redistribuí-lo. Escolha o PDF do playtest que você já tem: o sistema lê o texto aqui no navegador, monta cada ato como uma aventura e guarda no compêndio deste mundo, pronta para importar. O PDF gratuito basta para o Ato I.",
+      "AtoNoMundo": "guardado neste mundo",
+      "AtoFalta": "ainda não montado",
+      "AbrirAventuras": "Aventuras do playtest",
+      "AtoII": "O Ato II só existe no PDF completo do playtest, e as artes dele vêm no zip que a editora entrega a quem assina os Arquivos Secretos — o sistema pede esse zip na hora de importar. Assinar é o que mantém o playtest vivo.",
+      "LinksTitulo": "Links",
+      "Apoiar": "Apoie a editora — loja de Ordem Paranormal",
+      "Site": "Site oficial de Ordem Paranormal",
+      "Changelog": "O que mudou nesta versão",
+      "Repositorio": "Código, dúvidas e problemas (GitHub)",
+      "NaoOficial": "Feito por fã, sem afiliação com os detentores dos direitos de Ordem Paranormal RPG; o conteúdo do livro pertence a eles.",
+      "MostrarAoEntrar": "Mostrar esta tela ao entrar no mundo",
+      "Fechar": "Fechar",
+      "MenuNome": "Sobre e licença",
+      "MenuBotao": "Abrir",
+      "MenuAjuda": "O que o sistema traz, de onde vêm as aventuras, os links oficiais e a Licença da Comunidade."
     }
   }
 }

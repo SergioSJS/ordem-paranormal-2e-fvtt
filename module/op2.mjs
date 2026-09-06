@@ -55,6 +55,8 @@ import { abrirAcoesInvestigacao } from "./cena/acoes-app.mjs";
 import { rolarTesteDeQueda, zerarContadoresDeQueda } from "./cena/ferimentos.mjs";
 import { ajudar } from "./cena/acoes-ajuda.mjs";
 import { registrarMarcadores, marcarNoMapa, desmarcarDoMapa, abrirMarcador } from "./cena/marcadores.mjs";
+import { abrirAventurasApp, registrarAventuras } from "./aventura/aventuras-app.mjs";
+import { abrirBoasVindas, abrirBoasVindasSeConfigurado, registrarBoasVindas } from "./ui/boas-vindas.mjs";
 import { atacar, defender } from "./cena/acoes-combate.mjs";
 import { usarHabilidadeOuItem, concederPasso } from "./cena/acoes-recurso.mjs";
 
@@ -101,6 +103,8 @@ Hooks.once("init", () => {
   registrarPainelInvestigacao();
   registrarMarcadores();
   registrarExtrasDeAventura();
+  registrarAventuras();
+  registrarBoasVindas();
 
   // Sem iniciativa rolada: os jogadores decidem a ordem entre si (spec §5.2).
   CONFIG.Combat.initiative = { formula: "0", decimals: 0 };
@@ -123,6 +127,7 @@ Hooks.once("init", () => {
     vincularDesafioAoPonto, removerDesafioDoPonto, pontoDoDesafio,
     alternarJaAgiu, alternarOculto, moverParticipante,
     marcarNoMapa, desmarcarDoMapa, abrirMarcador,
+    aventuras: abrirAventurasApp, boasVindas: abrirBoasVindas,
   };
 });
 
@@ -130,6 +135,7 @@ Hooks.once("ready", () => {
   precarregarTemplates();
   migrarInvestigacoesAtivas();
   migrarImpetoParaHabilidade();
+  abrirBoasVindasSeConfigurado();
 });
 
 /**

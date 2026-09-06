@@ -17,16 +17,22 @@ da spec e das amostras visuais; extraia dele em vez de adivinhar.
 
 ## Estado
 
-**Fases 1 a 4 fechadas; compêndios fechados; Ato II fechado.** O sistema entrega cada
-ato por um único `Adventure`. Ato I (`Ato I — O Porão`): cena murada, trilha,
-pré-gerados, handouts, 31 pontos com 86 linhas de quadro, 10 desafios, itens de mesa,
-roteiro e maldição rodada a rodada. Ato II (`Ato II — O Porão`): cena com as paredes
-transportadas, os cinco agentes, handouts e Compêndio em PDF, áudios EMF, as dez
-ferramentas, 25 pontos com 63 linhas e o setor de ferramentas (44 leituras), 3
-desafios, roteiro, mecânicas de mestre e a maldição como evento parado (o gatilho ali
-é quebrar o Ídolo, p. 87). **As artes do Ato II não entram no sistema:**
-o importador (`module/ui/extras-aventura.mjs`) pede o zip da editora e sobe para
-`worlds/<mundo>/ato-ii/`. Pronto para a rodada de teste manual que fecha a v1.
+**Fases 1 a 4 fechadas; compêndios fechados; os dois atos montados do PDF do mestre.**
+O texto do livro não entra no pacote (Licença da Comunidade): o sistema leva o
+**extrator** (`module/extrator/`) e a janela *Aventuras do playtest*
+(`module/aventura/`) lê o PDF do mestre no navegador, monta cada ato como um único
+`Adventure` e guarda no compêndio do mundo `world.op2-aventuras`. Ato I (`Ato I — O
+Porão`): cena murada, trilha, pré-gerados, handouts, 31 pontos com 87 linhas de quadro,
+10 desafios, itens de mesa, roteiro e maldição rodada a rodada. Ato II (`Ato II — O
+Porão`, só do PDF completo): cena com as paredes transportadas, os cinco agentes,
+handouts e Compêndio em PDF, áudios EMF, as dez ferramentas, 25 pontos com 63 linhas e
+o setor de ferramentas (44 leituras), 3 desafios, roteiro, mecânicas de mestre e a
+maldição como evento parado (o gatilho ali é quebrar o Ídolo, p. 87). O extrator é
+byte-idêntico ao gabarito Python na revisão 1 do PDF e lê a 1.1 e o gratuito —
+`.claude/skills/revisar-extrator/` é o roteiro para a próxima revisão. **As artes do
+Ato II não entram no sistema:** o importador (`module/ui/extras-aventura.mjs`) pede o
+zip da editora e sobe para `worlds/<mundo>/ato-ii/`. Pronto para a rodada de teste
+manual que fecha a v1.
 **Versão:** 0.0.1 (a v1 é decisão de release).
 **Próximo:** o que o playtest ainda não publicou (NEX, progressão, traumas
 permanentes). Validação em v13 **adiada por decisão do projeto** — o sistema declara
@@ -85,6 +91,11 @@ permanentes). Validação em v13 **adiada por decisão do projeto** — o sistem
   `comoMestre()`; `data-op2-gm` só esconde do DOM, não é segredo.
 - **O core arredonda `button` e deixa a janela translúcida.** Botão pequeno nosso pede
   `border-radius: 0`; janela do sistema fixa fundo opaco e `backdrop-filter: none`.
+- **O texto do livro não entra no pacote, nunca.** Nem em compêndio, nem cifrado. O que
+  o sistema embarca é o extrator; o texto vem do PDF do mestre, na hora. Os scripts de
+  `scripts/ato-*` e `scripts/extrator/` escrevem em `build/` e em
+  `packs/sources/ato-*-aventura/`, que o `.gitignore` mantém fora — e o release tira
+  do manifesto os packs sem banco.
 - Commits: Conventional Commits, em português.
 - Nunca commitar direto na `main` — sempre feature branch.
 
@@ -99,7 +110,8 @@ npm run pack:build   # compila os compêndios de packs/sources/
 npm run ato-i:assets # recopia as artes do Ato I para assets/ato-i/
 npm run ato-i:gerar-cena  # deriva as paredes do Porão comparando os três mapas
 npm run ato-i:cena   # traz a cena do seu mundo de volta para packs/sources/
-npm run ato-ii:extrair && npm run ato-ii:gerar-aventura   # o Ato II, a partir do PDF
+node scripts/extrator/rodar.mjs <pdf> [gabarito] --texto --completo  # extrai os dois atos para build/js/
+npm run ato-i:gerar-aventura && npm run ato-ii:gerar-aventura   # os Adventures locais, para o e2e
 npm run reparar-pastas -- <mundo>   # refaz as pastas de compêndio de um mundo
 ```
 
@@ -149,6 +161,10 @@ O servidor do Foundry v14 exige **Node 24**. O `npm test` do projeto roda em Nod
 - `combate.test.mjs` — teste oposto, dano RA/RB, esquiva que anula, empate.
 - `i18n.test.mjs` — paridade pt-BR/en e chave inexistente usada no código.
 - `carga.test.mjs` — todo módulo importa, todo template compila, manifesto consistente.
+- `extrator.test.mjs` — a grade (linhas, colunas, vazias) e `lerTabela` nos casos que
+  mais quebram: DT com alternativa, rótulo compartilhado, número de página.
+- `aventura.test.mjs` — `montarAtoI`/`montarAtoII` com um ato sintético: vínculos,
+  pastas, ids estáveis, handouts das duas revisões.
 
 ### Dentro do Foundry — `npm run e2e`
 
@@ -183,7 +199,7 @@ módulos fora do Foundry. Não simula comportamento: lógica de regra fica em m�
 `.claude/agents/` tem briefings especializados. `.claude/commands/` tem `/feature`,
 `/verify`, `/handoff` e `/rule`.
 
-Este arquivo é a cópia de `CLAUDE.md` para o Kimi Code — **mantenha os dois em sincronia**.
+`AGENTS.md` é a cópia deste arquivo para o Kimi Code — **mantenha os dois em sincronia**.
 
 ## Regras em uma tela
 

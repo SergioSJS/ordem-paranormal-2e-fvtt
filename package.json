@@ -11,7 +11,7 @@
     "lint": "eslint module/**/*.mjs",
     "lint:fix": "eslint module/**/*.mjs --fix",
     "test": "node --test module/tests/*.test.mjs",
-    "pack:build": "node scripts/build-packs.mjs",
+    "pack:build": "node scripts/build-packs.mjs && node scripts/aventura/gerar-fontes.mjs",
     "check": "npm run lint && npm run build:css && npm test",
     "preview": "npm run build:css && node scripts/preview.mjs",
     "e2e": "node scripts/e2e/verificar.mjs",

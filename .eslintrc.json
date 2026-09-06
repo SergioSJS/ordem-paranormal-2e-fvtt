@@ -8,7 +8,8 @@
     "Actor": "readonly", "Item": "readonly", "ChatMessage": "readonly",
     "Handlebars": "readonly", "renderTemplate": "readonly", "fromUuidSync": "readonly",
     "fromUuid": "readonly",
-    "Dialog": "readonly", "TextEditor": "readonly"
+    "Dialog": "readonly", "TextEditor": "readonly",
+    "Adventure": "readonly", "Scene": "readonly"
   },
   "rules": {
     "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],

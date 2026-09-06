@@ -1,11 +1,25 @@
 /**
  * O que os geradores de aventura (Ato I e Ato II) têm em comum: ids determinísticos,
  * nomes legíveis, pastas e o casamento de handouts com pontos.
+ *
+ * Roda no navegador (a janela de aventuras monta o ato a partir do PDF do mestre) e
+ * no Node (os scripts de `scripts/ato-*` montam a mesma coisa para os testes): nada
+ * de `node:` aqui.
  */
-import { createHash } from "node:crypto";
 
-/** Id estável a partir de uma semente — regenerar não troca id, e importar de novo atualiza. */
-export const ident = (semente) => createHash("sha1").update(semente).digest("hex").slice(0, 16);
+/**
+ * Id estável a partir de uma semente — regenerar não troca id, e importar de novo
+ * atualiza. FNV-1a de 64 bits, em hexadecimal: 16 caracteres, como o Foundry pede, e
+ * síncrono (o Web Crypto só faz hash em promessa, e os ids entram em todo lugar).
+ */
+export function ident(semente) {
+  let h = 0xcbf29ce484222325n;
+  for (const byte of new TextEncoder().encode(semente)) {
+    h ^= BigInt(byte);
+    h = (h * 0x100000001b3n) & 0xffffffffffffffffn;
+  }
+  return h.toString(16).padStart(16, "0");
+}
 
 export const semAcento = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "");
 
@@ -60,6 +74,9 @@ export const em = (destino) => (doc) => ({ ...doc, folder: destino._id });
 /** Parágrafos de texto → HTML, escapando o que precisa. */
 export const escapar = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 export const html = (paragrafos) => paragrafos.filter(Boolean).map((p) => `<p>${escapar(p)}</p>`).join("");
+
+/** Documento de compêndio como a aventura embute: sem a `_key` da fonte. */
+export const semChave = ({ _key, ...resto }) => resto;
 
 /**
  * Ícone de um ponto de interesse. Um ícone por ponto, não o genérico em todos: o
@@ -117,7 +134,7 @@ export function iconeDoPonto(nome, { handouts = [], padrao }) {
 /**
  * A maldição do Ídolo como Item `evento`: o gatilho e a tabela de rodadas do livro.
  *
- * Os dois atos usam a mesma tabela (`build/ato-i-maldicao.json`) e mudam só o
+ * Os dois atos usam a mesma tabela (a maldição extraída do Ato I) e mudam só o
  * gatilho — no Ato I o grupo já está amaldiçoado e basta observar o Ídolo; no Ato II
  * os agentes só atraem a manifestação se quebrarem a estatueta (p. 87). Um `_id` por
  * ato, para os dois poderem conviver no mesmo mundo.
@@ -150,4 +167,24 @@ export function eventoDaMaldicao({ id, gatilho, dados }) {
     },
     effects: [], folder: null, sort: 0, ownership: { default: 0 }, flags: {},
   };
+}
+
+/**
+ * Handouts por número, a partir das páginas do diário de handouts que o sistema
+ * embarca: o `src` de cada página é "…/handouts/handout-02-simbolo-no-teto.jpg", e é
+ * pelo número que o texto do livro cita ("Mostre o HANDOUT 02 - …").
+ *
+ * @param {object[]} diarios documentos JournalEntry
+ * @returns {Record<number, string[]>} número → nomes de arquivo
+ */
+export function arquivosDeHandout(diarios) {
+  const mapa = {};
+  for (const diario of diarios) {
+    for (const pagina of diario.pages ?? []) {
+      const arquivo = (pagina.src ?? "").split("/").pop();
+      const n = /^handout-(\d+)[a-c]?-/i.exec(arquivo)?.[1];
+      if (n && /\.(png|jpe?g|webp)$/i.test(arquivo)) (mapa[Number(n)] ??= []).push(arquivo);
+    }
+  }
+  return mapa;
 }

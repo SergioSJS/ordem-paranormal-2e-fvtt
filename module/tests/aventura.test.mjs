@@ -1,0 +1,130 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { montarAtoI } from "../aventura/ato-i.mjs";
+import { montarAtoII } from "../aventura/ato-ii.mjs";
+
+/** Um Ato I mínimo, no formato que `extrairAtoI` devolve. */
+const extraidoAtoI = () => ({
+  pontos: [
+    {
+      nome: "DEPÓSITO A, MOLHO DE CHAVES", descricao: "Um molho com três chaves.", notas: "Este é o molho 1.",
+      conteudo: "", condicao: "", handouts: [2],
+      informacoes: [
+        { pericia: "Percepção", chave: "percepcao", dt: 6, texto: "Há sangue nas chaves.", condicao: "" },
+        { pericia: "Pesquisar", chave: "pesquisar", dt: 6, dtAlternativa: 10, texto: "Duas são iguais.", condicao: "ou Tecnologia" },
+      ],
+      desafio: { rotulo: "PORTA TRANCADA", arrombar: { dt: 10, pa: 10 }, observacao: "" },
+    },
+    {
+      nome: "SÍMBOLO NO TETO", descricao: "Um símbolo enorme.", notas: "", conteudo: "", condicao: "", handouts: [2],
+      informacoes: [{ pericia: "Percepção (apenas Alan)", chave: "percepcao", dt: 8, texto: "É o da tatuagem.", condicao: "apenas Alan" }],
+      desafio: null,
+    },
+  ],
+  maldicao: {
+    regras: { narracao: "Você sente a dívida.", ativacao: "Teste de Disciplina.", caixas: [{ titulo: "A DÍVIDA FOI PAGA", texto: "Acabou." }] },
+    eventos: [{ rodada: 0, narracao: "", efeito: "" }, { rodada: 1, narracao: "Um sussurro.", efeito: "Perde 1 PD." }],
+  },
+  itens: { itens: [{ nome: "FACA DE CHURRASCO", descricao: "Pode ser usada como arma." }], prateleiras: [], enigmaDaEstante: [] },
+  roteiro: { introducao: "Bem-vindos.", cenaInicial: "Vocês acordam.", narracaoFinal: "PERSONAGENS ESCAPAM\nAs escadas levam.\nFim." },
+});
+
+const fontesAtoI = () => ({
+  pregerados: [{ _id: "a1", name: "Alan", type: "personagem", system: {}, items: [] }],
+  cena: { _id: "c1", name: "O Porão", walls: [] },
+  handouts: [{ _id: "j1", name: "Handouts", pages: [{ _id: "p1", src: "systems/ordem-paranormal-2e/assets/ato-i/handouts/handout-02-simbolo-no-teto.jpg", type: "image" }] }],
+  trilha: [{ _id: "t1", name: "Trilha", sounds: [] }],
+});
+
+test("montarAtoI: pontos, desafios, evento, itens de mesa e a investigação amarrada", () => {
+  const aventura = montarAtoI(extraidoAtoI(), fontesAtoI());
+  const pontos = aventura.items.filter((i) => i.type === "ponto-interesse");
+  const desafios = aventura.items.filter((i) => i.type === "desafio-acesso");
+  const eventos = aventura.items.filter((i) => i.type === "evento");
+  assert.equal(pontos.length, 2);
+  assert.equal(desafios.length, 1);
+  assert.equal(eventos.length, 1);
+  assert.equal(aventura.items.filter((i) => i.type === "equipamento").length, 1);
+  assert.equal(pontos[0].name, "Depósito A, Molho de Chaves");
+  // O ponto lista o próprio desafio, e a investigação lista tudo — oculto de saída.
+  assert.deepEqual(pontos[0].system.desafios, [`Item.${desafios[0]._id}`]);
+  const investigacao = aventura.actors.find((a) => a.type === "investigacao");
+  assert.deepEqual(investigacao.system.pois, pontos.map((p) => `Item.${p._id}`));
+  assert.deepEqual(investigacao.system.poisOcultos, investigacao.system.pois);
+  assert.deepEqual(investigacao.system.eventos, [`Item.${eventos[0]._id}`]);
+  assert.deepEqual(investigacao.system.participantes, ["Actor.a1"]);
+  // Cena, trilha, handouts e os dois diários montados (roteiro e maldição).
+  assert.equal(aventura.scenes.length, 1);
+  assert.equal(aventura.playlists.length, 1);
+  assert.equal(aventura.journal.length, 3);
+  // Todo documento numa pasta da aventura.
+  const pastas = new Set(aventura.folders.map((f) => f._id));
+  for (const doc of [...aventura.actors, ...aventura.items, ...aventura.journal, ...aventura.scenes]) {
+    assert.ok(pastas.has(doc.folder), `${doc.name} sem pasta`);
+  }
+});
+
+test("montarAtoI: a linha do quadro leva condição e DT alternativa no texto, e a condição a esconde", () => {
+  const aventura = montarAtoI(extraidoAtoI(), fontesAtoI());
+  const [molho, simbolo] = aventura.items.filter((i) => i.type === "ponto-interesse");
+  assert.equal(molho.system.informacoes[1].pericia, "pesquisar");
+  assert.match(molho.system.informacoes[1].texto, /^<p><em>\(DT 6 ou 10; ou Tecnologia\)<\/em> Duas são iguais\.<\/p>$/);
+  // "ou Tecnologia" é perícia alternativa, não condição: a linha segue descobrível.
+  assert.equal(molho.system.informacoes[1].oculta, false);
+  assert.equal(simbolo.system.informacoes[0].oculta, true);
+  // O handout citado vai para a descrição de mestre do ponto que combina com ele.
+  assert.match(simbolo.system.descricaoContextual, /handout-02-simbolo-no-teto\.jpg/);
+  assert.doesNotMatch(molho.system.descricaoContextual, /handout-02/);
+});
+
+test("montarAtoI: ids estáveis entre duas montagens", () => {
+  const a = montarAtoI(extraidoAtoI(), fontesAtoI());
+  const b = montarAtoI(extraidoAtoI(), fontesAtoI());
+  assert.equal(a._id, b._id);
+  assert.deepEqual(a.items.map((i) => i._id), b.items.map((i) => i._id));
+});
+
+/** Um Ato II mínimo, no formato de `extrairAtoII().dados`. */
+const dadosAtoII = () => ({
+  aberturaDoAto: ["O Ato II continua."], preparacao: ["Prepare."], vitoria: ["Vença."], introducao: ["Intro."],
+  cenaInicial: ["Cena."], pontosIntro: [], novasDescobertas: [], pertencesIntro: [], porao: [], salaSecreta: [],
+  caixaMaldicao: ["Se quebrarem o Ídolo…"], narracaoFinal: ["Fim."], fugindo: [], respostaCorreta: ["Zumbi."],
+  mecanicasIntro: [], mecanicas: [
+    { chave: "camera", titulo: "CÂMERA MODIFICADA", paragrafos: ["Ao tirar uma foto, envie ao jogador o handout: HANDOUT 03 - FOTO DO ALTAR DE MADEIRA Caso não consiga."] },
+    { chave: "laser", titulo: "LASER DE VARREDURA", paragrafos: ["Entregue o Handout 02A - Laser Porão ou o Handout 02B - Laser Sala Secreta."] },
+  ],
+  matriz: { 7: ["camera", "laser"] }, leituraNormal: [8], laser: { porao: [7], salaSecreta: [] },
+  legenda: { 7: "O ÍDOLO DE PEDRA", 8: "DEPÓSITO A" },
+  pontos: [
+    {
+      numero: 7, nome: "O ÍDOLO DE PEDRA", descricao: "Uma estatueta.", notas: ["Nota."], desafio: null,
+      informacoes: [{ pericia: "Ocultismo", chave: "ocultismo", dt: 10, texto: "É antiga.", condicao: "" }],
+      ferramentas: [{ chave: "camera", rotulo: "Câmera Modificada", texto: "Envie ao jogador o handout: HANDOUT 03 - FOTO DO ALTAR DE MADEIRA Caso não consiga, descreva.", handouts: ["HANDOUT 03 - FOTO DO ALTAR DE MADEIRA"] }],
+      handoutsCitados: [], leituraNormal: "",
+    },
+    { numero: 8, nome: "DEPÓSITO A", descricao: "Um depósito.", notas: [], desafio: null, informacoes: [], ferramentas: [], handoutsCitados: [], leituraNormal: "Todas as ferramentas resultam em leitura normal." },
+  ],
+});
+
+const fontesAtoII = () => ({
+  atoIPontos: [], atoIMaldicao: null,
+  ferramentas: [{ _id: "f1", name: "Câmera Modificada", type: "ferramenta", system: { subtipo: "camera" } }],
+  agentes: [{ _id: "g1", name: "Amanda", type: "personagem", system: {}, items: [] }],
+  cena: { _id: "c2", name: "O Porão", walls: [] },
+});
+
+test("montarAtoII: o handout citado solto no texto ganha a imagem, com o número desta revisão do livro", () => {
+  const aventura = montarAtoII(dadosAtoII(), fontesAtoII());
+  const idolo = aventura.items.find((i) => i.name === "O Ídolo de Pedra");
+  assert.match(idolo.system.ferramentas.camera, /handout-03-foto-do-altar-de-madeira\.png/);
+  assert.match(idolo.system.ferramentas.laser, /handout-02a-laser-porao\.jpg/);
+  const handouts = aventura.journal.find((j) => j.name === "Handouts — Ato II");
+  const altar = handouts.pages.find((p) => p.name.startsWith("Foto do Altar"));
+  assert.equal(altar.name, "Foto do Altar de Madeira (Handout 03)");
+  const laser = handouts.pages.find((p) => p.name.startsWith("Varredura do Laser — Porão"));
+  assert.equal(laser.name, "Varredura do Laser — Porão (Handout 02A)");
+  // As artes vêm do zip: a aventura declara o que espera.
+  const extras = aventura.flags["ordem-paranormal-2e"].extras;
+  assert.equal(extras.pasta, "ato-ii");
+  assert.ok(extras.arquivos.some((a) => a.destino === "mapas/mapa-01-o-porao.jpg"));
+});

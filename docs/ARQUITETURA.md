@@ -35,13 +35,31 @@ sheets/ · dialogs · chat   apresentação
 | `module/tests/` | `node --test`, sem runner externo. |
 | `templates/partials/` | Peças reutilizadas: controle de dado, linha de perícia, trilha de recurso. |
 | `scripts/build-packs.mjs` | Compila `packs/sources/` em LevelDB direto (o `fvtt package pack` devolvia banco vazio com documento embutido). |
-| `scripts/ato-i/` | `extrair-aventura.py` lê o PDF (pontos, quadro, caixas, maldição, itens, roteiro); `gerar-aventura.mjs` monta o `Adventure`; `importar-cena.mjs` traz a cena murada do mundo; `copiar-assets.mjs` recopia as artes. |
-| `scripts/ato-ii/` | `extrair-aventura.py` lê as p. 72–103 (pontos, quadro, setor de ferramentas, roteiro, mecânicas, matriz de conferência); `gerar-cena.mjs` transporta as paredes do Ato I; `gerar-aventura.mjs` monta o `Adventure` com `flags.extras`. `README.md` explica o pipeline. |
-| `scripts/aventura/comum.mjs` | O que os dois geradores compartilham: ids determinísticos, títulos legíveis, pastas. |
+| `module/extrator/` | O PDF do playtest vira texto (`grade.mjs` emula o `pdftotext -layout` em cima do pdf.js do Foundry) e o texto vira dados (`ato-i.mjs`, `ato-ii.mjs`). Roda no navegador e no Node; toda régua está comentada com o caso medido que a decidiu. |
+| `module/aventura/` | Do texto extraído ao `Adventure` (`ato-i.mjs`, `ato-ii.mjs`, `comum.mjs`), a janela que pede o PDF (`aventuras-app.mjs`), a leitura do PDF pelo pdf.js (`pdf.mjs`) e o compêndio do mundo (`mundo.mjs`). |
+| `scripts/extrator/rodar.mjs` | Roda o extrator num PDF pelo Node e compara com um gabarito — a ferramenta de revisão (`.claude/skills/revisar-extrator/`). |
+| `scripts/aventura/` | `fontes.mjs` lê de `packs/sources/` o que cada ato precisa dos compêndios (pré-gerados, cena, handouts, trilha, agentes, ferramentas); `gerar-fontes.mjs` grava isso em `assets/aventura/fontes-ato-*.json` no `pack:build`, com a cena no formato v14 (`levels`) — `Adventure.create` no cliente não migra o v13, e a cena chegava sem mapa. Os packs LevelDB ficam no v13: o servidor migra, e ignora `levels` inline. |
+| `scripts/ato-i/` | `gerar-aventura.mjs` monta o `Adventure` no Node, para o e2e; `extrair-aventura.py` é o extrator Python original, mantido como oráculo do gabarito; `importar-cena.mjs` traz a cena murada do mundo; `copiar-assets.mjs` recopia as artes. |
+| `scripts/ato-ii/` | `gerar-aventura.mjs` monta o `Adventure` com `flags.extras` no Node; `extrair-aventura.py` é o oráculo Python; `gerar-cena.mjs` transporta as paredes do Ato I. `README.md` explica o pipeline. |
 | `scripts/reparar-pastas-compendio.mjs` | Refaz as pastas de compêndio de um mundo que as perdeu (o Foundry só as materializa quando a lista de packs muda). |
 | `assets/ato-i/` | As artes do Ato I que os compêndios referenciam. As do Ato II não existem aqui: o compêndio aponta para `assets/ato-ii/` e o importador troca pela pasta do mundo. |
+| `assets/aventura/` | Os `fontes-ato-*.json` que a janela de aventuras busca com `fetch`. Gerados no `pack:build`, fora do git. |
 
 ## Decisões que valem repetir
+
+**A aventura nasce no navegador, do PDF do mestre.** O texto do livro não pode viajar no
+pacote (Licença da Comunidade), e cifrar o conteúdo com uma chave tirada do PDF não
+escalava: cada revisão do PDF (a 1.1 saiu em setembro de 2026) pediria uma chave nova
+e uma versão nova do sistema. Então o pacote leva o **extrator**, não o texto:
+`module/extrator/grade.mjs` transforma o que o pdf.js entrega em linhas de texto em
+colunas (o mesmo formato do `pdftotext -layout`, que foi o oráculo do extrator Python
+original), `ato-i.mjs`/`ato-ii.mjs` leem quadros, caixas e roteiro, e
+`module/aventura/ato-*.mjs` monta o `Adventure` juntando isso aos documentos dos
+compêndios (`assets/aventura/fontes-ato-*.json`). A aventura vai para um compêndio DO
+MUNDO (`world.op2-aventuras`) e é importada dali, pelo fluxo do core — a ficha, os
+avisos de sobrescrita e o pedido do zip do Ato II continuam valendo. O mesmo código
+roda no Node (`scripts/extrator/rodar.mjs`, `scripts/ato-*/gerar-aventura.mjs`) para o
+e2e e para conferir uma revisão nova do PDF contra a anterior.
 
 **Sem `template.json`.** Todo esquema é `TypeDataModel`, com validação e migração de
 verdade.

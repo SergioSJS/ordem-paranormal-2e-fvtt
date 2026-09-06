@@ -31,6 +31,20 @@ page.on("console", (m) => {
   erros.push(texto.split("\n")[0]);
 });
 
+// A licença copiada para o User Data descartável é assinada com o hostname da máquina;
+// quando ele muda (rede nova, macOS renomeando o "MBP-de-…"), o servidor sobe pedindo
+// o aceite da EULA e não ativa o mundo. Aceitar aqui reassina só a cópia descartável —
+// o mesmo que o seu Foundry pede na primeira abertura depois da troca.
+await page.goto(`${URL}/license`, { waitUntil: "networkidle" });
+if (await page.$("#eula-agree")) {
+  console.log("(a licença descartável precisa de assinatura nova; aceitando a EULA)");
+  await page.check("#eula-agree");
+  await page.click("#sign");
+  await page.waitForLoadState("networkidle");
+  throw new Error("licença reassinada em " + URL + ". Reinicie o servidor do Foundry (o --world só ativa com a "
+    + "licença válida) e rode de novo.");
+}
+
 await page.goto(`${URL}/join`, { waitUntil: "networkidle" });
 
 // O Foundry desabilita na tela de entrada quem ele ainda considera conectado, e a
@@ -53,7 +67,32 @@ await page.click("button[name='join'], button[type='submit']");
 await page.waitForURL("**/game");
 await page.waitForFunction(() => globalThis.game?.ready === true, null, { timeout: 60000 });
 
-const relato = await page.evaluate(async () => {
+// A tela de boas-vindas abre para o mestre ao entrar (enquanto o setting estiver ligado):
+// confere o que ela diz e fecha, para não ficar na frente do resto da suíte.
+const boasVindas = await page.evaluate(async () => {
+  await game.settings.set("ordem-paranormal-2e", "boasVindas", true);
+  const app = game.op2.boasVindas();
+  await new Promise((r) => setTimeout(r, 1500));
+  const el = app.element;
+  const r = {
+    abriu: Boolean(el?.isConnected),
+    versao: el?.querySelector(".op2-boas-vindas__versao")?.textContent.includes(game.system.version),
+    aviso: /Licença da Comunidade/.test(el?.querySelector(".op2-boas-vindas__aviso")?.textContent ?? ""),
+    links: [...(el?.querySelectorAll(".op2-boas-vindas__links a") ?? [])].map((a) => a.href),
+    atos: el?.querySelectorAll(".op2-boas-vindas__atos li").length,
+    botaoAventuras: Boolean(el?.querySelector('[data-action="abrirAventuras"]')),
+  };
+  // Desmarcar "mostrar ao entrar" grava o setting; marcar de volta deixa o mundo como estava.
+  const caixa = el?.querySelector("[data-mostrar-ao-entrar]");
+  caixa.checked = false; caixa.dispatchEvent(new Event("change"));
+  await new Promise((r) => setTimeout(r, 300));
+  r.desligou = game.settings.get("ordem-paranormal-2e", "boasVindas") === false;
+  await game.settings.set("ordem-paranormal-2e", "boasVindas", true);
+  await app.close();
+  return r;
+});
+
+const relato = await page.evaluate(async (boasVindas) => {
   const passos = [];
   const dados = {};
   const ok = (titulo, condicao) => passos.push([Boolean(condicao), titulo]);
@@ -85,6 +124,11 @@ const relato = await page.evaluate(async () => {
   /* ---------------------------------------------------------- carregamento -- */
 
   ok("system carregado", game.system.id === "ordem-paranormal-2e");
+  ok("a tela de boas-vindas abre com versão, aviso da licença, os dois atos e o botão das aventuras",
+    boasVindas.abriu && boasVindas.versao && boasVindas.aviso && boasVindas.atos === 2 && boasVindas.botaoAventuras);
+  ok("com os links da licença, do site e da loja da editora, do changelog e do repositório",
+    ["ordemparanormal.com.br/licenca", "loja.ordemparanormal.com.br", "CHANGELOG.md", "github.com"].every((t) => boasVindas.links.some((l) => l.includes(t))));
+  ok("e \"mostrar ao entrar\" desmarcado grava o setting", boasVindas.desligou);
   ok("api game.op2 exposta", typeof game.op2?.rolarTeste === "function");
   ok("data models registrados", CONFIG.Actor.dataModels.personagem && CONFIG.Item.dataModels.habilidade);
   ok("OP2Roll em CONFIG.Dice.rolls", CONFIG.Dice.rolls.some((c) => c.name === "OP2Roll"));
@@ -937,7 +981,7 @@ const relato = await page.evaluate(async () => {
       const pontosNoMundo = noMundo("Item").filter((i) => i.type === "ponto-interesse");
       const linhasNoMundo = pontosNoMundo.flatMap((i) => i.system.informacoes);
       ok("os pontos chegam ao mundo com o quadro preenchido",
-        pontosNoMundo.length === 31 && linhasNoMundo.length === 86
+        pontosNoMundo.length === 31 && linhasNoMundo.length === 87
         && linhasNoMundo.every((l) => l.pericia && l.dt > 0 && l.texto.length > 10));
       // Linha com condição no livro ("apenas Victor", "se o ídolo for quebrado") entra
       // como rascunho: Examinar não alcança, o mestre libera quando a condição acontece.
@@ -2770,7 +2814,7 @@ const relato = await page.evaluate(async () => {
 
   await ator.delete();
   return { passos, dados };
-});
+}, boasVindas);
 
 // Clique de verdade do Playwright, fora do page.evaluate: o framework de scene
 // controls do core nunca redispara o clique numa tool já ativa, então esse
@@ -2874,6 +2918,128 @@ const relato = await page.evaluate(async () => {
   relato.passos.push([!depois.dialogoAberto, "diálogo fecha depois de rolar"]);
 }
 
+// As aventuras montadas do PDF do mestre: a janela lê o PDF no navegador, extrai o
+// texto, monta os atos e guarda no compêndio do mundo — é o único caminho por onde o
+// texto do livro entra num mundo. O PDF é da editora e não vem no repositório: sem
+// ele, o bloco não roda. `OP2_E2E_PDF` aponta para outro (o gratuito, uma revisão nova).
+{
+  const pdfPath = process.env.OP2_E2E_PDF ?? "docs/Ordem-Paranormal-RPG-2-Playtest-Alpha-agentes.pdf";
+  if (existsSync(pdfPath)) {
+    // Do zero: sem o compêndio do mundo, a janela tem que criá-lo.
+    await page.evaluate(async () => {
+      const pack = game.packs.get("world.op2-aventuras");
+      if (pack) await pack.deleteCompendium();
+    });
+    await page.evaluate(() => game.op2.aventuras());
+    // O input é `hidden` (quem aparece é o botão): esperar por presença, não visibilidade.
+    await page.waitForSelector("#op2-aventuras [data-pdf]", { state: "attached", timeout: 20000 });
+    const antes = await page.evaluate(() => ({
+      estados: [...document.querySelectorAll("#op2-aventuras .op2-aventuras__estado")].map((el) => el.textContent.trim()),
+      importar: document.querySelectorAll('#op2-aventuras [data-action="importar"]').length,
+      licenca: document.querySelector("#op2-aventuras .op2-aventuras__licenca a")?.href ?? "",
+    }));
+    relato.passos.push([antes.importar === 0 && antes.estados.length === 2 && antes.estados.every((t) => /Falta o PDF/.test(t)),
+      "sem PDF, a janela de aventuras só pede o PDF"]);
+    relato.passos.push([antes.licenca === "https://ordemparanormal.com.br/licenca", "e leva o aviso e o link da Licença da Comunidade"]);
+
+    const t0 = Date.now();
+    await page.setInputFiles("#op2-aventuras [data-pdf]", pdfPath);
+    await page.waitForSelector('#op2-aventuras [data-action="importar"]', { timeout: 300000 });
+    relato.dados.aventurasDoPdf = { arquivo: pdfPath.split("/").pop(), segundos: Math.round((Date.now() - t0) / 1000) };
+    const janela = await page.evaluate(() => ({
+      prontos: document.querySelectorAll("#op2-aventuras .op2-aventuras__ato--pronto").length,
+      resumos: [...document.querySelectorAll("#op2-aventuras .op2-aventuras__resumo")].map((el) => el.textContent.trim()),
+      erros: [...document.querySelectorAll("#op2-aventuras .op2-aventuras__erro")].map((el) => el.textContent.trim()),
+      problemas: document.querySelectorAll("#op2-aventuras .op2-aventuras__problemas li").length,
+      lendo: Boolean(document.querySelector('#op2-aventuras [data-action="escolherPdf"]')?.disabled),
+    }));
+    const completo = janela.prontos === 2;
+    relato.dados.aventurasDoPdf.janela = janela;
+    relato.passos.push([janela.prontos >= 1 && /31 pontos de interesse, 87 linhas de quadro, 10 desafios, maldição em 6 rodadas, 3 itens/.test(janela.resumos[0] ?? ""),
+      `o PDF vira o Ato I na janela (${janela.resumos[0] ?? "sem resumo"})`]);
+    relato.passos.push([completo
+      ? /25 pontos de interesse, 63 linhas de quadro, 3 desafios, 34 leituras/.test(janela.resumos[1] ?? "")
+      : janela.erros.some((t) => /não traz o Ato II/.test(t)),
+    completo ? `e o Ato II (${janela.resumos[1]})` : "PDF sem Ato II: a janela diz isso, em vez de falhar"]);
+    relato.passos.push([janela.problemas === 0 && !janela.lendo, "a conferência do Ato II não acusa nada, e a janela volta a aceitar PDF"]);
+
+    const noPack = await page.evaluate(async (completo) => {
+      const passos = [];
+      const ok = (titulo, condicao) => passos.push([Boolean(condicao), titulo]);
+      const pack = game.packs.get("world.op2-aventuras");
+      ok("a janela cria o compêndio de aventuras do mundo, um ato por entrada",
+        pack?.metadata.type === "Adventure" && pack.index.size === (completo ? 2 : 1));
+      const entrada = [...pack.index].find((x) => x.name === "Ato I — O Porão");
+      const aventura = await pack.getDocument(entrada._id);
+      ok("o Ato I montado traz cena, trilha, 4 diários, 6 atores e 45 itens",
+        aventura.scenes.size === 1 && aventura.playlists.size === 1 && aventura.journal.size === 4
+        && aventura.actors.size === 6 && aventura.items.size === 45);
+      ok("a cena vem com as paredes do compêndio do sistema", [...aventura.scenes][0].walls.size > 30);
+      const pontos = [...aventura.items].filter((i) => i.type === "ponto-interesse");
+      const linhas = pontos.flatMap((p) => p.system.informacoes);
+      ok("31 pontos com 87 linhas de quadro, todas com perícia e DT",
+        pontos.length === 31 && linhas.length === 87 && linhas.every((l) => l.pericia && Number.isInteger(l.dt) && l.dt > 0));
+      const armario = pontos.find((p) => p.name === "Armário de Metal");
+      ok("\"DT 6 ou 10\" do Armário de Metal chega como DT 6, com a segunda no texto",
+        armario?.system.informacoes.some((l) => l.dt === 6 && /DT 6 ou 10/.test(l.texto)));
+      const computador = pontos.find((p) => p.name.startsWith("Computador"));
+      ok("o Computador tem as cinco linhas do livro, a última com DT 10",
+        computador?.system.informacoes.length === 5 && computador.system.informacoes[4].dt === 10);
+      const inv = [...aventura.actors].find((a) => a.type === "investigacao");
+      ok("a investigação chega com 31 pontos, 10 desafios e 5 participantes, tudo oculto",
+        inv.system.pois.length === 31 && inv.system.desafios.length === 10 && inv.system.participantes.length === 5
+        && inv.system.poisOcultos.length === 31 && inv.system.desafiosOcultos.length === 10);
+      const roteiro = [...aventura.journal].find((j) => j.name === "Roteiro do Ato I");
+      ok("o roteiro traz os subtítulos da narração final e não engole a coluna da esquerda",
+        /<h3>PERSONAGENS ESCAPAM<\/h3>/.test(roteiro?.pages.find((p) => p.name === "Narração final")?.text.content ?? "")
+        && /As escadas levam/.test(roteiro?.pages.find((p) => p.name === "Narração final")?.text.content ?? ""));
+      if (completo) {
+        const a2 = await pack.getDocument([...pack.index].find((x) => x.name === "Ato II — O Porão")._id);
+        const p2 = [...a2.items].filter((i) => i.type === "ponto-interesse");
+        ok("o Ato II montado: 25 pontos, 63 linhas, 3 desafios, 10 ferramentas e o evento da maldição",
+          p2.length === 25 && p2.flatMap((p) => p.system.informacoes).length === 63
+          && [...a2.items].filter((i) => i.type === "desafio-acesso").length === 3
+          && [...a2.items].filter((i) => i.type === "ferramenta").length === 10
+          && [...a2.items].some((i) => i.type === "evento"));
+        ok("com os 31 arquivos do zip declarados nos flags",
+          a2.flags["ordem-paranormal-2e"]?.extras?.arquivos.length === 31);
+        const idsI = new Set([...aventura.folders].map((f) => f.id));
+        ok("e pastas que não repetem id das do Ato I", ![...a2.folders].some((f) => idsI.has(f.id)));
+      }
+      return passos;
+    }, completo);
+    relato.passos.push(...noPack);
+
+    // Importar pela janela: o botão dispara o import do core, sem diálogo.
+    const doAtoI = `(d) => d.folder?.name === "Ato I — O Porão" || d.folder?.folder?.name === "Ato I — O Porão"`;
+    const limparAtoI = async () => page.evaluate(async (fn) => {
+      const ehDoAtoI = eval(fn);
+      for (const colecao of [game.actors, game.items, game.scenes, game.journal, game.playlists]) {
+        for (const doc of [...colecao].filter(ehDoAtoI)) await doc.delete().catch(() => {});
+      }
+      for (const pasta of [...game.folders].filter((f) => f.name === "Ato I — O Porão" || f.folder?.name === "Ato I — O Porão")) {
+        await pasta.delete().catch(() => {});
+      }
+    }, doAtoI);
+    await limparAtoI();
+    await page.click('#op2-aventuras [data-action="importar"][data-ato="ato-i"]');
+    await page.waitForFunction(() => game.folders.getName("Pré-gerados") && game.folders.getName("Itens de Mesa")
+      && game.items.filter((i) => i.type === "ponto-interesse" && i.folder?.folder?.name === "Ato I — O Porão").length === 31,
+    null, { timeout: 180000 });
+    const importado = await page.evaluate(() => ({
+      pregerados: game.actors.filter((a) => a.folder?.name === "Pré-gerados").length,
+      cenas: game.scenes.filter((s) => s.folder?.name === "Ato I — O Porão").length,
+      desafios: game.items.filter((i) => i.type === "desafio-acesso" && i.folder?.folder?.name === "Ato I — O Porão").length,
+      investigacao: game.actors.find((a) => a.type === "investigacao" && a.folder?.name === "Ato I — O Porão")?.system.pois.length,
+      estados: [...document.querySelectorAll("#op2-aventuras .op2-aventuras__estado")].map((el) => el.textContent.trim()),
+    }));
+    relato.passos.push([importado.pregerados === 5 && importado.cenas === 1 && importado.desafios === 10 && importado.investigacao === 31,
+      "importar pela janela cria a mesa do Ato I no mundo, nas pastas"]);
+    await limparAtoI();
+    await page.evaluate(() => document.querySelector("#op2-aventuras .header-control[data-action=close], #op2-aventuras [data-action=close]")?.click());
+  }
+}
+
 // Ato II com o zip da editora: o importador pede o zip, descompacta no navegador, sobe
 // os arquivos para a pasta do mundo e reescreve os caminhos. O zip é material da
 // editora e não vem no repositório: sem ele em docs/, o bloco não roda.
@@ -2894,15 +3060,24 @@ const relato = await page.evaluate(async () => {
     }
   });
 
-  if (existsSync(zipPath) && await page.evaluate(() => Boolean(game.packs.get("ordem-paranormal-2e.ato-ii-aventura")?.index.size))) {
+  // A aventura do Ato II: a que a janela montou do PDF (compêndio do mundo) ou, sem
+  // PDF, a do pack local gerado pelos scripts.
+  const ondeEstaOAtoII = `() => {
+    const mundo = game.packs.get("world.op2-aventuras");
+    const entrada = mundo && [...mundo.index].find((x) => x.name === "Ato II — O Porão");
+    if (entrada) return [mundo.collection, entrada._id];
+    const local = game.packs.get("ordem-paranormal-2e.ato-ii-aventura");
+    return local?.index.size ? [local.collection, [...local.index][0]._id] : null;
+  }`;
+  if (existsSync(zipPath) && await page.evaluate((fn) => Boolean(eval(fn)()), ondeEstaOAtoII)) {
     await limparAtoII();
-    const primeira = await page.evaluate(async () => {
-      const pack = game.packs.get("ordem-paranormal-2e.ato-ii-aventura");
-      const aventura = await pack.getDocument([...pack.index][0]._id);
+    const primeira = await page.evaluate(async (fn) => {
+      const [colecao, id] = eval(fn)();
+      const aventura = await game.packs.get(colecao).getDocument(id);
       const r = await aventura.import({ dialog: false });
       // Cancelada pelo hook: `created` volta como array vazio; criada de verdade, como registro.
       return { cancelou: Array.isArray(r.created) && r.created.length === 0 };
-    });
+    }, ondeEstaOAtoII);
     relato.passos.push([primeira.cancelou, "importar o Ato II sem os arquivos no mundo segura a importação e pede o zip"]);
 
     // Sem OP2_E2E_DATA a pasta do mundo sobrevive de uma rodada para a outra, o

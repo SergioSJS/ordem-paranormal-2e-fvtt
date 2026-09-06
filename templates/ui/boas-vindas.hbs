@@ -1,0 +1,61 @@
+<div class="op2-boas-vindas__corpo">
+  <header class="op2-boas-vindas__cabecalho">
+    {{#if selo}}<img class="op2-boas-vindas__selo" src="{{selo}}" alt="{{localize "OP2.BoasVindas.SeloAlt"}}">{{/if}}
+    <div>
+      <p class="op2-boas-vindas__versao">{{localize "OP2.BoasVindas.Versao" versao=versao}}</p>
+      <p class="op2-boas-vindas__aviso">{{localize aviso}}</p>
+    </div>
+  </header>
+
+  <section>
+    <h3>{{localize "OP2.BoasVindas.TrazTitulo"}}</h3>
+    <ul class="op2-boas-vindas__lista">
+      <li>{{localize "OP2.BoasVindas.Traz.ficha"}}</li>
+      <li>{{localize "OP2.BoasVindas.Traz.investigacao"}}</li>
+      <li>{{localize "OP2.BoasVindas.Traz.desafios"}}</li>
+      <li>{{localize "OP2.BoasVindas.Traz.compendios" n=compendios}}</li>
+    </ul>
+  </section>
+
+  <section class="op2-boas-vindas__aventuras">
+    <h3>{{localize "OP2.BoasVindas.AventurasTitulo"}}</h3>
+    <p>{{localize "OP2.BoasVindas.AventurasTexto"}}</p>
+    <ul class="op2-boas-vindas__atos">
+      {{#each atos}}
+        <li>
+          <i class="fa-solid {{#if noMundo}}fa-circle-check{{else}}fa-circle{{/if}}" aria-hidden="true"></i>
+          <strong>{{rotulo}}</strong>
+          <span class="op2-boas-vindas__estado">{{#if noMundo}}{{localize "OP2.BoasVindas.AtoNoMundo"}}{{else}}{{localize "OP2.BoasVindas.AtoFalta"}}{{/if}}</span>
+        </li>
+      {{/each}}
+    </ul>
+    {{#if mestre}}
+      <button type="button" class="op2-botao" data-action="abrirAventuras">
+        <i class="fa-solid fa-file-pdf" aria-hidden="true"></i> {{localize "OP2.BoasVindas.AbrirAventuras"}}
+      </button>
+    {{/if}}
+    <p class="op2-ajuda">{{localize "OP2.BoasVindas.AtoII"}}</p>
+  </section>
+
+  <section>
+    <h3>{{localize "OP2.BoasVindas.LinksTitulo"}}</h3>
+    <ul class="op2-boas-vindas__links">
+      <li><a href="{{links.loja}}" target="_blank" rel="noopener"><i class="fa-solid fa-heart" aria-hidden="true"></i> {{localize "OP2.BoasVindas.Apoiar"}}</a></li>
+      <li><a href="{{links.site}}" target="_blank" rel="noopener"><i class="fa-solid fa-globe" aria-hidden="true"></i> {{localize "OP2.BoasVindas.Site"}}</a></li>
+      <li><a href="{{links.licenca}}" target="_blank" rel="noopener"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> {{localize "OP2.Licenca.Link"}}</a></li>
+      <li><a href="{{changelog}}" target="_blank" rel="noopener"><i class="fa-solid fa-list-check" aria-hidden="true"></i> {{localize "OP2.BoasVindas.Changelog"}}</a></li>
+      <li><a href="{{repositorio}}" target="_blank" rel="noopener"><i class="fa-brands fa-github" aria-hidden="true"></i> {{localize "OP2.BoasVindas.Repositorio"}}</a></li>
+    </ul>
+    <p class="op2-ajuda">{{localize "OP2.BoasVindas.NaoOficial"}}</p>
+  </section>
+
+  <footer class="op2-boas-vindas__rodape">
+    {{#if mestre}}
+      <label class="op2-boas-vindas__mostrar">
+        <input type="checkbox" data-mostrar-ao-entrar {{#if mostrarAoEntrar}}checked{{/if}}>
+        {{localize "OP2.BoasVindas.MostrarAoEntrar"}}
+      </label>
+    {{/if}}
+    <button type="button" class="op2-botao op2-botao--fantasma" data-action="fechar">{{localize "OP2.BoasVindas.Fechar"}}</button>
+  </footer>
+</div>

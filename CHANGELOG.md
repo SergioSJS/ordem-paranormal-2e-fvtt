@@ -29,10 +29,12 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Notas
 
-- **O Ato I vem montado no pacote**: instalar, importar a aventura e jogar, sem passo
-  nenhum a mais. O conteúdo do ato vem do material de playtest publicado pela editora.
-- O **Ato II** não vem: as artes são exclusivas de assinante e o texto sai do PDF que
-  só quem assina tem. Quem tem o material monta o ato na própria máquina, pelos
-  scripts do repositório (README, "Gerar o Ato II a partir do seu PDF").
+- **As aventuras nascem do seu PDF, dentro do Foundry.** O texto do livro não vem no
+  pacote — a Licença da Comunidade não permite. *Configurações → Aventuras do
+  playtest*: o sistema lê o PDF do playtest no navegador, monta o Ato I (e o Ato II, se
+  o PDF for o completo) e guarda no compêndio do mundo, pronto para importar. Lê as
+  revisões 1 e 1.1 do playtest e o PDF gratuito.
+- As artes do Ato I, liberadas pela editora, viajam no sistema; as do **Ato II** são
+  exclusivas de assinante, e o sistema pede o zip da editora ao importar.
 - Sistema não-oficial, feito por fã, sem afiliação com os detentores dos direitos de
   Ordem Paranormal RPG.

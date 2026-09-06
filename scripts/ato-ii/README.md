@@ -2,20 +2,29 @@
 
 O Ato II não é público: o texto está no PDF do playtest (p. 72 a 103) e as artes no
 zip `Ordem-2-Playtest-Alpha-Ato-II-Extras.zip`, que a editora entrega a quem assina.
-Nada disso entra no repositório. O que entra é o que **nós** fizemos: o extrator, o
-gerador, as paredes da cena, os cinco agentes transcritos das fichas e as habilidades
-novas.
+Nada disso entra no repositório nem no pacote. O que entra é o que **nós** fizemos: o
+extrator, o gerador, as paredes da cena, os cinco agentes transcritos das fichas e as
+habilidades novas. **Quem monta a aventura é o mestre, dentro do Foundry** (janela
+*Aventuras do playtest*, `module/aventura/`): o extrator (`module/extrator/ato-ii.mjs`)
+e o gerador (`module/aventura/ato-ii.mjs`) rodam no navegador dele, do PDF dele.
+
+Os mesmos módulos rodam no Node, para o e2e e para conferir uma revisão nova do PDF:
 
 ```bash
-npm run ato-ii:extrair          # PDF → build/ato-ii.json (pontos, ferramentas, roteiro)
+node scripts/extrator/rodar.mjs docs/<o PDF completo>.pdf [gabarito] --texto --completo
+                                # PDF → build/js/ato-ii.json (e o Ato I junto)
 npm run ato-ii:gerar-cena       # paredes do Ato I → packs/sources/ato-ii-cenas/
 npm run ato-ii:gerar-aventura   # → packs/sources/ato-ii-aventura/ato-ii.json
 npm run pack:build
 ```
 
+`scripts/ato-ii/extrair-aventura.py` (`npm run ato-ii:extrair`) é o extrator Python
+original, em cima do `pdftotext -layout`: fica como oráculo do gabarito — o JS é
+byte-idêntico a ele na revisão 1 do PDF (`.claude/skills/revisar-extrator/SKILL.md`).
+
 ## O extrator
 
-`extrair-aventura.py` reaproveita o leitor de quadro do Ato I e acrescenta o setor
+`module/extrator/ato-ii.mjs` reaproveita o leitor de quadro do Ato I e acrescenta o setor
 **FERRAMENTAS** de cada ponto: o rótulo da ferramenta na coluna da esquerda, centralizado
 sobre a leitura na coluna da direita, como a DT do quadro. A leitura de cada rótulo vai
 do fim da anterior até o espelho desse começo em torno do centro do rótulo, e depois

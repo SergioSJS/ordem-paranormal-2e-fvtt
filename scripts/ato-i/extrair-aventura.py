@@ -9,9 +9,10 @@ acesso, e a tabela `Perícia | DT | Informação`. As colunas são fixas o basta
 fatiar por posição — o que evita adivinhar onde a informação começa quando a perícia
 da linha está vazia (linha que continua a perícia anterior).
 """
-import re, subprocess, json, pathlib, sys
+import re, subprocess, json, os, pathlib, sys
 
-PDF = pathlib.Path("docs/Ordem-Paranormal-RPG-2-Playtest-Alpha-agentes.pdf")
+# O PDF ganha revisões; OP2_PDF aponta para a que se quer extrair.
+PDF = pathlib.Path(os.environ.get("OP2_PDF", "docs/Ordem-Paranormal-RPG-2-Playtest-Alpha-agentes.pdf"))
 # Fora de `packs/sources/`: ali dentro todo .json é documento de compêndio.
 SAIDA = pathlib.Path("build/ato-i-pontos.json")
 SAIDA_MALDICAO = pathlib.Path("build/ato-i-maldicao.json")

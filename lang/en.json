@@ -513,6 +513,10 @@
       "cliqueAbreDialogo": {
         "name": "Click opens the check dialog",
         "hint": "By default a click rolls directly and Shift opens the dialog. Enable to swap them."
+      },
+      "boasVindas": {
+        "name": "Welcome on entering",
+        "hint": "Shows the welcome screen (what the system brings, playtest adventures, license) to the GM when entering the world. \"About and license\" opens the same screen anytime."
       }
     },
     "Desafio": {
@@ -821,6 +825,70 @@
       "Desmarcar": "Remove the map marker",
       "SemCena": "Open the map scene before placing the marker.",
       "SemPersonagem": "Pick a character to act from this marker."
+    },
+    "Aventuras": {
+      "Titulo": "Playtest adventures",
+      "Explicacao": "The adventure text belongs to the book, and the Community License does not allow redistributing it. Pick the playtest PDF you already own: the system reads the text here in the browser, builds the acts and stores them in this world's compendium, ready to import. The file goes nowhere.",
+      "Escolher": "Choose the playtest PDF",
+      "Lendo": "Reading the PDF…",
+      "Progresso": "Page {pagina} of {total}",
+      "Montando": "Building the adventures…",
+      "Montado": "Built from this PDF — ready to import",
+      "NoMundo": "Stored in the world — ready to import",
+      "FaltaPdf": "PDF needed",
+      "Importar": "Import into the world",
+      "Ver": "Review before importing",
+      "PackRotulo": "Ordem Paranormal 2 — Adventures",
+      "ErroLeitura": "Could not read that file as a PDF.",
+      "AtoI": "Act I — The Basement",
+      "AtoII": "Act II — The Basement",
+      "Resumo": {
+        "ato-i": "{pontos} points of interest, {linhas} clue rows, {desafios} challenges, curse over {rodadas} rounds, {itens} table items",
+        "ato-ii": "{pontos} points of interest, {linhas} clue rows, {desafios} challenges, {leituras} tool readings"
+      },
+      "Problemas": "Check: {n} warning(s) — the text and the tool matrix disagree somewhere; check the book",
+      "Motivo": {
+        "trecho": "Could not find Act I in this PDF. Is it the Ordem Paranormal 2 playtest book?",
+        "ausente": "This PDF does not include Act II — it only exists in the full playtest PDF.",
+        "falha": "Building failed. See the console (F12) for details."
+      },
+      "Importado": "{nome}: imported into the world.",
+      "MenuNome": "Playtest adventures",
+      "MenuBotao": "Build from PDF",
+      "MenuAjuda": "Pick the playtest PDF and the system builds Act I (and Act II, if the PDF includes it) in this world's compendium."
+    },
+    "Licenca": {
+      "Aviso": "This is unofficial content, published under the Ordem Paranormal Community License.",
+      "Link": "Read the license"
+    },
+    "BoasVindas": {
+      "Titulo": "Ordem Paranormal 2 — Playtest (Unofficial)",
+      "Versao": "Unofficial Foundry VTT system for the Ordem Paranormal RPG 2 alpha playtest — version {versao}.",
+      "SeloAlt": "Ordem Paranormal Community License seal",
+      "TrazTitulo": "What the system brings",
+      "Traz": {
+        "ficha": "Character sheet and dice engine: d4→d12 ladder, two dice added, high/low result, criticals and critical failures with the book's table.",
+        "investigacao": "Investigation scenes: points of interest with the Skill · DC · Information table, Examine, Interact, Recap, Share, mental overload and the GM panel.",
+        "desafios": "Access challenges (Break, Unlock, Hack, Hold) and the ten Ordo Realitas tools, with the Portable Lab and the Modified Radio in their own windows.",
+        "compendios": "{n} compendiums: abilities, occupations, tools, and the pregens, scene, handouts and soundtrack of Act I."
+      },
+      "AventurasTitulo": "The adventures come from your PDF",
+      "AventurasTexto": "The text of the acts belongs to the book, and the Community License does not allow redistributing it. Pick the playtest PDF you already own: the system reads the text here in the browser, builds each act as an adventure and stores it in this world's compendium, ready to import. The free PDF is enough for Act I.",
+      "AtoNoMundo": "stored in this world",
+      "AtoFalta": "not built yet",
+      "AbrirAventuras": "Playtest adventures",
+      "AtoII": "Act II only exists in the full playtest PDF, and its art comes in the zip the publisher gives to Arquivos Secretos subscribers — the system asks for that zip when importing. Subscribing is what keeps the playtest alive.",
+      "LinksTitulo": "Links",
+      "Apoiar": "Support the publisher — Ordem Paranormal store",
+      "Site": "Official Ordem Paranormal website",
+      "Changelog": "What changed in this version",
+      "Repositorio": "Code, questions and issues (GitHub)",
+      "NaoOficial": "Fan-made, with no affiliation with the rights holders of Ordem Paranormal RPG; the book's content belongs to them.",
+      "MostrarAoEntrar": "Show this screen when entering the world",
+      "Fechar": "Close",
+      "MenuNome": "About and license",
+      "MenuBotao": "Open",
+      "MenuAjuda": "What the system brings, where the adventures come from, the official links and the Community License."
     }
   }
 }

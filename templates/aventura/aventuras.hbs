@@ -1,0 +1,58 @@
+<div class="op2-aventuras__corpo">
+  <p class="op2-ajuda">{{localize "OP2.Aventuras.Explicacao"}}</p>
+
+  {{!-- O arquivo nunca sai da máquina de quem escolhe: o PDF é lido no navegador. --}}
+  <section class="op2-aventuras__escolha">
+    <input type="file" accept="application/pdf,.pdf" data-pdf hidden>
+    <button type="button" class="op2-botao" data-action="escolherPdf" {{#if lendo}}disabled{{/if}}>
+      <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
+      {{#if lendo}}{{localize "OP2.Aventuras.Lendo"}}{{else}}{{localize "OP2.Aventuras.Escolher"}}{{/if}}
+    </button>
+    <span class="op2-aventuras__progresso" data-progresso>{{progresso}}</span>
+  </section>
+
+  <ol class="op2-aventuras__atos">
+    {{#each atos}}
+      <li class="op2-aventuras__ato{{#if noMundo}} op2-aventuras__ato--pronto{{/if}}">
+        <div class="op2-aventuras__identidade">
+          <strong>{{rotulo}}</strong>
+          <span class="op2-aventuras__estado">
+            {{#if montado}}
+              {{localize "OP2.Aventuras.Montado"}}
+            {{else if noMundo}}
+              {{localize "OP2.Aventuras.NoMundo"}}
+            {{else}}
+              {{localize "OP2.Aventuras.FaltaPdf"}}
+            {{/if}}
+          </span>
+          {{#if resumo}}<span class="op2-aventuras__resumo">{{resumo}}</span>{{/if}}
+          {{#if motivo}}
+            <span class="op2-aventuras__erro">{{localize (op2Concat "OP2.Aventuras.Motivo." motivo)}}</span>
+          {{/if}}
+          {{#if problemas.length}}
+            <details class="op2-aventuras__problemas">
+              <summary>{{localize "OP2.Aventuras.Problemas" n=problemas.length}}</summary>
+              <ul>{{#each problemas}}<li>{{this}}</li>{{/each}}</ul>
+            </details>
+          {{/if}}
+        </div>
+
+        {{#if noMundo}}
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="abrirAventura" data-ato="{{nome}}">
+            <i class="fa-solid fa-eye" aria-hidden="true"></i> {{localize "OP2.Aventuras.Ver"}}
+          </button>
+          <button type="button" class="op2-botao" data-action="importar" data-ato="{{nome}}">
+            <i class="fa-solid fa-file-import" aria-hidden="true"></i> {{localize "OP2.Aventuras.Importar"}}
+          </button>
+        {{/if}}
+      </li>
+    {{/each}}
+  </ol>
+
+  {{!-- O aviso que a Licença da Comunidade exige em conteúdo de texto. --}}
+  <footer class="op2-aventuras__licenca">
+    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+    <span>{{localize "OP2.Licenca.Aviso"}}
+      <a href="{{licenca.url}}" target="_blank" rel="noopener">{{localize "OP2.Licenca.Link"}}</a></span>
+  </footer>
+</div>

@@ -129,10 +129,10 @@ Nove packs em três pastas — `Ordem Paranormal 2 → Regras`, `→ Ato I — A
 - [x] A cena do Porão murada à mão (39 paredes, 6 portas secretas) e a trilha
 - [x] As artes do Ato I dentro do sistema (`assets/ato-i/`) — nada a instalar
 - [x] **A aventura**: um único documento `Adventure` que importa a mesa montada — cena,
-      trilha, pré-gerados, handouts, 31 pontos de interesse com 86 linhas de quadro, 10
+      trilha, pré-gerados, handouts, 31 pontos de interesse com 87 linhas de quadro, 10
       desafios de acesso, os itens de mesa, o roteiro do ato, a maldição rodada a rodada
       e a investigação com tudo vinculado, em pastas. O texto sai do PDF de quem o tem
-      (`npm run ato-i:extrair && npm run ato-i:gerar-aventura`) e não é commitado.
+      (a janela *Aventuras do playtest* lê o PDF do mestre no navegador; no Node, `scripts/extrator/rodar.mjs` e `npm run ato-i:gerar-aventura`) e não é commitado.
 
 O extrator é conferido contra o livro: cada célula de DT vira uma linha, e cada linha
 tem que ser idêntica à coluna "Informação" do PDF (86/86).
@@ -140,8 +140,9 @@ tem que ser idêntica à coluna "Informação" do PDF (86/86).
 ## Ato II ✅
 
 O porão revisitado pelos agentes, com as ferramentas da Ordo Realitas. Não é público:
-o texto sai do PDF (`npm run ato-ii:extrair && npm run ato-ii:gerar-aventura`) e as
-artes do zip da editora, que o mestre entrega na hora de importar.
+o texto sai do PDF do mestre, montado no navegador pela janela *Aventuras do playtest*
+(no Node: `scripts/extrator/rodar.mjs` e `npm run ato-ii:gerar-aventura`), e as artes
+do zip da editora, que o mestre entrega na hora de importar.
 
 - [x] Extrator das p. 72–103: 25 pontos, 63 linhas de quadro, o setor de ferramentas de
       cada ponto (44 leituras), o roteiro do ato e as mecânicas de cada ferramenta —

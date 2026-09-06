@@ -3,15 +3,25 @@
 # os extras do Ato II são exclusivos de assinante e ficam fora do repositório.
 *.pdf
 *.zip
+
+# O material da editora que o mantenedor usa para gerar e testar: PDFs, extras e selo.
+jambo-arquivos/
 docs/*.pdf
 docs/Arquivos para o público - Ato I/
 docs/Ordem-2-Playtest-Alpha-Ato-II-Extras/
 
-# O Ato I vai montado no pacote: quem instala joga sem rodar nada. A aventura é
-# gerada do PDF (npm run ato-i:extrair && npm run ato-i:gerar-aventura) e, por decisão
-# do projeto, versionada. O Ato II continua fora — as artes dele são de assinante.
+# A aventura montada é texto do livro: não vai versionada nem no pacote. Quem monta é
+# o mestre, com o PDF dele, dentro do Foundry (module/aventura/). Os scripts de
+# scripts/ato-* montam a mesma coisa aqui, só para o pack:build e o e2e.
+packs/sources/ato-i-aventura/
 packs/sources/ato-ii-aventura/
 build/
+
+# O que a janela de aventuras precisa dos compêndios, empacotado pelo pack:build.
+assets/aventura/
+
+# O selo da Licença da Comunidade é da editora: baixe-o para assets/licenca/ (README lá).
+assets/licenca/*.png
 
 node_modules/
 .DS_Store
