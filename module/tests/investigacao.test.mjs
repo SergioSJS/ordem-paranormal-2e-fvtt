@@ -39,6 +39,10 @@ test("examinar sem info nova custa 1 PD — por falhar na DT ou por não haver m
   assert.equal(resolverExaminar(QUADRO, "percepcao", 12, new Set(["i1", "i2"])).perdePD, true);
   // O POI pode ser vazio de propósito (spec §6.2).
   assert.equal(resolverExaminar([], "percepcao", 12).perdePD, true);
+  // Pista contada ao grupo é sabida por todos: Examinar não a acha de novo, e cobra o PD.
+  const contada = QUADRO.map((i) => (i.id === "i1" ? { ...i, contadaPor: ["a1"] } : i));
+  assert.equal(resolverExaminar(contada, "percepcao", 11).revelaveis.includes("i1"), false);
+  assert.equal(resolverExaminar(contada.filter((i) => i.id === "i1"), "percepcao", 12).perdePD, true);
 });
 
 test("examinar com crítico ignora a DT e revela o que falta da perícia (spec §4.3)", () => {

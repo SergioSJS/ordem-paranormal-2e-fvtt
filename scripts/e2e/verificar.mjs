@@ -384,6 +384,31 @@ const relato = await page.evaluate(async (boasVindas) => {
   ok("com algo revelado, o card é de revelação e não o de custo de PD",
     !ultimoCard.includes(game.i18n.localize("OP2.Investigacao.ExaminarSemInfo")));
 
+  // Contar ao grupo: a pista é de quem achou ("fica a cargo dele compartilhar", diz o
+  // livro). Contar grava quem contou na linha do ponto, publica um card sem sussurro
+  // e a linha deixa de ser informação nova para os outros — como uma aberta pelo mestre.
+  {
+    const contou = await game.op2.contarAoGrupo(ator, poi.uuid, "i1");
+    await esperar(500);
+    const linha = poi.system.informacoes.find((i) => i.id === "i1");
+    ok("contar ao grupo grava quem contou na linha do ponto",
+      contou === true && linha?.contadaPor.includes(ator.id));
+    const cardContado = game.messages.contents.at(-1);
+    const trecho = linha.texto.replace(/<[^>]+>/g, "").trim().slice(0, 20);
+    ok("e publica um card sem sussurro, com o texto da pista e quem contou",
+      cardContado?.whisper.length === 0 && cardContado.content.includes(ator.name)
+      && cardContado.content.includes(trecho) && cardContado.content.includes("op2-card--investigacao"));
+    ok("contar de novo não repete", await game.op2.contarAoGrupo(ator, poi.uuid, "i1") === false);
+    // Outro personagem, com dado grande o bastante para a DT da linha: ela não vem como
+    // nova, porque a mesa já sabe.
+    const colega = await Actor.create({ name: "Colega da Mesa", type: "personagem",
+      system: { pericias: { percepcao: { die: "d12" } }, atributos: { mente: { die: "d12" } } } });
+    const examinouColega = await game.op2.examinar(colega, poi.uuid, "percepcao", { rapido: true });
+    ok("e outro personagem não a acha como pista nova ao examinar",
+      examinouColega !== null && !(examinouColega?.revelaveis ?? []).includes("i1"));
+    await colega.delete();
+  }
+
   // Perícia sem nada no quadro: aí sim é aposta perdida — paga 1 PD e o card diz
   // por quê, em vez de só "nenhuma informação nova" (achado em uso real).
   const semNada = await game.op2.examinar(ator, poi.uuid, "luta", { rapido: true });
@@ -517,9 +542,14 @@ const relato = await page.evaluate(async (boasVindas) => {
       const [token] = await cena.createEmbeddedDocuments("Token", [{
         name: foraDaCena.name, actorId: foraDaCena.id, x: 500, y: 500, actorLink: true,
       }]);
-      await esperar(700);
+      // O canvas desenha o token depois do documento existir; num mundo cheio isso
+      // passa de 700 ms, e sem o token marcado `atacar` abria o diálogo "em quem?" e a
+      // suíte ficava parada nele para sempre (achado em uso real: uma hora esperando).
+      for (let i = 0; i < 50 && !canvas.tokens.get(token.id); i += 1) await esperar(200);
+      ok("o token novo desenhou no canvas", Boolean(canvas.tokens.get(token.id)));
       canvas.tokens.get(token.id)?.setTarget(true, { releaseOthers: true });
       await esperar(400);
+      if (!canvas.tokens.get(token.id)) throw new Error("token não desenhou no canvas: atacar abriria o diálogo de alvo e a suíte travaria");
 
       ok("alvo marcado no mapa vale mesmo fora da investigação",
         alvosMarcados({ exceto: ator }).map((a) => a.name).includes(foraDaCena.name));
@@ -1608,7 +1638,11 @@ const relato = await page.evaluate(async (boasVindas) => {
 
   // Trocar de Scene não deveria afetar nada da investigação (motivo da mudança:
   // uma investigação pode atravessar vários mapas ao mesmo tempo).
-  await Scene.create({ name: "Sala 2", active: true });
+  // Uma "Sala 2" só: cada rodada criava outra e o mundo de teste acumulava cenas.
+  const salas2 = game.scenes.filter((c) => c.name === "Sala 2");
+  for (const sobra of salas2.slice(1)) await sobra.delete();
+  const sala2 = salas2[0] ?? await Scene.create({ name: "Sala 2" });
+  await sala2.activate();
   await esperar(1500);
   ok("trocar de Scene mantém a investigação ativa", game.op2.investigacaoAtiva()?.uuid === investigacao.uuid);
   ok("participantes sobrevivem à troca de Scene", investigacao.system.participantes.includes(ator.uuid));
@@ -2757,7 +2791,13 @@ const relato = await page.evaluate(async (boasVindas) => {
 
     const t0 = Date.now();
     await page.setInputFiles("#op2-aventuras [data-pdf]", pdfPath);
-    await page.waitForSelector('#op2-aventuras [data-action="importar"]', { timeout: 300000 });
+    // Se a montagem falhar, a janela mostra o motivo e o console o erro: dizer isso vale
+    // mais do que "Timeout exceeded".
+    await page.waitForSelector('#op2-aventuras [data-action="importar"]', { timeout: 300000 }).catch(async (erro) => {
+      const janela = await page.evaluate(() => [...document.querySelectorAll("#op2-aventuras .op2-aventuras__estado, #op2-aventuras .op2-aventuras__erro, #op2-aventuras [data-progresso]")]
+        .map((el) => el.textContent.trim()).filter(Boolean).join(" | "));
+      throw new Error(`a janela de aventuras não chegou ao botão de importar. Janela: "${janela}". Console: ${JSON.stringify([...new Set(erros)].slice(-5))}. ${erro.message.split("\n")[0]}`);
+    });
     relato.dados.aventurasDoPdf = { arquivo: pdfPath.split("/").pop(), segundos: Math.round((Date.now() - t0) / 1000) };
     const janela = await page.evaluate(() => ({
       prontos: document.querySelectorAll("#op2-aventuras .op2-aventuras__ato--pronto").length,

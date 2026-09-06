@@ -102,8 +102,58 @@ export async function limparRevelacao(poiUuid, infoId) {
       "system.estado.infosReveladas": [...ator.system.estado.infosReveladas].filter((c) => c !== chave),
     });
   }
+  // Se alguém tinha contado ao grupo, a mesa "desaprende" junto.
+  const poi = await carregarPoi(poiUuid);
+  if (poi?.system.informacoes.some((info) => info.id === infoId && info.contadaPor?.length)) {
+    await poi.update({
+      "system.informacoes": poi.system.informacoes.map((info) => (info.id === infoId ? { ...info, contadaPor: [] } : info)),
+    });
+  }
   return afetados.map((ator) => ator.name);
 }
+
+/**
+ * CONTAR AO GRUPO: o jogador que achou uma pista decide torná-la visível para todos
+ * os participantes — nos painéis deles, com o nome de quem contou — e um card
+ * público leva o texto ao chat. Não é a ação Compartilhar (spec §6.5), que continua
+ * sendo o teste do aliado por uma pista NOVA; isto é o "fica a cargo dele
+ * compartilhar a informação com os outros ou não" do livro, com o mestre fora do
+ * caminho. Só quem revelou a linha (ou o mestre) pode contar. POI é documento de
+ * mundo: passa pela ponte.
+ * @returns {Promise<boolean>} se contou agora
+ */
+export async function contarAoGrupo(ator, poiUuid, infoId) {
+  const poi = await carregarPoi(poiUuid);
+  if (!poi) return false;
+  const info = poi.system.informacoes.find((i) => i.id === infoId);
+  if (!info) return false;
+  if (info.contadaPor?.includes(ator.id)) return false;
+  if (!game.user.isGM && !idsRevelados(ator, poiUuid).has(infoId)) {
+    ui.notifications.warn(game.i18n.localize("OP2.Investigacao.ContarSoQuemAchou"));
+    return false;
+  }
+  await comoMestre("contarLinha", { uuid: poi.uuid, infoId, atorId: ator.id });
+  return true;
+}
+
+registrarAcaoDeMestre("contarLinha", async ({ uuid, infoId, atorId }) => {
+  const poi = await fromUuid(uuid);
+  const ator = game.actors.get(atorId);
+  if (poi?.type !== "ponto-interesse" || !ator) return;
+  const info = poi.system.informacoes.find((i) => i.id === infoId);
+  if (!info || info.contadaPor?.includes(atorId)) return;
+  await poi.update({
+    "system.informacoes": poi.system.informacoes.map((i) => (i.id === infoId
+      ? { ...i, contadaPor: [...(i.contadaPor ?? []), atorId] } : i)),
+  });
+  // Card público: a pista agora é da mesa. Quem conta é o personagem, não o mestre.
+  await enviarCard(ator, "pista-contada", {
+    titulo: game.i18n.format("OP2.Investigacao.ContouAoGrupo", { ator: ator.name }),
+    poiNome: poi.name,
+    rotuloPericia: rotuloDePericia(info.pericia),
+    texto: info.texto,
+  });
+});
 
 async function gravarRevelacoes(ator, poiUuid, idsNovos, { investigado = false } = {}) {
   const estado = ator.system.estado;
@@ -258,6 +308,7 @@ export async function examinar(ator, poiUuid, chavePericia, { rapido = false } =
       : null,
     infos: [...marcar(gratis, true), ...marcar(revelaveis, false)],
     temInfos: true,
+    poiUuid,
     ...rolagem,
     // O desfecho de Examinar não é o dado contra uma DT: é ter achado algo ou
     // não. Chegou aqui, achou — de graça pelo tamanho do dado, pelo teste, ou os

@@ -28,7 +28,7 @@ import {
   vincularEvento, removerEvento, eventosDaInvestigacao, dispararEvento, reiniciarEvento,
 } from "./investigacao-ativa.mjs";
 import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada, publicarLinhaDoEvento } from "./rodada.mjs";
-import { cicloVisibilidadeInfo, limparRevelacao } from "./acoes-investigacao.mjs";
+import { cicloVisibilidadeInfo, limparRevelacao, contarAoGrupo } from "./acoes-investigacao.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
 import { guardarRolagem, restaurarRolagem, esquecerRolagem } from "../ui/rolagem.mjs";
 
@@ -88,6 +88,7 @@ export function PainelInvestigacaoMixin(Base) {
         alternarOculto: PainelInvestigacaoComum.#alternarOculto,
         cicloVisibilidadeInfo: PainelInvestigacaoComum.#cicloVisibilidadeInfo,
         limparRevelacao: PainelInvestigacaoComum.#limparRevelacao,
+        contarAoGrupo: PainelInvestigacaoComum.#contarAoGrupo,
         moverParticipante: PainelInvestigacaoComum.#moverParticipante,
         alternarRecolhido: PainelInvestigacaoComum.#alternarRecolhido,
         alternarNotasMestre: PainelInvestigacaoComum.#alternarNotasMestre,
@@ -251,9 +252,10 @@ export function PainelInvestigacaoMixin(Base) {
         const descobertaPorAlguem = (info) => personagens
           .some((a) => a.system.estado.infosReveladas.has(chaveInfo(uuid, info.id)));
         const linhasTotal = poi.system.informacoes.length;
+        const contada = (info) => (info.contadaPor?.length ?? 0) > 0;
         const linhasVisiveis = poi.system.informacoes.filter((info) => (ehGM
-          ? (info.aberta || descobertaPorAlguem(info))
-          : (info.aberta || this.#jaDescobriu(uuid, info.id)))).length;
+          ? (info.aberta || contada(info) || descobertaPorAlguem(info))
+          : (info.aberta || contada(info) || this.#jaDescobriu(uuid, info.id)))).length;
 
         pois.push({
           uuid,
@@ -285,8 +287,9 @@ export function PainelInvestigacaoMixin(Base) {
               // descobriu — nada mais. Antes bastava não ser rascunho pra linha
               // aparecer pronta na tela, e aí não sobrava nada pra procurar
               // (achado em uso real).
+              // …e o que alguém contou ao grupo, que é da mesa inteira.
               .filter((info) => info.pericia === chave
-                && (ehGM || info.aberta || this.#jaDescobriu(uuid, info.id)))
+                && (ehGM || info.aberta || contada(info) || this.#jaDescobriu(uuid, info.id)))
               .map((info) => ({
                 ...info,
                 // O mestre vê a DT e quem já descobriu cada informação.
@@ -294,7 +297,11 @@ export function PainelInvestigacaoMixin(Base) {
                 estado: info.oculta ? "rascunho" : (info.aberta ? "aberta" : "descobrivel"),
                 // Linha que o jogador só está vendo porque descobriu: marca no card
                 // dele também, senão não dá pra distinguir do que o mestre abriu.
-                descoberta: !ehGM && !info.aberta,
+                descoberta: !ehGM && !info.aberta && !contada(info),
+                // Quem contou ao grupo, para todo mundo ver; e o botão de contar, só
+                // para quem achou e ainda não contou.
+                contadaPor: (info.contadaPor ?? []).map((id) => game.actors.get(id)?.name ?? "?").join(", "),
+                podeContar: !ehGM && !info.aberta && !contada(info) && this.#jaDescobriu(uuid, info.id),
                 reveladoPor: ehGM
                   ? personagens
                     .filter((a) => a.system.estado.infosReveladas.has(chaveInfo(uuid, info.id)))
@@ -852,6 +859,14 @@ export function PainelInvestigacaoMixin(Base) {
      * Antes disso, o único jeito de desfazer era encerrar a cena, que zera tudo
      * (achado em uso real).
      */
+    /** O jogador conta ao grupo uma pista que o personagem dele achou. */
+    static async #contarAoGrupo(_evento, alvo) {
+      const ator = this.atorDaVisao;
+      if (!ator) return;
+      await contarAoGrupo(ator, alvo.dataset.poiUuid, alvo.dataset.infoId);
+      this.render();
+    }
+
     static async #limparRevelacao(_evento, alvo) {
       if (!game.user.isGM) return;
       const nomes = await limparRevelacao(alvo.dataset.poiUuid, alvo.dataset.infoId);

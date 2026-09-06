@@ -18,6 +18,9 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
   Sustentar, hack técnico (com contador na tela da mesa) e hack social.
 - **Ferramentas da Ordo Realitas.** As dez, com Laboratório Portátil e Rádio
   Modificado em janela própria e o setor de ferramentas nos pontos.
+- **Contar ao grupo.** A pista é de quem achou; um botão na linha (no card de Examinar
+  e na janela de ações) a torna visível para todos os participantes, com o nome de
+  quem contou. O mestre continua podendo abrir qualquer linha pelo painel.
 - **Eventos com roteiro próprio.** Item `evento` com gatilho e rodadas contadas a
   partir dele: disparar é ato de mesa, no painel.
 - **Marcadores no mapa.** O ponto vira nota da cena com o ícone dele; nasce só do

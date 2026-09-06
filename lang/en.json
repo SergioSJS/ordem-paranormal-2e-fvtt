@@ -302,7 +302,13 @@
       "ExaminarNadaMais": "Nothing left for this skill at this point.",
       "ExaminarAchouUma": "the roll revealed one new piece of information.",
       "ExaminarSoGratisUma": "one line from your die size, without rolling.",
-      "ExaminarGratisTambemUma": "One more line came from your die size, without rolling."
+      "ExaminarGratisTambemUma": "One more line came from your die size, without rolling.",
+      "ContarAoGrupo": "Tell the group",
+      "ContarAoGrupoAjuda": "Makes this clue visible to every participant of the investigation, with your name. The Share action is still something else: the ally's test for a new clue.",
+      "ContadaPor": "Told to the group by {nomes}",
+      "ContouAoGrupo": "{ator} told the group",
+      "ContadaVisivel": "The clue now shows on every participant's panel.",
+      "ContarSoQuemAchou": "Only whoever found the clue can tell it to the group."
     },
     "Dialog": {
       "Teste": {

@@ -19,7 +19,12 @@ export function chaveInfo(poiUuid, infoId) {
  * porque ele já leu.
  */
 export function descobrivel(info) {
-  return !info.oculta && !info.aberta;
+  return !info.oculta && !info.aberta && !contadaAoGrupo(info);
+}
+
+/** Um jogador contou esta linha ao grupo: a mesa inteira já sabe (como `aberta`). */
+export function contadaAoGrupo(info) {
+  return (info.contadaPor?.length ?? 0) > 0;
 }
 
 /** Perícias presentes no quadro, sem repetição, na ordem em que aparecem. */

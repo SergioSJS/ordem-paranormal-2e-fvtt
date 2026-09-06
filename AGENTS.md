@@ -62,7 +62,10 @@ permanentes). Validação em v13 **adiada por decisão do projeto** — o sistem
   §6.3). `examinar()` faz os dois passos: entrega de graça o que o tamanho do dado
   alcança e rola pelo resto; só custa 1 PD quando os dois vêm vazios.
 - **Três estados por linha do quadro:** rascunho (`oculta`), descobrível (padrão, o
-  único que Examinar acha) e aberta (`aberta`, o jogador vê sem gastar ação).
+  único que Examinar acha) e aberta (`aberta`, o jogador vê sem gastar ação). A pista é
+  de quem achou (revelação por personagem); **contar ao grupo** (`contadaPor`) é o
+  jogador tornando a dele visível para a mesa — vale como aberta, com o nome dele. Não
+  é a ação Compartilhar (spec §6.5), que é o teste do aliado por uma pista nova.
 - **Marcador no mapa é nota sem diário: mexe em três coisas do core.** O ponto vira
   `Note` da cena (`module/cena/marcadores.mjs`). (1) O core esconde do jogador toda nota
   sem diário cujo autor seja mestre — por isso ela nasce com `author: null`. (2) Quem

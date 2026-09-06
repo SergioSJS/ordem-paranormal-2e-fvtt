@@ -332,6 +332,19 @@
                           <span class="op2-poi-card__dt">DT {{dt}}</span>
                         {{/if}}
                         <div class="op2-poi-card__texto">{{{texto}}}</div>
+                        {{#if contadaPor}}
+                          <span class="op2-poi-card__revelado-por" data-tooltip="{{localize 'OP2.Investigacao.ContadaPor' nomes=contadaPor}}">
+                            <i class="fa-solid fa-bullhorn" aria-hidden="true"></i> {{contadaPor}}
+                          </span>
+                        {{/if}}
+                        {{#if podeContar}}
+                          <button type="button" class="op2-botao-icone" data-action="contarAoGrupo"
+                            data-poi-uuid="{{../../uuid}}" data-info-id="{{id}}"
+                            aria-label="{{localize 'OP2.Investigacao.ContarAoGrupo'}}"
+                            data-tooltip="{{localize 'OP2.Investigacao.ContarAoGrupoAjuda'}}">
+                            <i class="fa-solid fa-bullhorn" aria-hidden="true"></i>
+                          </button>
+                        {{/if}}
                         {{#if @root.ehGM}}{{#if reveladoPor.length}}
                           <span class="op2-poi-card__revelado-por" data-tooltip="{{reveladoPor}}">
                             <i class="fa-solid fa-user-check" aria-hidden="true"></i> {{reveladoPor}}

@@ -302,7 +302,13 @@
       "ExaminarNadaMais": "Não sobrou nada desta perícia neste ponto.",
       "ExaminarAchouUma": "o teste revelou uma informação nova.",
       "ExaminarSoGratisUma": "uma linha pelo tamanho do seu dado, sem rolar.",
-      "ExaminarGratisTambemUma": "Outra linha veio pelo tamanho do seu dado, sem rolar."
+      "ExaminarGratisTambemUma": "Outra linha veio pelo tamanho do seu dado, sem rolar.",
+      "ContarAoGrupo": "Contar ao grupo",
+      "ContarAoGrupoAjuda": "Torna esta pista visível para todos os participantes da investigação, com o seu nome. A ação Compartilhar continua sendo outra coisa: o teste do aliado por uma pista nova.",
+      "ContadaPor": "Contada ao grupo por {nomes}",
+      "ContouAoGrupo": "{ator} contou ao grupo",
+      "ContadaVisivel": "A pista agora aparece no painel de todos os participantes.",
+      "ContarSoQuemAchou": "Só quem achou a pista pode contá-la ao grupo."
     },
     "Dialog": {
       "Teste": {

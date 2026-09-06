@@ -29,6 +29,7 @@ const TEMPLATES = [
   `${RAIZ}/chat/teste.hbs`,
   `${RAIZ}/chat/falha-critica.hbs`,
   `${RAIZ}/chat/revelacao.hbs`,
+  `${RAIZ}/chat/pista-contada.hbs`,
   `${RAIZ}/chat/examinar-custo.hbs`,
   `${RAIZ}/chat/acao-cena.hbs`,
   `${RAIZ}/chat/interagir.hbs`,

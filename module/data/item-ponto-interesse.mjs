@@ -70,6 +70,11 @@ export class PontoInteresseData extends foundry.abstract.TypeDataModel {
         // "informação nova" para efeito do custo de 1 PD (spec §6.3.1).
         oculta: new BooleanField({ required: true, initial: false }),
         aberta: new BooleanField({ required: true, initial: false }),
+        // Quem achou pode contar ao grupo: a linha fica visível para todos os
+        // participantes, com o nome de quem contou, e deixa de ser "informação nova"
+        // para os outros — como `aberta`, mas por decisão do jogador, não do mestre.
+        // Guarda os ids dos atores que contaram; vazio é o padrão.
+        contadaPor: new ArrayField(new StringField({ required: true, blank: false }), { required: true, initial: [] }),
       })),
 
       ferramentas: new SchemaField(ferramentas),

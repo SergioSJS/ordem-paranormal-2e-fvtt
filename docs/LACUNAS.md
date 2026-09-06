@@ -362,6 +362,13 @@ Todas as caixas de acesso do porão têm campo no `desafio-acesso`:
 
   A decisão de mesa que fica de fora: o sistema não adivinha o gatilho. Ninguém marca
   "o grupo viu o Ídolo" para o sistema — é o mestre que aperta o botão quando acontece.
+- **"Fica a cargo dele compartilhar a informação com os outros ou não."** A pista é
+  de quem achou (spec §6.2, revelação por personagem). O livro deixa ao jogador
+  decidir se conta; o sistema dá o botão *Contar ao grupo* na linha (card de Examinar
+  e janela de ações), que a torna visível a todos os participantes com o nome de quem
+  contou e a tira do que Examinar acha de novo — como uma linha aberta pelo mestre.
+  **Decisão:** é diferente da ação Compartilhar (§6.5), que continua sendo o teste do
+  aliado por uma pista NOVA. Desfazer é o mesmo "limpar revelação" do mestre.
 - **Linhas condicionais** ("apenas Victor", "se o ídolo for quebrado") entram como
   rascunho: Examinar não as alcança, o mestre libera quando a condição acontece. "ou
   Tecnologia" é perícia alternativa e segue descobrível — o sistema testa uma perícia

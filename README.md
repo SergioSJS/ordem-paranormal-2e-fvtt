@@ -116,8 +116,15 @@ Cada linha do quadro de informações tem **três estados**, num clique só do m
 | 🔍 | Descobrível | Só quem examinar com a perícia e alcançar a DT |
 | 👁️ | Aberta | Todo jogador vê, sem gastar ação |
 
+A pista é **de quem achou**: revelada para aquele personagem, sussurrada no chat para
+o jogador dele e o mestre. Se o jogador quiser, um botão na linha — no card de Examinar
+ou na janela de ações — **conta ao grupo**: a linha aparece no painel de todos os
+participantes, com o nome de quem contou, e um card público leva o texto ao chat. É o
+"fica a cargo dele compartilhar a informação com os outros ou não" do livro; a ação
+Compartilhar continua sendo outra coisa, o teste do aliado por uma pista nova.
+
 O painel mostra ao mestre quem descobriu cada linha e um botão para **desfazer** a
-descoberta, sem precisar encerrar a cena.
+descoberta (e o "contado ao grupo" junto), sem precisar encerrar a cena.
 
 ![Ficha de ponto de interesse](docs/img/ficha-poi.png)
 

@@ -40,7 +40,7 @@ import {
 } from "./cena/investigacao-ativa.mjs";
 import {
   examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo,
-  limparRevelacao,
+  limparRevelacao, contarAoGrupo,
 } from "./cena/acoes-investigacao.mjs";
 import {
   arrombar, alcancar, sustentar, pararDeSustentar, gerarSenhaDestrancar, tentarDestrancar,
@@ -112,7 +112,7 @@ Hooks.once("init", () => {
   game.op2 = {
     rolarTeste, encerrarCena, stepDie, faces, OP2Roll,
     examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo,
-  limparRevelacao,
+    limparRevelacao, contarAoGrupo,
     painelInvestigacao: abrirPainelInvestigacao, acoesInvestigacao: abrirAcoesInvestigacao, avancarRodada,
     arrombar, alcancar, sustentar, pararDeSustentar,
     hackTecnico, hackSocial, marcarHackSocialResolvido, marcarHackTecnicoResolvido, desafioGenerico,

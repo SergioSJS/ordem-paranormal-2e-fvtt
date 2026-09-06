@@ -6,7 +6,7 @@
  */
 import { SYSTEM_ID, CUSTO_PD_EXAMINAR } from "../config.mjs";
 import { rolarFalhaCritica, aplicarFalhaCritica, aplicarDano } from "../dice/falha-critica.mjs";
-import { testarCompartilhamento, registrarTravaDeCena } from "../cena/acoes-investigacao.mjs";
+import { testarCompartilhamento, registrarTravaDeCena, contarAoGrupo } from "../cena/acoes-investigacao.mjs";
 import { rolarSobrecarga } from "../cena/rodada.mjs";
 import { marcarHackSocialResolvido, marcarHackTecnicoResolvido } from "../cena/acoes-desafio.mjs";
 import { iniciarHackTecnico, encerrarHackTecnico } from "../cena/timer-hack.mjs";
@@ -19,6 +19,9 @@ import { preencherImpeto } from "../cena/impeto.mjs";
 const ACOES = {
   async "rolar-falha-critica"(ator) {
     await rolarFalhaCritica(ator);
+  },
+  async "contar-ao-grupo"(ator, dataset) {
+    await contarAoGrupo(ator, dataset.poiUuid, dataset.infoId);
   },
   async "aplicar-falha-critica"(ator, dataset) {
     await aplicarFalhaCritica(ator, Number(dataset.face));
