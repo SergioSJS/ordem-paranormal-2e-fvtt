@@ -444,7 +444,10 @@ lado.
   ordena e descarta. Sem "|" em lugar nenhum, o conjunto é lido palavra a palavra, como
   antes. A revisão 1.1 se contradiz no "Altar" de Madeira: o conjunto imprime "SEU
   FILHO," e a solução "sua filha" — a montagem toma o conjunto mais parecido (distância
-  de edição) como verdadeiro e deixa o aviso na janela, em vez de não montar o ato.
+  de edição) como verdadeiro e deixa o aviso na janela, em vez de não montar o ato. O
+  certo é o conjunto: a frase é dita à Eloísa, e o filho dela é o Bruninho (histórico
+  da pré-gerada); a solução é que ficou na versão antiga. Só os conjuntos vão para o
+  jogo, então nada a corrigir na mesa — sobra o "PENSE NA" sem concordar, coisa do livro.
 - **Rádio sem enigma.** No Ídolo o rádio só "sai um som horripilante similar a gritos":
   reação sem nada para ordenar. O slot do rádio ganhou `texto` ao lado de `conjuntos`;
   sem conjuntos, usar o rádio revela o texto como qualquer outra ferramenta, sem teste.
