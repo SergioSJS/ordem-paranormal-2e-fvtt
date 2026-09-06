@@ -385,7 +385,9 @@ exclusivas de assinante, e o sistema pede o zip da editora na hora de importar.
 Os marcadores dos pontos no mapa e os tokens na posição inicial da aventura vêm
 prontos quando `packs/sources/<ato>-cenas/posicoes.json` existe — é o que
 `npm run posicoes -- --ato ato-i --mundo <mundo>` captura de uma cena montada num
-mundo, por nome (nada do seu mundo viaja).
+mundo, por nome (nada do seu mundo viaja). Luzes, sons ambiente, ladrilhos e paredes
+vêm pelo outro comando, `npm run ato-i:cena` / `npm run ato-ii:cena`, que traz a cena
+inteira do mundo para `packs/sources/`.
 
 Os dois zips são da editora, baixados sem extrair: o do Ato I é o pacote gratuito do
 site; o do Ato II vem com a assinatura dos Arquivos Secretos. Ao importar, o sistema
