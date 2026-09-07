@@ -15,7 +15,7 @@ export class DesafioAcessoSheet extends OP2ItemSheet {
     // inalcançável, sem barra de rolagem (achado em uso real — o mesmo problema
     // que o painel já teve). Altura numérica dá ao core o que clampar.
     position: { width: 560, height: 720 },
-    classes: ["op2-ficha--desafio"],
+    classes: ["op2", "op2-ficha--desafio"],
     actions: {
       ajustarPontuacao: DesafioAcessoSheet.#ajustarPontuacao,
       ajustarTentativas: DesafioAcessoSheet.#ajustarTentativas,

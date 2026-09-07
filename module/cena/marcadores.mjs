@@ -1,3 +1,4 @@
+/* global PIXI */
 /**
  * Marcadores no mapa: cada ponto de interesse (ou desafio) pode virar uma nota da
  * cena, com o ícone do próprio ponto, no lugar onde ele está no mapa.
@@ -163,8 +164,28 @@ function classeDeNota(Base) {
       super._refreshState();
       const uuid = pontoDoMarcador(this.document);
       if (!uuid || !this.controlIcon) return;
-      // 0.55, não menos: com ícone escuro o marcador oculto sumia do mapa do mestre.
-      this.controlIcon.alpha = game.user.isGM && !liberadoParaAMesa(uuid) ? 0.55 : 1;
+      const oculto = game.user.isGM && !liberadoParaAMesa(uuid);
+      // Meia-luz + ícone cinza + selo vermelho riscado: só a meia-luz não bastava
+      // para o mestre ver, olhando o mapa, o que os jogadores ainda não veem
+      // (pedido em uso real). Jogador nunca chega aqui com `oculto`: nem vê a nota.
+      this.controlIcon.alpha = oculto ? 0.6 : 1;
+      if (this.controlIcon.icon) this.controlIcon.icon.tint = oculto ? 0x8a7f79 : 0xffffff;
+      this.#seloOculto(oculto);
+    }
+
+    /** O selo "oculto" no canto do ícone: disco vermelho com o risco branco. */
+    #seloOculto(mostrar) {
+      let selo = this.controlIcon.children.find((c) => c.name === "op2-selo-oculto");
+      if (!mostrar) { selo?.destroy(); return; }
+      if (selo) return;
+      const tamanho = this.controlIcon.iconSize ?? this.controlIcon.width ?? 40;
+      const r = Math.max(6, Math.round(tamanho * 0.2));
+      selo = new PIXI.Graphics();
+      selo.name = "op2-selo-oculto";
+      selo.beginFill(0xc8321e).lineStyle(2, 0x0d0908, 0.9).drawCircle(0, 0, r).endFill();
+      selo.lineStyle(2.5, 0xf2ede6, 1).moveTo(-r * 0.55, -r * 0.55).lineTo(r * 0.55, r * 0.55);
+      selo.position.set(tamanho - r * 0.6, tamanho - r * 0.6);
+      this.controlIcon.addChild(selo);
     }
 
     /**

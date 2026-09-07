@@ -354,6 +354,17 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
     .op2-botao-icone { flex: 0 0 auto; }
   }
 
+  // Visão do jogador: cada pista é um item com marcador, sob o título da perícia.
+  &__infos--jogador {
+    padding-left: 1.1rem;
+    list-style: disc;
+
+    .op2-poi-card__info { display: list-item; border-top: 0; padding: 0.1rem 0; }
+    .op2-poi-card__texto { display: inline; }
+    .op2-poi-card__texto p { display: inline; }
+    .op2-poi-card__revelado-por { margin-left: var(--op2-e2); }
+  }
+
   &__texto {
     flex: 1;
     min-width: 0;
@@ -1140,21 +1151,10 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   &[open] .op2-evento-editor__resumo { display: none; }
 }
 
-// Ficha do evento: janela de altura fixa, corpo que rola. Sem isto o roteiro crescia
-// para fora da janela e as últimas rodadas ficavam inalcançáveis (achado em uso real).
+// Ficha do evento: rola como toda janela do sistema (regra global em `_base.scss`).
+// Tinha um mecanismo próprio (conteúdo fixo, lista interna rolando) — a exceção que
+// ficava para trás; uma regra só para todas as janelas.
 .op2-ficha--evento {
-  .window-content {
-    display: flex;
-    overflow: hidden;
-    flex-direction: column;
-  }
-
-  .op2-item-ficha {
-    min-height: 0;
-    flex: 1 1 auto;
-    overflow-y: auto;
-  }
-
   // Gatilho e descrição são uma ou duas frases: a caixa de 6rem da ficha de item
   // empurrava o roteiro inteiro para fora da janela. Em edição a regra base devolve
   // a altura de digitar.

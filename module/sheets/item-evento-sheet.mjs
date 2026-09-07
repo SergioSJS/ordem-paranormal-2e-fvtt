@@ -15,7 +15,7 @@ function resumir(texto, limite = 90) {
 
 export class EventoSheet extends OP2ItemSheet {
   static DEFAULT_OPTIONS = {
-    classes: ["op2-ficha--evento"],
+    classes: ["op2", "op2-ficha--evento"],
     position: { width: 580, height: 700 },
     actions: {
       adicionarRodada: EventoSheet.#adicionarRodada,

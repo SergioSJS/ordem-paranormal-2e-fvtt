@@ -59,6 +59,7 @@ import { abrirAventurasApp, registrarAventuras } from "./aventura/aventuras-app.
 import { abrirBoasVindas, abrirBoasVindasSeConfigurado, registrarBoasVindas } from "./ui/boas-vindas.mjs";
 import { atacar, defender } from "./cena/acoes-combate.mjs";
 import { usarHabilidadeOuItem, concederPasso } from "./cena/acoes-recurso.mjs";
+import { migrarLinhasDoQuadro } from "./cena/texto-linha.mjs";
 
 Hooks.once("init", () => {
   console.log(`${SYSTEM_ID} | inicializando`);
@@ -110,6 +111,7 @@ Hooks.once("init", () => {
   CONFIG.Combat.initiative = { formula: "0", decimals: 0 };
 
   game.op2 = {
+    migrarLinhasDoQuadro,
     rolarTeste, encerrarCena, stepDie, faces, OP2Roll,
     examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo,
     limparRevelacao, contarAoGrupo,
@@ -131,6 +133,14 @@ Hooks.once("init", () => {
   };
 });
 
+Hooks.once("ready", async () => {
+  // Linhas do quadro gravadas em HTML por versões antigas viram texto puro — só o
+  // mestre grava, e só o que ainda tem tag.
+  if (game.user.isGM) {
+    const n = await migrarLinhasDoQuadro().catch((e) => { console.error(`${SYSTEM_ID} | migração das linhas`, e); return 0; });
+    if (n) console.log(`${SYSTEM_ID} | linhas do quadro em texto puro: ${n} ponto(s) atualizado(s)`);
+  }
+});
 Hooks.once("ready", () => {
   precarregarTemplates();
   migrarInvestigacoesAtivas();

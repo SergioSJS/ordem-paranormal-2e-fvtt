@@ -33,7 +33,9 @@ export function estaAtiva(investigacao) {
 
 /** Liga/desliga uma investigação como "em jogo" — controla o que os jogadores podem navegar. */
 export async function alternarAtiva(investigacao) {
-  const uuids = lerConfig("investigacoesAtivasUuids");
+  // Sem os uuids de investigações apagadas: o setting crescia sem parar (achado num
+  // mundo de teste com centenas de entradas mortas).
+  const uuids = lerConfig("investigacoesAtivasUuids").filter((uuid) => fromUuidSync(uuid)?.type === "investigacao");
   const novo = uuids.includes(investigacao.uuid)
     ? uuids.filter((uuid) => uuid !== investigacao.uuid)
     : [...uuids, investigacao.uuid];

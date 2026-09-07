@@ -31,6 +31,7 @@ import { semPrefixoDoPonto } from "./desafios.mjs";
 import { abrirLaboratorio } from "./laboratorio-app.mjs";
 import { abrirRadio } from "./radio-app.mjs";
 import { renderDoPerfil } from "../ui/perfil.mjs";
+import { janelasDeInvestigacao } from "./painel-comum.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -75,6 +76,18 @@ function abaInicial() {
 }
 
 /** O corpo da janela de ações rola dentro do `.window-content`, fora da parte. */
+/**
+ * Depois de a ação rolar, a janela fecha — o jogador escolheu, rolou, acabou (pedido em
+ * uso real). Ação cancelada (diálogo fechado, sem alvo: as funções devolvem `null`)
+ * deixa a janela onde estava. Navegação e "parar de sustentar" não passam por aqui.
+ */
+export function fechaDepois(acao) {
+  return async function (evento, alvo) {
+    const resultado = await acao.call(this, evento, alvo);
+    if (resultado !== null && resultado !== false) await this.close();
+  };
+}
+
 export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     classes: ["op2", "op2-acoes"],
@@ -83,27 +96,27 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     // de investigação.
     position: { width: 640, height: 700 },
     actions: {
-      ajudar: AcoesInvestigacaoApp.#ajudar,
-      atacar: AcoesInvestigacaoApp.#atacar,
-      usarRecurso: AcoesInvestigacaoApp.#usarRecurso,
-      recapitular: AcoesInvestigacaoApp.#recapitular,
-      compartilhar: AcoesInvestigacaoApp.#compartilhar,
-      alcancar: AcoesInvestigacaoApp.#alcancar,
-      sustentar: AcoesInvestigacaoApp.#sustentar,
-      sustentarDesafio: AcoesInvestigacaoApp.#sustentarDesafio,
+      ajudar: fechaDepois(AcoesInvestigacaoApp.#ajudar),
+      atacar: fechaDepois(AcoesInvestigacaoApp.#atacar),
+      usarRecurso: fechaDepois(AcoesInvestigacaoApp.#usarRecurso),
+      recapitular: fechaDepois(AcoesInvestigacaoApp.#recapitular),
+      compartilhar: fechaDepois(AcoesInvestigacaoApp.#compartilhar),
+      alcancar: fechaDepois(AcoesInvestigacaoApp.#alcancar),
+      sustentar: fechaDepois(AcoesInvestigacaoApp.#sustentar),
+      sustentarDesafio: fechaDepois(AcoesInvestigacaoApp.#sustentarDesafio),
       pararDeSustentar: AcoesInvestigacaoApp.#pararDeSustentar,
-      usarLaser: AcoesInvestigacaoApp.#usarLaser,
-      examinar: AcoesInvestigacaoApp.#examinar,
-      interagir: AcoesInvestigacaoApp.#interagir,
+      usarLaser: fechaDepois(AcoesInvestigacaoApp.#usarLaser),
+      examinar: fechaDepois(AcoesInvestigacaoApp.#examinar),
+      interagir: fechaDepois(AcoesInvestigacaoApp.#interagir),
       irParaDesafios: AcoesInvestigacaoApp.#irParaDesafios,
-      usarFerramenta: AcoesInvestigacaoApp.#usarFerramenta,
-      usarLaboratorio: AcoesInvestigacaoApp.#usarLaboratorio,
-      usarRadio: AcoesInvestigacaoApp.#usarRadio,
-      arrombar: AcoesInvestigacaoApp.#arrombar,
-      destrancar: AcoesInvestigacaoApp.#destrancar,
-      hackTecnico: AcoesInvestigacaoApp.#hackTecnico,
-      hackSocial: AcoesInvestigacaoApp.#hackSocial,
-      desafioGenerico: AcoesInvestigacaoApp.#desafioGenerico,
+      usarFerramenta: fechaDepois(AcoesInvestigacaoApp.#usarFerramenta),
+      usarLaboratorio: fechaDepois(AcoesInvestigacaoApp.#usarLaboratorio),
+      usarRadio: fechaDepois(AcoesInvestigacaoApp.#usarRadio),
+      arrombar: fechaDepois(AcoesInvestigacaoApp.#arrombar),
+      destrancar: fechaDepois(AcoesInvestigacaoApp.#destrancar),
+      hackTecnico: fechaDepois(AcoesInvestigacaoApp.#hackTecnico),
+      hackSocial: fechaDepois(AcoesInvestigacaoApp.#hackSocial),
+      desafioGenerico: fechaDepois(AcoesInvestigacaoApp.#desafioGenerico),
     },
   };
 
@@ -153,6 +166,10 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     this.#hookAtor = Hooks.on("updateActor", (documento) => {
       if (documento.id === this.ator.id) this.render();
     });
+    // E o que o mestre libera no painel — ponto ou desafio que deixa de ser oculto,
+    // linha aberta, participante novo — chega aqui pelo mesmo conjunto de janelas
+    // que o painel usa; antes o jogador fechava e abria de novo (achado em uso real).
+    janelasDeInvestigacao.add(this);
   }
 
   _onClose(opcoes) {
@@ -160,6 +177,7 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     esquecerRolagem(this);
     if (this.#hookAtor) Hooks.off("updateActor", this.#hookAtor);
     this.#hookAtor = null;
+    janelasDeInvestigacao.delete(this);
   }
 
   get title() {
@@ -307,31 +325,32 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
 
   /* -- ações ---------------------------------------------------------------- */
 
-  static async #ajudar() { await ajudar(this.ator); }
-  static async #atacar() { await atacar(this.ator); }
-  static async #usarRecurso() { await usarHabilidadeOuItem(this.ator); }
-  static async #recapitular() { await recapitular(this.ator); }
-  static async #compartilhar() { await compartilhar(this.ator); }
-  static async #alcancar(_evento, alvo) { await alcancar(this.ator, { modo: alvo.dataset.modo }); }
-  static async #sustentar() { await sustentar(this.ator); this.render(); }
+  static async #ajudar() { return ajudar(this.ator); }
+  static async #atacar() { return atacar(this.ator); }
+  static async #usarRecurso() { return usarHabilidadeOuItem(this.ator); }
+  static async #recapitular() { return recapitular(this.ator); }
+  static async #compartilhar() { return compartilhar(this.ator); }
+  static async #alcancar(_evento, alvo) { return alcancar(this.ator, { modo: alvo.dataset.modo }); }
+  static async #sustentar() { const r = await sustentar(this.ator); this.render(); return r; }
 
   /** Sustentar um obstáculo da cena: a DT é a dele (a estante-porta do Ato I). */
   static async #sustentarDesafio(_evento, alvo) {
-    await sustentar(this.ator, { desafioUuid: alvo.dataset.desafioUuid });
+    const r = await sustentar(this.ator, { desafioUuid: alvo.dataset.desafioUuid });
     this.render();
+    return r;
   }
   static async #pararDeSustentar() { await pararDeSustentar(this.ator); this.render(); }
-  static async #usarLaser() { await usarLaser(this.ator); }
+  static async #usarLaser() { return usarLaser(this.ator); }
 
   /** Sub-ação de Investigar: mesma lista do quadro, e aqui rola (spec §6.3.1). */
   static async #examinar(_evento, alvo) {
-    if (alvo.dataset.pericia) return void await examinar(this.ator, alvo.dataset.poiUuid, alvo.dataset.pericia);
-    await dialogoExaminar(this.ator, alvo.dataset.poiUuid);
+    if (alvo.dataset.pericia) return examinar(this.ator, alvo.dataset.poiUuid, alvo.dataset.pericia);
+    return dialogoExaminar(this.ator, alvo.dataset.poiUuid);
   }
-  static async #interagir(_evento, alvo) { await interagir(this.ator, alvo.dataset.poiUuid); }
+  static async #interagir(_evento, alvo) { return interagir(this.ator, alvo.dataset.poiUuid); }
 
   static async #usarFerramenta(_evento, alvo) {
-    await usarFerramenta(this.ator, alvo.dataset.poiUuid, alvo.dataset.ferramenta);
+    return usarFerramenta(this.ator, alvo.dataset.poiUuid, alvo.dataset.ferramenta);
   }
 
   /**
@@ -353,20 +372,23 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       rejectClose: false,
       render: renderDoPerfil(this.ator),
     });
-    if (!qtdDados) return;
+    if (!qtdDados) return null;
     await abrirLaboratorio(this.ator, qtdDados, alvo.dataset.poiUuid);
+    return true;
   }
 
   static async #usarRadio(_evento, alvo) {
     const resultado = await usarRadio(this.ator, alvo.dataset.poiUuid);
-    if (resultado) abrirRadio(resultado);
+    if (!resultado) return null;
+    abrirRadio(resultado);
+    return resultado;
   }
 
-  static async #arrombar(_evento, alvo) { await arrombar(this.ator, alvo.dataset.desafioUuid); this.render(); }
-  static async #destrancar(_evento, alvo) { abrirDestrancar(alvo.dataset.desafioUuid); }
-  static async #hackTecnico(_evento, alvo) { await hackTecnico(this.ator, alvo.dataset.desafioUuid); this.render(); }
-  static async #hackSocial(_evento, alvo) { await hackSocial(this.ator, alvo.dataset.desafioUuid); this.render(); }
-  static async #desafioGenerico(_evento, alvo) { await desafioGenerico(this.ator, alvo.dataset.desafioUuid); this.render(); }
+  static async #arrombar(_evento, alvo) { const r = await arrombar(this.ator, alvo.dataset.desafioUuid); this.render(); return r; }
+  static async #destrancar(_evento, alvo) { abrirDestrancar(alvo.dataset.desafioUuid); return true; }
+  static async #hackTecnico(_evento, alvo) { const r = await hackTecnico(this.ator, alvo.dataset.desafioUuid); this.render(); return r; }
+  static async #hackSocial(_evento, alvo) { const r = await hackSocial(this.ator, alvo.dataset.desafioUuid); this.render(); return r; }
+  static async #desafioGenerico(_evento, alvo) { const r = await desafioGenerico(this.ator, alvo.dataset.desafioUuid); this.render(); return r; }
 }
 
 export function abrirAcoesInvestigacao(ator) {

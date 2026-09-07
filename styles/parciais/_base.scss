@@ -272,9 +272,11 @@
 // empilhadas dava pra ler as duas ao mesmo tempo, e nenhuma direito (achado em
 // uso real). Toda janela do sistema fica opaca, com uma borda vermelha escura
 // que dá o contorno pra achar a janela na tela.
+// Toda janela do sistema leva `op2` na raiz; `[class*="op2-"]` é a rede de segurança
+// para uma janela nova que esqueça — três fichas ficaram anos fora desta regra e por
+// isso não rolavam (achado em uso real, mais de uma vez).
 .application.op2,
-.application.op2-ficha--poi,
-.application.op2-ficha--desafio {
+.application[class*="op2-"] {
   --op2-borda-janela: #{"color-mix(in srgb, var(--op2-vermelho-escuro) 85%, transparent)"};
 
   background: var(--op2-fundo);
@@ -292,8 +294,17 @@
     .window-title, .header-control, button { color: var(--op2-texto); }
   }
 
+  // Janela de altura automática cresce com o conteúdo — e passava da tela: a ficha
+  // do ponto com dez linhas de quadro sumia por baixo, sem barra de rolagem (achado
+  // em uso real). Toda janela do sistema para na tela e o conteúdo rola por dentro;
+  // janela de altura fixa já vinha com o conteúdo cortado sem rolar, pelo mesmo motivo.
+  max-height: calc(100vh - 2rem);
+
   .window-content {
     backdrop-filter: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
   }
 }
 

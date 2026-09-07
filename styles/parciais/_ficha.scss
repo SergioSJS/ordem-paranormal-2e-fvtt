@@ -831,4 +831,45 @@
 .op2-ficha-npc .op2-cabecalho {
   grid-template-columns: 96px minmax(0, 1fr);
   grid-template-areas: "retrato identidade";
+
+}
+
+@layer system {
+// Na ficha do ponto: a barra "na investigação" (oculto/visível por investigação) e a
+// linha "quem revelou" — os mesmos controles do card do painel, para quem chega pelo
+// marcador no mapa.
+.op2-poi__investigacoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--op2-e1);
+  margin: 0 0 var(--op2-e3);
+  padding: 0;
+  list-style: none;
+}
+
+.op2-poi__investigacao {
+  display: flex;
+  align-items: center;
+  gap: var(--op2-e2);
+  padding: var(--op2-e1) var(--op2-e2);
+  border: 1px solid var(--op2-linha);
+  border-left: 3px solid var(--op2-vermelho);
+  border-radius: var(--op2-raio);
+  background: var(--op2-superficie);
+  font-size: 0.9rem;
+
+  &--oculto { border-left-style: dashed; border-left-color: var(--op2-texto-fraco); }
+  &-nome { font-weight: 700; }
+  &-estado { flex: 1 1 auto; color: var(--op2-texto-fraco); font-family: var(--op2-fonte-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .op2-botao { white-space: nowrap; }
+}
+
+.op2-poi__info-revelado {
+  display: flex;
+  align-items: center;
+  gap: var(--op2-e2);
+  margin-top: var(--op2-e1);
+  font-size: 0.8rem;
+  color: var(--op2-texto-fraco);
+}
 }

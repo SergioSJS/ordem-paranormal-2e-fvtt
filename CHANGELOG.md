@@ -5,6 +5,22 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+- **Toda janela do sistema cabe na tela e rola por dentro** — regra global; a ficha do ponto
+  com muitas linhas sumia por baixo. O e2e enche cada tipo de janela e exige rolagem.
+- A ficha do ponto (a que abre pelo marcador no mapa) traz os controles do card do painel:
+  oculto/visível em cada investigação, quem já revelou cada linha, limpar revelação.
+- O jogador não vê mais o total de pistas do ponto ("0/3") no painel.
+- A janela de ações fecha depois de a ação rolar; cancelada, fica — e, aberta, acompanha o
+  que o mestre libera no painel.
+- Linhas do quadro gravadas em HTML (versões antigas) aparecem como texto puro na ficha do
+  ponto e são migradas no carregamento do mundo.
+- O marcador no mapa mostra se o ponto está oculto dos jogadores: esmaecido, com o selo de
+  olho cortado no canto.
+- No painel, o jogador vê as pistas do ponto como lista, agrupadas pela perícia que as acha.
+- O card de Examinar explica o que veio de graça: "uma linha veio sem rolar: a DT dela não
+  passa do tamanho do seu dado".
+- A lista de investigações ativas não guarda mais uuids de investigações apagadas.
+
 - Perícia de NPC pelo diálogo: a lista do playtest (chave do sistema, rola como a do
   personagem), Aptidões com o campo, "Outra" com nome livre e o dado — em vez de um
   campo de texto solto.

@@ -115,6 +115,10 @@ permanentes). **v13 e v14 exercitados pelo e2e** (13.351: 532 verificações; 14
   pasta de desenvolvimento (aconteceu: `system.json` reescrito pelo setup do v13).
   Nunca clique em "Update" num sistema symlinkado; nunca instale pelo `POST /setup`
   com o symlink no lugar.
+- **Toda janela do sistema leva `op2` na raiz e rola pela regra global** (`_base.scss`:
+  `max-height` na janela, `overflow-y: auto` no `.window-content`). Nada de mecanismo
+  próprio de rolagem por janela. Janela nova entra no bloco do e2e "cabe na tela e rola
+  por dentro", que enche cada tipo de janela — a ficha do ponto ficou anos sem rolar.
 - Commits: Conventional Commits, em português.
 - Nunca commitar direto na `main` — sempre feature branch.
 
@@ -192,6 +196,7 @@ O servidor do Foundry v14 exige **Node 24**. O `npm test` do projeto roda em Nod
   pastas, ids estáveis, handouts das duas revisões.
 - `npc.test.mjs` — a perícia do NPC a partir do diálogo: chave do sistema, Aptidão sem
   ponto na chave, "Outra" em slug.
+- `acoes-app.test.mjs` — a janela de ações fecha depois da ação e fica quando cancelada.
 
 ### Dentro do Foundry — `npm run e2e`
 

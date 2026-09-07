@@ -8,12 +8,14 @@
 import { PERICIAS, APTIDOES_PADRAO, FERRAMENTAS_POI } from "../config.mjs";
 import { OP2ItemSheet } from "./item-sheet.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
-import { cicloVisibilidadeInfo } from "../cena/acoes-investigacao.mjs";
-import { vincularDesafioAoPonto, removerDesafioDoPonto } from "../cena/investigacao-ativa.mjs";
+import { cicloVisibilidadeInfo, limparRevelacao } from "../cena/acoes-investigacao.mjs";
+import { vincularDesafioAoPonto, removerDesafioDoPonto, todasInvestigacoes, alternarOculto } from "../cena/investigacao-ativa.mjs";
+import { chaveInfo } from "../cena/investigacao.mjs";
+import { textoPuroDaLinha } from "../cena/texto-linha.mjs";
 
 export class PontoInteresseSheet extends OP2ItemSheet {
   static DEFAULT_OPTIONS = {
-    classes: ["op2-ficha--poi"],
+    classes: ["op2", "op2-ficha--poi"],
     position: { width: 560, height: "auto" },
     actions: {
       adicionarInformacao: PontoInteresseSheet.#adicionarInformacao,
@@ -24,6 +26,8 @@ export class PontoInteresseSheet extends OP2ItemSheet {
       removerConjuntoRadio: PontoInteresseSheet.#removerConjuntoRadio,
       abrirDesafioVinculado: PontoInteresseSheet.#abrirDesafioVinculado,
       removerDesafioVinculado: PontoInteresseSheet.#removerDesafioVinculado,
+      alternarOcultoNaInvestigacao: PontoInteresseSheet.#alternarOcultoNaInvestigacao,
+      limparRevelacao: PontoInteresseSheet.#limparRevelacao,
     },
   };
 
@@ -51,6 +55,18 @@ export class PontoInteresseSheet extends OP2ItemSheet {
     if (item?.type === "desafio-acesso") await vincularDesafioAoPonto(this.item, item.uuid);
   }
 
+  static async #alternarOcultoNaInvestigacao(_evento, alvo) {
+    const investigacao = await fromUuid(alvo.dataset.investigacao);
+    if (!investigacao) return;
+    await alternarOculto(investigacao, "pois", this.item.uuid);
+    await this.render();
+  }
+
+  static async #limparRevelacao(_evento, alvo) {
+    await limparRevelacao(this.item.uuid, alvo.dataset.infoId);
+    await this.render();
+  }
+
   static async #abrirDesafioVinculado(_evento, alvo) {
     (await fromUuid(alvo.dataset.uuid))?.sheet?.render(true);
   }
@@ -73,6 +89,22 @@ export class PontoInteresseSheet extends OP2ItemSheet {
    */
   #ferramentasNovas = new Set();
 
+  // A ficha reflete a investigação e as revelações: quando um ator (investigação ou
+  // personagem) muda, refaz — o painel faz o mesmo por outro caminho.
+  #ganchoAtor = null;
+
+  _onFirstRender(contexto, opcoes) {
+    super._onFirstRender?.(contexto, opcoes);
+    this.#ganchoAtor = Hooks.on("updateActor", (ator) => {
+      if (["investigacao", "personagem"].includes(ator.type) && this.rendered) this.render();
+    });
+  }
+
+  _onClose(opcoes) {
+    super._onClose?.(opcoes);
+    if (this.#ganchoAtor) { Hooks.off("updateActor", this.#ganchoAtor); this.#ganchoAtor = null; }
+  }
+
   async _prepareContext(opcoes) {
     const contexto = await super._prepareContext(opcoes);
     const ehGM = game.user.isGM;
@@ -86,17 +118,32 @@ export class PontoInteresseSheet extends OP2ItemSheet {
       if (ferramentas[chave]) this.#ferramentasNovas.delete(chave);
     }
 
+    // O mestre chega aqui pelo marcador no mapa: os controles do card do painel
+    // (oculto na investigação, quem já viu, limpar revelação) ficam aqui também,
+    // sem precisar abrir o painel (pedido em uso real).
+    const uuid = this.item.uuid;
+    const investigacoes = ehGM ? todasInvestigacoes()
+      .filter((inv) => inv.system.pois.includes(uuid))
+      .map((inv) => ({ uuid: inv.uuid, nome: inv.name, oculto: inv.system.poisOcultos.includes(uuid) })) : [];
+    const personagens = ehGM ? game.actors.filter((a) => a.type === "personagem") : [];
+    const nomes = (ids) => ids.map((id) => game.actors.get(id)?.name ?? "?").join(", ");
+
     return {
       ...contexto,
       ehGM,
+      investigacoes,
       // A aba do mestre some para jogadores — nem o rótulo pode vazar.
       tabs: ehGM ? contexto.tabs : contexto.tabs.filter((t) => t.id !== "mestre"),
       informacoes: this.item.system.informacoes.map((info, indice) => ({
         ...info,
         indice,
+        // Linha antiga em HTML: mostra (e, ao salvar, grava) texto puro.
+        texto: textoPuroDaLinha(info.texto),
         // Três estados por linha, um botão só (o mesmo do painel).
         estado: info.oculta ? "rascunho" : (info.aberta ? "aberta" : "descobrivel"),
-      })),
+        reveladoPor: ehGM ? personagens.filter((a) => a.system.estado?.infosReveladas?.has(chaveInfo(uuid, info.id))).map((a) => a.name).join(", ") : "",
+        contadaPor: ehGM && info.contadaPor?.length ? nomes(info.contadaPor) : "",
+      })).map((info) => ({ ...info, temRevelacao: Boolean(info.reveladoPor || info.contadaPor) })),
       descricaoBasicaEnriquecida: await enriquecer(this.item.system.descricaoBasica),
       descricaoContextualEnriquecida: await enriquecer(this.item.system.descricaoContextual),
       // Perícias válidas no quadro: as 19 comuns + cada campo de Aptidão.

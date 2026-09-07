@@ -1322,6 +1322,9 @@ const relato = await page.evaluate(async (boasVindas) => {
     await esperar(400);
 
     ok("POI oculto some da tela do jogador", !painelEl?.textContent.includes("Quadro na Parede"));
+    // Quantas pistas um ponto tem é segredo do mestre: o jogador via "0/3" (achado em uso real).
+    ok("o jogador não vê o total de pistas do ponto",
+      ![...painelEl.querySelectorAll(".op2-poi-card__resumo")].some((el) => /\d+\s*\/\s*\d+/.test(el.textContent)));
     ok("jogador não tem a aba Preparação — só Pontos de interesse e Desafios",
       [...painelEl.querySelectorAll(".op2-abas [data-tab]")].map((b) => b.dataset.tab).join(",") === "pontos,desafios"
       && !painelEl.querySelector(".op2-painel-aba[data-tab='preparacao']")
@@ -1350,6 +1353,11 @@ const relato = await page.evaluate(async (boasVindas) => {
       const texto = painelEl?.textContent ?? "";
       ok("jogador vê a linha que o mestre abriu", texto.includes("PISTA-ABERTA"));
       ok("jogador NÃO vê a linha descobrível antes de descobrir", !texto.includes("PISTA-DESCOBRIVEL"));
+      // Pistas em lista com marcador, sob o título da perícia — e a DT continua escondida.
+      ok("na visão do jogador as pistas são itens de lista sob o título da perícia, sem DT",
+        Boolean(painelEl?.querySelector(".op2-poi-card__infos--jogador .op2-poi-card__info"))
+        && [...painelEl.querySelectorAll(".op2-poi-card__rotulo")].some((el) => /Percepção/.test(el.textContent))
+        && !painelEl.querySelector(".op2-poi-card__dt"));
 
       await game.op2.examinar(ator, visivel.uuid, "percepcao", { rapido: true });
       await esperar(600);
@@ -1406,6 +1414,18 @@ const relato = await page.evaluate(async (boasVindas) => {
     // No v13 a nota nem tem `author`; no v14 tem, e precisa ser nulo.
     ok("a nota nasce sem autor, senão o core a esconderia de todo jogador",
       (nota._source.author ?? null) === null && nota.global === true);
+    // O mestre vê no mapa o que os jogadores ainda não veem: ícone cinza, meia-luz e o
+    // selo vermelho riscado enquanto o ponto está oculto na investigação (pedido em uso real).
+    {
+      const seloDe = () => nota.object?.controlIcon?.children.find((c) => c.name === "op2-selo-oculto") ?? null;
+      await esperar(400);
+      const liberado = { selo: Boolean(seloDe()), alpha: nota.object?.controlIcon?.alpha };
+      await game.op2.alternarOculto(investigacao, "pois", poi.uuid); await esperar(600);
+      const escondido = { selo: Boolean(seloDe()), alpha: nota.object?.controlIcon?.alpha };
+      await game.op2.alternarOculto(investigacao, "pois", poi.uuid); await esperar(600);
+      ok(`marcador de ponto oculto leva o selo riscado e meia-luz no mapa do mestre; liberado, ícone limpo (${JSON.stringify({ escondido, liberado })})`,
+        escondido.selo && escondido.alpha < 1 && !liberado.selo && liberado.alpha === 1);
+    }
 
     await game.op2.marcarNoMapa(poi.uuid, { x: 900, y: 600, cena });
     ok("marcar de novo move o marcador, não duplica",
@@ -3417,6 +3437,124 @@ const relato = await page.evaluate(async (boasVindas) => {
   await page.evaluate(async (id) => { await game.actors.get(id).sheet.close(); await game.actors.get(id).delete(); }, npcId);
 }
 
+// A janela de ações do jogador acompanha o que o mestre libera no painel: ponto que
+// deixa de ser oculto aparece nela sem fechar e abrir (achado em uso real).
+{
+  const acoesVivas = await page.evaluate(async () => {
+    const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+    const inv = await game.op2.criarInvestigacao("Ações vivas");
+    const ator = await Actor.create({ name: "Vigia", type: "personagem" });
+    await game.op2.adicionarParticipante(inv, ator.uuid);
+    await game.op2.definirInvestigacaoAtiva(inv.uuid); // a janela mostra a investigação que ESTE usuário vê
+    const poi = await Item.create({ name: "Cofre Escondido", type: "ponto-interesse", system: { informacoes: [{ id: "c1", pericia: "percepcao", dt: 6, texto: "x" }] } });
+    await game.op2.vincularPoi(inv, poi.uuid, { oculto: true });
+    const app = game.op2.acoesInvestigacao(ator); await esperar(900);
+    const el = () => document.getElementById(`op2-acoes-${ator.id}`);
+    const antes = el()?.textContent.includes("Cofre Escondido") ?? null;
+    await game.op2.alternarOculto(inv, "pois", poi.uuid); await esperar(900);
+    const depois = el()?.textContent.includes("Cofre Escondido") ?? null;
+    await app.close(); await poi.delete(); await ator.delete(); await inv.delete();
+    return { antes, depois };
+  });
+  relato.passos.push([acoesVivas.antes === false && acoesVivas.depois === true,
+    `a janela de ações aberta mostra o ponto assim que o mestre o libera (antes=${acoesVivas.antes}, depois=${acoesVivas.depois})`]);
+}
+
+// Linha do quadro gravada em HTML (versões antigas do gerador): a ficha mostra texto
+// puro, e a migração do `ready` limpa os pontos do mundo (achado em uso real, duas vezes).
+{
+  const linhas = await page.evaluate(async () => {
+    const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+    const poi = await Item.create({ name: "Ponto com HTML", type: "ponto-interesse", system: { informacoes: [
+      { id: "h1", pericia: "percepcao", dt: 6, texto: "<p><em>(apenas Victor)</em> Os símbolos lembram a tatuagem.</p>" },
+      { id: "h2", pericia: "ocultismo", dt: 9, texto: "Linha já pura." },
+    ] } });
+    await poi.sheet.render({ force: true }); await esperar(800);
+    const noTextarea = poi.sheet.element.querySelector('textarea[name="system.informacoes.0.texto"]')?.value ?? "";
+    await poi.sheet.close();
+    const migrados = await game.op2.migrarLinhasDoQuadro();
+    const depois = poi.system.informacoes.map((l) => l.texto);
+    const deNovo = await game.op2.migrarLinhasDoQuadro();
+    await poi.delete();
+    return { noTextarea, migrados, depois, deNovo };
+  });
+  relato.passos.push([linhas.noTextarea === "(apenas Victor) Os símbolos lembram a tatuagem.", `a ficha do ponto mostra a linha em HTML como texto puro (${linhas.noTextarea})`]);
+  relato.passos.push([linhas.migrados >= 1 && linhas.depois[0] === "(apenas Victor) Os símbolos lembram a tatuagem." && linhas.depois[1] === "Linha já pura." && linhas.deNovo === 0,
+    "a migração limpa as linhas em HTML do mundo, não mexe no que já é puro e é idempotente"]);
+}
+
+// A ficha do ponto traz os controles do card do painel: quem chega pelo marcador no
+// mapa oculta/mostra o ponto na investigação, vê quem já revelou cada linha e limpa a
+// revelação sem abrir o painel (pedido em uso real).
+{
+  const fichaPoi = await page.evaluate(async () => {
+    const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+    const r = {};
+    const inv = await game.op2.criarInvestigacao("Ficha do ponto");
+    const ator = await Actor.create({ name: "Perita", type: "personagem", system: { pericias: { percepcao: { die: "d12" } } } });
+    await game.op2.adicionarParticipante(inv, ator.uuid);
+    const poi = await Item.create({ name: "Vitrine da ficha", type: "ponto-interesse", system: { informacoes: [{ id: "f1", pericia: "percepcao", dt: 4, texto: "Pista fácil." }] } });
+    await game.op2.vincularPoi(inv, poi.uuid, { oculto: false });
+    await game.op2.definirInvestigacaoAtiva(inv.uuid);
+    await poi.sheet.render({ force: true }); await esperar(900);
+    const el = () => poi.sheet.element;
+    r.barra = el().querySelector(".op2-poi__investigacao")?.textContent.replace(/\s+/g, " ").trim() ?? "";
+    el().querySelector('[data-action="alternarOcultoNaInvestigacao"]')?.click(); await esperar(700);
+    r.ocultouNaInvestigacao = inv.system.poisOcultos.includes(poi.uuid);
+    r.barraDepois = el().querySelector(".op2-poi__investigacao")?.textContent.replace(/\s+/g, " ").trim() ?? "";
+    el().querySelector('[data-action="alternarOcultoNaInvestigacao"]')?.click(); await esperar(700);
+    r.mostrouDeNovo = !inv.system.poisOcultos.includes(poi.uuid);
+    await game.op2.examinar(ator, poi.uuid, "percepcao", { rapido: true }); await esperar(900);
+    r.reveladoPor = el().querySelector(".op2-poi__info-revelado")?.textContent.replace(/\s+/g, " ").trim() ?? "";
+    el().querySelector('[data-action="limparRevelacao"]')?.click(); await esperar(900);
+    r.limpou = !ator.system.estado.infosReveladas.has(`${poi.uuid}:f1`) && !el().querySelector(".op2-poi__info-revelado");
+    await poi.sheet.close(); await poi.delete(); await ator.delete(); await inv.delete();
+    return r;
+  });
+  relato.passos.push([/Ficha do ponto/.test(fichaPoi.barra) && /visível/i.test(fichaPoi.barra), `a ficha do ponto mostra a investigação e o estado (${fichaPoi.barra})`]);
+  relato.passos.push([fichaPoi.ocultouNaInvestigacao && /oculto/i.test(fichaPoi.barraDepois) && fichaPoi.mostrouDeNovo, "ocultar/mostrar pela ficha muda a investigação e a barra acompanha"]);
+  relato.passos.push([/Perita/.test(fichaPoi.reveladoPor) && fichaPoi.limpou, `a linha mostra quem revelou e o botão limpa a revelação (${fichaPoi.reveladoPor})`]);
+}
+
+// Toda janela do sistema para na tela e rola por dentro. Cada tipo de janela é aberto
+// com conteúdo maior que a tela e tem que: caber na tela, ter overflow-y auto no
+// conteúdo e, quando o conteúdo passa, rolar (achado em uso real, mais de uma vez:
+// a ficha do ponto com dez linhas sumia por baixo).
+{
+  const rolagem = await page.evaluate(async () => {
+    const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+    const resultados = [];
+    const medir = async (nome, app, esperaConteudoMaior = true) => {
+      await esperar(900);
+      const el = app.element; const wc = el?.querySelector(".window-content");
+      if (!el || !wc) { resultados.push({ nome, ok: false, motivo: "sem janela" }); return; }
+      const caixa = el.getBoundingClientRect();
+      const overflow = getComputedStyle(wc).overflowY;
+      const rola = wc.scrollHeight > wc.clientHeight + 1;
+      const ok = caixa.bottom <= innerHeight + 1 && overflow === "auto" && (!esperaConteudoMaior || rola);
+      resultados.push({ nome, ok, motivo: ok ? "" : `fundo=${Math.round(caixa.bottom)}/${innerHeight} overflow=${overflow} rola=${rola}` });
+      await app.close().catch(() => {});
+    };
+    const muitas = (n, f) => Array.from({ length: n }, (_, i) => f(i));
+    const poi = await Item.create({ name: "POI alto", type: "ponto-interesse", system: { informacoes: muitas(14, (i) => ({ id: `l${i}`, pericia: "percepcao", dt: 7, texto: `Linha ${i}` })) } });
+    await medir("ficha do ponto", await poi.sheet.render({ force: true }));
+    const ev = await Item.create({ name: "Evento alto", type: "evento", system: { rodadas: muitas(30, (i) => ({ rodada: i, narracao: `Rodada ${i}`, efeito: "" })) } });
+    await medir("ficha do evento", await ev.sheet.render({ force: true }));
+    const des = await Item.create({ name: "Desafio alto", type: "desafio-acesso", system: { abordagens: { arrombar: true, destrancar: true, hackTecnico: true, hackSocial: true, generico: true, sustentar: true } } });
+    await medir("ficha do desafio", await des.sheet.render({ force: true }));
+    const npc = await Actor.create({ name: "NPC alto", type: "npc", system: { pericias: Object.fromEntries(muitas(40, (i) => [`p${i}`, { rotulo: `Perícia ${i}`, die: "d6" }])) } });
+    await medir("ficha do NPC", await npc.sheet.render({ force: true }));
+    const hab = await Item.create({ name: "Habilidade alta", type: "habilidade", system: { descricao: "<p>" + "Texto longo. ".repeat(400) + "</p>" } });
+    await medir("ficha de item", await hab.sheet.render({ force: true }));
+    await medir("boas-vindas", game.op2.boasVindas(), false);
+    await medir("aventuras do playtest", game.op2.aventuras(), false);
+    for (const d of [poi, ev, des, hab]) await d.delete();
+    await npc.delete();
+    return resultados;
+  });
+  for (const r of rolagem) relato.passos.push([r.ok, `${r.nome}: cabe na tela e rola por dentro${r.motivo ? ` (${r.motivo})` : ""}`]);
+}
+
 // O que a primeira rodada de teste manual apontou (2026-09-03): rolagem comum sem
 // mensagem, falha crítica que passava em branco no Examinar, "FALHA" com pista na tela,
 // <p> cru no card da rodada, cards gigantes no painel, pontos visíveis de cara.
@@ -3724,12 +3862,13 @@ const relato = await page.evaluate(async (boasVindas) => {
     ok("o texto digitado vira parágrafos HTML no roteiro do evento",
       eventoUso.system.rodadas[1]?.narracao === "<p>Primeiro parágrafo.</p><p>Segundo.</p>");
 
-    // A janela tem altura fixa e o roteiro cresce: quem rola é o corpo, e nunca de
-    // lado — a ficha subiu sem barra de rolagem nenhuma e as últimas rodadas ficaram
-    // inalcançáveis (achado em uso real).
+    // A janela tem altura fixa e o roteiro cresce: quem rola é o conteúdo da janela
+    // (regra global de toda janela do sistema), e nunca de lado — a ficha subiu sem
+    // barra de rolagem nenhuma e as últimas rodadas ficaram inalcançáveis (achado em
+    // uso real).
     for (let i = 0; i < 6; i += 1) eventoUso.sheet.element?.querySelector('[data-action="adicionarRodada"]')?.click();
     await esperar(1200);
-    const corpoEvento = eventoUso.sheet.element?.querySelector(".op2-item-ficha");
+    const corpoEvento = eventoUso.sheet.element?.querySelector(".window-content");
     ok(`a ficha do evento rola no vertical e não estoura na horizontal (${corpoEvento?.scrollHeight}/${corpoEvento?.clientHeight} × ${corpoEvento?.scrollWidth}/${corpoEvento?.clientWidth})`,
       Boolean(corpoEvento) && corpoEvento.scrollHeight > corpoEvento.clientHeight
       && corpoEvento.scrollWidth <= corpoEvento.clientWidth + 1);
