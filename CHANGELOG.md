@@ -5,6 +5,9 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+- A release no GitHub traz como corpo a seção da versão no CHANGELOG e a linha de
+  instalação (antes era o assunto do commit da tag). As releases antigas foram reescritas.
+
 ## [0.9.6] — 2026-09-07
 
 - **Filtros no painel do mestre**: chips por visibilidade, progresso (intocado, em

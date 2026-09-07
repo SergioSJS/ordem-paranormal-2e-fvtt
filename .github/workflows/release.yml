@@ -92,10 +92,18 @@ jobs:
             README.md LICENSE \
             --exclude "packs/sources/*"
 
+      # O corpo da release é a seção da versão no CHANGELOG, com a linha de instalação.
+      # Sem isto o GitHub punha o assunto do commit da tag, que não diz nada.
+      - name: Notas da versão
+        run: sh scripts/release/notas-da-versao.sh "$TAG" "${{ github.repository }}" > notas.md && cat notas.md
+
       - name: Publicar release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.tag || github.ref_name }}
+          name: ${{ env.TAG }}
+          body_path: notas.md
+          fail_on_unmatched_files: true
           files: |
             ${{ env.SYSTEM_ID }}.zip
             system.json
@@ -122,5 +130,3 @@ jobs:
           curl -sS -f -X POST https://foundryvtt.com/_api/packages/release_version/ \
             -H "Content-Type: application/json" -H "Authorization: $FOUNDRY_RELEASE_TOKEN" \
             -d "$BODY"
-          generate_release_notes: true
-          fail_on_unmatched_files: true

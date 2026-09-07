@@ -34,8 +34,11 @@ nova é registrada depois. O que o repositório já faz sozinho está marcado.
    nem "Contains Zero AI". As imagens vêm do `media` do manifesto, não do formulário.
 3. **Add Version**: número `X.Y.Z`; **Package Manifest URL** fixo da versão
    (`https://github.com/SergioSJS/ordem-paranormal-2e-fvtt/releases/download/vX.Y.Z/system.json`,
-   não o `latest`); Release Notes URL = a página da release no GitHub; Minimum Core
-   `13`; Verified Core `14`; Maximum vazio.
+   não o `latest`); Release Notes URL = a página da release no GitHub
+   (`https://github.com/SergioSJS/ordem-paranormal-2e-fvtt/releases/tag/vX.Y.Z` — o
+   corpo dela é a seção da versão no CHANGELOG, posto pelo workflow via
+   `scripts/release/notas-da-versao.sh`); Minimum Core `13`; Verified Core `14`;
+   Maximum vazio.
 4. Onde perguntar sobre direitos de terceiros: declare que o sistema usa nomes e regras
    de Ordem Paranormal RPG sob a **Licença da Comunidade** (link), sem texto nem arte
    dos livros; as artes vêm de zips que o próprio mestre baixa da editora.
