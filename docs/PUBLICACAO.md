@@ -23,16 +23,24 @@ nova é registrada depois. O que o repositório já faz sozinho está marcado.
 1. Entre em foundryvtt.com com a conta que tem a licença e abra
    **https://foundryvtt.com/creators/submit/** ("Package Submission Form").
 2. Preencha: tipo **Game System**; `id` **ordem-paranormal-2e** (igual ao manifesto);
-   título **Ordem Paranormal 2 — Playtest (Não-Oficial)**; descrição (a do manifesto,
-   com o aviso de não-oficial, a Licença da Comunidade e o aviso de IA); manifest URL
-   **https://github.com/SergioSJS/ordem-paranormal-2e-fvtt/releases/latest/download/system.json**;
-   autor e link do repositório; tags (idioma pt-BR, gênero horror/investigação).
-3. Onde perguntar sobre direitos de terceiros: declare que o sistema usa nomes e regras
+   título **Ordem Paranormal 2 — Playtest (Não-Oficial)**; **Summary** (uma frase, sem
+   repetir o título) e **Description** (até 600 caracteres, com não-oficial, Licença da
+   Comunidade e o aviso de IA); **Package URL** = o repositório
+   **https://github.com/SergioSJS/ordem-paranormal-2e-fvtt** (o manifesto NÃO vai aqui);
+   **Required Game Systems** vazio (somos o sistema); tags: Actor and Item Sheets,
+   Adventures, Content Importers, Dice Rolling, Journals and Notes — nunca "AI Tools"
+   nem "Contains Zero AI". As imagens vêm do `media` do manifesto, não do formulário.
+3. **Add Version**: número `X.Y.Z`; **Package Manifest URL** fixo da versão
+   (`https://github.com/SergioSJS/ordem-paranormal-2e-fvtt/releases/download/vX.Y.Z/system.json`,
+   não o `latest`); Release Notes URL = a página da release no GitHub; Minimum Core
+   `13`; Verified Core `14`; Maximum vazio.
+4. Onde perguntar sobre direitos de terceiros: declare que o sistema usa nomes e regras
    de Ordem Paranormal RPG sob a **Licença da Comunidade** (link), sem texto nem arte
    dos livros; as artes vêm de zips que o próprio mestre baixa da editora.
-4. Onde perguntar sobre IA: **não** marque "Zero AI"; o código é escrito com auxílio de
-   IA e os textos são do autor.
-5. Envie. A revisão é manual (dias). Se pedirem ajuste, é pelo e-mail da conta.
+5. **Generative AI Content Declaration** (até 600 caracteres, em inglês): código com
+   auxílio de IA, revisado e mantido pelo autor; textos do autor; sem regra, lore, arte ou
+   áudio gerados por IA; nada do livro no pacote; "Not Zero AI".
+6. Envie. A revisão é manual (dias). Se pedirem ajuste, é pelo e-mail da conta.
 
 ## Depois da aprovação — cada versão nova
 
