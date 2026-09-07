@@ -5,6 +5,8 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+- Link de apoio ao sistema (Ko-fi) na tela de boas-vindas e no README.
+
 ## [0.9.5] — 2026-09-07
 
 - Listagem do Foundry: capa é o card do sistema, ícone é o selo, cinco prints com legenda

@@ -180,7 +180,7 @@ const relato = await page.evaluate(async (boasVindas) => {
   ok("a tela de boas-vindas abre com versão, aviso da licença, os dois atos e o botão das aventuras",
     boasVindas.abriu && boasVindas.versao && boasVindas.aviso && boasVindas.atos === 2 && boasVindas.botaoAventuras);
   ok("com os links da licença, do site e da loja da editora, do changelog e do repositório",
-    ["ordemparanormal.com.br/licenca", "loja.ordemparanormal.com.br", "CHANGELOG.md", "github.com"].every((t) => boasVindas.links.some((l) => l.includes(t))));
+    ["ordemparanormal.com.br/licenca", "loja.ordemparanormal.com.br", "CHANGELOG.md", "github.com", "ko-fi.com/meioorc"].every((t) => boasVindas.links.some((l) => l.includes(t))));
   ok("e \"mostrar ao entrar\" desmarcado grava o setting", boasVindas.desligou);
   ok("api game.op2 exposta", typeof game.op2?.rolarTeste === "function");
   ok("data models registrados", CONFIG.Actor.dataModels.personagem && CONFIG.Item.dataModels.habilidade);

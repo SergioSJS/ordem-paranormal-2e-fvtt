@@ -13,11 +13,12 @@ export const LICENCA = {
   url: "https://ordemparanormal.com.br/licenca",
 };
 
-/** Os links oficiais que a licença lista. */
+/** Os links oficiais que a licença lista — e o de apoio ao sistema (Ko-fi do autor). */
 export const LINKS = {
   licenca: LICENCA.url,
   site: "https://ordemparanormal.com.br",
   loja: "https://loja.ordemparanormal.com.br",
+  apoio: "https://ko-fi.com/meioorc",
 };
 
 /** O selo em branco, para o fundo escuro do sistema; o preto fica para o README e a capa clara. */

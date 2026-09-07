@@ -899,7 +899,8 @@
       "Fechar": "Close",
       "MenuNome": "About and license",
       "MenuBotao": "Open",
-      "MenuAjuda": "What the system brings, where the adventures come from, the official links and the Community License."
+      "MenuAjuda": "What the system brings, where the adventures come from, the official links and the Community License.",
+      "KoFi": "Support the system on Ko-fi"
     }
   }
 }

@@ -14,6 +14,7 @@ Sistema para **Foundry VTT** do playtest alpha de *Ordem Paranormal RPG 2*.
 > do jogo — só a camada mecânica e a interface.
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13%20%E2%80%A2%20v14-c8321e)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-apoie%20o%20sistema-ff5e5b?logo=ko-fi&logoColor=white)](https://ko-fi.com/meioorc)
 
 ![Ficha de personagem](docs/img/ficha-personagem.png)
 
@@ -477,6 +478,12 @@ ainda não foram publicados. Onde o texto é ambíguo ou se contradiz, o sistema
 
 O roadmap completo está em [docs/ROADMAP.md](docs/ROADMAP.md). Como o sistema vai para a
 listagem do Foundry e como cada versão é registrada: [docs/PUBLICACAO.md](docs/PUBLICACAO.md).
+
+## Apoie
+
+O sistema é e continua gratuito — a Licença da Comunidade não permite cobrar por ele.
+Quem quiser ajudar o desenvolvimento pode pagar um café em [ko-fi.com/meioorc](https://ko-fi.com/meioorc).
+Para apoiar o jogo em si, compre da editora: [loja.ordemparanormal.com.br](https://loja.ordemparanormal.com.br).
 
 ## Licença
 
