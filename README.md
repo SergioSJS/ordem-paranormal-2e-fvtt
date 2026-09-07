@@ -476,3 +476,6 @@ O roadmap completo está em [docs/ROADMAP.md](docs/ROADMAP.md).
 
 Código sob [GPL-3.0](LICENSE) — Copyright (C) 2026 Sérgio Sousa. Fontes sob OFL 1.1 — veja
 [assets/fonts/LICENSES.md](assets/fonts/LICENSES.md).
+
+Código desenvolvido com auxílio de ferramentas de IA, sob revisão humana: cada mudança
+passa pelos testes offline e pelo e2e num Foundry de verdade antes de entrar.
