@@ -295,7 +295,9 @@ export function montarAtoII(dados, fontes, { avisos = [] } = {}) {
         id: `i${indice + 1}`,
         pericia: info.chave,
         dt: info.dt,
-        texto: info.condicao ? `<p><em>(${escapar(info.condicao)})</em> ${escapar(info.texto)}</p>` : `<p>${escapar(info.texto)}</p>`,
+        // Texto puro: a ficha do ponto edita a linha num textarea, e HTML aparecia
+        // como tag na tela (achado em uso real). A condição vai entre parênteses.
+        texto: info.condicao ? `(${info.condicao}) ${info.texto}` : info.texto,
         oculta: condicional || Boolean(dono),
         aberta: false,
       };

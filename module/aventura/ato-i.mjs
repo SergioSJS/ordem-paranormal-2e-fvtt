@@ -292,7 +292,7 @@ export function montarAtoI(extraido, fontes) {
             // tem campo no sistema: fica no começo do texto, onde o mestre lê antes
             // de liberar a linha. "DT 6 ou 10" (o Armário de Ferramentas) idem: o
             // campo guarda a primeira, o texto avisa da segunda.
-            texto: prefixoDaLinha(info) + `${info.texto}</p>`,
+            texto: prefixoDaLinha(info) + info.texto,
             // "Só pode ser acessada após cumprir uma condição" (o símbolo do livro):
             // entra como rascunho, que é o estado que Examinar não alcança — o mestre
             // libera quando a condição acontecer. "ou Tecnologia" não é condição de
@@ -500,5 +500,7 @@ function prefixoDaLinha(info) {
   const avisos = [];
   if (info.dtAlternativa) avisos.push(`DT ${info.dt} ou ${info.dtAlternativa}`);
   if (info.condicao) avisos.push(info.condicao);
-  return avisos.length ? `<p><em>(${avisos.join("; ")})</em> ` : "<p>";
+  // Texto puro, sem HTML: a linha do quadro é editada num textarea na ficha do
+  // ponto, e `<p><em>` aparecia como tag na tela (achado em uso real).
+  return avisos.length ? `(${avisos.join("; ")}) ` : "";
 }

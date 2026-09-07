@@ -301,7 +301,9 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   &__oculto-tag {
     background: transparent;
     border: 1px dashed var(--op2-linha-forte);
-    color: var(--op2-texto-fraco);
+    // `!important` porque a tag base força branco (sinal sobre vermelho); esta não
+    // tem vermelho — no claro ficava branco sobre creme (achado em uso real).
+    color: var(--op2-texto-fraco) !important;
     clip-path: none;
     font-size: 0.6rem;
   }

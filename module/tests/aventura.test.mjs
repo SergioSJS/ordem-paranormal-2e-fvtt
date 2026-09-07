@@ -69,7 +69,7 @@ test("montarAtoI: a linha do quadro leva condição e DT alternativa no texto, e
   const aventura = montarAtoI(extraidoAtoI(), fontesAtoI());
   const [molho, simbolo] = aventura.items.filter((i) => i.type === "ponto-interesse");
   assert.equal(molho.system.informacoes[1].pericia, "pesquisar");
-  assert.match(molho.system.informacoes[1].texto, /^<p><em>\(DT 6 ou 10; ou Tecnologia\)<\/em> Duas são iguais\.<\/p>$/);
+  assert.equal(molho.system.informacoes[1].texto, "(DT 6 ou 10; ou Tecnologia) Duas são iguais.");
   // "ou Tecnologia" é perícia alternativa, não condição: a linha segue descobrível.
   assert.equal(molho.system.informacoes[1].oculta, false);
   assert.equal(simbolo.system.informacoes[0].oculta, true);
