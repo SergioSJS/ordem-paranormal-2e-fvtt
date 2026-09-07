@@ -5,6 +5,11 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+## [0.9.5] — 2026-09-07
+
+- Listagem do Foundry: capa é o card do sistema, ícone é o selo, cinco prints com legenda
+  (`media` do manifesto). Reenviar o zip das artes pela janela de aventuras.
+
 ## [0.9.4] — 2026-09-07
 
 - Auditoria visual do tema claro, tela a tela (`scripts/e2e/auditoria-visual.mjs`): tag

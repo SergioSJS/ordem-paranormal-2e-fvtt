@@ -1,7 +1,7 @@
 {
   "name": "ordem-paranormal-2e-fvtt",
   "license": "GPL-3.0-only",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "private": true,
   "description": "Sistema Foundry VTT não-oficial para Ordem Paranormal RPG 2 (Playtest Alpha)",
   "type": "module",
