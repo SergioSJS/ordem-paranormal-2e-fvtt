@@ -66,7 +66,10 @@ expande** (o estado fica no seu navegador), há **recolher/expandir todos** e um
 por nome**. O mestre tem ainda **chips de filtro** — visíveis/ocultos, intocados/em
 andamento/esgotados, com/sem marcador no mapa —, um seletor de **perícia do quadro** e a
 **ordem** (original, por nome, por progresso); a aba Desafios tem os mesmos, por estado
-e abordagem. O card com marcador ganha um botão que **centraliza o mapa** nele. A tecla
+e abordagem. O jogador tem a mesma barra no painel e na janela de ações, sem o chip de
+visibilidade e com o progresso parando em *com pistas* — "esgotado" entregaria que não
+há mais nada ali; o seletor de perícia dele só lista o que ele já vê.
+O card com marcador ganha um botão que **centraliza o mapa** nele. A tecla
 **I** abre e fecha o painel e **Shift+I** a janela de ações (troque em Configurar
 controles). A **ficha da investigação** (pelo diretório de atores ou pelo lápis do
 painel) é esta mesma tela, com nome, imagem e notas editáveis no lugar do seletor.

@@ -21,6 +21,20 @@ export function arrombou(desafio) {
   return desafio.pontuacaoAtual >= desafio.pontuacaoAlvo;
 }
 
+/**
+ * O desafio está vencido por alguma abordagem ligada? É o "Resolvido" do card, no
+ * painel e na janela de ações.
+ * @param {object} system — o `system` do Item desafio-acesso.
+ */
+export function desafioResolvido(system) {
+  const { abordagens = {} } = system;
+  return Boolean((abordagens.arrombar && arrombou(system))
+    || (abordagens.destrancar && system.destrancado)
+    || (abordagens.hackTecnico && system.hackTecnico?.resolvido)
+    || (abordagens.hackSocial && system.hackSocial?.resolvido)
+    || (abordagens.generico && system.generico?.resolvido));
+}
+
 /** @returns {boolean} 0 tentativas = sem teto; caso contrário, estourou o teto. */
 export function excedeuTentativas(desafio) {
   return desafio.maxTentativas > 0 && desafio.tentativasUsadas >= desafio.maxTentativas;

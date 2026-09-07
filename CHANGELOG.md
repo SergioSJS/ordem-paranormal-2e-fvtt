@@ -9,7 +9,9 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
   andamento, esgotado) e marcador no mapa, seletor de perícia do quadro e ordem
   (original, nome, progresso) na aba de pontos; a aba de desafios ganha busca, os mesmos
   chips por estado e o seletor de abordagem. Buscar pelo nome abre o card achado mesmo
-  recolhido; a barra conta "x de y" e tem limpar.
+  recolhido; a barra conta "x de y" e tem limpar. O jogador tem a mesma barra no painel
+  e na janela de ações, sem visibilidade e sem "esgotado" (entregaria que acabou), com
+  a perícia só do que ele já vê. Na janela de ações a busca passa a ser por aba.
 - O card com marcador tem um botão que centraliza o mapa nele.
 - Atalhos de teclado: **I** abre e fecha o painel de investigação; **Shift+I**, a janela
   de ações do personagem (troque em Configurar controles).

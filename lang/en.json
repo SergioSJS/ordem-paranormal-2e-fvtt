@@ -478,6 +478,8 @@
         "IntocadosDica": "No line of the board has reached anyone",
         "EmAndamento": "In progress",
         "EmAndamentoDica": "Some line has reached someone, and some remain",
+        "ComPistas": "With clues",
+        "ComPistasDica": "Some line has already reached you",
         "Esgotados": "Exhausted",
         "EsgotadosDica": "Every line (drafts aside) has reached someone",
         "NoMapa": "On the map",

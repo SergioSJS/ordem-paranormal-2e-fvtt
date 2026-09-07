@@ -61,11 +61,16 @@ export function compararCards(ordem) {
  * O progresso de um ponto pelo que já chegou a alguém: nada (intocado), parte
  * (andamento) ou tudo (esgotado). Rascunho não conta: ele nunca chega a ninguém, e
  * um ponto com um rascunho sobrando nunca ficaria esgotado.
+ *
+ * Para o jogador para em "andamento": o "esgotado" entregaria que não há mais nada
+ * para achar ali — e nem no `data-*` do card ele pode aparecer.
  * @param {{ oculta?: boolean }[]} informacoes — as linhas do quadro.
- * @param {number} visiveis — quantas já chegaram a alguém.
+ * @param {number} visiveis — quantas já chegaram a alguém (ou a quem olha).
+ * @param {{ mestre?: boolean }} [opcoes]
  */
-export function progressoDoPonto(informacoes, visiveis) {
+export function progressoDoPonto(informacoes, visiveis, { mestre = true } = {}) {
   if (visiveis <= 0) return "intocado";
+  if (!mestre) return "andamento";
   const jogaveis = informacoes.filter((info) => !info.oculta).length;
   return visiveis >= jogaveis ? "esgotado" : "andamento";
 }

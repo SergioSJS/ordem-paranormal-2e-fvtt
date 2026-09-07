@@ -66,4 +66,7 @@ test("progresso do ponto: nada, parte, tudo — e o rascunho não segura o esgot
   assert.equal(progressoDoPonto(linhas, 1), "andamento");
   assert.equal(progressoDoPonto(linhas, 2), "esgotado");
   assert.equal(progressoDoPonto([], 0), "intocado");
+  // o jogador nunca vê "esgotado", nem quando já achou tudo
+  assert.equal(progressoDoPonto(linhas, 2, { mestre: false }), "andamento");
+  assert.equal(progressoDoPonto(linhas, 0, { mestre: false }), "intocado");
 });

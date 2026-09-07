@@ -1602,6 +1602,7 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
 }
 
 .op2-acoes .op2-painel-filtro { width: 100%; }
+.op2-acoes .op2-painel-secao__topo { margin-bottom: var(--op2-e2); }
 
 // Um evento com roteiro próprio, na Preparação: estado em cima (disparado na rodada
 // tal, em que rodada DELE a cena está), nome embaixo, botões na ponta.

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  separarProblema, semPrefixoDoPonto,
+  separarProblema, semPrefixoDoPonto, desafioResolvido,
   acumularArrombar, arrombou, excedeuTentativas, danoDeAlcancar, avaliarPalpite, venceuDestrancar,
   podeTentarHackNestaRodada, chancesDeErroHackSocial,
   linhaDaTabelaDeHack, tentativasPorRodadaDeDestrancar, tentativasDeDestrancarNaRodada,
@@ -114,4 +114,14 @@ test("nome do desafio sem o prefixo do ponto: o ponto já aparece acima do nome"
   assert.equal(semPrefixoDoPonto("Painel Confuso", "Depósito A, Painel Elétrico"), "Painel Confuso");
   assert.equal(semPrefixoDoPonto("Estante de Livros", "Estante de Livros"), "Estante de Livros");
   assert.equal(semPrefixoDoPonto("Cofre", null), "Cofre");
+});
+
+test("desafioResolvido: só uma abordagem LIGADA e vencida resolve", () => {
+  const base = { pontuacaoAtual: 0, pontuacaoAlvo: 10, destrancado: false, hackTecnico: { resolvido: false }, hackSocial: { resolvido: false }, generico: { resolvido: false } };
+  assert.equal(desafioResolvido({ ...base, abordagens: { arrombar: true } }), false);
+  assert.equal(desafioResolvido({ ...base, abordagens: { arrombar: true }, pontuacaoAtual: 10 }), true);
+  assert.equal(desafioResolvido({ ...base, abordagens: { hackTecnico: true }, hackTecnico: { resolvido: true } }), true);
+  // hack resolvido mas a abordagem desligada: não conta
+  assert.equal(desafioResolvido({ ...base, abordagens: { arrombar: true }, hackTecnico: { resolvido: true } }), false);
+  assert.equal(desafioResolvido({ ...base, abordagens: { generico: true }, generico: { resolvido: true } }), true);
 });

@@ -478,6 +478,8 @@
         "IntocadosDica": "Nenhuma linha do quadro chegou a alguém",
         "EmAndamento": "Em andamento",
         "EmAndamentoDica": "Alguma linha já chegou a alguém, e ainda falta",
+        "ComPistas": "Com pistas",
+        "ComPistasDica": "Alguma linha já chegou a você",
         "Esgotados": "Esgotados",
         "EsgotadosDica": "Todas as linhas (fora rascunho) já chegaram a alguém",
         "NoMapa": "No mapa",

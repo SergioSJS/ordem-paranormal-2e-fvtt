@@ -27,7 +27,13 @@ import { atacar } from "./acoes-combate.mjs";
 import { usarHabilidadeOuItem } from "./acoes-recurso.mjs";
 import { abrirDestrancar } from "./destrancar-app.mjs";
 import { guardarRolagem, restaurarRolagem, esquecerRolagem } from "../ui/rolagem.mjs";
-import { semPrefixoDoPonto } from "./desafios.mjs";
+import { semPrefixoDoPonto, desafioResolvido } from "./desafios.mjs";
+import { chaveInfo } from "./investigacao.mjs";
+import { marcadoresDoPonto } from "./marcadores.mjs";
+import { filtrosVazios, filtrando } from "./filtros-painel.mjs";
+import {
+  chavesDasAbordagens, contextoBarra, ligarBarra, alternarChip, aplicarBarra, limparBarra,
+} from "./barra-filtros.mjs";
 import { abrirLaboratorio } from "./laboratorio-app.mjs";
 import { abrirRadio } from "./radio-app.mjs";
 import { renderDoPerfil } from "../ui/perfil.mjs";
@@ -40,13 +46,18 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
  * hackeia, painel eletrônico não se arromba no braço (achado em uso real — os
  * quatro botões apareciam em todo desafio).
  */
-function contextoDoDesafio(desafio, investigacao) {
+function contextoDoDesafio(desafio, investigacao, indice) {
   const { abordagens } = desafio.system;
   const ponto = pontoDoDesafio(investigacao, desafio.uuid);
   return {
     uuid: desafio.uuid,
     nome: desafio.name,
     img: desafio.img,
+    // O que a barra de filtros lê no card (`data-*`).
+    indice,
+    progresso: desafioResolvido(desafio.system) ? "resolvido" : "pendente",
+    abordagensChaves: chavesDasAbordagens(abordagens),
+    marcado: marcadoresDoPonto(canvas?.scene, desafio.uuid).length > 0,
     // O ponto a que pertence vem como rótulo acima do nome, e o nome perde o prefixo
     // repetido — a mesma leitura do painel.
     poiNome: ponto?.name ?? "",
@@ -109,6 +120,8 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       examinar: fechaDepois(AcoesInvestigacaoApp.#examinar),
       interagir: fechaDepois(AcoesInvestigacaoApp.#interagir),
       irParaDesafios: AcoesInvestigacaoApp.#irParaDesafios,
+      alternarChip: AcoesInvestigacaoApp.#alternarChip,
+      limparFiltros: AcoesInvestigacaoApp.#limparFiltrosAcao,
       usarFerramenta: fechaDepois(AcoesInvestigacaoApp.#usarFerramenta),
       usarLaboratorio: fechaDepois(AcoesInvestigacaoApp.#usarLaboratorio),
       usarRadio: fechaDepois(AcoesInvestigacaoApp.#usarRadio),
@@ -137,8 +150,8 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     },
   };
 
-  /** Filtro por nome, como o do painel: vive na instância. */
-  #filtro = "";
+  /** Os filtros de cada aba, como os do painel: vivem na instância. */
+  #filtros = { pontos: filtrosVazios(), desafios: filtrosVazios() };
 
   /** @override — a aba escolhida é preferência de tela. */
   changeTab(aba, grupo, opcoes) {
@@ -201,18 +214,10 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     this.element.dataset.perfil = this.ator.system.perfil ?? "";
     restaurarRolagem(this);
 
-    // Filtro por nome: esconde linhas no DOM, sem rerrenderizar. As abas têm um campo
-    // cada, e os dois andam juntos.
-    for (const campo of this.element.querySelectorAll("[data-filtro-acoes]")) {
-      campo.addEventListener("input", () => {
-        this.#filtro = campo.value;
-        for (const outro of this.element.querySelectorAll("[data-filtro-acoes]")) {
-          if (outro !== campo) outro.value = campo.value;
-        }
-        this.#aplicarFiltro();
-      });
-    }
-    this.#aplicarFiltro();
+    // A barra de filtros de cada aba (a mesma do painel): só mexe no DOM, sem
+    // rerrenderizar, e o estado fica na instância.
+    ligarBarra(this.element, this.#filtros, (aba) => this.#aplicarFiltros(aba));
+    for (const aba of ["pontos", "desafios"]) this.#aplicarFiltros(aba);
     // `data-action` num <select> reage ao próprio clique de abrir e fecha o menu
     // nativo no meio (achado em uso real, no painel) — listener manual, como todo
     // outro <select> do sistema.
@@ -223,11 +228,28 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     });
   }
 
-  #aplicarFiltro() {
-    const termo = normalizar(this.#filtro);
-    for (const linha of this.element.querySelectorAll("[data-acao-card]")) {
-      linha.hidden = Boolean(termo) && !normalizar(linha.dataset.nome).includes(termo);
-    }
+  #secaoDaAba(aba) {
+    return this.element?.querySelector(`.op2-acoes__aba[data-tab="${aba}"]`) ?? null;
+  }
+
+  #aplicarFiltros(aba) {
+    aplicarBarra(this.#secaoDaAba(aba), this.#filtros[aba], {
+      lista: ".op2-acoes__lista", card: "[data-acao-card]", classeAchado: "op2-acoes__linha--achado",
+    });
+  }
+
+  #limparFiltros(aba) {
+    this.#filtros[aba] = limparBarra(this.#secaoDaAba(aba), this.#filtros[aba]);
+    this.#aplicarFiltros(aba);
+  }
+
+  static #alternarChip(_evento, alvo) {
+    alternarChip(this.#filtros[alvo.dataset.aba], alvo);
+    this.#aplicarFiltros(alvo.dataset.aba);
+  }
+
+  static #limparFiltrosAcao(_evento, alvo) {
+    this.#limparFiltros(alvo.dataset.aba);
   }
 
   /**
@@ -239,9 +261,9 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     // mapa): rerrenderizar a cada atalho perdia a posição da rolagem e o card em foco.
     if (!this.rendered) await this.render({ force: true });
     if (aba && this.tabGroups.principal !== aba) this.changeTab(aba, "principal");
-    this.#filtro = "";
-    for (const campo of this.element.querySelectorAll("[data-filtro-acoes]")) campo.value = "";
-    this.#aplicarFiltro();
+    // Um filtro ligado esconderia o card procurado: a busca cede a vez ao atalho.
+    const abaDoCard = aba ?? this.tabGroups.principal;
+    if (this.#filtros[abaDoCard] && filtrando(this.#filtros[abaDoCard])) this.#limparFiltros(abaDoCard);
     const card = this.element.querySelector(`[data-acao-card][data-uuid="${uuid}"]`);
     if (!card) return;
     card.hidden = false;
@@ -252,12 +274,13 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
     setTimeout(() => card.classList.remove("op2-acoes__linha--foco"), 2500);
   }
 
-  /** Do ponto para os desafios dele: troca de aba e filtra pelo nome do ponto. */
+  /** Do ponto para os desafios dele: troca de aba e busca pelo nome do ponto. */
   static #irParaDesafios(_evento, alvo) {
-    this.#filtro = alvo.dataset.nome ?? "";
+    this.#filtros.desafios = { ...limparBarra(this.#secaoDaAba("desafios"), this.#filtros.desafios), termo: alvo.dataset.nome ?? "" };
     this.changeTab("desafios", "principal");
-    for (const campo of this.element.querySelectorAll("[data-filtro-acoes]")) campo.value = this.#filtro;
-    this.#aplicarFiltro();
+    const campo = this.#secaoDaAba("desafios")?.querySelector("[data-filtro-termo]");
+    if (campo) campo.value = this.#filtros.desafios.termo;
+    this.#aplicarFiltros("desafios");
   }
 
   async _prepareContext() {
@@ -273,17 +296,23 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       .filter((uuid) => !ocultosDesafio.includes(uuid))
       .map((uuid) => fromUuidSync(uuid))
       .filter((desafio) => desafio?.type === "desafio-acesso")
-      .map((d) => contextoDoDesafio(d, investigacao));
+      .map((d, indice) => contextoDoDesafio(d, investigacao, indice));
     const desafioPorUuid = new Map(desafios.map((d) => [d.uuid, d]));
 
     const pois = (investigacao?.system.pois ?? [])
       .filter((uuid) => !ocultosPoi.includes(uuid))
       .map((uuid) => fromUuidSync(uuid))
       .filter((poi) => poi?.type === "ponto-interesse")
-      .map((poi) => ({
+      .map((poi, indice) => ({
         uuid: poi.uuid,
         nome: poi.name,
         img: poi.img,
+        // O que a barra de filtros lê no card (`data-*`), pelo que ESTE personagem
+        // já vê: progresso sem "esgotado" e só as perícias das linhas que chegaram
+        // a ele — as outras entregariam que há algo ali.
+        indice,
+        ...resumoDoQuadro(poi, ator),
+        marcado: marcadoresDoPonto(canvas?.scene, poi.uuid).length > 0,
         // Quantos desafios deste ponto estão à vista: um atalho leva à aba Desafios já
         // filtrada por ele. Com os botões do desafio dentro do ponto, as duas coisas se
         // embaralhavam (achado em uso real).
@@ -319,7 +348,11 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       pois,
       tabs: this._prepareTabs("principal"),
       contagens: { pontos: pois.length, desafios: desafios.length },
-      filtro: this.#filtro,
+      termos: { pontos: this.#filtros.pontos.termo, desafios: this.#filtros.desafios.termo },
+      filtros: {
+        pontos: contextoBarra("pontos", this.#filtros.pontos, { ehGM: false, pericias: pois.flatMap((p) => p.pericias.split(" ")) }),
+        desafios: contextoBarra("desafios", this.#filtros.desafios, { ehGM: false }),
+      },
     };
   }
 
@@ -421,7 +454,16 @@ function personagemDoUsuario() {
   return game.user.character ?? null;
 }
 
-/** Comparação de nomes sem acento nem caixa, para o filtro. */
-function normalizar(texto) {
-  return String(texto ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+/**
+ * O que o personagem já vê do quadro de um ponto: a mesma leitura do painel do
+ * jogador (linha aberta, contada ao grupo ou descoberta por ele).
+ */
+function resumoDoQuadro(poi, ator) {
+  const visiveis = poi.system.informacoes.filter((info) => info.aberta
+    || (info.contadaPor?.length ?? 0) > 0
+    || ator.system.estado.infosReveladas.has(chaveInfo(poi.uuid, info.id)));
+  return {
+    progresso: visiveis.length > 0 ? "andamento" : "intocado",
+    pericias: [...new Set(visiveis.map((info) => info.pericia))].join(" "),
+  };
 }

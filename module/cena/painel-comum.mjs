@@ -17,7 +17,7 @@
  */
 import { SYSTEM_ID } from "../config.mjs";
 import { periciasDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs";
-import { semPrefixoDoPonto } from "./desafios.mjs";
+import { semPrefixoDoPonto, desafioResolvido } from "./desafios.mjs";
 import { rodadaRelativa, proximaRodadaDaCena, linhaDaRodada } from "./eventos.mjs";
 import { marcarNoMapa, desmarcarDoMapa, marcadoresDoPonto } from "./marcadores.mjs";
 import { personagensDaCenaAtiva, npcsDaCenaAtiva, encerrarCena } from "./encerrar-investigacao.mjs";
@@ -30,7 +30,10 @@ import {
 import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada, publicarLinhaDoEvento } from "./rodada.mjs";
 import { cicloVisibilidadeInfo, limparRevelacao, contarAoGrupo } from "./acoes-investigacao.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
-import { filtrosVazios, filtrando, casaFiltros, compararCards, progressoDoPonto } from "./filtros-painel.mjs";
+import { filtrosVazios, filtrando, progressoDoPonto } from "./filtros-painel.mjs";
+import {
+  ROTULOS_ABORDAGEM, chavesDasAbordagens, contextoBarra, ligarBarra, alternarChip, aplicarBarra, limparBarra,
+} from "./barra-filtros.mjs";
 import { guardarRolagem, restaurarRolagem, esquecerRolagem } from "../ui/rolagem.mjs";
 
 /**
@@ -214,53 +217,11 @@ export function PainelInvestigacaoMixin(Base) {
       };
       contexto.pois = investigacao ? await this.#contextoPois(investigacao, ehGM, contexto.desafios) : [];
       contexto.contagens = { pontos: contexto.pois.length, desafios: contexto.desafios.length };
-      contexto.filtros = ehGM ? this.#contextoFiltros(contexto.pois) : null;
-      return contexto;
-    }
-
-    /**
-     * As barras de filtro das duas abas (só o mestre). O estado vem da instância: a
-     * barra rerrenderizada nasce com o que já estava ligado. O seletor de perícia só
-     * lista as que aparecem em algum quadro desta investigação.
-     */
-    #contextoFiltros(pois) {
-      const l = (chave) => game.i18n.localize(`OP2.Painel.Filtro.${chave}`);
-      const chips = (aba, dimensao, valores) => valores.map(([valor, chave]) => ({
-        aba, dimensao, valor, rotulo: l(chave),
-        dica: game.i18n.has(`OP2.Painel.Filtro.${chave}Dica`) ? l(`${chave}Dica`) : "",
-        ativo: this.#filtros[aba][dimensao] === valor,
-      }));
-      const visibilidade = (aba) => chips(aba, "visibilidade", [["visiveis", "Visiveis"], ["ocultos", "Ocultos"]]);
-      const mapa = (aba) => chips(aba, "mapa", [["com", "NoMapa"], ["sem", "SemMarcador"]]);
-      const ordens = (aba) => [["livro", "OrdemLivro"], ["nome", "OrdemNome"], ["progresso", "OrdemProgresso"]]
-        .map(([valor, chave]) => ({ valor, rotulo: l(chave), ativa: this.#filtros[aba].ordem === valor }));
-      const pericias = [...new Set(pois.flatMap((p) => p.pericias.split(" ")))].filter(Boolean)
-        .map((chave) => ({ valor: chave, rotulo: rotuloDePericia(chave), ativa: this.#filtros.pontos.pericia === chave }))
-        .sort((a, b) => a.rotulo.localeCompare(b.rotulo, "pt-BR"));
-      const abordagens = [...Object.entries(ROTULOS_ABORDAGEM), ["generico", "OP2.Desafio.Generico"]]
-        .map(([valor, chave]) => ({ valor, rotulo: game.i18n.localize(chave), ativa: this.#filtros.desafios.abordagem === valor }));
-      return {
-        pontos: {
-          aba: "pontos",
-          grupos: [
-            visibilidade("pontos"),
-            chips("pontos", "progresso", [["intocado", "Intocados"], ["andamento", "EmAndamento"], ["esgotado", "Esgotados"]]),
-            mapa("pontos"),
-          ],
-          seletor: { dimensao: "pericia", vazio: l("QualquerPericia"), opcoes: pericias },
-          ordens: ordens("pontos"),
-        },
-        desafios: {
-          aba: "desafios",
-          grupos: [
-            visibilidade("desafios"),
-            chips("desafios", "progresso", [["pendente", "Pendentes"], ["resolvido", "Resolvidos"]]),
-            mapa("desafios"),
-          ],
-          seletor: { dimensao: "abordagem", vazio: l("QualquerAbordagem"), opcoes: abordagens },
-          ordens: ordens("desafios"),
-        },
+      contexto.filtros = {
+        pontos: contextoBarra("pontos", this.#filtros.pontos, { ehGM, pericias: contexto.pois.flatMap((p) => p.pericias.split(" ")) }),
+        desafios: contextoBarra("desafios", this.#filtros.desafios, { ehGM }),
       };
+      return contexto;
     }
 
     /**
@@ -315,9 +276,11 @@ export function PainelInvestigacaoMixin(Base) {
           nome: poi.name,
           img: poi.img,
           // O que a barra de filtros lê no card (`data-*`); `indice` é a ordem original.
+          // Para o jogador, a perícia só entra se alguma linha dela já chegou a ele
+          // (o seletor abaixo é montado disto): `pericias` dele vem do quadro filtrado.
           indice: pois.length,
-          progresso: progressoDoPonto(poi.system.informacoes, linhasVisiveis),
-          pericias: periciasDoQuadro(poi.system.informacoes).join(" "),
+          progresso: progressoDoPonto(poi.system.informacoes, linhasVisiveis, { mestre: ehGM }),
+          pericias: ehGM ? periciasDoQuadro(poi.system.informacoes).join(" ") : "",
           oculto,
           marcado: temMarcador(uuid),
           recolhido: recolhidos.has(uuid),
@@ -371,6 +334,7 @@ export function PainelInvestigacaoMixin(Base) {
             // perícia (achado em uso real). O mestre continua vendo o quadro todo.
             .filter((grupo) => ehGM || grupo.infos.length > 0),
         });
+        if (!ehGM) pois.at(-1).pericias = pois.at(-1).quadro.map((grupo) => grupo.chave).join(" ");
       }
       return pois;
     }
@@ -429,11 +393,7 @@ export function PainelInvestigacaoMixin(Base) {
         const { abordagens, generico, hackTecnico, hackSocial } = desafio.system;
         const ponto = pontoDoDesafio(investigacao, desafio.uuid);
         const nota = desafio.flags?.[SYSTEM_ID]?.notaDoMestre ?? "";
-        const resolvido = (abordagens.arrombar && desafio.system.pontuacaoAtual >= desafio.system.pontuacaoAlvo)
-          || (abordagens.destrancar && desafio.system.destrancado)
-          || (abordagens.hackTecnico && hackTecnico.resolvido)
-          || (abordagens.hackSocial && hackSocial.resolvido)
-          || (abordagens.generico && generico.resolvido);
+        const resolvido = desafioResolvido(desafio.system);
         saida.push({
           uuid: desafio.uuid,
           nome: desafio.name,
@@ -447,7 +407,7 @@ export function PainelInvestigacaoMixin(Base) {
           // O que a barra de filtros lê no card (`data-*`).
           indice: saida.length,
           progresso: resolvido ? "resolvido" : "pendente",
-          abordagensChaves: [...Object.keys(ROTULOS_ABORDAGEM), "generico"].filter((chave) => abordagens[chave]).join(" "),
+          abordagensChaves: chavesDasAbordagens(abordagens),
           oculto: ocultos.includes(desafio.uuid),
           marcado: temMarcador(desafio.uuid),
           recolhido: recolhidos.has(desafio.uuid),
@@ -564,18 +524,7 @@ export function PainelInvestigacaoMixin(Base) {
 
       // Filtros das abas (termo, chips, seletor, ordem): só mexem no DOM, sem
       // rerrenderizar; o estado fica na instância para sobreviver ao render.
-      for (const campo of this.element.querySelectorAll("[data-filtro-termo]")) {
-        campo.addEventListener("input", () => {
-          this.#filtros[campo.dataset.filtroTermo].termo = campo.value;
-          this.#aplicarFiltros(campo.dataset.filtroTermo);
-        });
-      }
-      for (const seletor of this.element.querySelectorAll("[data-filtro-seletor]")) {
-        seletor.addEventListener("change", () => {
-          this.#filtros[seletor.dataset.aba][seletor.dataset.filtroSeletor] = seletor.value;
-          this.#aplicarFiltros(seletor.dataset.aba);
-        });
-      }
+      ligarBarra(this.element, this.#filtros, (aba) => this.#aplicarFiltros(aba));
       for (const aba of ["pontos", "desafios"]) this.#aplicarFiltros(aba);
 
       if (game.user.isGM) {
@@ -596,59 +545,24 @@ export function PainelInvestigacaoMixin(Base) {
       return super._onClose(opcoes);
     }
 
-    /** Aplica os filtros de uma aba no DOM: esconde, reordena, pinta os chips e conta. */
+    #secaoDaAba(aba) {
+      return this.element?.querySelector(`.op2-painel-aba[data-tab="${aba}"]`) ?? null;
+    }
+
     #aplicarFiltros(aba) {
-      const filtros = this.#filtros[aba];
-      const secao = this.element?.querySelector(`.op2-painel-aba[data-tab="${aba}"]`);
-      const lista = secao?.querySelector(".op2-painel-pois");
-      if (!lista) return;
-      const cards = [...lista.querySelectorAll(":scope > [data-poi-card]")];
-      const buscando = Boolean(filtros.termo.trim());
-      let visiveis = 0;
-      for (const card of cards) {
-        const casa = casaFiltros(card.dataset, filtros);
-        card.hidden = !casa;
-        // Quem busca pelo nome quer ler: o card achado aparece aberto, sem mexer no
-        // que está recolhido no navegador.
-        card.classList.toggle("op2-poi-card--achado", casa && buscando);
-        if (casa) visiveis += 1;
-      }
-      // A ordem reordena os <li> no lugar: `append` move o nó, não duplica.
-      const comparar = compararCards(filtros.ordem);
-      for (const card of cards.sort((a, b) => comparar(a.dataset, b.dataset))) lista.append(card);
-
-      const ligado = filtrando(filtros);
-      for (const chip of secao.querySelectorAll("[data-action='alternarChip']")) {
-        const ativo = filtros[chip.dataset.dimensao] === chip.dataset.valor;
-        chip.classList.toggle("ativo", ativo);
-        chip.setAttribute("aria-pressed", String(ativo));
-      }
-      const contagem = secao.querySelector("[data-filtro-contagem]");
-      if (contagem) {
-        contagem.textContent = game.i18n.format("OP2.Painel.Filtro.Contagem", { visiveis, total: cards.length });
-        contagem.hidden = !ligado;
-      }
-      const limpar = secao.querySelector("[data-action='limparFiltros']");
-      if (limpar) limpar.hidden = !ligado;
+      aplicarBarra(this.#secaoDaAba(aba), this.#filtros[aba], {
+        lista: ".op2-painel-pois", card: "[data-poi-card]", classeAchado: "op2-poi-card--achado",
+      });
     }
 
-    /** Desliga tudo de uma aba menos a ordem, e sincroniza os campos da barra. */
     #limparFiltros(aba) {
-      this.#filtros[aba] = { ...filtrosVazios(), ordem: this.#filtros[aba].ordem };
-      const secao = this.element?.querySelector(`.op2-painel-aba[data-tab="${aba}"]`);
-      for (const campo of secao?.querySelectorAll("[data-filtro-termo]") ?? []) campo.value = "";
-      for (const seletor of secao?.querySelectorAll("[data-filtro-seletor]") ?? []) {
-        if (seletor.dataset.filtroSeletor !== "ordem") seletor.value = "";
-      }
+      this.#filtros[aba] = limparBarra(this.#secaoDaAba(aba), this.#filtros[aba]);
       this.#aplicarFiltros(aba);
     }
 
-    /** Liga o chip; clicar no que já está ligado desliga (volta a "todos"). */
     static #alternarChip(_evento, alvo) {
-      const { aba, dimensao, valor } = alvo.dataset;
-      const filtros = this.#filtros[aba];
-      filtros[dimensao] = filtros[dimensao] === valor ? "" : valor;
-      this.#aplicarFiltros(aba);
+      alternarChip(this.#filtros[alvo.dataset.aba], alvo);
+      this.#aplicarFiltros(alvo.dataset.aba);
     }
 
     static #limparFiltrosAcao(_evento, alvo) {
@@ -1056,13 +970,6 @@ function alternarNaLista(chave, uuid) {
   gravarLista(chave, lista);
   return ligado;
 }
-
-/** As abordagens de um desafio, na ordem das tags do card e do seletor de filtro. */
-const ROTULOS_ABORDAGEM = {
-  arrombar: "OP2.Desafio.Arrombar", destrancar: "OP2.Desafio.Destrancar",
-  hackTecnico: "OP2.Desafio.HackTecnico", hackSocial: "OP2.Desafio.HackSocial",
-  sustentar: "OP2.Desafio.Sustentar",
-};
 
 /** @returns {Record<string, boolean>} seção → aberta. Sem registro, fechada. */
 function lerSecoes() {

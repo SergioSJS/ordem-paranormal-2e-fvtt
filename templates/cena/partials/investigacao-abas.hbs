@@ -217,9 +217,9 @@
         <i class="fa-solid fa-expand" aria-hidden="true"></i>
       </button>
     </div>
-    {{!-- Trinta pontos pedem mais que a busca: chips por visibilidade, progresso e
-          marcador, a perícia do quadro e a ordem (achado em uso real). --}}
-    {{#if ehGM}}{{> (op2Caminho "cena/partials/painel-filtros") filtros.pontos}}{{/if}}
+    {{!-- Trinta pontos pedem mais que a busca: chips por visibilidade (mestre),
+          progresso e marcador, a perícia do quadro e a ordem (achado em uso real). --}}
+    {{> (op2Caminho "cena/partials/painel-filtros") filtros.pontos}}
   </header>
   {{#unless pois.length}}
     <p class="op2-ajuda">{{localize "OP2.Painel.SemPOIs"}}</p>
@@ -392,7 +392,7 @@
         <i class="fa-solid fa-expand" aria-hidden="true"></i>
       </button>
     </div>
-    {{#if ehGM}}{{> (op2Caminho "cena/partials/painel-filtros") filtros.desafios}}{{/if}}
+    {{> (op2Caminho "cena/partials/painel-filtros") filtros.desafios}}
   </header>
   {{#unless desafios.length}}
     <p class="op2-ajuda">{{localize "OP2.Painel.SemDesafios"}}</p>

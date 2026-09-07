@@ -99,14 +99,19 @@
           ação "Investigar" (spec §6.3). Interagir vem primeiro: é agir sem teste, o
           mestre narra. --}}
     <section class="op2-acoes__aba tab {{tabs.pontos.cssClass}}" data-group="principal" data-tab="pontos">
-      <input type="search" class="op2-painel-filtro" data-filtro-acoes value="{{filtro}}"
-        placeholder="{{localize 'OP2.Acoes.Filtrar'}}" aria-label="{{localize 'OP2.Acoes.Filtrar'}}">
+      {{!-- A mesma barra de filtros do painel, na versão do jogador. --}}
+      <header class="op2-painel-secao__topo">
+        <input type="search" class="op2-painel-filtro" data-filtro-acoes data-filtro-termo="pontos" value="{{termos.pontos}}"
+          placeholder="{{localize 'OP2.Acoes.Filtrar'}}" aria-label="{{localize 'OP2.Acoes.Filtrar'}}">
+        {{> (op2Caminho "cena/partials/painel-filtros") filtros.pontos}}
+      </header>
       {{#unless pois.length}}
         <p class="op2-ajuda">{{localize "OP2.Acoes.SemPOIs"}}</p>
       {{/unless}}
       <ol class="op2-acoes__lista">
         {{#each pois}}
-          <li class="op2-acoes__linha" data-acao-card data-uuid="{{uuid}}" data-nome="{{nome}}">
+          <li class="op2-acoes__linha" data-acao-card data-uuid="{{uuid}}" data-nome="{{nome}}" data-indice="{{indice}}"
+            data-progresso="{{progresso}}" data-marcado="{{#if marcado}}1{{else}}0{{/if}}" data-pericias="{{pericias}}">
             <div class="op2-acoes__linha-topo">
               <img src="{{img}}" alt="">
               <strong>{{nome}}</strong>
@@ -144,14 +149,18 @@
 
     {{!-- Todos os desafios à vista, com o ponto a que pertencem como rótulo. --}}
     <section class="op2-acoes__aba tab {{tabs.desafios.cssClass}}" data-group="principal" data-tab="desafios">
-      <input type="search" class="op2-painel-filtro" data-filtro-acoes value="{{filtro}}"
-        placeholder="{{localize 'OP2.Acoes.Filtrar'}}" aria-label="{{localize 'OP2.Acoes.Filtrar'}}">
+      <header class="op2-painel-secao__topo">
+        <input type="search" class="op2-painel-filtro" data-filtro-acoes data-filtro-termo="desafios" value="{{termos.desafios}}"
+          placeholder="{{localize 'OP2.Acoes.Filtrar'}}" aria-label="{{localize 'OP2.Acoes.Filtrar'}}">
+        {{> (op2Caminho "cena/partials/painel-filtros") filtros.desafios}}
+      </header>
       {{#unless desafios.length}}
         <p class="op2-ajuda">{{localize "OP2.Acoes.SemDesafios"}}</p>
       {{/unless}}
       <ol class="op2-acoes__lista">
         {{#each desafios}}
-          <li class="op2-acoes__linha" data-acao-card data-uuid="{{uuid}}" data-nome="{{nome}}">
+          <li class="op2-acoes__linha" data-acao-card data-uuid="{{uuid}}" data-nome="{{nome}}" data-indice="{{indice}}"
+            data-progresso="{{progresso}}" data-marcado="{{#if marcado}}1{{else}}0{{/if}}" data-abordagens="{{abordagensChaves}}">
             {{> (op2Caminho "actor/partials/acoes-desafio")}}
           </li>
         {{/each}}

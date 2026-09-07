@@ -3601,6 +3601,49 @@ const relato = await page.evaluate(async (boasVindas) => {
     ok("ir para o card de um desafio desliga o filtro que o escondia",
       !el().querySelector(`[data-poi-card="${porta.uuid}"]`).hidden && !chip("desafios", "progresso", "resolvido").classList.contains("ativo"));
 
+    // O jogador tem a mesma barra nas duas janelas dele (painel e ações), sem o chip
+    // de visibilidade e sem "esgotado" — que entregaria que não há mais nada ali — e
+    // o seletor de perícia só lista o que ele já vê.
+    await game.user.update({ character: ator.id });
+    Object.defineProperty(game.user, "isGM", { value: false, configurable: true });
+    try {
+      await painel.render(true); await esperar(900);
+      painel.changeTab("pontos", "principal");
+      const chipsJogador = [...aba("pontos").querySelectorAll('[data-action="alternarChip"]')].map((c) => `${c.dataset.dimensao}:${c.dataset.valor}`);
+      const progressosNoDom = [...aba("pontos").querySelectorAll("[data-poi-card]")].map((c) => c.dataset.progresso);
+      const periciasJogador = [...seletor("pontos", "pericia").options].map((o) => o.value).filter(Boolean);
+      ok(`o jogador vê a barra sem visibilidade e sem "esgotado", nem no DOM (${chipsJogador.join(" ")} | ${progressosNoDom.join(",")})`,
+        !chipsJogador.some((c) => c.startsWith("visibilidade")) && chipsJogador.includes("progresso:andamento")
+        && !chipsJogador.includes("progresso:esgotado") && progressosNoDom.length === 2 && !progressosNoDom.includes("esgotado"));
+      ok(`o seletor de perícia do jogador só lista o que ele já vê (${periciasJogador.join(", ")})`, periciasJogador.join("|") === "percepcao");
+      chip("pontos", "progresso", "andamento").click(); await esperar(150);
+      ok(`"Com pistas" deixa só o ponto com linha à vista do jogador (${visiveis("pontos")})`, visiveis("pontos").join("|") === "Armário Esgotado");
+      chip("pontos", "progresso", "andamento").click();
+
+      const acoes = game.op2.acoesInvestigacao(ator); await esperar(1000);
+      const abaA = (nome) => acoes.element.querySelector(`.op2-acoes__aba[data-tab="${nome}"]`);
+      const visiveisA = (nome) => [...abaA(nome).querySelectorAll("[data-acao-card]")].filter((c) => !c.hidden).map((c) => c.dataset.nome);
+      const chipA = (nome, dimensao, valor) => abaA(nome).querySelector(`[data-action="alternarChip"][data-dimensao="${dimensao}"][data-valor="${valor}"]`);
+      ok("a janela de ações tem a barra nas duas abas, sem visibilidade",
+        chipA("pontos", "progresso", "andamento") && !chipA("pontos", "visibilidade", "ocultos") && chipA("desafios", "progresso", "pendente")
+        && abaA("pontos").querySelector('[data-filtro-seletor="pericia"]') && abaA("desafios").querySelector('[data-filtro-seletor="abordagem"]'));
+      chipA("pontos", "progresso", "intocado").click(); await esperar(150);
+      ok(`nas ações, Intocados é onde este personagem ainda não achou nada (${visiveisA("pontos")})`, visiveisA("pontos").join("|") === "Zebra Intocada");
+      chipA("pontos", "progresso", "intocado").click();
+      const periciasA = [...abaA("pontos").querySelector('[data-filtro-seletor="pericia"]').options].map((o) => o.value).filter(Boolean);
+      ok(`o seletor de perícia das ações também só lista o que ele já vê (${periciasA.join(", ")})`, periciasA.join("|") === "percepcao");
+      acoes.changeTab("desafios", "principal");
+      chipA("desafios", "progresso", "resolvido").click(); await esperar(150);
+      const contagemA = abaA("desafios").querySelector("[data-filtro-contagem]");
+      ok(`nas ações, Resolvidos não acha a porta pendente e a contagem diz (${contagemA?.textContent})`,
+        visiveisA("desafios").length === 0 && /0 de 1/.test(contagemA?.textContent ?? ""));
+      abaA("desafios").querySelector('[data-action="limparFiltros"]').click(); await esperar(150);
+      ok("limpar filtros nas ações devolve a porta", visiveisA("desafios").join("|") === "Zebra Intocada — Porta");
+      await acoes.close();
+    } finally {
+      Object.defineProperty(game.user, "isGM", { value: true, configurable: true });
+    }
+
     // Atalhos: I abre e fecha o painel; com o foco num campo, I é letra; Shift+I abre as ações.
     await painel.close(); await esperar(400);
     const noDom = () => Boolean(document.getElementById("op2-painel-investigacao"));
@@ -3883,9 +3926,10 @@ const relato = await page.evaluate(async (boasVindas) => {
         && (abaDesafios?.querySelector(".op2-acoes__ponto")?.textContent ?? "").includes("Depósito Z"));
       acoes.element.querySelector('[data-action="irParaDesafios"]')?.click();
       await esperar(300);
-      ok("o atalho do ponto leva à aba Desafios já filtrada por ele",
+      ok("o atalho do ponto leva à aba Desafios já filtrada por ele — e só ela",
         acoes.tabGroups.principal === "desafios"
-        && acoes.element.querySelector("[data-filtro-acoes]")?.value === "Depósito Z");
+        && acoes.element.querySelector('[data-filtro-termo="desafios"]')?.value === "Depósito Z"
+        && acoes.element.querySelector('[data-filtro-termo="pontos"]')?.value === "");
       await acoes.close();
       await game.op2.removerPoi(inv, deposito.uuid);
       await game.op2.removerDesafio(inv, portaZ.uuid);
