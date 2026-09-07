@@ -56,7 +56,7 @@ Nunca aponte para o seu User Data de trabalho: use um separado.
 > deixe o Playwright esperar pelo seletor.
 
 ```bash
-FVTT_APP="/Applications/Foundry Virtual Tabletop.app/Contents/Resources/app"
+FVTT_APP="/Applications/Foundry Virtual Tabletop-14.app/Contents/Resources/app"   # o app do v14, renomeado para conviver com o v13
 DATA=/tmp/fvtt-e2e
 NODE24="$HOME/.nvm/versions/node/v24.20.0/bin/node"
 
@@ -128,5 +128,20 @@ OP2_E2E_DATA="$DATA" node scripts/e2e/verificar.mjs http://localhost:30099 /tmp
 
 ## Testando no v13
 
-Mesmo procedimento, com a build v13 e um `dataPath` **próprio**. Nunca abra o mesmo
-mundo nas duas versões: a migração do v14 é irreversível.
+Mesmo procedimento, com a build v13 (`/Applications/Foundry Virtual Tabletop-13.app`,
+entrada `main.js`, não `main.mjs`), um `dataPath` **próprio** e outra porta:
+
+```bash
+DATA13=/tmp/fvtt-e2e-v13
+mkdir -p "$DATA13/Data/systems" "$DATA13/Config" "$DATA13/Data/worlds/op2-teste"
+cp "$HOME/Library/Application Support/FoundryVTT/Config/license.json" "$DATA13/Config/"
+ln -sfn "$PWD" "$DATA13/Data/systems/ordem-paranormal-2e"   # ou uma cópia, com o app aberto
+cat > "$DATA13/Data/worlds/op2-teste/world.json" <<'JSON'
+{ "id": "op2-teste", "title": "OP2 Teste v13", "system": "ordem-paranormal-2e",
+  "coreVersion": "13.351", "systemVersion": "0.9.0" }
+JSON
+(cd "/Applications/Foundry Virtual Tabletop-13.app/Contents/Resources/app" && "$NODE24" main.js --dataPath="$DATA13" --port=30013 --headless --noupnp --world=op2-teste) &
+OP2_E2E_DATA="$DATA13" node scripts/e2e/verificar.mjs http://localhost:30013 /tmp/fvtt-e2e-v13
+```
+
+Nunca abra o mesmo mundo nas duas versões: a migração do v14 é irreversível.

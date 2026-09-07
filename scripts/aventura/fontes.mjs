@@ -47,7 +47,11 @@ export function comNivel(cena) {
     fog: { src: fog?.overlay ?? null },
     ...(Object.keys(texturas).length ? { textures: texturas } : {}),
   };
-  const { overlay: _o, ...fogSemOverlay } = fog ?? {};
+  // O v13 não conhece `levels` e lê o fundo pelos campos legados; o v14 lê o nível e
+  // descarta o legado (`BaseScene.shimData`). Os dois juntos, e o mesmo bundle serve às
+  // duas versões — `minimum: 13` no manifesto.
+  const legado = { background, ...(foreground !== undefined ? { foreground } : {}),
+    ...(foregroundElevation !== undefined ? { foregroundElevation } : {}), ...(backgroundColor ? { backgroundColor } : {}) };
   // Parede (luz, som…) presa a um nível que não existe na cena não aparece. As fontes
   // vêm do mundo de quem capturou, onde o nível era outro (`defaultLevel0000`): toda
   // referência a nível passa a ser este — o único — e a sem nível continua sem
@@ -56,7 +60,7 @@ export function comNivel(cena) {
     ? { ...d, levels: d.levels.length ? [nivel._id] : [] } : d));
   const embutidos = Object.fromEntries(["walls", "lights", "sounds", "tiles", "drawings", "regions", "templates", "notes", "tokens"]
     .filter((c) => Array.isArray(resto[c])).map((c) => [c, noNivel(resto[c])]));
-  return { ...resto, ...embutidos, ...(fog ? { fog: fogSemOverlay } : {}), levels: [nivel] };
+  return { ...resto, ...legado, ...embutidos, ...(fog ? { fog } : {}), levels: [nivel] };
 }
 
 /** Remonta a cena: a fonte guarda arrays de id e os documentos embutidos em arquivos à parte. */

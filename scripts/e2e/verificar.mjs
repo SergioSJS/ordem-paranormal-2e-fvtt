@@ -110,7 +110,10 @@ await page.waitForFunction(() => globalThis.game?.ready === true, null, { timeou
 const boasVindas = await page.evaluate(async () => {
   await game.settings.set("ordem-paranormal-2e", "boasVindas", true);
   const app = game.op2.boasVindas();
-  await new Promise((r) => setTimeout(r, 1500));
+  // Esperar o render, não um tempo fixo: no v13 a primeira abertura compila os
+  // templates e passava de 1,5 s (achado no e2e do v13).
+  await app.render({ force: true });
+  for (let i = 0; i < 100 && !app.element?.querySelector("[data-mostrar-ao-entrar]"); i += 1) await new Promise((r) => setTimeout(r, 200));
   const el = app.element;
   const r = {
     abriu: Boolean(el?.isConnected),
@@ -589,8 +592,11 @@ const relato = await page.evaluate(async (boasVindas) => {
       }]);
       // O canvas desenha o token depois do documento existir; num mundo cheio isso
       // passa de 700 ms.
-      for (let i = 0; i < 50 && !canvas.tokens.get(token.id); i += 1) await esperar(200);
-      ok("o token novo desenhou no canvas", Boolean(canvas.tokens.get(token.id)));
+      // Desenhado de verdade (as setas de alvo existem), não só na coleção: mirar num
+      // token cujo `_draw` ainda não terminou dava `targetArrows.clear` de undefined no
+      // tick da animação (achado no e2e do v13).
+      for (let i = 0; i < 50 && !canvas.tokens.get(token.id)?.targetArrows; i += 1) await esperar(200);
+      ok("o token novo desenhou no canvas", Boolean(canvas.tokens.get(token.id)?.targetArrows));
       if (!canvas.tokens.get(token.id)) throw new Error("token não desenhou no canvas: atacar abriria o diálogo de alvo e a suíte travaria");
       canvas.tokens.get(token.id).setTarget(true, { releaseOthers: true });
       await esperar(400);
@@ -918,8 +924,9 @@ const relato = await page.evaluate(async (boasVindas) => {
       // No v14 o fundo vira documento de nível na carga; se ele não chegar, a cena
       // importa em branco — foi o que aconteceu com o fundo escrito como nível no
       // compêndio, que o Foundry ignora (achado em uso real).
+      // v14: o fundo mora no nível; v13: no `background` da cena (o bundle traz os dois).
       ok("o mapa chega até a cena importada",
-        importada.levels.contents[0]?.background?.src?.includes("completo") === true);
+        (importada.levels?.contents?.[0]?.background?.src ?? importada.background?.src)?.includes("completo") === true);
 
       // Uma casa de tolerância: parede desenhada na mão encosta um pouco fora da borda.
       const tolerancia = importada.grid.size;
@@ -1396,8 +1403,9 @@ const relato = await page.evaluate(async (boasVindas) => {
       && nota.text === poi.name && nota.x === 700);
     // Sem autor: com um mestre como autor, a regra do core esconde a nota de todo
     // jogador e o marcador nunca acenderia (é o que essa linha protege).
+    // No v13 a nota nem tem `author`; no v14 tem, e precisa ser nulo.
     ok("a nota nasce sem autor, senão o core a esconderia de todo jogador",
-      nota._source.author === null && nota.global === true);
+      (nota._source.author ?? null) === null && nota.global === true);
 
     await game.op2.marcarNoMapa(poi.uuid, { x: 900, y: 600, cena });
     ok("marcar de novo move o marcador, não duplica",
@@ -2910,7 +2918,7 @@ const relato = await page.evaluate(async (boasVindas) => {
       // A fonte capturada do mundo vem sem `levels` (vale para todos os níveis); o que
       // não pode é referência a nível que a cena não tem.
       ok("nenhuma parede da cena montada aponta para nível que a cena não tem",
-        niveisMontados.size === 1 && cenaMontada.walls.every((w) => noNivel(w).every((id) => niveisMontados.has(id))));
+        niveisMontados.size <= 1 && [...cenaMontada.walls].every((w) => noNivel(w).every((id) => niveisMontados.has(id))));
       const pontos = [...aventura.items].filter((i) => i.type === "ponto-interesse");
       const linhas = pontos.flatMap((p) => p.system.informacoes);
       ok("31 pontos com 87 linhas de quadro, todas com perícia e DT",
@@ -3028,15 +3036,15 @@ const relato = await page.evaluate(async (boasVindas) => {
         // nível por baixo do canvas e o Foundry quebrava em SceneLevel#isVisible.
         const pack = game.packs.get("world.op2-aventuras");
         const doc = await pack.getDocument([...pack.index].find((x) => x.name === "Ato I — O Porão")._id);
-        const nivelAntes = [...cena.levels].map((l) => l.id).join();
+        const nivelAntes = [...(cena.levels ?? [])].map((l) => l.id).join();
         const modificadaAntes = cena._stats.modifiedTime;
         await doc.import({ dialog: false }); // o hook devolve false e importa pelo caminho dos extras
         for (let i = 0; i < 150 && cena._stats.modifiedTime === modificadaAntes; i += 1) await esperar(200);
         await esperar(1000);
         ok("reimportar o Ato I com a cena aberta mantém o nível da cena e as 39 paredes no mapa",
-          cena._stats.modifiedTime !== modificadaAntes && [...cena.levels].map((l) => l.id).join() === nivelAntes
+          cena._stats.modifiedTime !== modificadaAntes && [...(cena.levels ?? [])].map((l) => l.id).join() === nivelAntes
           && canvas.scene?.id === cena.id && canvas.walls.placeables.length === 39
-          && cena.walls.every((w) => [...(w.levels ?? [])].every((id) => cena.levels.has(id))));
+          && [...cena.walls].every((w) => [...(w.levels ?? [])].every((id) => cena.levels?.has(id) ?? false)));
       }
       // As artes: tudo aponta para a pasta do mundo, nada para o sistema.
       const alan = pregerados.find((a) => a.name === "Alan");
@@ -3049,10 +3057,10 @@ const relato = await page.evaluate(async (boasVindas) => {
       const paginasComImagem = diarios.flatMap((j) => j.pages.contents.filter((p) => p.src));
       ok("os handouts e os históricos apontam para o zip enviado, e a trilha também",
         paginasComImagem.length === 23 && paginasComImagem.every((p) => p.src.startsWith(`${raiz}/`))
-        && trilha.sounds.every((x) => x.path.startsWith(`${raiz}/musicas/`)));
+        && [...trilha.sounds].every((x) => x.path.startsWith(`${raiz}/musicas/`)));
       // Cada arquivo que o mundo aponta tem que estar lá de verdade — o zip subiu 36.
       const arquivos = new Set([alan?.img, alan?.prototypeToken.texture.src,
-        cena?._source.levels?.[0]?.background?.src, ...paginasComImagem.map((p) => p.src), ...trilha.sounds.map((x) => x.path)]);
+        cena?._source.levels?.[0]?.background?.src ?? cena?._source.background?.src, ...paginasComImagem.map((p) => p.src), ...trilha.sounds.map((x) => x.path)]);
       const respostas = await Promise.all([...arquivos].map(async (c) => [c, (await fetch(`/${c}`, { method: "HEAD" }).catch(() => null))?.ok]));
       ok("e o Foundry serve todos eles", respostas.every(([, okay]) => okay));
       ok("os pontos que citam handout trazem a imagem da pasta do mundo na descrição do mestre",
@@ -3097,14 +3105,14 @@ const relato = await page.evaluate(async (boasVindas) => {
           marcadores.length === fontesAtoI.posicoes.marcadores.length && alvos.every((d) => d && !d.pack && doAtoI(d)));
         ok("e com os tokens dos pré-gerados, vinculados aos atores importados",
           cena.tokens.size === fontesAtoI.posicoes.tokens.length
-          && cena.tokens.every((t) => t.actorLink && pregerados.some((a) => a.id === t.actorId)));
+          && [...cena.tokens].every((t) => t.actorLink && pregerados.some((a) => a.id === t.actorId)));
       }
       // O que o mestre configurou na cena dele e voltou para o pacote (`npm run ato-i:cena`):
       // luzes, grade e escuridão. Cada luz no nível da cena, como as paredes.
       if (fontesAtoI.cena?.lights?.length) {
         ok(`a cena chega com as ${fontesAtoI.cena.lights.length} luzes capturadas, no nível da cena, com a grade e a escuridão do mundo de origem`,
           cena.lights.size === fontesAtoI.cena.lights.length
-          && cena.lights.every((l) => [...(l.levels ?? [])].every((id) => cena.levels.has(id)))
+          && [...cena.lights].every((l) => [...(l.levels ?? [])].every((id) => cena.levels?.has(id) ?? false))
           && cena.grid.type === fontesAtoI.cena.grid.type && cena.environment.darknessLevel === fontesAtoI.cena.environment.darknessLevel);
       }
       const links = [...investigacao.system.pois, ...investigacao.system.desafios, ...investigacao.system.participantes];
@@ -3227,7 +3235,7 @@ const relato = await page.evaluate(async (boasVindas) => {
       r.cena = cena._source.background.src === `${raiz}/mapas/mapa-01-o-porao.jpg`
         && cena.width === 3537 && cena.height === 4101 && cena.walls.size === 39
         && cena.walls.filter((w) => w.door).length === 6
-        && cena.walls.every((w) => [...(w.levels ?? [])].every((id) => niveisII.has(id)));
+        && [...cena.walls].every((w) => [...(w.levels ?? [])].every((id) => niveisII.has(id)));
       // Luzes, grade, escuridão e marcadores do Ato I viajam para o Ato II pela mesma
       // transformação das paredes; os marcadores casam pelo nome do ponto do Ato II.
       const fontesAtoII = await (await fetch("systems/ordem-paranormal-2e/assets/aventura/fontes-ato-ii.json")).json();
@@ -3237,12 +3245,12 @@ const relato = await page.evaluate(async (boasVindas) => {
       const marcadoresII = cena.notes.filter((n) => n.getFlag("ordem-paranormal-2e", "marcador"));
       const alvosII = await Promise.all(marcadoresII.map((n) => fromUuid(n.getFlag("ordem-paranormal-2e", "marcador"))));
       r.transportado = !fontesAtoII.cena?.lights?.length || (cena.lights.size === fontesAtoII.cena.lights.length
-        && cena.lights.every((l) => [...(l.levels ?? [])].every((id) => niveisII.has(id)))
+        && [...cena.lights].every((l) => [...(l.levels ?? [])].every((id) => niveisII.has(id)))
         && cena.grid.type === fontesAtoII.cena.grid.type && cena.environment.darknessLevel === fontesAtoII.cena.environment.darknessLevel);
       r.marcadoresII = !esperados || (marcadoresII.length === esperados && alvosII.every((d) => d && !d.pack && doAtoII(d)) && cena.tokens.size === 0);
       r.contagemII = `${cena.lights.size} luzes, ${marcadoresII.length} marcadores (${esperados} esperados)`;
       const trilha = game.playlists.getName("Ato II — Áudios EMF");
-      r.trilha = trilha.sounds.size === 3 && trilha.sounds.every((s) => s.path.startsWith(`${raiz}/musicas/audio-emf-`));
+      r.trilha = trilha.sounds.size === 3 && [...trilha.sounds].every((s) => s.path.startsWith(`${raiz}/musicas/audio-emf-`));
       const handouts = game.journal.getName("Handouts — Ato II");
       r.handouts = handouts.pages.size === 7
         && handouts.pages.filter((p) => p.type === "image").every((p) => p.src.startsWith(`${raiz}/handouts/`))
@@ -3357,8 +3365,11 @@ const relato = await page.evaluate(async (boasVindas) => {
     // Segunda importação, com os arquivos já no lugar: nada de pedir o zip de novo.
     await limparAtoII();
     const segunda = await page.evaluate(async () => {
-      const pack = game.packs.get("ordem-paranormal-2e.ato-ii-aventura");
-      const aventura = await pack.getDocument([...pack.index][0]._id);
+      // No release (e no v13, que não migra os packs gerados pelo v14) o pack de
+      // desenvolvimento não existe: o do mundo, montado do PDF, é o mesmo Ato II.
+      const pack = game.packs.get("ordem-paranormal-2e.ato-ii-aventura") ?? game.packs.get("world.op2-aventuras");
+      const entrada = [...pack.index].find((x) => x.name === "Ato II — O Porão") ?? [...pack.index][0];
+      const aventura = await pack.getDocument(entrada._id);
       await aventura.import({ dialog: false });
       await new Promise((res) => setTimeout(res, 3000));
       return { dialogo: Boolean(document.querySelector(".op2-extras")), amanda: Boolean(game.actors.getName("Amanda")) };

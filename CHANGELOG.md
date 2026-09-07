@@ -5,6 +5,11 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+## [0.9.0] — 2026-09-06
+
+Candidata à v1: tudo que a jogatina do Ato I e a revisão das mecânicas do Ato II vão
+exercitar. Roda no v13 (13.351) e no v14 (14.363), os dois cobertos pelo e2e.
+
 ### Adicionado
 
 - **Ficha, motor de dados e testes.** Escada d4→d12, dois dados somados, RA/RB,

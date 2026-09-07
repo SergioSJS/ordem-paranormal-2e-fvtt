@@ -50,3 +50,9 @@ packs/ato-ii-aventura/
 
 # Cache do Python dos scripts de extração
 __pycache__/
+
+# Compêndios compilados: LevelDB que o Foundry carimba com a versão do core ao abrir
+# (`_stats.coreVersion`) — versionado, quebrava o v13 com "core version newer". O release
+# compila do zero (`npm run pack:build`); localmente, rode o mesmo depois de clonar.
+packs/*/
+!packs/sources/

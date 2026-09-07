@@ -376,7 +376,9 @@ https://github.com/mclemente/fvtt-ptbr-core-translation/releases/latest/download
 A maior quebra entre as versões é o formato dos Active Effects. Este sistema não usa
 Active Effects: a escada de dados não é representável pelo modo aditivo do core, então
 os passos são resolvidos em `prepareDerivedData()`. Isso deixa o mesmo código rodando
-nas duas versões sem camada de adaptação.
+nas duas versões sem camada de adaptação. O e2e roda nas duas (13.351 e 14.363); o que
+difere — o fundo da cena em níveis no v14, `Note.author`, `Collection#every` — tem
+guarda dos dois lados.
 
 ## Instalação
 

@@ -2,7 +2,7 @@
   "id": "ordem-paranormal-2e",
   "title": "Ordem Paranormal 2 — Playtest (Não-Oficial)",
   "description": "Sistema não-oficial para Foundry VTT do playtest alpha de Ordem Paranormal RPG 2. Dados em escada (d4→d12), testes com Rolagem Alta/Baixa, cenas de investigação e ferramentas da Ordo Realitas. Monta as aventuras do playtest (Ato I e Ato II) a partir do PDF que o mestre já tem: o texto é lido no navegador e vira cena, pré-gerados, handouts, pontos de interesse, desafios e roteiro — nenhum texto nem arte do livro vem no pacote; as artes entram pelos zips da editora, pedidos na importação. Feito por fã, sem afiliação com os detentores dos direitos de Ordem Paranormal RPG; o conteúdo do livro pertence a eles. Contém material gerado por inteligência artificial: o código é escrito com auxílio de IA e mantido pelo autor; os textos são do autor.",
-  "version": "0.0.1",
+  "version": "0.9.0",
   "socket": true,
   "compatibility": {
     "minimum": "13",

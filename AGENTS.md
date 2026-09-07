@@ -39,8 +39,9 @@ dentro da aventura. O selo da licença (`assets/licenca/`) é o único arquivo d
 no pacote. Pronto para a rodada de teste manual que fecha a v1.
 **Versão:** 0.0.1 (a v1 é decisão de release).
 **Próximo:** o que o playtest ainda não publicou (NEX, progressão, traumas
-permanentes). Validação em v13 **adiada por decisão do projeto** — o sistema declara
-`minimum: 13`, mas só o v14 foi exercitado.
+permanentes). **v13 e v14 exercitados pelo e2e** (13.351: 532 verificações; 14.363:
+570) — o bundle da cena leva os dois formatos de fundo, e o que só existe no v14 (níveis,
+`Collection#every`, `Note.author`) é tratado com guarda dos dois lados.
 
 ## Convenções
 
@@ -119,7 +120,7 @@ npm install
 npm run setup        # symlink -> ~/Library/Application Support/FoundryVTT/Data/systems/
 npm run watch:css    # sass em watch
 npm run check        # lint + testes + build do CSS — rode antes de commitar
-npm run pack:build   # compila os compêndios de packs/sources/
+npm run pack:build   # compila os compêndios de packs/sources/ (não versionados: rode depois de clonar)
 npm run ato-i:gerar-cena  # deriva as paredes do Porão comparando os três mapas
 npm run ato-i:cena   # traz a cena do seu mundo de volta para packs/sources/
 node scripts/extrator/rodar.mjs <pdf> [gabarito] --texto --completo  # extrai os dois atos para build/js/
@@ -150,11 +151,15 @@ tema do usuário — não dá nada por validado só porque o preview está bonit
 O sistema declara `minimum: 13, verified: 14`. Toda mudança que toca API do Foundry
 precisa passar nas duas.
 
-- **v14** — instalação em `/Applications`, User Data em `~/Library/Application Support/FoundryVTT`.
-- **v13** — instalação separada, User Data próprio:
-  ```bash
-  FOUNDRY_DATA="$HOME/FoundryV13/Data" npm run setup
-  ```
+- **v14** — `/Applications/Foundry Virtual Tabletop-14.app`, User Data em
+  `~/Library/Application Support/FoundryVTT`.
+- **v13** — `/Applications/Foundry Virtual Tabletop-13.app` (entrada `main.js`), User Data
+  próprio. Para o e2e, `scripts/e2e/README.md` (porta 30013, `/tmp/fvtt-e2e-v13`). Para
+  desenvolver nele, instale pelo manifesto da release em vez de symlinkar: dois Foundry
+  no mesmo `packs/` disputam o LevelDB.
+- O que quebrou no v13 e agora tem teste: `Playlist.fade` precisa ser positivo, a cena
+  lê o fundo por `background` (não `levels`), `Collection` não tem `every`, `Note` não
+  tem `author`, packs compilados por um v14 não abrem ("core version newer").
 
 **Nunca abra o mesmo mundo nas duas versões.** A migração do v14 é irreversível: um mundo
 aberto no v14 não volta para o v13. Mantenha mundos de teste separados.

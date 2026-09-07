@@ -163,13 +163,13 @@ export function montarAtoII(dados, fontes, { avisos = [] } = {}) {
     _id: ident("playlist-ato-ii-emf"),
     name: "Ato II — Áudios EMF",
     description: "<p>Os três padrões de bipes do Medidor EMF. Toque o que o ponto de interesse indicar; o jogador compara com as formas de onda do Compêndio.</p>",
-    mode: 0, playing: false, fade: 0, channel: "environment",
+    mode: 0, playing: false, fade: 2000, channel: "environment",
     sounds: [1, 2, 3].map((n) => ({
       _id: ident(`som-emf-${n}`),
       name: `Áudio EMF ${n}`,
       description: "",
       path: caminho(`musicas/audio-emf-${n}.mp3`),
-      channel: "environment", playing: false, repeat: false, volume: 0.8, fade: 0, sort: n * 100, flags: {},
+      channel: "environment", playing: false, repeat: false, volume: 0.8, fade: 2000, sort: n * 100, flags: {},
     })),
     folder: null, sort: 0, ownership: { default: 0 }, flags: {},
   };

@@ -352,7 +352,8 @@ export function registrarExtrasDeAventura() {
       let ajustes = { niveis: 0, referencias: 0 };
       for (const cena of toUpdate?.Scene ?? []) {
         const existente = game.scenes.get(cena._id);
-        const r = alinharNiveis(cena, existente ? [...existente.levels].map((n) => n.id) : []);
+        // No v13 a cena não tem níveis: nada a alinhar além das referências soltas.
+        const r = alinharNiveis(cena, existente?.levels ? [...existente.levels].map((n) => n.id) : []);
         ajustes = { niveis: ajustes.niveis + r.niveis, referencias: ajustes.referencias + r.referencias };
       }
       for (const cena of toCreate?.Scene ?? []) {
