@@ -86,6 +86,13 @@ export function abrirBoasVindasSeConfigurado() {
 
 /** O menu de configurações: "Sobre e licença" abre a mesma janela, para qualquer um. */
 export function registrarBoasVindas() {
+  // A janela de aventuras montou ou importou um ato: toda tela de boas-vindas aberta
+  // (a de entrada ou a do menu) se refaz, em vez de mostrar o estado de quando abriu.
+  Hooks.on("op2.aventurasMudaram", () => {
+    for (const app of foundry.applications.instances.values()) {
+      if (app instanceof BoasVindasApp && app.rendered) app.render();
+    }
+  });
   game.settings.registerMenu(SYSTEM_ID, "sobre", {
     name: "OP2.BoasVindas.MenuNome",
     label: "OP2.BoasVindas.MenuBotao",

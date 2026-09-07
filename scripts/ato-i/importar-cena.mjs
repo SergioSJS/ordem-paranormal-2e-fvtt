@@ -134,8 +134,11 @@ function escrever({ id, cena, embutidos }, anterior) {
     if (!docs.length) { delete limpa[colecao]; continue; }
     limpa[colecao] = docs.map((d) => d._id);
     for (const doc of docs) {
+      // Sem `levels`: é o id do nível do SEU mundo, e presa a um nível que não existe a
+      // parede some. Quem monta a cena (`comNivel`) liga tudo ao nível que cria.
+      const { levels: _nivelDoMundo, ...semNivel } = doc;
       arquivos.push([`porao-${colecao}-${doc._id}.json`,
-        { ...doc, _key: `!scenes.${colecao}!${idDaCena}.${doc._id}` }]);
+        { ...semNivel, _key: `!scenes.${colecao}!${idDaCena}.${doc._id}` }]);
     }
   }
   arquivos.unshift(["porao.json", limpa]);

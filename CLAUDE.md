@@ -102,6 +102,12 @@ permanentes). Validação em v13 **adiada por decisão do projeto** — o sistem
   `scripts/ato-*` e `scripts/extrator/` escrevem em `build/` e em
   `packs/sources/ato-*-aventura/`, que o `.gitignore` mantém fora — e o release tira
   do manifesto os packs sem banco.
+- **Documento embutido preso a nível que a cena não tem some do mapa.** No v14 parede,
+  luz, som, nota e token levam `levels: [id]`; a cena capturada do mundo de alguém vem
+  com o id do nível DELE (`defaultLevel0000`), e a cena montada do pacote cria o nível
+  com outro id — 36 das 39 paredes do Porão ficaram invisíveis. `comNivel()`
+  (`scripts/aventura/fontes.mjs`) religa tudo ao nível que cria, e `importar-cena.mjs`
+  nem grava `levels`. O e2e confere as paredes desenhadas no canvas, não só contadas.
 - Commits: Conventional Commits, em português.
 - Nunca commitar direto na `main` — sempre feature branch.
 

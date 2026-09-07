@@ -85,6 +85,21 @@ JSON
 > com internet) e pede para reiniciar o servidor. O seu Foundry vai pedir o mesmo aceite
 > na próxima abertura.
 
+### Com o seu Foundry aberto
+
+O seu app segura o `LOCK` dos bancos de `packs/`; o descartável sobe **sem compêndio
+nenhum** e o e2e quebra em `game.packs.get(...)` — ou trava em lugares estranhos. Sem
+fechar o app, aponte o symlink para uma cópia do repositório (os LevelDB da cópia são
+outros arquivos):
+
+```bash
+rsync -a --delete --exclude node_modules --exclude .git --exclude "packs/*/LOCK" ./ /tmp/op2-sistema-copia/
+ln -sfn /tmp/op2-sistema-copia "$DATA/Data/systems/ordem-paranormal-2e"
+```
+
+Refaça o `rsync` a cada mudança no código antes de rodar. Para voltar ao normal:
+`ln -sfn "$PWD" "$DATA/Data/systems/ordem-paranormal-2e"`.
+
 ## Rodando
 
 ```bash

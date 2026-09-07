@@ -109,6 +109,9 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
       });
       this.#dizer(game.i18n.localize("OP2.Aventuras.Montando"));
       this.#estado = { lendo: false, progresso: "", resultados: await montarEGuardar(linhas) };
+      // Quem mais mostra o estado das aventuras (a tela de boas-vindas, aberta atrás)
+      // se refaz — senão fica com o que viu ao entrar no mundo.
+      Hooks.callAll("op2.aventurasMudaram");
     } catch (erro) {
       console.error(`${SYSTEM_ID} | aventuras`, erro);
       ui.notifications.error(game.i18n.localize("OP2.Aventuras.ErroLeitura"));
@@ -131,6 +134,7 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
     // aviso de sobrescrita do core só aparece quando há o que sobrescrever.
     await aventura.import({ dialog: false });
     ui.notifications.info(game.i18n.format("OP2.Aventuras.Importado", { nome: aventura.name }));
+    Hooks.callAll("op2.aventurasMudaram");
     await this.render();
   }
 

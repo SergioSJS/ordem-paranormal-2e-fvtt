@@ -48,7 +48,15 @@ export function comNivel(cena) {
     ...(Object.keys(texturas).length ? { textures: texturas } : {}),
   };
   const { overlay: _o, ...fogSemOverlay } = fog ?? {};
-  return { ...resto, ...(fog ? { fog: fogSemOverlay } : {}), levels: [nivel] };
+  // Parede (luz, som…) presa a um nível que não existe na cena não aparece. As fontes
+  // vêm do mundo de quem capturou, onde o nível era outro (`defaultLevel0000`): toda
+  // referência a nível passa a ser este — o único — e a sem nível continua sem
+  // (achado em uso real: 36 das 39 paredes do Porão invisíveis depois de importar).
+  const noNivel = (docs) => docs?.map((d) => (Array.isArray(d.levels)
+    ? { ...d, levels: d.levels.length ? [nivel._id] : [] } : d));
+  const embutidos = Object.fromEntries(["walls", "lights", "sounds", "tiles", "drawings", "regions", "templates", "notes", "tokens"]
+    .filter((c) => Array.isArray(resto[c])).map((c) => [c, noNivel(resto[c])]));
+  return { ...resto, ...embutidos, ...(fog ? { fog: fogSemOverlay } : {}), levels: [nivel] };
 }
 
 /** Remonta a cena: a fonte guarda arrays de id e os documentos embutidos em arquivos à parte. */

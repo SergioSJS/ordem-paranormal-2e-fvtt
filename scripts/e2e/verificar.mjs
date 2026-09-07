@@ -34,8 +34,24 @@ page.on("console", (m) => {
 const inicioDaSuite = Date.now();
 const sinalDeVida = setInterval(async () => {
   const limite = (promessa, rotulo) => Promise.race([promessa, new Promise((r) => setTimeout(() => r(`${rotulo} travado (página bloqueada em JS?)`), 10000))]);
-  const print = await limite(page.screenshot({ path: join(SAIDA, "e2e-andamento.png") }).then(() => "print ok")
+  let print = await limite(page.screenshot({ path: join(SAIDA, "e2e-andamento.png") }).then(() => "print ok")
     .catch((e) => `print falhou: ${e.message.split("\n")[0]}`), "print");
+  // Página presa em JS: o print não sai. O depurador interrompe o script que roda e
+  // devolve a pilha — é a única janela para dentro de um laço infinito.
+  if (/travado/.test(print)) {
+    try {
+      const cdp = await page.context().newCDPSession(page);
+      const pausa = new Promise((r) => cdp.once("Debugger.paused", (ev) => r(ev.callFrames.slice(0, 12)
+        .map((f) => `${f.functionName || "(anônima)"} @ ${f.url.replace(/^https?:\/\/[^/]+\//, "")}:${f.location.lineNumber + 1}`).join("  <  "))));
+      await cdp.send("Debugger.enable");
+      await cdp.send("Debugger.pause");
+      print += `; pilha: ${await limite(pausa, "pilha")}`;
+      await cdp.send("Debugger.resume").catch(() => {});
+      await cdp.detach().catch(() => {});
+    } catch (e) {
+      print += `; pilha indisponível (${e.message.split("\n")[0]})`;
+    }
+  }
   const janelas = await limite(page.evaluate(() => [...document.querySelectorAll(".application .window-title, .app .window-title")]
     .map((el) => el.textContent.trim()).filter(Boolean).slice(0, 6).join(", ") || "nenhuma").catch((e) => `erro: ${e.message.split("\n")[0]}`), "janelas");
   console.error(`[e2e ${Math.round((Date.now() - inicioDaSuite) / 1000)}s] ${print}; janelas: ${janelas}; console: ${ultimosLogs.slice(-3).join(" | ") || "nada"}`);
@@ -2817,6 +2833,13 @@ const relato = await page.evaluate(async (boasVindas) => {
     relato.passos.push([antes.importar === 0 && antes.estados.length === 2 && antes.estados.every((t) => /Falta o PDF/.test(t)),
       "sem PDF, a janela de aventuras só pede o PDF"]);
     relato.passos.push([antes.licenca === "https://ordemparanormal.com.br/licenca", "e leva o aviso e o link da Licença da Comunidade"]);
+    // A tela de boas-vindas fica aberta atrás, como no mundo do mestre: tem que se
+    // refazer quando os atos forem montados (achado em uso real: dizia "ainda não
+    // montado" para um ato que já estava no compêndio).
+    await page.evaluate(() => game.op2.boasVindas());
+    await page.waitForSelector("#op2-boas-vindas .op2-boas-vindas__estado", { timeout: 20000 });
+    const boasVindasAntes = await page.evaluate(() => [...document.querySelectorAll("#op2-boas-vindas .op2-boas-vindas__estado")].map((el) => el.textContent.trim()));
+    await page.evaluate(() => game.op2.aventuras());
 
     const t0 = Date.now();
     await page.setInputFiles("#op2-aventuras [data-pdf]", pdfPath);
@@ -2858,6 +2881,14 @@ const relato = await page.evaluate(async (boasVindas) => {
         : "a conferência do Ato II não acusa nada, e a janela volta a aceitar PDF"]);
     relato.passos.push([janela.botoesQuebrados.length === 0,
       `nenhum botão da janela quebra o texto em duas linhas${janela.botoesQuebrados.length ? ` (${janela.botoesQuebrados.join(", ")})` : ""}`]);
+    const boasVindasDepois = await page.evaluate(async () => {
+      const estados = [...document.querySelectorAll("#op2-boas-vindas .op2-boas-vindas__estado")].map((el) => el.textContent.trim());
+      for (const app of foundry.applications.instances.values()) if (app.id === "op2-boas-vindas") await app.close();
+      return estados;
+    });
+    relato.passos.push([boasVindasAntes.length === 2 && boasVindasAntes.every((t) => /ainda não montado/i.test(t))
+      && boasVindasDepois.length === (completo ? 2 : 2) && boasVindasDepois.filter((t) => /guardado neste mundo/i.test(t)).length === (completo ? 2 : 1),
+    `a tela de boas-vindas aberta atrás se refaz com os atos montados (${boasVindasAntes.join(" / ")} → ${boasVindasDepois.join(" / ")})`]);
 
     const noPack = await page.evaluate(async (completo) => {
       const passos = [];
@@ -2870,7 +2901,13 @@ const relato = await page.evaluate(async (boasVindas) => {
       ok("o Ato I montado traz cena, trilha, 4 diários, 6 atores e 45 itens",
         aventura.scenes.size === 1 && aventura.playlists.size === 1 && aventura.journal.size === 4
         && aventura.actors.size === 6 && aventura.items.size === 45);
-      ok("a cena vem com as paredes do compêndio do sistema", [...aventura.scenes][0].walls.size > 30);
+      const cenaMontada = [...aventura.scenes][0];
+      ok("a cena vem com as paredes do compêndio do sistema", cenaMontada.walls.size > 30);
+      // Parede presa a um nível que a cena não tem não aparece (achado em uso real: 36
+      // das 39 invisíveis, presas ao nível do mundo de quem capturou).
+      const niveisMontados = new Set([...(cenaMontada.levels ?? [])].map((l) => l._id ?? l.id));
+      ok("toda parede da cena montada está no nível da própria cena",
+        niveisMontados.size === 1 && cenaMontada.walls.every((w) => !w.levels?.length || w.levels.every((id) => niveisMontados.has(id))));
       const pontos = [...aventura.items].filter((i) => i.type === "ponto-interesse");
       const linhas = pontos.flatMap((p) => p.system.informacoes);
       ok("31 pontos com 87 linhas de quadro, todas com perícia e DT",
@@ -2976,6 +3013,15 @@ const relato = await page.evaluate(async (boasVindas) => {
       ok("importar pela janela cria a mesa do Ato I no mundo, nas pastas",
         pregerados.length === 5 && Boolean(cena) && desafios.length === 10 && diarios.length === 4 && Boolean(trilha)
         && investigacao?.system.pois.length === 31);
+      // No mapa de verdade: todas as paredes desenhadas, não só as sem nível.
+      {
+        const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+        await cena.view();
+        for (let i = 0; i < 300 && (!canvas.ready || canvas.scene?.id !== cena.id); i += 1) await esperar(200);
+        await esperar(500);
+        ok("a cena importada mostra todas as 39 paredes no mapa",
+          canvas.ready && canvas.scene?.id === cena.id && cena.walls.size === 39 && canvas.walls.placeables.length === 39);
+      }
       // As artes: tudo aponta para a pasta do mundo, nada para o sistema.
       const alan = pregerados.find((a) => a.name === "Alan");
       ok("os pré-gerados chegam com retrato e token na pasta do mundo",
@@ -3153,9 +3199,11 @@ const relato = await page.evaluate(async (boasVindas) => {
         && amanda.prototypeToken.texture.src === `${raiz}/tokens/token-amanda.png`
         && amanda.system.biografia.includes(`${raiz}/historicos/historico-amanda.jpg`);
       const cena = game.scenes.getName("O Porão — Ato II");
+      const niveisII = new Set([...(cena.levels ?? [])].map((l) => l._id ?? l.id));
       r.cena = cena._source.background.src === `${raiz}/mapas/mapa-01-o-porao.jpg`
         && cena.width === 3537 && cena.height === 4101 && cena.walls.size === 39
-        && cena.walls.filter((w) => w.door).length === 6;
+        && cena.walls.filter((w) => w.door).length === 6
+        && cena.walls.every((w) => !w.levels?.length || w.levels.every((id) => niveisII.has(id)));
       const trilha = game.playlists.getName("Ato II — Áudios EMF");
       r.trilha = trilha.sounds.size === 3 && trilha.sounds.every((s) => s.path.startsWith(`${raiz}/musicas/audio-emf-`));
       const handouts = game.journal.getName("Handouts — Ato II");
