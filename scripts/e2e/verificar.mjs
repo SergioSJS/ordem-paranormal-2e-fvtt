@@ -2907,9 +2907,10 @@ const relato = await page.evaluate(async (boasVindas) => {
       // das 39 invisíveis, presas ao nível do mundo de quem capturou).
       const niveisMontados = new Set([...(cenaMontada.levels ?? [])].map((l) => l._id ?? l.id));
       const noNivel = (w) => [...(w.levels ?? [])];
-      ok("toda parede da cena montada está no nível da própria cena, e 36 delas presas a ele",
-        niveisMontados.size === 1 && cenaMontada.walls.every((w) => noNivel(w).every((id) => niveisMontados.has(id)))
-        && cenaMontada.walls.filter((w) => noNivel(w).length).length === 36);
+      // A fonte capturada do mundo vem sem `levels` (vale para todos os níveis); o que
+      // não pode é referência a nível que a cena não tem.
+      ok("nenhuma parede da cena montada aponta para nível que a cena não tem",
+        niveisMontados.size === 1 && cenaMontada.walls.every((w) => noNivel(w).every((id) => niveisMontados.has(id))));
       const pontos = [...aventura.items].filter((i) => i.type === "ponto-interesse");
       const linhas = pontos.flatMap((p) => p.system.informacoes);
       ok("31 pontos com 87 linhas de quadro, todas com perícia e DT",
@@ -3098,6 +3099,14 @@ const relato = await page.evaluate(async (boasVindas) => {
           cena.tokens.size === fontesAtoI.posicoes.tokens.length
           && cena.tokens.every((t) => t.actorLink && pregerados.some((a) => a.id === t.actorId)));
       }
+      // O que o mestre configurou na cena dele e voltou para o pacote (`npm run ato-i:cena`):
+      // luzes, grade e escuridão. Cada luz no nível da cena, como as paredes.
+      if (fontesAtoI.cena?.lights?.length) {
+        ok(`a cena chega com as ${fontesAtoI.cena.lights.length} luzes capturadas, no nível da cena, com a grade e a escuridão do mundo de origem`,
+          cena.lights.size === fontesAtoI.cena.lights.length
+          && cena.lights.every((l) => [...(l.levels ?? [])].every((id) => cena.levels.has(id)))
+          && cena.grid.type === fontesAtoI.cena.grid.type && cena.environment.darknessLevel === fontesAtoI.cena.environment.darknessLevel);
+      }
       const links = [...investigacao.system.pois, ...investigacao.system.desafios, ...investigacao.system.participantes];
       const alvos = await Promise.all(links.map((uuid) => fromUuid(uuid)));
       ok("a investigação importada resolve pontos, desafios e participantes no mundo",
@@ -3218,8 +3227,20 @@ const relato = await page.evaluate(async (boasVindas) => {
       r.cena = cena._source.background.src === `${raiz}/mapas/mapa-01-o-porao.jpg`
         && cena.width === 3537 && cena.height === 4101 && cena.walls.size === 39
         && cena.walls.filter((w) => w.door).length === 6
-        && cena.walls.every((w) => [...(w.levels ?? [])].every((id) => niveisII.has(id)))
-        && cena.walls.filter((w) => [...(w.levels ?? [])].length).length === 36;
+        && cena.walls.every((w) => [...(w.levels ?? [])].every((id) => niveisII.has(id)));
+      // Luzes, grade, escuridão e marcadores do Ato I viajam para o Ato II pela mesma
+      // transformação das paredes; os marcadores casam pelo nome do ponto do Ato II.
+      const fontesAtoII = await (await fetch("systems/ordem-paranormal-2e/assets/aventura/fontes-ato-ii.json")).json();
+      const doAtoII = (d) => d.folder?.name === "Ato II — O Porão" || d.folder?.folder?.name === "Ato II — O Porão";
+      const nomesII = new Set(game.items.filter((i) => ["ponto-interesse", "desafio-acesso"].includes(i.type) && doAtoII(i)).map((i) => i.name));
+      const esperados = (fontesAtoII.posicoes?.marcadores ?? []).filter((m) => nomesII.has(m.nome)).length;
+      const marcadoresII = cena.notes.filter((n) => n.getFlag("ordem-paranormal-2e", "marcador"));
+      const alvosII = await Promise.all(marcadoresII.map((n) => fromUuid(n.getFlag("ordem-paranormal-2e", "marcador"))));
+      r.transportado = !fontesAtoII.cena?.lights?.length || (cena.lights.size === fontesAtoII.cena.lights.length
+        && cena.lights.every((l) => [...(l.levels ?? [])].every((id) => niveisII.has(id)))
+        && cena.grid.type === fontesAtoII.cena.grid.type && cena.environment.darknessLevel === fontesAtoII.cena.environment.darknessLevel);
+      r.marcadoresII = !esperados || (marcadoresII.length === esperados && alvosII.every((d) => d && !d.pack && doAtoII(d)) && cena.tokens.size === 0);
+      r.contagemII = `${cena.lights.size} luzes, ${marcadoresII.length} marcadores (${esperados} esperados)`;
       const trilha = game.playlists.getName("Ato II — Áudios EMF");
       r.trilha = trilha.sounds.size === 3 && trilha.sounds.every((s) => s.path.startsWith(`${raiz}/musicas/audio-emf-`));
       const handouts = game.journal.getName("Handouts — Ato II");
@@ -3317,6 +3338,8 @@ const relato = await page.evaluate(async (boasVindas) => {
 
     relato.passos.push([mundo.atorImg, "os agentes chegam ao mundo apontando para a pasta do mundo (retrato, token, histórico)"]);
     relato.passos.push([mundo.cena, "a cena do Ato II vem com o mapa do zip, 39 paredes e 6 portas"]);
+    relato.passos.push([mundo.transportado, "a cena do Ato II herda luzes, grade e escuridão da cena do Ato I, no nível da cena"]);
+    relato.passos.push([mundo.marcadoresII, `e os marcadores do Ato I casam pelo nome com os pontos do Ato II, sem tokens (${mundo.contagemII})`]);
     relato.passos.push([mundo.trilha, "a playlist dos áudios EMF aponta para os mp3 enviados"]);
     relato.passos.push([mundo.handouts, "o diário de handouts traz as imagens e o PDF do Compêndio da Ordem"]);
     relato.passos.push([mundo.freezer, "a leitura da Câmera no Freezer traz o handout, e a do EMF o link para a playlist"]);

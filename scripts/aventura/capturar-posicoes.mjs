@@ -60,10 +60,14 @@ try {
 
   // Marcadores: as notas que o sistema criou pelo painel (a flag guarda o uuid do ponto
   // no SEU mundo; o texto da nota é o nome do ponto, e é pelo nome que se casa).
+  // O id do Item também: os ids desta geração são estáveis (`ident`), então no mesmo ato
+  // o marcador casa pelo id — nomes se repetem entre os atos ("Depósito A" existe nos
+  // dois) e podem se repetir dentro de um. O nome fica para o outro ato e para quando
+  // a geração mudar de id.
   const marcadores = embutidos("notes")
     .filter((n) => n.flags?.["ordem-paranormal-2e"]?.marcador)
-    .map((n) => ({ nome: n.text, x: Math.round(n.x), y: Math.round(n.y) }))
-    .sort((a, b) => a.nome.localeCompare(b.nome));
+    .map((n) => ({ nome: n.text, id: String(n.flags["ordem-paranormal-2e"].marcador).replace(/^Item\./, ""), x: Math.round(n.x), y: Math.round(n.y) }))
+    .sort((a, b) => a.nome.localeCompare(b.nome) || a.x - b.x || a.y - b.y);
   // Tokens: pelo nome do token (o nome do pré-gerado). Elevação, rotação e escondido
   // também, para o começo da aventura sair como você deixou.
   const tokens = embutidos("tokens")

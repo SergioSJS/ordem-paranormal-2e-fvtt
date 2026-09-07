@@ -18,7 +18,7 @@
  * O fundo aponta para o prefixo `assets/ato-ii/`, que o importador troca pela pasta do
  * mundo quando o mestre entrega o zip da editora.
  */
-import { readFileSync, writeFileSync, readdirSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 
@@ -39,10 +39,20 @@ const paredesAtoI = readdirSync(ORIGEM)
   .map(ler)
   .sort((a, b) => a._id.localeCompare(b._id));
 
-const transformar = ([x1, y1, x2, y2]) => [
-  Math.round(x1 * ESCALA_X + DESLOCAMENTO_X), Math.round(y1 * ESCALA_Y),
-  Math.round(x2 * ESCALA_X + DESLOCAMENTO_X), Math.round(y2 * ESCALA_Y),
-];
+const ponto = (x, y) => [Math.round(x * ESCALA_X + DESLOCAMENTO_X), Math.round(y * ESCALA_Y)];
+const transformar = ([x1, y1, x2, y2]) => [...ponto(x1, y1), ...ponto(x2, y2)];
+
+// As luzes do Ato I (do mundo de quem as pôs, por `npm run ato-i:cena`) viajam pela
+// mesma transformação: mesmo porão, mesmos cantos. O raio fica em metros e a grade tem
+// o mesmo tamanho nos dois mapas, então só a posição muda.
+const luzes = readdirSync(ORIGEM)
+  .filter((a) => a.startsWith("porao-lights-"))
+  .map(ler)
+  .sort((a, b) => a._id.localeCompare(b._id))
+  .map(({ _key, _id, levels, x, y, ...resto }) => {
+    const [nx, ny] = ponto(x, y);
+    return { ...resto, x: nx, y: ny, _id: ident(`luz-ato-ii-${_id}`) };
+  });
 
 /**
  * As portas do Ato I, pelo lugar onde estão. Identificar pelo desenho, não pelo id:
@@ -69,7 +79,10 @@ const paredes = paredesAtoI.map((parede) => {
   return { ...semTexto, _id: ident(`parede-ato-ii-${_id}`) };
 });
 
-const { _key, walls, ...cena } = cenaAtoI;
+// Os embutidos da cena do Ato I são arrays de id de arquivos que só existem lá: fora.
+// O que fica — grade, escuridão, névoa, visão — é o que o mestre configurou no Ato I e
+// vale igual no Ato II.
+const { _key, walls, lights, sounds, tiles, drawings, regions, templates, ...cena } = cenaAtoI;
 const _id = ident("cena-ato-ii-porao");
 const cenaAtoII = {
   ...cena,
@@ -80,11 +93,29 @@ const cenaAtoII = {
   height: 4101,
   background: { ...cena.background, src: `${PREFIXO}/mapas/mapa-01-o-porao.jpg` },
   walls: paredes,
+  ...(luzes.length ? { lights: luzes } : {}),
 };
 
 mkdirSync(DESTINO, { recursive: true });
 writeFileSync(join(DESTINO, "porao.json"), `${JSON.stringify(cenaAtoII, null, 2)}\n`);
 
+// Os marcadores dos pontos, pelas posições capturadas no Ato I (`npm run posicoes`):
+// mesma transformação, e casam no Ato II pelo NOME do ponto — sem id (é de outra
+// geração) e sem tokens (os agentes do Ato II começam onde a mesa decidir).
+const posicoesAtoI = join(ORIGEM, "posicoes.json");
+let marcadores = 0;
+if (existsSync(posicoesAtoI)) {
+  const p = JSON.parse(readFileSync(posicoesAtoI, "utf8"));
+  const posicoesAtoII = {
+    cena: cenaAtoII.name,
+    ...(p.initial ? { initial: { ...p.initial, ...(() => { const [x, y] = ponto(p.initial.x, p.initial.y); return { x, y }; })() } } : {}),
+    marcadores: (p.marcadores ?? []).map(({ nome, x, y }) => { const [nx, ny] = ponto(x, y); return { nome, x: nx, y: ny }; }),
+    tokens: [],
+  };
+  marcadores = posicoesAtoII.marcadores.length;
+  writeFileSync(join(DESTINO, "posicoes.json"), `${JSON.stringify(posicoesAtoII, null, 2)}\n`);
+}
+
 const portas = paredes.filter((p) => p.door);
-console.log(`${cenaAtoII.name}: ${paredes.length} paredes (${portas.length} portas) → ${DESTINO}/porao.json`);
+console.log(`${cenaAtoII.name}: ${paredes.length} paredes (${portas.length} portas), ${luzes.length} luzes, ${marcadores} marcadores, grade tipo ${cenaAtoII.grid?.type} → ${DESTINO}/porao.json`);
 for (const p of portas) console.log(`  porta ${p.c.join(",")} tipo ${p.door} estado ${p.ds}`);

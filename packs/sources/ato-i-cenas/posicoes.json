@@ -1,0 +1,180 @@
+{
+  "cena": "O Porão — Ato I",
+  "marcadores": [
+    {
+      "nome": "“Altar” de Madeira",
+      "id": "92cd96fa3653648e",
+      "x": 1000,
+      "y": 1250
+    },
+    {
+      "nome": "Armário de Metal",
+      "id": "4b49fc49c7edf9ff",
+      "x": 645,
+      "y": 386
+    },
+    {
+      "nome": "Armário de Roupas",
+      "id": "5aa67767c586e626",
+      "x": 2300,
+      "y": 1350
+    },
+    {
+      "nome": "Celular de Gustavo [Evidência-chave]",
+      "id": "c27e5a16b49b6087",
+      "x": 941,
+      "y": 2287
+    },
+    {
+      "nome": "Computador [Evidência-chave]",
+      "id": "74939f792448185d",
+      "x": 2281,
+      "y": 373
+    },
+    {
+      "nome": "Depósito A",
+      "id": "23432f8e0d2a155a",
+      "x": 1699,
+      "y": 372
+    },
+    {
+      "nome": "Depósito A, Molho de Chaves",
+      "id": "5645a35a97889492",
+      "x": 1950,
+      "y": 550
+    },
+    {
+      "nome": "Depósito A, Painel Elétrico",
+      "id": "8435d8660039b49b",
+      "x": 2069,
+      "y": 302
+    },
+    {
+      "nome": "Depósito B",
+      "id": "23432e8e0d2a13a7",
+      "x": 1700,
+      "y": 800
+    },
+    {
+      "nome": "Depósito B, Rabiscos no Chão",
+      "id": "618214bc65103c3c",
+      "x": 1932,
+      "y": 1039
+    },
+    {
+      "nome": "Duto de Ventilação",
+      "id": "d57ec6443c8da1b4",
+      "x": 1150,
+      "y": 2400
+    },
+    {
+      "nome": "Estante de Livros",
+      "id": "7ddfecae85d2fcab",
+      "x": 2509,
+      "y": 2106
+    },
+    {
+      "nome": "Freezer",
+      "id": "c9f83713f4989918",
+      "x": 2907,
+      "y": 459
+    },
+    {
+      "nome": "Freezer, O Corpo",
+      "id": "57f5f12cbf1d8838",
+      "x": 2800,
+      "y": 350
+    },
+    {
+      "nome": "Grelha de Churrasco",
+      "id": "a07143dfd6c8538d",
+      "x": 3024,
+      "y": 942
+    },
+    {
+      "nome": "Mesa de Poker",
+      "id": "1a3def56b1981fcb",
+      "x": 2896,
+      "y": 1896
+    },
+    {
+      "nome": "Mesa de Sinuca",
+      "id": "29ff3db04e8fb45b",
+      "x": 2613,
+      "y": 874
+    },
+    {
+      "nome": "O Ídolo de Pedra",
+      "id": "d6ca567e8d6d0bad",
+      "x": 650,
+      "y": 300
+    },
+    {
+      "nome": "Porta de Saída",
+      "id": "de0b4e9c149d850f",
+      "x": 600,
+      "y": 2200
+    },
+    {
+      "nome": "Pôster: Eric Tufão 3 – A Explosão Explosiva",
+      "id": "c01d69963d1e1175",
+      "x": 500,
+      "y": 1750
+    },
+    {
+      "nome": "Pôster: Lutadores de Rua",
+      "id": "fede83349d22507e",
+      "x": 900,
+      "y": 250
+    },
+    {
+      "nome": "Pôster: Thunderland 2008",
+      "id": "fdce1872b5c64219",
+      "x": 2381,
+      "y": 1514
+    },
+    {
+      "nome": "Pôster: Unidos do Invisível Futebol Clube",
+      "id": "e1f37bf64594ea2b",
+      "x": 500,
+      "y": 600
+    },
+    {
+      "nome": "Símbolo no Teto",
+      "id": "f75dd6545c0546fc",
+      "x": 850,
+      "y": 1000
+    }
+  ],
+  "tokens": [
+    {
+      "nome": "Alan",
+      "x": 1800,
+      "y": 800,
+      "rotation": 206.56505117707798
+    },
+    {
+      "nome": "Edgar",
+      "x": 1000,
+      "y": 1200,
+      "rotation": 270
+    },
+    {
+      "nome": "Eloísa",
+      "x": 1000,
+      "y": 1100
+    },
+    {
+      "nome": "Kênia",
+      "x": 2000,
+      "y": 400,
+      "hidden": true
+    },
+    {
+      "nome": "Victor",
+      "x": 1895,
+      "y": 872,
+      "rotation": 180
+    }
+  ]
+}

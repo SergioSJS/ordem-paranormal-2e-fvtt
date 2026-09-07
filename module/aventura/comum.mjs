@@ -184,10 +184,12 @@ export function eventoDaMaldicao({ id, gatilho, dados }) {
 export function posicionarNaCena(cena, posicoes, { ato, alvos, atores }) {
   if (!cena || !posicoes) return cena;
   const notes = (posicoes.marcadores ?? []).flatMap((m) => {
-    const alvo = alvos.find((d) => d.name === m.nome);
+    // Pelo id quando é a mesma geração (ids estáveis); pelo nome quando a posição veio
+    // do outro ato (o Ato II reaproveita o porão e os nomes do Ato I) ou de outra geração.
+    const alvo = (m.id && alvos.find((d) => d._id === m.id)) ?? alvos.find((d) => d.name === m.nome);
     if (!alvo) return [];
     return [{
-      _id: ident(`nota-${ato}-${m.nome}`),
+      _id: ident(`nota-${ato}-${alvo.name}-${m.x},${m.y}`),
       x: m.x, y: m.y, author: null, text: alvo.name,
       texture: { src: alvo.img }, iconSize: 60, global: true,
       entryId: null, pageId: null,

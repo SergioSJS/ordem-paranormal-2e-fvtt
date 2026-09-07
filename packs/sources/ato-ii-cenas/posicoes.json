@@ -1,0 +1,126 @@
+{
+  "cena": "O Porão — Ato II",
+  "marcadores": [
+    {
+      "nome": "“Altar” de Madeira",
+      "x": 1037,
+      "y": 1298
+    },
+    {
+      "nome": "Armário de Metal",
+      "x": 668,
+      "y": 401
+    },
+    {
+      "nome": "Armário de Roupas",
+      "x": 2388,
+      "y": 1402
+    },
+    {
+      "nome": "Celular de Gustavo [Evidência-chave]",
+      "x": 976,
+      "y": 2375
+    },
+    {
+      "nome": "Computador [Evidência-chave]",
+      "x": 2368,
+      "y": 387
+    },
+    {
+      "nome": "Depósito A",
+      "x": 1764,
+      "y": 386
+    },
+    {
+      "nome": "Depósito A, Molho de Chaves",
+      "x": 2024,
+      "y": 571
+    },
+    {
+      "nome": "Depósito A, Painel Elétrico",
+      "x": 2148,
+      "y": 314
+    },
+    {
+      "nome": "Depósito B",
+      "x": 1765,
+      "y": 831
+    },
+    {
+      "nome": "Depósito B, Rabiscos no Chão",
+      "x": 2006,
+      "y": 1079
+    },
+    {
+      "nome": "Duto de Ventilação",
+      "x": 1193,
+      "y": 2492
+    },
+    {
+      "nome": "Estante de Livros",
+      "x": 2605,
+      "y": 2187
+    },
+    {
+      "nome": "Freezer",
+      "x": 3019,
+      "y": 477
+    },
+    {
+      "nome": "Freezer, O Corpo",
+      "x": 2908,
+      "y": 363
+    },
+    {
+      "nome": "Grelha de Churrasco",
+      "x": 3141,
+      "y": 978
+    },
+    {
+      "nome": "Mesa de Poker",
+      "x": 3008,
+      "y": 1969
+    },
+    {
+      "nome": "Mesa de Sinuca",
+      "x": 2713,
+      "y": 907
+    },
+    {
+      "nome": "O Ídolo de Pedra",
+      "x": 673,
+      "y": 311
+    },
+    {
+      "nome": "Porta de Saída",
+      "x": 622,
+      "y": 2284
+    },
+    {
+      "nome": "Pôster: Eric Tufão 3 – A Explosão Explosiva",
+      "x": 518,
+      "y": 1817
+    },
+    {
+      "nome": "Pôster: Lutadores de Rua",
+      "x": 933,
+      "y": 260
+    },
+    {
+      "nome": "Pôster: Thunderland 2008",
+      "x": 2472,
+      "y": 1572
+    },
+    {
+      "nome": "Pôster: Unidos do Invisível Futebol Clube",
+      "x": 518,
+      "y": 623
+    },
+    {
+      "nome": "Símbolo no Teto",
+      "x": 881,
+      "y": 1038
+    }
+  ],
+  "tokens": []
+}

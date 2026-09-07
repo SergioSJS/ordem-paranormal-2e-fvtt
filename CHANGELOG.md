@@ -42,6 +42,10 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 - **Nenhuma arte do livro vem no pacote.** As do Ato I são o zip gratuito do site da
   editora; as do Ato II vêm com a assinatura dos Arquivos Secretos. O sistema pede o
   zip de cada ato na hora de importar e guarda os arquivos na pasta do mundo.
+- **Cena pronta para jogar.** Marcadores dos pontos, tokens dos pré-gerados na posição
+  inicial, luzes, grade e escuridão capturados de uma mesa montada vêm nos dois atos;
+  o Ato II herda do Ato I pela transformação do mapa, com os marcadores casados pelo
+  nome do ponto. Reimportar um ato com a cena aberta mantém o nível da cena.
 - O selo e o aviso da Licença da Comunidade na tela de boas-vindas, na janela de
   aventuras, no README e na capa da listagem.
 - Sistema não-oficial, feito por fã, sem afiliação com os detentores dos direitos de

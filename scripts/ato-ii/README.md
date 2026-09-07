@@ -13,7 +13,7 @@ Os mesmos módulos rodam no Node, para o e2e e para conferir uma revisão nova d
 ```bash
 node scripts/extrator/rodar.mjs docs/<o PDF completo>.pdf [gabarito] --texto --completo
                                 # PDF → build/js/ato-ii.json (e o Ato I junto)
-npm run ato-ii:gerar-cena       # paredes do Ato I → packs/sources/ato-ii-cenas/
+npm run ato-ii:gerar-cena       # paredes, luzes, grade e marcadores do Ato I → packs/sources/ato-ii-cenas/
 npm run ato-ii:gerar-aventura   # → packs/sources/ato-ii-aventura/ato-ii.json
 npm run pack:build
 ```
@@ -48,7 +48,9 @@ O mapa do Ato II é o mesmo porão redesenhado 3,9% maior, com a escada mais lon
 cor (pixels cáqui por linha e por coluna, picos = vigas): topo 105→109, base do porão
 2255→2341, direita 3206→3330, esquerda 374→387. Escala uniforme a partir do canto
 superior esquerdo — `x' = 1,0392·x − 2`, `y' = 1,0383·y` — e as 39 paredes muradas à mão
-no Ato I viajam por ela (`gerar-cena.mjs`). Estante e porta de saída ficam abertas,
+no Ato I viajam por ela (`gerar-cena.mjs`), e as luzes, a grade, a escuridão e os
+marcadores dos pontos também (os marcadores em `posicoes.json`, casados pelo nome do
+ponto no Ato II; tokens ficam de fora). Estante e porta de saída ficam abertas,
 como o livro diz; a grade do duto segue trancada; as portas dos depósitos, fechadas e
 destrancadas.
 

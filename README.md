@@ -352,7 +352,7 @@ o e2e usa:
 
 ```bash
 node scripts/extrator/rodar.mjs docs/<o PDF>.pdf   # extrai os dois atos para build/js/
-npm run ato-ii:gerar-cena       # transporta as paredes do Ato I para o mapa novo
+npm run ato-ii:gerar-cena       # transporta paredes, luzes, grade e marcadores do Ato I para o mapa novo
 npm run ato-ii:gerar-aventura   # monta o Adventure em packs/sources/
 npm run pack:build
 ```
@@ -400,9 +400,12 @@ exclusivas de assinante, e o sistema pede o zip da editora na hora de importar.
 Os marcadores dos pontos no mapa e os tokens na posição inicial da aventura vêm
 prontos quando `packs/sources/<ato>-cenas/posicoes.json` existe — é o que
 `npm run posicoes -- --ato ato-i --mundo <mundo>` captura de uma cena montada num
-mundo, por nome (nada do seu mundo viaja). Luzes, sons ambiente, ladrilhos e paredes
-vêm pelo outro comando, `npm run ato-i:cena` / `npm run ato-ii:cena`, que traz a cena
-inteira do mundo para `packs/sources/`.
+mundo, por nome (nada do seu mundo viaja). Luzes, sons ambiente, ladrilhos, paredes,
+grade e escuridão vêm pelo outro comando, `npm run ato-i:cena` / `npm run ato-ii:cena`,
+que traz a cena inteira do mundo para `packs/sources/`. O Ato II é o mesmo porão:
+`npm run ato-ii:gerar-cena` leva paredes, luzes, grade, escuridão e os marcadores do
+Ato I para o mapa do Ato II pela mesma transformação, casando cada marcador pelo nome
+do ponto — só os pontos que existem nos dois atos; tokens não vão.
 
 Os dois zips são da editora, baixados sem extrair: o do Ato I é o pacote gratuito do
 site; o do Ato II vem com a assinatura dos Arquivos Secretos. Ao importar, o sistema

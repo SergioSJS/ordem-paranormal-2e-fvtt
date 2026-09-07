@@ -125,6 +125,7 @@ node scripts/extrator/rodar.mjs <pdf> [gabarito] --texto --completo  # extrai os
 npm run ato-i:gerar-aventura && npm run ato-ii:gerar-aventura   # os Adventures locais, para o e2e
 npm run posicoes -- --ato ato-i --mundo op2-meu   # marcadores e tokens de uma cena do mundo → posicoes.json
 npm run ato-ii:cena -- --mundo op2-meu   # paredes, luzes, sons da cena do Ato II de volta para packs/sources/
+npm run ato-ii:gerar-cena   # ou: paredes, luzes, grade, escuridão e marcadores do Ato I → cena do Ato II
 npm run reparar-pastas -- <mundo>   # refaz as pastas de compêndio de um mundo
 ```
 

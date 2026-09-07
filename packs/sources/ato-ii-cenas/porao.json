@@ -5,7 +5,7 @@
   "height": 4101,
   "padding": 0,
   "grid": {
-    "type": 1,
+    "type": 0,
     "size": 100,
     "distance": 1.5,
     "units": "m",
@@ -31,7 +31,7 @@
         "max": 1
       }
     },
-    "darknessLevel": 0,
+    "darknessLevel": 1,
     "darknessLock": false,
     "cycle": true,
     "base": {
@@ -69,15 +69,14 @@
   "sort": 0,
   "folder": null,
   "background": {
-    "color": "#000000",
     "src": "systems/ordem-paranormal-2e/assets/ato-ii/mapas/mapa-01-o-porao.jpg",
+    "color": "#000000",
     "tint": "#ffffff",
     "alphaThreshold": 0.75
   },
   "_key": "!scenes!57622e7b18a0d9e9",
   "walls": [
     {
-      "levels": [],
       "light": 0,
       "move": 20,
       "sight": 0,
@@ -102,9 +101,6 @@
       "_id": "71f5f0399e6513b8"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -129,9 +125,6 @@
       "_id": "2e2c5b35e964852f"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -156,9 +149,6 @@
       "_id": "357c9069ade70428"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -183,9 +173,6 @@
       "_id": "8a7ccfe082d9aa09"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -210,9 +197,6 @@
       "_id": "450022be7af84911"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 0,
       "move": 20,
       "sight": 0,
@@ -246,9 +230,6 @@
       "_id": "0a4d221e939f3ea6"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -273,9 +254,6 @@
       "_id": "263218a86e1c8a11"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -300,9 +278,6 @@
       "_id": "45e105e2a8d04a9a"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -327,9 +302,6 @@
       "_id": "4695836a9bba4fe1"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -354,9 +326,6 @@
       "_id": "1cf3c240192640f1"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -390,9 +359,6 @@
       "_id": "132923cc4df0ff8e"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -417,7 +383,6 @@
       "_id": "ce8f649b9b153aed"
     },
     {
-      "levels": [],
       "light": 0,
       "move": 20,
       "sight": 0,
@@ -442,9 +407,6 @@
       "_id": "dd768831bff6104c"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -469,9 +431,6 @@
       "_id": "680474a4cce1ad16"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -496,9 +455,6 @@
       "_id": "403975961c9c266d"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -523,9 +479,6 @@
       "_id": "8da476f078a67b7c"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -550,9 +503,6 @@
       "_id": "d07032f1be1b3313"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 0,
       "move": 20,
       "sight": 0,
@@ -577,9 +527,6 @@
       "_id": "34fc5f07a45a095b"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -604,9 +551,6 @@
       "_id": "a789c3f6ae8accfd"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -631,9 +575,6 @@
       "_id": "c9fba0d5894c0e53"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -658,9 +599,6 @@
       "_id": "1aaf29f057acf07e"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -685,9 +623,6 @@
       "_id": "9e07b90a49eed4b3"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 0,
       "move": 20,
       "sight": 0,
@@ -721,9 +656,6 @@
       "_id": "5621535e9dd99aee"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 0,
       "move": 20,
       "sight": 0,
@@ -748,9 +680,6 @@
       "_id": "050cf904971f71d7"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -775,9 +704,6 @@
       "_id": "68703cc9e2d3b0ec"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -811,9 +737,6 @@
       "_id": "6f17dd05e97adb33"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -838,9 +761,6 @@
       "_id": "397db31dacc0453f"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -865,9 +785,6 @@
       "_id": "f8eea867ac3a1681"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -892,9 +809,6 @@
       "_id": "0efced142d6b82f9"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -919,7 +833,6 @@
       "_id": "c0a285ac8977bc74"
     },
     {
-      "levels": [],
       "light": 0,
       "move": 20,
       "sight": 0,
@@ -944,9 +857,6 @@
       "_id": "499d1f3bfa87eb24"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -971,9 +881,6 @@
       "_id": "e867ffaa6ce06370"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -1007,9 +914,6 @@
       "_id": "0ca06b50d71e6231"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -1034,9 +938,6 @@
       "_id": "1498a16cc11648d5"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -1061,9 +962,6 @@
       "_id": "e7717310de18abce"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -1088,9 +986,6 @@
       "_id": "392636e0fefaf5c7"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -1115,9 +1010,6 @@
       "_id": "35ddb3cf61b285c1"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -1142,9 +1034,6 @@
       "_id": "2056e3eef85ccf23"
     },
     {
-      "levels": [
-        "defaultLevel0000"
-      ],
       "light": 20,
       "move": 20,
       "sight": 20,
@@ -1176,6 +1065,1224 @@
       ],
       "doorSound": "",
       "_id": "88da46f35b4bc615"
+    }
+  ],
+  "lights": [
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 15,
+        "dim": 15
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 2309,
+      "y": 678,
+      "_id": "81064f73e5fc4135"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 9,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 1320,
+      "y": 2449,
+      "_id": "d0a8eeb6c263dd62"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 9,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 2211,
+      "y": 931,
+      "_id": "ea343b4b0b03d3f1"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 4.5,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 503,
+      "y": 417,
+      "_id": "28a644ee61e760c0"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 9,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 1044,
+      "y": 236,
+      "_id": "506b68832474588b"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 9,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 3257,
+      "y": 1835,
+      "_id": "e3d72746fe753fae"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 4.5,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 378,
+      "y": 2995,
+      "_id": "568fdad8a4ced945"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 4.5,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 3253,
+      "y": 348,
+      "_id": "5c29e4951f084a7c"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 4.5,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 1981,
+      "y": 205,
+      "_id": "330fe1e61be74846"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 9,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 2256,
+      "y": 1564,
+      "_id": "950490bfaafa8af5"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 15,
+        "dim": 15
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 927,
+      "y": 2440,
+      "_id": "710adc64b967e499"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 9,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 3243,
+      "y": 2178,
+      "_id": "be7a68accb387981"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 4.5,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 1713,
+      "y": 921,
+      "_id": "ec589e95935ecef2"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 4.5,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 3259,
+      "y": 628,
+      "_id": "0198279b8a7edba5"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 15,
+        "dim": 15
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 1392,
+      "y": 231,
+      "_id": "d63caed6ea40fa0b"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 9,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 3247,
+      "y": 1178,
+      "_id": "62e1395afeeda131"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 15,
+        "dim": 15
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 1677,
+      "y": 1278,
+      "_id": "2ee5a31d5870e936"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 9,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 1683,
+      "y": 1284,
+      "_id": "f99d316115f0f8d7"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 9,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 500,
+      "y": 796,
+      "_id": "1228bb9f42a4d503"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 9,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 2114,
+      "y": 2277,
+      "_id": "23227d8738e049ec"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 4.5,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 3244,
+      "y": 1493,
+      "_id": "9ab55997f7528e3b"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 4.5,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 1523,
+      "y": 2280,
+      "_id": "cb3ebb91cfa24085"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 15,
+        "dim": 15
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 503,
+      "y": 1184,
+      "_id": "47cf3d169a37c031"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 9,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 489,
+      "y": 1601,
+      "_id": "6c3aa1081040e617"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 4.5,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 2658,
+      "y": 1766,
+      "_id": "1d62351d94c3c408"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 9,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 496,
+      "y": 2064,
+      "_id": "fe6de7af0e67eb43"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 4.5,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 2211,
+      "y": 414,
+      "_id": "ed3be0fd8c273c7c"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 4.5,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 3076,
+      "y": 218,
+      "_id": "1a99ae152cb4d162"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 4.5,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 2792,
+      "y": 209,
+      "_id": "7ed95ed7729349b0"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 9,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 711,
+      "y": 240,
+      "_id": "14aeb3761d7c208d"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 4.5,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 377,
+      "y": 2640,
+      "_id": "0ba93fcb7d16a30b"
+    },
+    {
+      "elevation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": null,
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 5,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 4.5,
+        "dim": 9
+      },
+      "name": "Luz Ambiente",
+      "rotation": 0,
+      "locked": false,
+      "flags": {},
+      "x": 2488,
+      "y": 204,
+      "_id": "7d9815d88d31ee21"
     }
   ]
 }

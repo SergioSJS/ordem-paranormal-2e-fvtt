@@ -97,7 +97,10 @@ test("montarAtoI: posições capturadas viram marcadores e tokens na cena, com o
       prototypeToken: { name: "Alan", texture: { src: "systems/ordem-paranormal-2e/assets/ato-i/tokens/token-alan.png" }, actorLink: true, disposition: 1 } }],
     posicoes: {
       initial: { x: 1000, y: 900, scale: 0.6 },
-      marcadores: [{ nome: "Depósito A, Molho de Chaves", x: 120, y: 340 }, { nome: "Depósito A, Molho de Chaves — PORTA TRANCADA", x: 50, y: 60 }, { nome: "Não Existe", x: 1, y: 1 }],
+      marcadores: [{ nome: "Depósito A, Molho de Chaves", x: 120, y: 340 }, { nome: "Depósito A, Molho de Chaves — PORTA TRANCADA", x: 50, y: 60 }, { nome: "Não Existe", x: 1, y: 1 },
+        // Do outro ato ou de outra geração: id que não existe aqui, casa pelo nome — e o
+        // mesmo ponto pode ter dois marcadores.
+        { nome: "Depósito A, Molho de Chaves", id: "0000000000000000", x: 900, y: 910 }],
       tokens: [{ nome: "Alan", x: 700, y: 800, elevation: 0 }, { nome: "Ninguém", x: 0, y: 0 }],
     },
   };
@@ -106,8 +109,10 @@ test("montarAtoI: posições capturadas viram marcadores e tokens na cena, com o
   const molho = aventura.items.find((i) => i.name === "Depósito A, Molho de Chaves");
   const porta = aventura.items.find((i) => i.type === "desafio-acesso");
   assert.deepEqual(cena.initial, { x: 1000, y: 900, scale: 0.6 });
-  // Ponto e desafio casam pelo nome; o que não existe nesta geração fica de fora.
-  assert.equal(cena.notes.length, 2);
+  // Ponto e desafio casam pelo id ou pelo nome; o que não existe nesta geração fica de fora.
+  assert.equal(cena.notes.length, 3);
+  assert.equal(new Set(cena.notes.map((n) => n._id)).size, 3);
+  assert.equal(cena.notes.filter((n) => n.text === molho.name).length, 2);
   const nota = cena.notes.find((n) => n.text === molho.name);
   assert.equal(nota.flags["ordem-paranormal-2e"].marcador, `Item.${molho._id}`);
   assert.equal(nota.author, null);
@@ -122,6 +127,10 @@ test("montarAtoI: posições capturadas viram marcadores e tokens na cena, com o
   assert.match(cena.tokens[0].texture.src, /token-alan\.png$/);
   // Ids estáveis: capturar de novo não duplica marcador nem token.
   assert.equal(montarAtoI(extraidoAtoI(), fontes).scenes[0].notes[0]._id, cena.notes[0]._id);
+  // Pelo id desta geração, mesmo com o nome diferente do que está gravado.
+  const porId = montarAtoI(extraidoAtoI(), { ...fontes, posicoes: { marcadores: [{ nome: "nome velho", id: molho._id, x: 5, y: 6 }] } }).scenes[0];
+  assert.equal(porId.notes.length, 1);
+  assert.equal(porId.notes[0].text, molho.name);
 });
 
 test("montarAtoI: ids estáveis entre duas montagens", () => {
