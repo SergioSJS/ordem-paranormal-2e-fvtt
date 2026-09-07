@@ -6,8 +6,10 @@ nova é registrada depois. O que o repositório já faz sozinho está marcado.
 ## Antes de submeter — checklist (feito)
 
 - [x] Manifesto completo: `id`, `title`, `description`, `version`, `authors`, `url`,
-      `manifest` (URL estável: `releases/latest/download/system.json`), `download`
-      (fixado por versão no zip publicado), `compatibility` (`minimum: 13`,
+      `manifest` (URL estável: `releases/latest/download/system.json`) e `download`
+      (fixado por versão) — os dois injetados pelo release, não vivem no repositório
+      (senão o Foundry oferece "Update" para a cópia de desenvolvimento e a
+      sobrescreve), `compatibility` (`minimum: 13`,
       `verified: 14`), `license`, `readme`, `changelog`, `bugs`, `media` (`setup`,
       `cover`, `screenshot`), `socket`, `languages`.
 - [x] Release pública com zip + `system.json` (workflow `release.yml`); instalar pelo

@@ -52,8 +52,13 @@ jobs:
           VERSION=${TAG#v}
           REPO=${{ github.repository }}
           DOWNLOAD="https://github.com/${REPO}/releases/download/${TAG}/${SYSTEM_ID}.zip"
-          jq --arg ver "$VERSION" --arg dl "$DOWNLOAD" \
-            '.version = $ver | .download = $dl' \
+          MANIFEST="https://github.com/${REPO}/releases/latest/download/system.json"
+          # `manifest` e `download` só existem no manifesto PUBLICADO: no repositório
+          # eles ficam de fora, senão o Foundry oferece "Update" para a cópia
+          # symlinkada de desenvolvimento e extrai o zip da release por cima dela
+          # (achado em uso real: o system.json do repo reescrito pelo setup do v13).
+          jq --arg ver "$VERSION" --arg dl "$DOWNLOAD" --arg mf "$MANIFEST" \
+            '.version = $ver | .download = $dl | .manifest = $mf' \
             system.json > system.tmp.json && mv system.tmp.json system.json
 
       # Pack declarado sem banco no disco vira compêndio vazio na cara de quem

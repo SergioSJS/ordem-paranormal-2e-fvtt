@@ -109,6 +109,12 @@ permanentes). **v13 e v14 exercitados pelo e2e** (13.351: 532 verificações; 14
   com outro id — 36 das 39 paredes do Porão ficaram invisíveis. `comNivel()`
   (`scripts/aventura/fontes.mjs`) religa tudo ao nível que cria, e `importar-cena.mjs`
   nem grava `levels`. O e2e confere as paredes desenhadas no canvas, não só contadas.
+- **O `system.json` do repositório não tem `manifest` nem `download`.** O release
+  (`release.yml`) injeta os dois no manifesto publicado. Com eles no repo, o Foundry
+  oferecia "Update" para a cópia symlinkada e extraía o zip da release POR CIMA da
+  pasta de desenvolvimento (aconteceu: `system.json` reescrito pelo setup do v13).
+  Nunca clique em "Update" num sistema symlinkado; nunca instale pelo `POST /setup`
+  com o symlink no lugar.
 - Commits: Conventional Commits, em português.
 - Nunca commitar direto na `main` — sempre feature branch.
 
