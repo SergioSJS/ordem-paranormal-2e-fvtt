@@ -13,8 +13,16 @@
     }
 
     .op2-extras__arquivo input[type="file"] {
+      display: block;
       width: 100%;
-      padding: 0.5rem;
+      // O core fixa a altura de `input` (--input-height) e o botão nativo do
+      // "Escolher arquivo" é mais alto que isso: saía cortado em cima (achado em uso real).
+      height: auto;
+      min-height: 2.75rem;
+      line-height: normal;
+      overflow: visible;
+      box-sizing: border-box;
+      padding: 0.6rem 0.5rem;
       border: 1px dashed var(--op2-linha);
       background: var(--op2-superficie);
       color: inherit;
