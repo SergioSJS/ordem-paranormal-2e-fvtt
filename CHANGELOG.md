@@ -5,6 +5,12 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+## [0.9.3] — 2026-09-07
+
+- Card do setup centralizado: o Foundry usa a imagem do sistema também como fundo do card de
+  mundo, cortando as laterais e pondo o título do mundo por cima — o alto fica só com os
+  escorridos, e nada de texto ou selo nas bordas.
+
 ## [0.9.2] — 2026-09-07
 
 - **Tema claro do Foundry**: cabeçalho das janelas, diálogos, selo (preto no claro), cores de
