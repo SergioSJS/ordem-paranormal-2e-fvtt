@@ -190,6 +190,8 @@ O servidor do Foundry v14 exige **Node 24**. O `npm test` do projeto roda em Nod
   mais quebram: DT com alternativa, rótulo compartilhado, número de página.
 - `aventura.test.mjs` — `montarAtoI`/`montarAtoII` com um ato sintético: vínculos,
   pastas, ids estáveis, handouts das duas revisões.
+- `npc.test.mjs` — a perícia do NPC a partir do diálogo: chave do sistema, Aptidão sem
+  ponto na chave, "Outra" em slug.
 
 ### Dentro do Foundry — `npm run e2e`
 

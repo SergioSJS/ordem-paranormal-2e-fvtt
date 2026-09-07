@@ -1,5 +1,5 @@
 /** Ficha reduzida de NPC: só os atributos e as perícias que o mestre declarou. */
-import { ATRIBUTOS } from "../config.mjs";
+import { ATRIBUTOS, SYSTEM_ID, PERICIAS, APTIDOES_PADRAO, ESCADA } from "../config.mjs";
 import { stepDie } from "../dice/escada.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
 import { ligarRodaDoMouse } from "../ui/controle-dado.mjs";
@@ -93,13 +93,41 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static async #adicionarPericia() {
-    const rotulo = await foundry.applications.api.DialogV2.prompt({
+    // A lista do playtest, não um campo de texto solto: a chave do sistema faz a
+    // perícia do NPC rolar como a do personagem (achado em uso real: "campo aberto,
+    // todo zoado").
+    const content = await foundry.applications.handlebars.renderTemplate(
+      `systems/${SYSTEM_ID}/templates/dialog/npc-pericia.hbs`, opcoesDePericiaNpc());
+    const escolha = await foundry.applications.api.DialogV2.prompt({
       window: { title: game.i18n.localize("OP2.Npc.AdicionarPericia") },
-      content: `<input type="text" name="rotulo" autofocus>`,
-      ok: { callback: (_e, botao) => botao.form.elements.rotulo.value.trim() },
+      classes: ["op2", "op2-dialog", "op2-npc-pericia-dialog"],
+      content,
+      render: (_evento, dialog) => {
+        const select = dialog.element.querySelector("select[name=chave]");
+        const outra = dialog.element.querySelector(".op2-npc-pericia__outra");
+        const sincronizar = () => { outra.hidden = select.value !== "__outra"; if (!outra.hidden) outra.querySelector("input").focus(); };
+        select.addEventListener("change", sincronizar);
+        sincronizar();
+      },
+      ok: {
+        label: game.i18n.localize("OP2.Npc.Confirmar"),
+        icon: "fa-solid fa-plus",
+        callback: (_e, botao) => ({
+          chave: botao.form.elements.chave.value,
+          rotulo: botao.form.elements.rotulo.value.trim(),
+          die: botao.form.elements.die.value,
+        }),
+      },
+      rejectClose: false,
     });
-    if (!rotulo) return;
-    await this.actor.update({ [`system.pericias.${rotulo.slugify({ strict: true })}`]: { rotulo, die: "d6" } });
+    if (!escolha) return;
+    const pericia = periciaNpcEscolhida(escolha);
+    if (!pericia) return;
+    if (this.actor.system.pericias?.[pericia.chave]) {
+      ui.notifications.warn(game.i18n.format("OP2.Npc.PericiaRepetida", { pericia: pericia.rotulo }));
+      return;
+    }
+    await this.actor.update({ [`system.pericias.${pericia.chave}`]: { rotulo: pericia.rotulo, die: pericia.die } });
   }
 
   static async #removerPericia(_evento, alvo) {
@@ -114,4 +142,36 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       this.actor.update({ [caminho]: stepDie(atual, passos) });
     });
   }
+}
+
+/** As opções do diálogo: perícias do playtest, Aptidões com o campo, e os dados da escada. */
+export function opcoesDePericiaNpc() {
+  const pericias = Object.keys(PERICIAS).filter((c) => c !== "aptidao")
+    .map((chave) => ({ chave, rotulo: game.i18n.localize(`OP2.Pericia.${chave}`) }))
+    .sort((a, b) => a.rotulo.localeCompare(b.rotulo, game.i18n.lang));
+  const aptidoes = APTIDOES_PADRAO.map((sub) => ({
+    chave: `aptidao-${sub}`,
+    rotulo: `${game.i18n.localize("OP2.Pericia.aptidao")} (${game.i18n.localize(`OP2.Aptidao.${sub}`)})`,
+  }));
+  return { pericias, aptidoes, dados: ESCADA };
+}
+
+/**
+ * O que gravar a partir da escolha do diálogo. Chave do sistema para as do playtest
+ * (`acrobacia`), `aptidao-<campo>` para as Aptidões (ponto na chave viraria caminho
+ * aninhado no `update`), e o nome em slug para "Outra". Sem nome, nada.
+ * @param {{chave: string, rotulo: string, die: string}} escolha
+ * @returns {{chave: string, rotulo: string, die: string}|null}
+ */
+export function periciaNpcEscolhida({ chave, rotulo, die }) {
+  const dado = ESCADA.includes(die) ? die : "d6";
+  if (chave === "__outra") {
+    const nome = (rotulo ?? "").trim();
+    if (!nome) return null;
+    const slug = nome.slugify({ strict: true }).replace(/\./g, "-");
+    return slug ? { chave: slug, rotulo: nome, die: dado } : null;
+  }
+  const opcoes = opcoesDePericiaNpc();
+  const conhecida = [...opcoes.pericias, ...opcoes.aptidoes].find((o) => o.chave === chave);
+  return conhecida ? { chave: conhecida.chave, rotulo: conhecida.rotulo, die: dado } : null;
 }

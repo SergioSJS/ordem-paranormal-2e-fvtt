@@ -1,0 +1,27 @@
+{{!-- Nova perícia do NPC: a lista do playtest primeiro (chave do sistema, rola como a do
+      personagem), Aptidões com o campo, e "Outra" para o que o livro não lista. --}}
+<div class="op2-npc-pericia">
+  <label class="op2-campo">
+    <span>{{localize "OP2.Npc.EscolherPericia"}}</span>
+    <select name="chave" autofocus>
+      <optgroup label="{{localize "OP2.Secao.Pericias"}}">
+        {{#each pericias}}<option value="{{chave}}">{{rotulo}}</option>{{/each}}
+      </optgroup>
+      <optgroup label="{{localize "OP2.Pericia.aptidao"}}">
+        {{#each aptidoes}}<option value="{{chave}}">{{rotulo}}</option>{{/each}}
+      </optgroup>
+      <option value="__outra">{{localize "OP2.Npc.OutraPericia"}}</option>
+    </select>
+  </label>
+  <label class="op2-campo op2-npc-pericia__outra" hidden>
+    <span>{{localize "OP2.Npc.NomeDaPericia"}}</span>
+    <input type="text" name="rotulo" placeholder="{{localize "OP2.Aptidao.Exemplo"}}">
+  </label>
+  <label class="op2-campo">
+    <span>{{localize "OP2.Npc.DadoDaPericia"}}</span>
+    <select name="die">
+      {{#each dados}}<option value="{{this}}" {{#if (op2Eq this "d6")}}selected{{/if}}>{{this}}</option>{{/each}}
+    </select>
+  </label>
+  <p class="op2-ajuda">{{localize "OP2.Npc.PericiasAjuda"}}</p>
+</div>

@@ -3383,6 +3383,40 @@ const relato = await page.evaluate(async (boasVindas) => {
   }
 }
 
+// Perícia de NPC pelo diálogo (achado em uso real: era um campo de texto solto). A lista
+// do playtest grava a chave do sistema; "Outra" grava o nome em slug; repetida avisa.
+{
+  const npcId = await page.evaluate(async () => (await Actor.create({ name: "NPC Perícias", type: "npc" })).id);
+  await page.evaluate(async (id) => game.actors.get(id).sheet.render({ force: true }), npcId);
+  await page.waitForSelector('.op2-ficha--npc [data-action="adicionarPericia"], [data-action="adicionarPericia"]', { timeout: 20000 });
+  const escolher = async (chave, rotulo) => {
+    await page.click('[data-action="adicionarPericia"]');
+    await page.waitForSelector(".op2-npc-pericia-dialog select[name=chave]", { timeout: 20000 });
+    await page.selectOption(".op2-npc-pericia-dialog select[name=chave]", chave);
+    if (rotulo) await page.fill(".op2-npc-pericia-dialog input[name=rotulo]", rotulo);
+    await page.selectOption(".op2-npc-pericia-dialog select[name=die]", "d8");
+    await page.click('.op2-npc-pericia-dialog button[data-action="ok"]');
+    await page.waitForTimeout(600);
+  };
+  await escolher("acrobacia");
+  await escolher("aptidao-humanas");
+  await escolher("__outra", "Culinária");
+  const antes = await page.evaluate((id) => Object.keys(game.actors.get(id).system.pericias).length, npcId);
+  await escolher("acrobacia");
+  const npc = await page.evaluate((id) => {
+    const a = game.actors.get(id);
+    return { pericias: a.system.pericias, total: Object.keys(a.system.pericias).length, faces: a.system.pericias.acrobacia?.valor,
+      linhas: [...(a.sheet.element?.querySelectorAll(".op2-pericia-npc") ?? [])].map((el) => el.dataset.sub) };
+  }, npcId);
+  relato.passos.push([npc.pericias.acrobacia?.rotulo === "Acrobacia" && npc.pericias.acrobacia?.die === "d8" && npc.faces === 8,
+    "a perícia do playtest entra no NPC com a chave do sistema, o rótulo traduzido e o dado escolhido"]);
+  relato.passos.push([npc.pericias["aptidao-humanas"]?.rotulo === "Aptidão (Humanas)" && npc.pericias.culinaria?.rotulo === "Culinária",
+    "Aptidão com o campo e 'Outra' com o nome digitado"]);
+  relato.passos.push([npc.total === 3 && antes === 3 && npc.linhas.length === 3,
+    `repetir uma perícia não duplica, e a ficha lista as três (${npc.linhas.join(", ")})`]);
+  await page.evaluate(async (id) => { await game.actors.get(id).sheet.close(); await game.actors.get(id).delete(); }, npcId);
+}
+
 // O que a primeira rodada de teste manual apontou (2026-09-03): rolagem comum sem
 // mensagem, falha crítica que passava em branco no Examinar, "FALHA" com pista na tela,
 // <p> cru no card da rodada, cards gigantes no painel, pontos visíveis de cara.

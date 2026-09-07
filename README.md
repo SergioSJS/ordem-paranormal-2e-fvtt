@@ -14,7 +14,8 @@ Sistema para **Foundry VTT** do playtest alpha de *Ordem Paranormal RPG 2*.
 > do jogo — só a camada mecânica e a interface.
 
 ![Foundry v13](https://img.shields.io/badge/Foundry-v13%20%E2%80%A2%20v14-c8321e)
-[![Ko-fi](https://img.shields.io/badge/Ko--fi-apoie%20o%20sistema-ff5e5b?logo=ko-fi&logoColor=white)](https://ko-fi.com/meioorc)
+[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/meioorc)
+
 
 ![Ficha de personagem](docs/img/ficha-personagem.png)
 

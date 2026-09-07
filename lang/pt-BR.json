@@ -178,7 +178,13 @@
       "AdicionarPericia": "Nova perícia",
       "RemoverPericia": "Remover perícia",
       "PericiasAjuda": "NPCs não usam a lista completa: declare só as perícias que este NPC realmente usa.",
-      "SemPericias": "Nenhuma perícia declarada. Adicione só as que este NPC usa."
+      "SemPericias": "Nenhuma perícia declarada. Adicione só as que este NPC usa.",
+      "EscolherPericia": "Perícia",
+      "OutraPericia": "Outra perícia…",
+      "NomeDaPericia": "Nome da perícia",
+      "DadoDaPericia": "Dado",
+      "PericiaRepetida": "Este NPC já tem {pericia}.",
+      "Confirmar": "Adicionar"
     },
     "POI": {
       "Aba": {

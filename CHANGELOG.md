@@ -5,6 +5,10 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+- Perícia de NPC pelo diálogo: a lista do playtest (chave do sistema, rola como a do
+  personagem), Aptidões com o campo, "Outra" com nome livre e o dado — em vez de um
+  campo de texto solto.
+
 - Link de apoio ao sistema (Ko-fi) na tela de boas-vindas e no README.
 
 ## [0.9.5] — 2026-09-07

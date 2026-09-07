@@ -82,6 +82,14 @@ export function instalarStubs() {
   };
 
   globalThis.Roll = RollStub;
+  // O core estende String com `slugify` (usado nas chaves de perícia do NPC).
+  if (!String.prototype.slugify) {
+    String.prototype.slugify = function ({ strict = false } = {}) {
+      const base = this.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+      const s = base.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      return strict ? s.replace(/[^a-z0-9-]/g, "") : s;
+    };
+  }
   globalThis.Actor = class { static updateDocuments() {} };
   globalThis.Item = class {};
   globalThis.ChatMessage = { getSpeaker: () => ({}) };

@@ -178,7 +178,13 @@
       "AdicionarPericia": "New skill",
       "RemoverPericia": "Remove skill",
       "PericiasAjuda": "NPCs don't use the full list: declare only the skills this NPC actually uses.",
-      "SemPericias": "No skills declared. Add only the ones this NPC actually uses."
+      "SemPericias": "No skills declared. Add only the ones this NPC actually uses.",
+      "EscolherPericia": "Skill",
+      "OutraPericia": "Another skill…",
+      "NomeDaPericia": "Skill name",
+      "DadoDaPericia": "Die",
+      "PericiaRepetida": "This NPC already has {pericia}.",
+      "Confirmar": "Add"
     },
     "POI": {
       "Aba": {
