@@ -5,6 +5,8 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+## [0.9.6] — 2026-09-07
+
 - **Filtros no painel do mestre**: chips por visibilidade, progresso (intocado, em
   andamento, esgotado) e marcador no mapa, seletor de perícia do quadro e ordem
   (original, nome, progresso) na aba de pontos; a aba de desafios ganha busca, os mesmos
