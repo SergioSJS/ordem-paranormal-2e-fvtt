@@ -397,6 +397,9 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   &__recolher i { transition: transform 0.15s ease; }
   &--recolhido &__recolher i { transform: rotate(-90deg); }
   &--recolhido &__corpo { display: none; }
+  // Card achado pela busca aparece aberto mesmo recolhido: quem busca quer ler.
+  &--recolhido#{&}--achado &__corpo { display: flex; }
+  &--recolhido#{&}--achado &__recolher i { transform: none; }
 
   &__resumo {
     padding: 0.05rem 0.4rem;
@@ -920,6 +923,60 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
 .op2-painel-filtro {
   width: 11rem;
   font-size: 0.8rem;
+}
+
+// A barra de filtros do mestre, na linha de baixo das ferramentas: chips por
+// dimensão (um ligado por grupo, clicar de novo desliga), os seletores e a contagem.
+.op2-painel-filtros {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--op2-e1) var(--op2-e2);
+
+  &__seletor {
+    height: auto;
+    max-width: 11rem;
+    padding: 0.15em 0.4em;
+    font-size: 0.75rem;
+  }
+
+  &__contagem {
+    margin-left: auto;
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.72rem;
+    color: var(--op2-texto-fraco);
+  }
+}
+
+.op2-chip-grupo {
+  display: inline-flex;
+}
+
+.op2-chip {
+  padding: 0.2em 0.6em;
+  border: 1px solid var(--op2-linha-forte);
+  border-radius: 0;
+  background: transparent;
+  color: var(--op2-texto-fraco);
+  font-family: var(--op2-fonte-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  cursor: pointer;
+
+  & + & { margin-left: -1px; }
+
+  &:hover,
+  &.ativo {
+    position: relative;
+    z-index: 1;
+    border-color: var(--op2-vermelho);
+    color: var(--op2-texto);
+  }
+
+  &.ativo { background: color-mix(in srgb, var(--op2-vermelho) 22%, transparent); }
 }
 
 .op2-painel-contagem {

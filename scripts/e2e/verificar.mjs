@@ -3460,6 +3460,190 @@ const relato = await page.evaluate(async (boasVindas) => {
     `a janela de ações aberta mostra o ponto assim que o mestre o libera (antes=${acoesVivas.antes}, depois=${acoesVivas.depois})`]);
 }
 
+// Filtros e ordem no painel do mestre (achado em uso real: "tô sentindo falta de
+// filtros e ferramentas de navegação… como podem ter vários, tá ruim"), o botão que
+// centraliza o mapa no marcador e os atalhos I / Shift+I.
+{
+  const filtros = await page.evaluate(async () => {
+    const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+    const passos = [];
+    const ok = (titulo, condicao) => passos.push([Boolean(condicao), titulo]);
+    const personagemAntes = game.user.character?.id ?? null;
+    const inv = await game.op2.criarInvestigacao("Filtros do painel");
+    const ator = await Actor.create({ name: "Rastreadora", type: "personagem" });
+    await game.op2.adicionarParticipante(inv, ator.uuid);
+    await game.op2.definirInvestigacaoAtiva(inv.uuid);
+    const criar = (name, informacoes) => Item.create({ name, type: "ponto-interesse", system: { informacoes } });
+    const intocado = await criar("Zebra Intocada", [
+      { id: "a", pericia: "percepcao", dt: 4, texto: "a" }, { id: "b", pericia: "pesquisar", dt: 6, texto: "b" }]);
+    const andamento = await criar("Mesa em Andamento", [
+      { id: "a", pericia: "percepcao", dt: 4, texto: "a", aberta: true }, { id: "b", pericia: "tecnologia", dt: 8, texto: "b" }]);
+    const esgotado = await criar("Armário Esgotado", [
+      { id: "a", pericia: "percepcao", dt: 4, texto: "a", aberta: true }, { id: "r", pericia: "percepcao", dt: 4, texto: "rascunho", oculta: true }]);
+    await game.op2.vincularPoi(inv, intocado.uuid, { oculto: false });
+    await game.op2.vincularPoi(inv, andamento.uuid, { oculto: true });
+    await game.op2.vincularPoi(inv, esgotado.uuid, { oculto: false });
+    const porta = await Item.create({ name: "Zebra Intocada — Porta", type: "desafio-acesso", system: { abordagens: { arrombar: true } } });
+    const cofre = await Item.create({ name: "Cofre Hackeado", type: "desafio-acesso", system: {
+      abordagens: { arrombar: false, hackTecnico: true }, hackTecnico: { resolvido: true } } });
+    await game.op2.vincularDesafio(inv, porta.uuid);
+    await game.op2.vincularDesafio(inv, cofre.uuid);
+    await game.op2.alternarOculto(inv, "desafios", porta.uuid); // a porta visível, o cofre oculto
+
+    const painel = game.op2.painelInvestigacao();
+    await painel.render(true); await esperar(1000);
+    painel.changeTab("pontos", "principal");
+    const el = () => painel.element;
+    const aba = (nome) => el().querySelector(`.op2-painel-aba[data-tab="${nome}"]`);
+    const visiveis = (nome) => [...aba(nome).querySelectorAll("[data-poi-card]")].filter((c) => !c.hidden).map((c) => c.dataset.nome);
+    const chip = (nome, dimensao, valor) => aba(nome).querySelector(`[data-action="alternarChip"][data-dimensao="${dimensao}"][data-valor="${valor}"]`);
+    const seletor = (nome, dimensao) => aba(nome).querySelector(`[data-filtro-seletor="${dimensao}"]`);
+    const escolher = (campo, valor) => { campo.value = valor; campo.dispatchEvent(new Event("change")); };
+
+    ok("a aba de pontos tem os chips de visibilidade, progresso e mapa, o seletor de perícia e a ordem",
+      chip("pontos", "visibilidade", "ocultos") && chip("pontos", "progresso", "esgotado") && chip("pontos", "mapa", "sem")
+      && seletor("pontos", "pericia") && seletor("pontos", "ordem"));
+    const semFiltro = visiveis("pontos");
+    ok(`sem filtro os três pontos aparecem na ordem em que entraram (${semFiltro.join(" › ")})`,
+      semFiltro.join("|") === "Zebra Intocada|Mesa em Andamento|Armário Esgotado");
+    chip("pontos", "visibilidade", "ocultos").click(); await esperar(150);
+    ok(`o chip Ocultos deixa só o ponto oculto e fica aceso (${visiveis("pontos")})`,
+      visiveis("pontos").join("|") === "Mesa em Andamento" && chip("pontos", "visibilidade", "ocultos").classList.contains("ativo"));
+    chip("pontos", "visibilidade", "ocultos").click(); await esperar(150);
+    ok("clicar de novo desliga o chip e volta a mostrar todos", visiveis("pontos").length === 3);
+    chip("pontos", "progresso", "intocado").click(); await esperar(150);
+    const soIntocados = visiveis("pontos");
+    chip("pontos", "progresso", "esgotado").click(); await esperar(150);
+    const soEsgotados = visiveis("pontos");
+    ok(`progresso: intocados (${soIntocados}) e esgotados (${soEsgotados}) — o rascunho não conta contra o esgotado`,
+      soIntocados.join("|") === "Zebra Intocada" && soEsgotados.join("|") === "Armário Esgotado");
+    const contagem = aba("pontos").querySelector("[data-filtro-contagem]");
+    ok(`com filtro ligado a barra diz quantos de quantos (${contagem?.textContent})`, contagem && !contagem.hidden && /1 de 3/.test(contagem.textContent));
+    aba("pontos").querySelector('[data-action="limparFiltros"]').click(); await esperar(150);
+    ok("limpar filtros mostra os três de novo e esconde a contagem", visiveis("pontos").length === 3 && contagem.hidden);
+    const opcoesPericia = [...seletor("pontos", "pericia").options].map((o) => o.value).filter(Boolean);
+    ok(`o seletor de perícia lista só as perícias dos quadros desta investigação (${opcoesPericia.join(", ")})`,
+      opcoesPericia.length === 3 && ["percepcao", "pesquisar", "tecnologia"].every((p) => opcoesPericia.includes(p)));
+    escolher(seletor("pontos", "pericia"), "tecnologia"); await esperar(150);
+    ok(`o seletor de perícia deixa só quem tem linha dela (${visiveis("pontos")})`, visiveis("pontos").join("|") === "Mesa em Andamento");
+    escolher(seletor("pontos", "pericia"), "");
+    escolher(seletor("pontos", "ordem"), "nome"); await esperar(150);
+    ok(`ordenar por nome reordena os cards no DOM (${visiveis("pontos").join(" › ")})`,
+      visiveis("pontos").join("|") === "Armário Esgotado|Mesa em Andamento|Zebra Intocada");
+    escolher(seletor("pontos", "ordem"), "progresso"); await esperar(150);
+    ok(`por progresso: intocado, em andamento, esgotado (${visiveis("pontos").join(" › ")})`,
+      visiveis("pontos").join("|") === "Zebra Intocada|Mesa em Andamento|Armário Esgotado");
+    await painel.render(); await esperar(800);
+    ok("rerrenderizar mantém a ordem escolhida e o seletor marcado",
+      visiveis("pontos").join("|") === "Zebra Intocada|Mesa em Andamento|Armário Esgotado" && seletor("pontos", "ordem").value === "progresso");
+    escolher(seletor("pontos", "ordem"), "livro");
+    el().querySelector('[data-action="recolherTodos"]').click(); await esperar(100);
+    const termo = el().querySelector('[data-filtro-termo="pontos"]');
+    termo.value = "zebra"; termo.dispatchEvent(new Event("input")); await esperar(150);
+    const cardZebra = el().querySelector(`[data-poi-card="${intocado.uuid}"]`);
+    ok("buscar pelo nome mostra o card achado aberto, mesmo com tudo recolhido",
+      visiveis("pontos").join("|") === "Zebra Intocada" && cardZebra.classList.contains("op2-poi-card--achado")
+      && cardZebra.querySelector(".op2-poi-card__corpo").getBoundingClientRect().height > 0
+      && cardZebra.classList.contains("op2-poi-card--recolhido"));
+    termo.value = ""; termo.dispatchEvent(new Event("input")); await esperar(100);
+    ok("apagar a busca devolve o card ao recolhido que estava", !cardZebra.classList.contains("op2-poi-card--achado"));
+    el().querySelector('[data-action="expandirTodos"]').click();
+
+    // Centralizar o mapa no marcador: precisa de uma cena aberta — sem nenhuma à
+    // vista, o bloco abre a sua (e a apaga no fim).
+    const cenaAntes = canvas?.scene ?? null;
+    const cenaMira = cenaAntes ?? await Scene.create({ name: "Mira do marcador", width: 1200, height: 900 });
+    if (!cenaAntes) {
+      await cenaMira.view();
+      for (let i = 0; i < 300 && (!canvas.ready || canvas.scene?.id !== cenaMira.id); i += 1) await esperar(200);
+      await esperar(600);
+    }
+    if (canvas.ready && canvas.scene?.id === cenaMira.id) {
+      el().querySelector(`[data-poi-card="${intocado.uuid}"] [data-action="marcarNoMapa"]`).click(); await esperar(900);
+      const cardMarcado = el().querySelector(`[data-poi-card="${intocado.uuid}"]`);
+      const mira = cardMarcado?.querySelector('[data-action="irAoMarcador"]');
+      chip("pontos", "mapa", "com").click(); await esperar(150);
+      const noMapa = visiveis("pontos");
+      chip("pontos", "mapa", "com").click();
+      canvas.stage.pivot.set(10, 10);
+      mira?.click(); await esperar(900);
+      const nota = canvas.scene.notes.find((n) => n.flags["ordem-paranormal-2e"]?.marcador === intocado.uuid);
+      ok(`o card marcado ganha a mira, o chip No mapa o acha (${noMapa}) e a mira centraliza o mapa no marcador`,
+        Boolean(mira) && noMapa.join("|") === "Zebra Intocada" && nota
+        && Math.abs(canvas.stage.pivot.x - nota.x) < 2 && Math.abs(canvas.stage.pivot.y - nota.y) < 2);
+      cardMarcado?.querySelector('[data-action="desmarcarDoMapa"]')?.click(); await esperar(600);
+    } else {
+      ok(`o canvas não abriu a cena para testar a mira do marcador (ready=${canvas.ready}, cena=${canvas.scene?.name})`, false);
+    }
+    if (!cenaAntes) { await cenaMira.delete(); await esperar(800); }
+
+    // Desafios: a mesma barra, por estado e abordagem; a busca acha pelo nome do ponto.
+    painel.changeTab("desafios", "principal"); await esperar(150);
+    ok("a aba de desafios ganhou busca, chips e o seletor de abordagem",
+      el().querySelector('[data-filtro-termo="desafios"]') && chip("desafios", "progresso", "pendente") && seletor("desafios", "abordagem"));
+    chip("desafios", "progresso", "resolvido").click(); await esperar(150);
+    ok(`Resolvidos deixa só o hack resolvido (${visiveis("desafios")})`, visiveis("desafios").join("|") === "Cofre Hackeado");
+    chip("desafios", "progresso", "resolvido").click();
+    chip("desafios", "visibilidade", "visiveis").click(); await esperar(150);
+    ok(`Visíveis deixa só a porta (${visiveis("desafios")})`, visiveis("desafios").join("|") === "Zebra Intocada — Porta");
+    chip("desafios", "visibilidade", "visiveis").click();
+    escolher(seletor("desafios", "abordagem"), "hackTecnico"); await esperar(150);
+    ok(`o seletor de abordagem filtra pelo que o desafio aceita (${visiveis("desafios")})`, visiveis("desafios").join("|") === "Cofre Hackeado");
+    escolher(seletor("desafios", "abordagem"), "");
+    const termoDesafios = el().querySelector('[data-filtro-termo="desafios"]');
+    termoDesafios.value = "zebra"; termoDesafios.dispatchEvent(new Event("input")); await esperar(150);
+    ok("a busca dos desafios acha pelo nome do ponto a que pertence", visiveis("desafios").join("|") === "Zebra Intocada — Porta");
+    termoDesafios.value = ""; termoDesafios.dispatchEvent(new Event("input"));
+    // O atalho do card do ponto para o desafio dele desliga o filtro que o esconderia.
+    chip("desafios", "progresso", "resolvido").click(); await esperar(100);
+    painel.changeTab("pontos", "principal");
+    await painel.focarCard(porta.uuid, "desafios"); await esperar(300);
+    ok("ir para o card de um desafio desliga o filtro que o escondia",
+      !el().querySelector(`[data-poi-card="${porta.uuid}"]`).hidden && !chip("desafios", "progresso", "resolvido").classList.contains("ativo"));
+
+    // Atalhos: I abre e fecha o painel; com o foco num campo, I é letra; Shift+I abre as ações.
+    await painel.close(); await esperar(400);
+    const noDom = () => Boolean(document.getElementById("op2-painel-investigacao"));
+    const ligado = game.keybindings.bindings.get("ordem-paranormal-2e.painel")?.[0];
+    ok(`o atalho do painel está registrado na tecla I (${ligado?.key})`,
+      game.keybindings.actions.has("ordem-paranormal-2e.painel") && ligado?.key === "KeyI" && !(ligado.modifiers ?? []).length);
+    document.activeElement?.blur?.();
+    const tecla = (alvo, extra = {}) => {
+      for (const tipo of ["keydown", "keyup"]) alvo.dispatchEvent(new KeyboardEvent(tipo, { code: "KeyI", key: "i", bubbles: true, ...extra }));
+    };
+    tecla(window); await esperar(800);
+    const abriu = noDom();
+    tecla(window); await esperar(500);
+    const fechou = !noDom();
+    ok(`I abre o painel e I de novo fecha (abriu=${abriu}, fechou=${fechou})`, abriu && fechou);
+    const painel2 = game.op2.painelInvestigacao(); await esperar(800);
+    // O campo tem que estar na aba à vista: `focus()` num input de aba inativa
+    // (display: none) não pega, e aí o I fecha o painel (achado escrevendo este teste).
+    painel2.changeTab("pontos", "principal");
+    const campo = painel2.element.querySelector('[data-filtro-termo="pontos"]');
+    campo.focus(); tecla(campo); await esperar(400);
+    ok(`com o foco no campo de busca, I é letra e não fecha o painel (foco=${document.activeElement === campo})`,
+      document.activeElement === campo && noDom());
+    campo.blur();
+    const acoes = game.keybindings.bindings.get("ordem-paranormal-2e.acoes")?.[0];
+    ok(`Shift+I é a janela de ações (${acoes?.key} + ${acoes?.modifiers})`, acoes?.key === "KeyI" && (acoes.modifiers ?? []).includes("Shift"));
+    await game.user.update({ character: ator.id });
+    const painelAntesDoShift = noDom();
+    tecla(window, { key: "I", shiftKey: true }); await esperar(900);
+    const janelaAcoes = () => document.getElementById(`op2-acoes-${ator.id}`);
+    const abriuAcoes = Boolean(janelaAcoes());
+    tecla(window, { key: "I", shiftKey: true }); await esperar(600);
+    ok(`Shift+I abre a janela de ações do personagem do usuário, Shift+I de novo fecha, e o painel nem sente (abriu=${abriuAcoes}, fechou=${!janelaAcoes()})`,
+      abriuAcoes && !janelaAcoes() && noDom() === painelAntesDoShift);
+
+    await painel2.close();
+    await game.user.update({ character: personagemAntes });
+    for (const doc of [porta, cofre, intocado, andamento, esgotado, ator, inv]) await doc.delete();
+    return passos;
+  });
+  relato.passos.push(...filtros);
+}
+
 // Linha do quadro gravada em HTML (versões antigas do gerador): a ficha mostra texto
 // puro, e a migração do `ready` limpa os pontos do mundo (achado em uso real, duas vezes).
 {

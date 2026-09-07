@@ -469,7 +469,32 @@
       "DesafiosDoPonto": "Challenges",
       "EmPonto": "Challenge of {poi}",
       "IrParaDesafio": "Go to the challenge on the Challenges tab",
-      "EventoNestaRodada": "A scripted event falls on this round."
+      "EventoNestaRodada": "A scripted event falls on this round.",
+      "FiltrarDesafios": "Filter challenges…",
+      "Filtro": {
+        "Visiveis": "Visible",
+        "Ocultos": "Hidden",
+        "Intocados": "Untouched",
+        "IntocadosDica": "No line of the board has reached anyone",
+        "EmAndamento": "In progress",
+        "EmAndamentoDica": "Some line has reached someone, and some remain",
+        "Esgotados": "Exhausted",
+        "EsgotadosDica": "Every line (drafts aside) has reached someone",
+        "NoMapa": "On the map",
+        "NoMapaDica": "With a marker on the open scene",
+        "SemMarcador": "No marker",
+        "SemMarcadorDica": "No marker on the open scene — still to be placed",
+        "Pendentes": "Pending",
+        "Resolvidos": "Solved",
+        "QualquerPericia": "Any skill",
+        "QualquerAbordagem": "Any approach",
+        "Ordem": "Order",
+        "OrdemLivro": "Original order",
+        "OrdemNome": "By name",
+        "OrdemProgresso": "By progress",
+        "Limpar": "Clear filters",
+        "Contagem": "{visiveis} of {total}"
+      }
     },
     "Rodada": {
       "Titulo": "Round {rodada}",
@@ -840,7 +865,9 @@
       "Marcar": "Place marker on the map",
       "Desmarcar": "Remove the map marker",
       "SemCena": "Open the map scene before placing the marker.",
-      "SemPersonagem": "Pick a character to act from this marker."
+      "SemPersonagem": "Pick a character to act from this marker.",
+      "IrAoMarcador": "Center the map on the marker",
+      "SemMarcadorNaCena": "This marker is not on the open scene."
     },
     "Aventuras": {
       "Titulo": "Playtest adventures",
@@ -911,6 +938,13 @@
       "MenuBotao": "Open",
       "MenuAjuda": "What the system brings, where the adventures come from, the official links and the Community License.",
       "KoFi": "Support the system on Ko-fi"
+    },
+    "Atalhos": {
+      "Painel": "Investigation panel",
+      "PainelDica": "Opens and closes the investigation panel.",
+      "Acoes": "Actions window",
+      "AcoesDica": "Opens and closes the character's actions window: the selected token's, else yours.",
+      "SemPersonagem": "Choose a character, or select their token, to open the actions."
     }
   }
 }

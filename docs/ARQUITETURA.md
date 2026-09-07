@@ -29,8 +29,8 @@ sheets/ · dialogs · chat   apresentação
 | `module/data/` | `TypeDataModel` por tipo de documento. `campos.mjs` tem os construtores compartilhados. |
 | `module/dice/` | Escada, análise, `OP2Roll`, diálogo de teste, seleção de dados, falha crítica. |
 | `module/sheets/` | Fichas de ator e item. |
-| `module/ui/` | Ícones de dado, helpers de Handlebars, listeners de chat, socket. `zip.mjs` (leitor de zip puro) e `extras-aventura.mjs` (o importador que pede o zip da editora, sobe para a pasta do mundo e reescreve os caminhos). |
-| `module/cena/` | Cena: investigação ativa, painel, rodadas (sobrecarga e roteiro por rodada), ações de investigação/desafio/ferramenta/combate/ajuda, os três apps de minigame (Destrancar, Laboratório, Rádio), Ímpeto, ferimentos e queda. Regras puras em `investigacao.mjs`, `desafios.mjs`, `combate.mjs`, `ajuda.mjs`, `ferimentos.mjs`. |
+| `module/ui/` | Ícones de dado, helpers de Handlebars, listeners de chat, socket, atalhos de teclado (`atalhos.mjs`: I abre o painel, Shift+I as ações). `zip.mjs` (leitor de zip puro) e `extras-aventura.mjs` (o importador que pede o zip da editora, sobe para a pasta do mundo e reescreve os caminhos). |
+| `module/cena/` | Cena: investigação ativa, painel, rodadas (sobrecarga e roteiro por rodada), ações de investigação/desafio/ferramenta/combate/ajuda, os três apps de minigame (Destrancar, Laboratório, Rádio), Ímpeto, ferimentos e queda. Regras puras em `investigacao.mjs`, `desafios.mjs`, `combate.mjs`, `ajuda.mjs`, `ferimentos.mjs`; os filtros do painel em `filtros-painel.mjs`. |
 | `module/settings/` | Registro dos settings. Um por lacuna do playtest. |
 | `module/tests/` | `node --test`, sem runner externo. |
 | `templates/partials/` | Peças reutilizadas: controle de dado, linha de perícia, trilha de recurso. |

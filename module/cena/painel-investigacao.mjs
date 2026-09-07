@@ -106,6 +106,15 @@ export function abrirPainelInvestigacao() {
   return instancia;
 }
 
+/** O atalho de teclado: aberto fecha, fechado abre. */
+export function alternarPainelInvestigacao() {
+  if (instancia?.rendered) {
+    instancia.close();
+    return null;
+  }
+  return abrirPainelInvestigacao();
+}
+
 /**
  * Botão flutuante que abre o painel — não um controle de cena.
  *

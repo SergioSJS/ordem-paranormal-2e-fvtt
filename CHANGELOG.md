@@ -5,6 +5,14 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+- **Filtros no painel do mestre**: chips por visibilidade, progresso (intocado, em
+  andamento, esgotado) e marcador no mapa, seletor de perícia do quadro e ordem
+  (original, nome, progresso) na aba de pontos; a aba de desafios ganha busca, os mesmos
+  chips por estado e o seletor de abordagem. Buscar pelo nome abre o card achado mesmo
+  recolhido; a barra conta "x de y" e tem limpar.
+- O card com marcador tem um botão que centraliza o mapa nele.
+- Atalhos de teclado: **I** abre e fecha o painel de investigação; **Shift+I**, a janela
+  de ações do personagem (troque em Configurar controles).
 - **Toda janela do sistema cabe na tela e rola por dentro** — regra global; a ficha do ponto
   com muitas linhas sumia por baixo. O e2e enche cada tipo de janela e exige rolagem.
 - A ficha do ponto (a que abre pelo marcador no mapa) traz os controles do card do painel:

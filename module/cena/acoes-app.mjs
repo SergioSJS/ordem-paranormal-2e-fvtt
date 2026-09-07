@@ -397,6 +397,30 @@ export function abrirAcoesInvestigacao(ator) {
   return app;
 }
 
+/**
+ * O atalho de teclado (Shift+I): a janela do personagem aberta fecha, fechada abre.
+ * O personagem é o do token selecionado (um jogador com dois personagens), senão o
+ * do usuário.
+ */
+export function alternarAcoesInvestigacao(ator = personagemDoUsuario()) {
+  if (!ator) {
+    ui.notifications.warn(game.i18n.localize("OP2.Atalhos.SemPersonagem"));
+    return null;
+  }
+  const aberta = foundry.applications.instances.get(`op2-acoes-${ator.id}`);
+  if (aberta?.rendered) {
+    aberta.close();
+    return null;
+  }
+  return abrirAcoesInvestigacao(ator);
+}
+
+function personagemDoUsuario() {
+  const controlado = canvas?.tokens?.controlled?.[0]?.actor;
+  if (controlado?.type === "personagem") return controlado;
+  return game.user.character ?? null;
+}
+
 /** Comparação de nomes sem acento nem caixa, para o filtro. */
 function normalizar(texto) {
   return String(texto ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();

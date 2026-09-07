@@ -1,0 +1,28 @@
+{{!-- A barra de filtros de uma aba do painel (só o mestre): chips por dimensão,
+      o seletor da aba (perícia do quadro nos pontos, abordagem nos desafios) e a
+      ordem. Tudo mexe só no DOM — `#aplicarFiltros` em painel-comum.mjs. --}}
+<div class="op2-painel-filtros" data-filtros="{{aba}}">
+  {{#each grupos}}
+    <div class="op2-chip-grupo" role="group">
+      {{#each this}}
+        <button type="button" class="op2-chip{{#if ativo}} ativo{{/if}}" data-action="alternarChip"
+          data-aba="{{aba}}" data-dimensao="{{dimensao}}" data-valor="{{valor}}"
+          aria-pressed="{{#if ativo}}true{{else}}false{{/if}}"{{#if dica}} data-tooltip="{{dica}}"{{/if}}>{{rotulo}}</button>
+      {{/each}}
+    </div>
+  {{/each}}
+  <select class="op2-painel-filtros__seletor" data-filtro-seletor="{{seletor.dimensao}}" data-aba="{{aba}}"
+    aria-label="{{seletor.vazio}}">
+    <option value="">{{seletor.vazio}}</option>
+    {{#each seletor.opcoes}}<option value="{{valor}}"{{#if ativa}} selected{{/if}}>{{rotulo}}</option>{{/each}}
+  </select>
+  <select class="op2-painel-filtros__seletor" data-filtro-seletor="ordem" data-aba="{{aba}}"
+    aria-label="{{localize 'OP2.Painel.Filtro.Ordem'}}">
+    {{#each ordens}}<option value="{{valor}}"{{#if ativa}} selected{{/if}}>{{rotulo}}</option>{{/each}}
+  </select>
+  <span class="op2-painel-filtros__contagem" data-filtro-contagem hidden></span>
+  <button type="button" class="op2-botao-icone" data-action="limparFiltros" data-aba="{{aba}}" hidden
+    aria-label="{{localize 'OP2.Painel.Filtro.Limpar'}}" data-tooltip="{{localize 'OP2.Painel.Filtro.Limpar'}}">
+    <i class="fa-solid fa-filter-circle-xmark" aria-hidden="true"></i>
+  </button>
+</div>

@@ -206,7 +206,7 @@
         a barra de rolagem infinita (achado em uso real). --}}
   <header class="op2-painel-secao__topo">
     <div class="op2-painel-ferramentas">
-      <input type="search" class="op2-painel-filtro" data-filtro-pois value="{{filtro}}"
+      <input type="search" class="op2-painel-filtro" data-filtro-pois data-filtro-termo="pontos" value="{{termos.pontos}}"
         placeholder="{{localize 'OP2.Painel.FiltrarPontos'}}" aria-label="{{localize 'OP2.Painel.FiltrarPontos'}}">
       <button type="button" class="op2-botao-icone" data-action="recolherTodos"
         aria-label="{{localize 'OP2.Painel.RecolherTodos'}}" data-tooltip="{{localize 'OP2.Painel.RecolherTodos'}}">
@@ -217,6 +217,9 @@
         <i class="fa-solid fa-expand" aria-hidden="true"></i>
       </button>
     </div>
+    {{!-- Trinta pontos pedem mais que a busca: chips por visibilidade, progresso e
+          marcador, a perícia do quadro e a ordem (achado em uso real). --}}
+    {{#if ehGM}}{{> (op2Caminho "cena/partials/painel-filtros") filtros.pontos}}{{/if}}
   </header>
   {{#unless pois.length}}
     <p class="op2-ajuda">{{localize "OP2.Painel.SemPOIs"}}</p>
@@ -225,7 +228,8 @@
   <ol class="op2-painel-pois">
     {{#each pois}}
       <li class="op2-poi-card{{#if oculto}} op2-poi-card--oculto{{/if}}{{#if recolhido}} op2-poi-card--recolhido{{/if}}{{#if notasAbertas}} op2-poi-card--notas{{/if}}"
-        data-poi-card="{{uuid}}" data-nome="{{nome}}">
+        data-poi-card="{{uuid}}" data-nome="{{nome}}" data-indice="{{indice}}" data-progresso="{{progresso}}"
+        data-oculto="{{#if oculto}}1{{else}}0{{/if}}" data-marcado="{{#if marcado}}1{{else}}0{{/if}}" data-pericias="{{pericias}}">
         <header class="op2-poi-card__topo">
           <button type="button" class="op2-botao-icone op2-poi-card__recolher" data-action="alternarRecolhido"
             data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.RecolherExpandir'}}"
@@ -255,6 +259,12 @@
                 data-tooltip="{{#if marcado}}{{localize 'OP2.Marcador.Desmarcar'}}{{else}}{{localize 'OP2.Marcador.Marcar'}}{{/if}}">
                 <i class="fa-solid {{#if marcado}}fa-map-pin{{else}}fa-map-location-dot{{/if}}" aria-hidden="true"></i>
               </button>
+              {{#if marcado}}
+                <button type="button" class="op2-botao op2-botao--pequeno" data-action="irAoMarcador" data-uuid="{{uuid}}"
+                  aria-label="{{localize 'OP2.Marcador.IrAoMarcador'}}" data-tooltip="{{localize 'OP2.Marcador.IrAoMarcador'}}">
+                  <i class="fa-solid fa-crosshairs" aria-hidden="true"></i>
+                </button>
+              {{/if}}
               {{#if descricaoContextual}}
                 <button type="button" class="op2-botao op2-botao--pequeno{{#if notasAbertas}} ativo{{/if}}" data-action="alternarNotasMestre"
                   data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.NotasMestre'}}"
@@ -369,6 +379,21 @@
 </section>
 
 <section class="op2-painel-aba op2-painel-desafios tab {{tabs.desafios.cssClass}}" data-group="principal" data-tab="desafios">
+  <header class="op2-painel-secao__topo">
+    <div class="op2-painel-ferramentas">
+      <input type="search" class="op2-painel-filtro" data-filtro-desafios data-filtro-termo="desafios" value="{{termos.desafios}}"
+        placeholder="{{localize 'OP2.Painel.FiltrarDesafios'}}" aria-label="{{localize 'OP2.Painel.FiltrarDesafios'}}">
+      <button type="button" class="op2-botao-icone" data-action="recolherTodos"
+        aria-label="{{localize 'OP2.Painel.RecolherTodos'}}" data-tooltip="{{localize 'OP2.Painel.RecolherTodos'}}">
+        <i class="fa-solid fa-compress" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="op2-botao-icone" data-action="expandirTodos"
+        aria-label="{{localize 'OP2.Painel.ExpandirTodos'}}" data-tooltip="{{localize 'OP2.Painel.ExpandirTodos'}}">
+        <i class="fa-solid fa-expand" aria-hidden="true"></i>
+      </button>
+    </div>
+    {{#if ehGM}}{{> (op2Caminho "cena/partials/painel-filtros") filtros.desafios}}{{/if}}
+  </header>
   {{#unless desafios.length}}
     <p class="op2-ajuda">{{localize "OP2.Painel.SemDesafios"}}</p>
   {{/unless}}
@@ -376,7 +401,8 @@
   <ol class="op2-painel-pois">
     {{#each desafios}}
       <li class="op2-poi-card op2-poi-card--desafio{{#if oculto}} op2-poi-card--oculto{{/if}}{{#if recolhido}} op2-poi-card--recolhido{{/if}}{{#if notasAbertas}} op2-poi-card--notas{{/if}}"
-        data-poi-card="{{uuid}}" data-nome="{{nome}}">
+        data-poi-card="{{uuid}}" data-nome="{{nome}}" data-indice="{{indice}}" data-progresso="{{progresso}}"
+        data-oculto="{{#if oculto}}1{{else}}0{{/if}}" data-marcado="{{#if marcado}}1{{else}}0{{/if}}" data-abordagens="{{abordagensChaves}}">
         <header class="op2-poi-card__topo">
           <button type="button" class="op2-botao-icone op2-poi-card__recolher" data-action="alternarRecolhido"
             data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.RecolherExpandir'}}"
@@ -413,6 +439,12 @@
                 data-tooltip="{{#if marcado}}{{localize 'OP2.Marcador.Desmarcar'}}{{else}}{{localize 'OP2.Marcador.Marcar'}}{{/if}}">
                 <i class="fa-solid {{#if marcado}}fa-map-pin{{else}}fa-map-location-dot{{/if}}" aria-hidden="true"></i>
               </button>
+              {{#if marcado}}
+                <button type="button" class="op2-botao op2-botao--pequeno" data-action="irAoMarcador" data-uuid="{{uuid}}"
+                  aria-label="{{localize 'OP2.Marcador.IrAoMarcador'}}" data-tooltip="{{localize 'OP2.Marcador.IrAoMarcador'}}">
+                  <i class="fa-solid fa-crosshairs" aria-hidden="true"></i>
+                </button>
+              {{/if}}
               {{#if nota}}
                 <button type="button" class="op2-botao op2-botao--pequeno{{#if notasAbertas}} ativo{{/if}}" data-action="alternarNotasMestre"
                   data-uuid="{{uuid}}" aria-label="{{localize 'OP2.Painel.NotasMestre'}}"

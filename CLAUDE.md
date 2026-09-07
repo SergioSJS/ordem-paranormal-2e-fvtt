@@ -197,6 +197,8 @@ O servidor do Foundry v14 exige **Node 24**. O `npm test` do projeto roda em Nod
 - `npc.test.mjs` — a perícia do NPC a partir do diálogo: chave do sistema, Aptidão sem
   ponto na chave, "Outra" em slug.
 - `acoes-app.test.mjs` — a janela de ações fecha depois da ação e fica quando cancelada.
+- `filtros-painel.test.mjs` — os chips do painel (visibilidade, progresso, mapa, perícia,
+  abordagem), a ordem e o progresso do ponto.
 
 ### Dentro do Foundry — `npm run e2e`
 

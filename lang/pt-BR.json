@@ -469,7 +469,32 @@
       "DesafiosDoPonto": "Desafios",
       "EmPonto": "Desafio de {poi}",
       "IrParaDesafio": "Ir para o desafio na aba Desafios",
-      "EventoNestaRodada": "Um evento do roteiro cai nesta rodada."
+      "EventoNestaRodada": "Um evento do roteiro cai nesta rodada.",
+      "FiltrarDesafios": "Filtrar desafios…",
+      "Filtro": {
+        "Visiveis": "Visíveis",
+        "Ocultos": "Ocultos",
+        "Intocados": "Intocados",
+        "IntocadosDica": "Nenhuma linha do quadro chegou a alguém",
+        "EmAndamento": "Em andamento",
+        "EmAndamentoDica": "Alguma linha já chegou a alguém, e ainda falta",
+        "Esgotados": "Esgotados",
+        "EsgotadosDica": "Todas as linhas (fora rascunho) já chegaram a alguém",
+        "NoMapa": "No mapa",
+        "NoMapaDica": "Com marcador na cena aberta",
+        "SemMarcador": "Sem marcador",
+        "SemMarcadorDica": "Sem marcador na cena aberta — ainda falta posicionar",
+        "Pendentes": "Pendentes",
+        "Resolvidos": "Resolvidos",
+        "QualquerPericia": "Qualquer perícia",
+        "QualquerAbordagem": "Qualquer abordagem",
+        "Ordem": "Ordem",
+        "OrdemLivro": "Ordem original",
+        "OrdemNome": "Por nome",
+        "OrdemProgresso": "Por progresso",
+        "Limpar": "Limpar filtros",
+        "Contagem": "{visiveis} de {total}"
+      }
     },
     "Rodada": {
       "Titulo": "Rodada {rodada}",
@@ -840,7 +865,9 @@
       "Marcar": "Marcar no mapa",
       "Desmarcar": "Tirar o marcador do mapa",
       "SemCena": "Abra a cena do mapa antes de marcar o ponto.",
-      "SemPersonagem": "Escolha um personagem para agir a partir do marcador."
+      "SemPersonagem": "Escolha um personagem para agir a partir do marcador.",
+      "IrAoMarcador": "Centralizar o mapa no marcador",
+      "SemMarcadorNaCena": "Este marcador não está na cena aberta."
     },
     "Aventuras": {
       "Titulo": "Aventuras do playtest",
@@ -911,6 +938,13 @@
       "MenuBotao": "Abrir",
       "MenuAjuda": "O que o sistema traz, de onde vêm as aventuras, os links oficiais e a Licença da Comunidade.",
       "KoFi": "Apoie o sistema no Ko-fi"
+    },
+    "Atalhos": {
+      "Painel": "Painel de investigação",
+      "PainelDica": "Abre e fecha o painel de investigação.",
+      "Acoes": "Janela de ações",
+      "AcoesDica": "Abre e fecha a janela de ações do personagem: o do token selecionado, senão o seu.",
+      "SemPersonagem": "Escolha um personagem, ou selecione o token dele, para abrir as ações."
     }
   }
 }
