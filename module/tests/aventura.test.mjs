@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { montarAtoI } from "../aventura/ato-i.mjs";
 import { montarAtoII } from "../aventura/ato-ii.mjs";
+import { alinharNiveis } from "../aventura/niveis.mjs";
 
 /** Um Ato I mínimo, no formato que `extrairAtoI` devolve. */
 const extraidoAtoI = () => ({
@@ -197,4 +198,32 @@ test("montarAtoII: o handout citado solto no texto ganha a imagem, com o número
   assert.ok(extras.arquivos.some((a) => a.destino === "mapas/mapa-01-o-porao.jpg"));
   // Os handouts do Ato I que o Ato II cita: o importador troca o prefixo deles também.
   assert.deepEqual(extras.tambem, [{ prefixo: "systems/ordem-paranormal-2e/assets/ato-i/", pasta: "ato-i" }]);
+});
+
+test("alinharNiveis: a cena que chega usa o nível da cena que já existe, e parede presa a nível inexistente vai para ele", () => {
+  const cena = () => ({
+    levels: [{ _id: "novo", name: "Porão" }],
+    initialLevel: "defaultLevel0000",
+    walls: [{ _id: "a", levels: ["defaultLevel0000"] }, { _id: "b", levels: [] }, { _id: "c", levels: ["novo"] }],
+    lights: [{ _id: "l", levels: ["outro"] }],
+    tokens: [{ _id: "t", levels: ["novo", "defaultLevel0000"] }],
+  });
+  // Reimportação: o mundo tem a cena no `defaultLevel0000` (o mestre vê por ele).
+  const c1 = cena();
+  assert.deepEqual(alinharNiveis(c1, ["defaultLevel0000"]), { niveis: 1, referencias: 3 });
+  assert.equal(c1.levels[0]._id, "defaultLevel0000");
+  assert.deepEqual(c1.walls.map((w) => w.levels), [["defaultLevel0000"], [], ["defaultLevel0000"]]);
+  assert.deepEqual(c1.lights[0].levels, ["defaultLevel0000"]);
+  assert.deepEqual(c1.tokens[0].levels, ["defaultLevel0000"]);
+  assert.equal(c1.initialLevel, "defaultLevel0000");
+  // Primeira importação: o nível é o que chega; só a referência solta muda.
+  const c2 = cena();
+  assert.deepEqual(alinharNiveis(c2, []), { niveis: 0, referencias: 3 });
+  assert.equal(c2.levels[0]._id, "novo");
+  assert.deepEqual(c2.walls.map((w) => w.levels), [["novo"], [], ["novo"]]);
+  assert.equal(c2.initialLevel, "novo");
+  // Cena sem níveis (o servidor sintetiza): referência a nível vira "todos".
+  const c3 = { walls: [{ _id: "a", levels: ["defaultLevel0000"] }] };
+  assert.deepEqual(alinharNiveis(c3, ["x"]), { niveis: 0, referencias: 1 });
+  assert.deepEqual(c3.walls[0].levels, []);
 });

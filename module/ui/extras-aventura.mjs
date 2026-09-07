@@ -26,6 +26,7 @@
  */
 import { SYSTEM_ID } from "../config.mjs";
 import { listarEntradas, extrairEntrada, casarEntradas } from "./zip.mjs";
+import { alinharNiveis } from "../aventura/niveis.mjs";
 
 const MARCA_RESOLVIDO = "op2ExtrasResolvidos";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -346,6 +347,21 @@ export function registrarExtrasDeAventura() {
         trocas += reescreverCaminhos(outro.prefixo, `worlds/${game.world.id}/${outro.pasta}/`, toCreate, toUpdate);
       }
       console.log(`${SYSTEM_ID} | extras: ${trocas} caminho(s) apontados para ${pastaDosExtras(extras)}`);
+      // Cena que já existe no mundo mantém os ids de nível dela (o mestre pode estar
+      // vendo por eles); referência a nível inexistente vai para o primeiro nível.
+      let ajustes = { niveis: 0, referencias: 0 };
+      for (const cena of toUpdate?.Scene ?? []) {
+        const existente = game.scenes.get(cena._id);
+        const r = alinharNiveis(cena, existente ? [...existente.levels].map((n) => n.id) : []);
+        ajustes = { niveis: ajustes.niveis + r.niveis, referencias: ajustes.referencias + r.referencias };
+      }
+      for (const cena of toCreate?.Scene ?? []) {
+        const r = alinharNiveis(cena, []);
+        ajustes = { niveis: ajustes.niveis + r.niveis, referencias: ajustes.referencias + r.referencias };
+      }
+      if (ajustes.niveis || ajustes.referencias) {
+        console.log(`${SYSTEM_ID} | extras: níveis da cena alinhados (${ajustes.niveis} id(s) de nível, ${ajustes.referencias} referência(s))`);
+      }
       return true;
     }
     if (!game.user.isGM) return true;

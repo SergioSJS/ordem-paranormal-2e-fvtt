@@ -2906,8 +2906,10 @@ const relato = await page.evaluate(async (boasVindas) => {
       // Parede presa a um nível que a cena não tem não aparece (achado em uso real: 36
       // das 39 invisíveis, presas ao nível do mundo de quem capturou).
       const niveisMontados = new Set([...(cenaMontada.levels ?? [])].map((l) => l._id ?? l.id));
-      ok("toda parede da cena montada está no nível da própria cena",
-        niveisMontados.size === 1 && cenaMontada.walls.every((w) => !w.levels?.length || w.levels.every((id) => niveisMontados.has(id))));
+      const noNivel = (w) => [...(w.levels ?? [])];
+      ok("toda parede da cena montada está no nível da própria cena, e 36 delas presas a ele",
+        niveisMontados.size === 1 && cenaMontada.walls.every((w) => noNivel(w).every((id) => niveisMontados.has(id)))
+        && cenaMontada.walls.filter((w) => noNivel(w).length).length === 36);
       const pontos = [...aventura.items].filter((i) => i.type === "ponto-interesse");
       const linhas = pontos.flatMap((p) => p.system.informacoes);
       ok("31 pontos com 87 linhas de quadro, todas com perícia e DT",
@@ -3021,6 +3023,19 @@ const relato = await page.evaluate(async (boasVindas) => {
         await esperar(500);
         ok("a cena importada mostra todas as 39 paredes no mapa",
           canvas.ready && canvas.scene?.id === cena.id && cena.walls.size === 39 && canvas.walls.placeables.length === 39);
+        // Reimportar com a cena aberta (achado em uso real): o update trocava o id do
+        // nível por baixo do canvas e o Foundry quebrava em SceneLevel#isVisible.
+        const pack = game.packs.get("world.op2-aventuras");
+        const doc = await pack.getDocument([...pack.index].find((x) => x.name === "Ato I — O Porão")._id);
+        const nivelAntes = [...cena.levels].map((l) => l.id).join();
+        const modificadaAntes = cena._stats.modifiedTime;
+        await doc.import({ dialog: false }); // o hook devolve false e importa pelo caminho dos extras
+        for (let i = 0; i < 150 && cena._stats.modifiedTime === modificadaAntes; i += 1) await esperar(200);
+        await esperar(1000);
+        ok("reimportar o Ato I com a cena aberta mantém o nível da cena e as 39 paredes no mapa",
+          cena._stats.modifiedTime !== modificadaAntes && [...cena.levels].map((l) => l.id).join() === nivelAntes
+          && canvas.scene?.id === cena.id && canvas.walls.placeables.length === 39
+          && cena.walls.every((w) => [...(w.levels ?? [])].every((id) => cena.levels.has(id))));
       }
       // As artes: tudo aponta para a pasta do mundo, nada para o sistema.
       const alan = pregerados.find((a) => a.name === "Alan");
@@ -3203,7 +3218,8 @@ const relato = await page.evaluate(async (boasVindas) => {
       r.cena = cena._source.background.src === `${raiz}/mapas/mapa-01-o-porao.jpg`
         && cena.width === 3537 && cena.height === 4101 && cena.walls.size === 39
         && cena.walls.filter((w) => w.door).length === 6
-        && cena.walls.every((w) => !w.levels?.length || w.levels.every((id) => niveisII.has(id)));
+        && cena.walls.every((w) => [...(w.levels ?? [])].every((id) => niveisII.has(id)))
+        && cena.walls.filter((w) => [...(w.levels ?? [])].length).length === 36;
       const trilha = game.playlists.getName("Ato II — Áudios EMF");
       r.trilha = trilha.sounds.size === 3 && trilha.sounds.every((s) => s.path.startsWith(`${raiz}/musicas/audio-emf-`));
       const handouts = game.journal.getName("Handouts — Ato II");
