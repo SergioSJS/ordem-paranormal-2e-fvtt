@@ -22,6 +22,10 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # O `if` de um passo não enxerga `secrets`: o token entra como env do job e o passo
+    # testa o env (vazio quando o segredo não existe).
+    env:
+      FOUNDRY_RELEASE_TOKEN: ${{ secrets.FOUNDRY_RELEASE_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -96,9 +100,7 @@ jobs:
       # existe token, e o passo é pulado. O manifesto enviado é o DESTA versão (a API
       # exige URL fixa por versão); o `manifest` do system.json continua "latest".
       - name: Registrar a versão no Foundry
-        if: ${{ secrets.FOUNDRY_RELEASE_TOKEN != '' }}
-        env:
-          FOUNDRY_RELEASE_TOKEN: ${{ secrets.FOUNDRY_RELEASE_TOKEN }}
+        if: ${{ env.FOUNDRY_RELEASE_TOKEN != '' }}
         run: |
           VERSION=${TAG#v}
           REPO=${{ github.repository }}
