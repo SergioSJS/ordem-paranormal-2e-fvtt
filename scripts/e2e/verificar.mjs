@@ -2996,10 +2996,11 @@ const relato = await page.evaluate(async (boasVindas) => {
       "o zip gratuito do Ato I traz todos os 36 arquivos que a aventura espera — nada aproximado, faltando ou recusado"]);
     await page.click('.op2-extras [data-action="concluir"]');
     // Depois do envio a janela se refaz: artes completas, sem botão de zip.
-    await page.waitForFunction(() => !document.querySelector('#op2-aventuras [data-action="enviarZip"][data-ato="ato-i"]')
-      && /36 arquivos estão em/.test(document.querySelector('#op2-aventuras .op2-aventuras__ato[data-ato="ato-i"] .op2-aventuras__artes')?.textContent ?? ""),
+    await page.waitForFunction(() => /36 arquivos estão em/.test(document.querySelector('#op2-aventuras .op2-aventuras__ato[data-ato="ato-i"] .op2-aventuras__artes')?.textContent ?? ""),
     null, { timeout: 20000 });
-    relato.passos.push([true, "depois do envio a janela mostra as artes completas na pasta do mundo, sem pedir zip"]);
+    // O botão fica: com tudo no lugar vira "Reenviar", para trocar por um zip mais novo.
+    const botaoZip = await page.evaluate(() => document.querySelector('#op2-aventuras [data-action="enviarZip"][data-ato="ato-i"]')?.textContent.trim() ?? "");
+    relato.passos.push([/Reenviar/.test(botaoZip), `depois do envio a janela mostra as artes completas e oferece reenviar o zip (${botaoZip})`]);
     await page.click('#op2-aventuras [data-action="importar"][data-ato="ato-i"]');
     const pediuDeNovo = await page.waitForSelector(".op2-extras input[type=file]", { timeout: 4000 }).then(() => true).catch(() => false);
     relato.passos.push([!pediuDeNovo, "importar com as artes na pasta não pede o zip de novo"]);

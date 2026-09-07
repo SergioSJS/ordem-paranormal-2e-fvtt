@@ -865,7 +865,8 @@
       "NaoMontada": "Não montada",
       "ArtesFaltam": "Artes: faltam {faltam} de {total} arquivos na pasta do mundo — é o {zip} da editora",
       "ArtesOk": "Artes: os {total} arquivos estão em {pasta}",
-      "EnviarZip": "Enviar zip das artes"
+      "EnviarZip": "Enviar zip das artes",
+      "ReenviarZip": "Reenviar zip das artes"
     },
     "Licenca": {
       "Aviso": "Este é um conteúdo não oficial, publicado sob a Licença da Comunidade de Ordem Paranormal. Contém material gerado por inteligência artificial: o código é escrito com auxílio de IA; os textos são do autor.",

@@ -52,9 +52,10 @@
 
         {{#if noMundo}}
           <div class="op2-aventuras__acoes">
-            {{#if artes.faltam}}
+            {{#if artes}}
+              {{!-- Sempre: com tudo no lugar, reenviar troca os arquivos por um zip mais novo. --}}
               <button type="button" class="op2-botao op2-botao--pequeno" data-action="enviarZip" data-ato="{{nome}}">
-                <i class="fa-solid fa-file-zipper" aria-hidden="true"></i> {{localize "OP2.Aventuras.EnviarZip"}}
+                <i class="fa-solid fa-file-zipper" aria-hidden="true"></i> {{#if artes.faltam}}{{localize "OP2.Aventuras.EnviarZip"}}{{else}}{{localize "OP2.Aventuras.ReenviarZip"}}{{/if}}
               </button>
             {{/if}}
             <button type="button" class="op2-botao op2-botao--pequeno" data-action="abrirAventura" data-ato="{{nome}}">

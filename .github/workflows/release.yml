@@ -90,5 +90,30 @@ jobs:
           files: |
             ${{ env.SYSTEM_ID }}.zip
             system.json
+
+      # Registra a versão na listagem do Foundry (Package Release API). Só roda com o
+      # token do pacote em `FOUNDRY_RELEASE_TOKEN` — antes da aprovação do pacote não
+      # existe token, e o passo é pulado. O manifesto enviado é o DESTA versão (a API
+      # exige URL fixa por versão); o `manifest` do system.json continua "latest".
+      - name: Registrar a versão no Foundry
+        if: ${{ secrets.FOUNDRY_RELEASE_TOKEN != '' }}
+        env:
+          FOUNDRY_RELEASE_TOKEN: ${{ secrets.FOUNDRY_RELEASE_TOKEN }}
+        run: |
+          VERSION=${TAG#v}
+          REPO=${{ github.repository }}
+          MIN=$(jq -r '.compatibility.minimum' system.json)
+          VER=$(jq -r '.compatibility.verified' system.json)
+          MAX=$(jq -r '.compatibility.maximum // empty' system.json)
+          BODY=$(jq -n --arg id "$SYSTEM_ID" --arg v "$VERSION" \
+            --arg manifest "https://github.com/${REPO}/releases/download/${TAG}/system.json" \
+            --arg notes "https://github.com/${REPO}/releases/tag/${TAG}" \
+            --arg min "$MIN" --arg ver "$VER" --arg max "$MAX" \
+            '{id: $id, release: {version: $v, manifest: $manifest, notes: $notes,
+              compatibility: ({minimum: $min, verified: $ver} + (if $max == "" then {} else {maximum: $max} end))}}')
+          echo "$BODY" | jq .
+          curl -sS -f -X POST https://foundryvtt.com/_api/packages/release_version/ \
+            -H "Content-Type: application/json" -H "Authorization: $FOUNDRY_RELEASE_TOKEN" \
+            -d "$BODY"
           generate_release_notes: true
           fail_on_unmatched_files: true

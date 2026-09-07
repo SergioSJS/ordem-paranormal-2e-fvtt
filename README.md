@@ -475,7 +475,8 @@ O playtest é explicitamente parcial: NEX, progressão por nível e traumas perm
 ainda não foram publicados. Onde o texto é ambíguo ou se contradiz, o sistema expõe um
 **setting** com o default recomendado — a lista está em [docs/LACUNAS.md](docs/LACUNAS.md).
 
-O roadmap completo está em [docs/ROADMAP.md](docs/ROADMAP.md).
+O roadmap completo está em [docs/ROADMAP.md](docs/ROADMAP.md). Como o sistema vai para a
+listagem do Foundry e como cada versão é registrada: [docs/PUBLICACAO.md](docs/PUBLICACAO.md).
 
 ## Licença
 

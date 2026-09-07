@@ -865,7 +865,8 @@
       "NaoMontada": "Not built",
       "ArtesFaltam": "Art: {faltam} of {total} files missing from the world folder — it's the publisher's {zip}",
       "ArtesOk": "Art: all {total} files are in {pasta}",
-      "EnviarZip": "Upload the art zip"
+      "EnviarZip": "Upload the art zip",
+      "ReenviarZip": "Resend the art zip"
     },
     "Licenca": {
       "Aviso": "This is unofficial content, published under the Ordem Paranormal Community License. Contains AI-generated material: the code is written with AI assistance; the texts are the author's.",
