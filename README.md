@@ -480,8 +480,9 @@ O roadmap completo está em [docs/ROADMAP.md](docs/ROADMAP.md).
 Código sob [GPL-3.0](LICENSE) — Copyright (C) 2026 Sérgio Sousa. Fontes sob OFL 1.1 — veja
 [assets/fonts/LICENSES.md](assets/fonts/LICENSES.md).
 
-Contém material gerado por inteligência artificial (código e textos de interface), sob
-revisão humana: cada mudança passa pelos testes offline e pelo e2e num Foundry de
-verdade antes de entrar. Nenhum texto de regra, lore ou arte do livro é gerado por IA —
+Contém material gerado por inteligência artificial: o código é escrito com auxílio de IA
+e mantido pelo autor — cada mudança passa pelos testes offline e pelo e2e num Foundry de
+verdade antes de entrar. Os textos de interface e de compêndio são do autor, que os
+revisou e assina. Nenhum texto de regra, lore ou arte do livro é gerado por IA —
 nem entra no pacote. O sistema não coleta nem envia dado pessoal algum (LGPD): o PDF é
 lido no seu navegador e não sai da sua máquina.
