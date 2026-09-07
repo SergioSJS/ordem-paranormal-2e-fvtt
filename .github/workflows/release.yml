@@ -4,11 +4,20 @@ on:
   push:
     tags:
       - "v*.*.*"
+  # Disparo manual para uma tag que já existe: o primeiro push de um repositório
+  # novo não gerou o evento da tag (achado ao publicar a v0.9.0).
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag da release (vX.Y.Z), já criada"
+        required: true
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
 
 permissions:
   contents: write
 
-env:
   SYSTEM_ID: ordem-paranormal-2e
 
 jobs:
@@ -16,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -35,9 +46,9 @@ jobs:
 
       - name: Fixar versão e URL de download no manifesto
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
+          VERSION=${TAG#v}
           REPO=${{ github.repository }}
-          DOWNLOAD="https://github.com/${REPO}/releases/download/${GITHUB_REF_NAME}/${SYSTEM_ID}.zip"
+          DOWNLOAD="https://github.com/${REPO}/releases/download/${TAG}/${SYSTEM_ID}.zip"
           jq --arg ver "$VERSION" --arg dl "$DOWNLOAD" \
             '.version = $ver | .download = $dl' \
             system.json > system.tmp.json && mv system.tmp.json system.json
@@ -76,6 +87,7 @@ jobs:
       - name: Publicar release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
           files: |
             ${{ env.SYSTEM_ID }}.zip
             system.json
