@@ -36,12 +36,17 @@ const dados = await page.evaluate(async () => {
     .filter((i) => ["ponto-interesse", "desafio-acesso"].includes(i.type)).map((i) => i.id));
   await ChatMessage.deleteDocuments(game.messages.map((m) => m.id));
 
-  // Os pré-gerados vêm do bundle da janela de aventuras; as artes, da pasta do mundo,
-  // onde o e2e já subiu o zip do Ato I (sem ele, o retrato sai quebrado no print).
+  // Os pré-gerados vêm do bundle da janela de aventuras, SEM as artes da editora: os
+  // prints vão para o README e para a listagem do Foundry, e a Licença da Comunidade
+  // não deixa reproduzir imagem do livro — retrato e token ficam no ícone do sistema.
   const fontes = await (await fetch("systems/ordem-paranormal-2e/assets/aventura/fontes-ato-i.json")).json();
+  const ICONE = "icons/svg/mystery-man.svg"; // do próprio Foundry, não redistribuído
   const importar = async (nome) => {
-    const doc = fontes.pregerados.find((a) => a.name === nome);
-    return Actor.create(JSON.parse(JSON.stringify(doc).replaceAll("systems/ordem-paranormal-2e/assets/ato-i/", `worlds/${game.world.id}/ato-i/`)));
+    const doc = foundry.utils.deepClone(fontes.pregerados.find((a) => a.name === nome));
+    doc.img = ICONE;
+    foundry.utils.setProperty(doc, "prototypeToken.texture.src", ICONE);
+    foundry.utils.setProperty(doc, "system.biografia", "");
+    return Actor.create(doc);
   };
   const alan = await importar("Alan");
   const edgar = await importar("Edgar");
