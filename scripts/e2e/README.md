@@ -126,6 +126,19 @@ rádio. Aponte `OP2_E2E_DATA` para o User Data descartável para ele zerar
 OP2_E2E_DATA="$DATA" node scripts/e2e/verificar.mjs http://localhost:30099 /tmp
 ```
 
+## Auditoria visual (tema claro e escuro)
+
+`scripts/e2e/auditoria-visual.mjs` abre cada tela do sistema — settings, menus, fichas de
+ator e item, painel (três abas), janela de ações, diálogos, Destrancar, Laboratório,
+Rádio, timer do hack e o chat com cards — no tema pedido e fotografa em `OP2_SAIDA`:
+
+```bash
+OP2_TEMA=light OP2_SAIDA=/tmp/auditoria node scripts/e2e/auditoria-visual.mjs
+```
+
+Usa o mundo do e2e depois de uma rodada (os atos importados). Olhe os prints um a um;
+foi assim que o tema claro foi fechado.
+
 ## Testando no v13
 
 Mesmo procedimento, com a build v13 (`/Applications/Foundry Virtual Tabletop-13.app`,

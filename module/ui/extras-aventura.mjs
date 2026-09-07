@@ -324,7 +324,15 @@ export class ExtrasMenuApp extends HandlebarsApplicationMixin(ApplicationV2) {
         });
       }
     }
-    return { aventuras, semAventura: !aventuras.length };
+    // Uma entrada por aventura: a do mundo (montada do PDF) vale sobre a do pack de
+    // desenvolvimento, que só existe em quem gera os atos pelos scripts.
+    const porNome = new Map();
+    for (const a of aventuras) {
+      const doMundo = a.uuid.startsWith("Compendium.world.");
+      if (!porNome.has(a.nome) || doMundo) porNome.set(a.nome, a);
+    }
+    const unicas = [...porNome.values()];
+    return { aventuras: unicas, semAventura: !unicas.length };
   }
 
   static async #enviar(_evento, alvo) {

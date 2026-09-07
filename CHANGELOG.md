@@ -5,6 +5,16 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+## [0.9.4] — 2026-09-07
+
+- Auditoria visual do tema claro, tela a tela (`scripts/e2e/auditoria-visual.mjs`): tag
+  OCULTO do desafio visível, nome da investigação com reticências na lateral estreita,
+  caixa das Notas da ficha visível mesmo vazia, caixa do arquivo no envio do zip sem cortar
+  o botão nativo.
+- A linha do quadro é texto puro nos dois atos (a ficha do ponto mostrava `<p><em>`).
+- Menu de configurações: "Aventuras do playtest" antes de "Arquivos das aventuras"; o menu
+  de arquivos não repete um ato que exista no pack de desenvolvimento e no do mundo.
+
 ## [0.9.3] — 2026-09-07
 
 - Card do setup centralizado: o Foundry usa a imagem do sistema também como fundo do card de

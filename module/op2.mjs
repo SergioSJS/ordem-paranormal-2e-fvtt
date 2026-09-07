@@ -102,8 +102,8 @@ Hooks.once("init", () => {
   registrarSocket();
   registrarPainelInvestigacao();
   registrarMarcadores();
-  registrarExtrasDeAventura();
   registrarAventuras();
+  registrarExtrasDeAventura();
   registrarBoasVindas();
 
   // Sem iniciativa rolada: os jogadores decidem a ordem entre si (spec §5.2).

@@ -174,8 +174,14 @@
     flex: 1 1 auto;
     min-width: 0;
     font-size: 1.4rem;
+    // Nome longo numa coluna estreita (a lateral da investigação) cortava no meio
+    // da palavra (achado na auditoria visual): reticências fora de foco.
+    text-overflow: ellipsis;
   }
 }
+
+// A lateral da investigação é estreita: o nome cabe com o display um pouco menor.
+.op2-painel-lateral .op2-item-ficha__topo .op2-nome { font-size: 1.15rem; }
 
 .op2-identidade {
   display: flex;
@@ -774,8 +780,10 @@
 
 // O editor de texto rico (ProseMirror) vem sem fundo nem borda próprios e se mistura
 // com o preto da janela: a caixa vira espaço morto em vez de se ler como um campo de
-// texto (achado em uso real).
-.op2-item-ficha prose-mirror {
+// texto (achado em uso real). Vale para as Notas da ficha de personagem também: sem a
+// caixa, a aba parecia vazia (achado na auditoria visual, tema claro).
+.op2-item-ficha prose-mirror,
+.op2-painel--notas prose-mirror {
   min-height: 6rem;
   padding: 0.4rem 0.5rem;
   border: 1px solid var(--op2-linha);
