@@ -63,6 +63,16 @@
   --op2-texto-fraco: #6b615a;
   --op2-linha: #{rgba(#1a1512, 0.14)};
   --op2-linha-forte: #{rgba(#1a1512, 0.26)};
+  // As versões "claras" existem para linha fina e rótulo sobre fundo escuro; sobre
+  // fundo claro elas somem — aqui viram a cor cheia (ou mais escura ainda).
+  --op2-vermelho-claro: #a8281a;
+  --op2-vermelho-escuro: #7a1e12;
+  --op2-perfil-executor-claro: var(--op2-perfil-executor);
+  --op2-perfil-analista-claro: #24589e;
+  --op2-perfil-vigilante-claro: #345818;
+  --op2-sucesso: #4f7a30;
+  --op2-critico: #8f6b12;
+  --op2-tinta-fraca: #6b615a;
 }
 
 }

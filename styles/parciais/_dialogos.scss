@@ -6,17 +6,20 @@
   // Vermelho bem escuro, quase marrom: o suficiente pra separar do resto da tela
   // sem saturar. O primeiro tom era forte demais e brigava com o conteúdo
   // (achado em uso real).
-  --op2-dialog-vinho: color-mix(in srgb, var(--op2-vermelho-escuro) 42%, #000);
+  // Misturado com o fundo do tema, não com preto: no claro vira um rosa pálido em
+  // vez de um vinho com texto escuro em cima (achado em uso real, tema claro).
+  --op2-dialog-vinho: color-mix(in srgb, var(--op2-vermelho-escuro) 42%, var(--op2-fundo));
+  --op2-dialog-borda: color-mix(in srgb, var(--op2-vermelho) 55%, var(--op2-fundo));
 
   .window-content {
     background: linear-gradient(180deg, var(--op2-dialog-vinho) 0%, var(--op2-fundo) 60%);
-    border: 1px solid color-mix(in srgb, var(--op2-vermelho) 55%, #000);
+    border: 1px solid var(--op2-dialog-borda);
   }
 
   // O chrome da janela acompanha, senão a barra de título fica destoando.
   .window-header {
     background: var(--op2-dialog-vinho);
-    border-bottom: 1px solid color-mix(in srgb, var(--op2-vermelho) 55%, #000);
+    border-bottom: 1px solid var(--op2-dialog-borda);
   }
 }
 

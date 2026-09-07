@@ -94,3 +94,26 @@ pdffonts docs/Ordem-*.pdf                                       # fontes usadas
 
 Páginas úteis: **15** (ficha diagramada com legendas), **16** (escalas de atributo e
 perícia com os ícones), **22** (exemplo de Ponto de Interesse, referência para a fase 2).
+
+## Os dois temas do Foundry
+
+O Foundry marca o tema do usuário com `theme-light`/`theme-dark` no `body` e em cada
+janela (`themed theme-light`); no v14 também `:root[data-theme]`. O sistema segue o
+tema, nunca força um:
+
+- **Tudo passa pelos tokens** (`_tokens.scss`): `--op2-fundo`, `--op2-superficie`,
+  `--op2-texto`, `--op2-linha`… O bloco `.theme-light .op2` redefine a paleta inteira,
+  inclusive as variantes "claras" (`--op2-vermelho-claro`, `--op2-perfil-*-claro`) que
+  existem para linha fina e rótulo sobre fundo escuro e viram cor cheia sobre fundo claro.
+- **Cor fixa só quando é sinal, não tema**: texto branco sobre vermelho (`#fff
+  !important` — o tema claro do core pinta `button`/`select` de escuro por cima).
+  `--op2-tinta`/`--op2-painel`/`--op2-preto` são a paleta do livro, não superfícies:
+  fora dos tokens, use `--op2-texto`/`--op2-superficie`/`--op2-fundo`.
+- **Cabeçalho da janela** recebe `color: var(--op2-texto)` — o core supõe o header escuro
+  dele e põe o título branco; o nosso é a superfície do tema.
+- **Misturas com `color-mix`** usam `var(--op2-fundo)`, não `#000`: o vinho do diálogo
+  vira rosa pálido no claro em vez de vinho com texto escuro em cima.
+- **Selo da licença** em dois tons no HTML (`op2-selo--escuro`/`--claro`); o CSS mostra o
+  do tema, sem JS.
+- **Conferir nos dois**: `OP2_TEMA=light OP2_SAIDA=/tmp/claro node scripts/e2e/capturar.mjs`
+  fotografa as telas no claro. Os prints do README são no escuro.

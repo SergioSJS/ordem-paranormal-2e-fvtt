@@ -5,6 +5,12 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+## [0.9.2] — 2026-09-07
+
+- **Tema claro do Foundry**: cabeçalho das janelas, diálogos, selo (preto no claro), cores de
+  linha e rótulo, pips da ficha e botões vermelhos — tudo legível nos dois temas.
+- Card do setup refeito: escuro, com o escorrido no alto.
+
 ## [0.9.1] — 2026-09-07
 
 - Card do sistema na tela de setup (`media` tipo `setup`): fontes e paleta do sistema, selo

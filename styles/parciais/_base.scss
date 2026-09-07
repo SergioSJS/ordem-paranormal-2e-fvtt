@@ -65,13 +65,21 @@
   }
 }
 
+// Selo da licença em dois tons: o branco vai no tema escuro, o preto no claro. Os dois
+// vão no HTML e o tema mostra um — sem JS, e troca de tema ao vivo funciona.
+.op2-selo--claro { display: none; }
+:root[data-theme="light"] .op2-selo--claro,
+.theme-light .op2-selo--claro { display: inline-block; }
+:root[data-theme="light"] .op2-selo--escuro,
+.theme-light .op2-selo--escuro { display: none; }
+
 // Tag vermelha rasgada — a forma que o livro usa para rotular tudo.
 // Os ângulos são irregulares de propósito: retângulo arredondado não é a linguagem daqui.
 .op2-tag {
   display: inline-block;
   padding: 0.2em 0.7em 0.25em;
   background: var(--op2-vermelho);
-  color: #fff;
+  color: #fff !important; // sobre vermelho é sempre branco; o tema claro do core pinta button/select de escuro
   font-family: var(--op2-fonte-display);
   font-weight: 700;
   font-size: 0.9rem;
@@ -96,7 +104,7 @@
       padding: 0.2em 0.6em;
       border: 0;
       background: transparent;
-      color: #fff;
+      color: #fff !important;
       font-family: var(--op2-fonte-display);
       font-weight: 700;
       text-transform: uppercase;
@@ -278,6 +286,10 @@
     background: var(--op2-superficie-alta);
     backdrop-filter: none;
     border-bottom: 1px solid var(--op2-borda-janela);
+    // O core pinta o título de branco supondo o header escuro dele; o nosso segue
+    // a superfície do tema — no claro, ficava branco sobre creme (achado em uso real).
+    color: var(--op2-texto);
+    .window-title, .header-control, button { color: var(--op2-texto); }
   }
 
   .window-content {

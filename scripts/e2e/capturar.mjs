@@ -7,8 +7,11 @@
 import { chromium } from "playwright";
 import { mkdir } from "node:fs/promises";
 
-const SAIDA = "docs/img";
+// `OP2_SAIDA` para fotografar em outro lugar (revisão), `OP2_TEMA=light|dark` para
+// fixar o tema do Foundry antes — os prints do README são no escuro.
+const SAIDA = process.env.OP2_SAIDA ?? "docs/img";
 const PORTA = process.env.PORTA_FVTT ?? 30099;
+const TEMA = process.env.OP2_TEMA ?? "dark";
 await mkdir(SAIDA, { recursive: true });
 
 const browser = await chromium.launch();
@@ -21,6 +24,18 @@ await page.click("button[name='join'], button[type='submit']");
 await page.waitForURL("**/game");
 await page.waitForFunction(() => globalThis.game?.ready === true, null, { timeout: 60000 });
 await page.waitForTimeout(2000);
+// O tema é setting do cliente (uiConfig.colorScheme, v13 e v14): fixa e recarrega.
+const temaAtual = await page.evaluate(() => game.settings.get("core", "uiConfig")?.colorScheme?.applications ?? "");
+if (temaAtual !== TEMA) {
+  await page.evaluate(async (tema) => {
+    const cfg = foundry.utils.deepClone(game.settings.get("core", "uiConfig"));
+    cfg.colorScheme = { applications: tema, interface: tema };
+    await game.settings.set("core", "uiConfig", cfg);
+  }, TEMA);
+  await page.reload({ waitUntil: "networkidle" });
+  await page.waitForFunction(() => globalThis.game?.ready === true, null, { timeout: 60000 });
+  await page.waitForTimeout(2000);
+}
 
 // Fecha avisos do navegador que sujam o print.
 await page.evaluate(() => {

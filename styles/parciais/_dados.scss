@@ -9,7 +9,7 @@
   height: 1.5rem;
   flex: 0 0 auto;
   background: var(--op2-vermelho);
-  color: #fff;
+  color: #fff !important; // sobre vermelho é sempre branco; o tema claro do core pinta button/select de escuro
   font-family: var(--op2-fonte-display);
   font-size: 0.82rem;
   font-weight: 700;

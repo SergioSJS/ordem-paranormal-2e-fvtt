@@ -21,4 +21,8 @@ export const LINKS = {
 };
 
 /** O selo em branco, para o fundo escuro do sistema; o preto fica para o README e a capa clara. */
-export const SELO = `systems/${SYSTEM_ID}/assets/licenca/selo-branco.png`;
+/** O selo em dois tons: o branco vai no tema escuro, o preto no claro (o CSS escolhe). */
+export const SELO = {
+  escuro: `systems/${SYSTEM_ID}/assets/licenca/selo-branco.png`,
+  claro: `systems/${SYSTEM_ID}/assets/licenca/selo-preto.png`,
+};

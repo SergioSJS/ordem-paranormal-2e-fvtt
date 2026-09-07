@@ -81,7 +81,7 @@
     max-height: 150px;
     border: 1px solid var(--op2-linha-forte);
     border-radius: var(--op2-raio);
-    background: color-mix(in srgb, var(--op2-preto) 60%, transparent);
+    background: color-mix(in srgb, var(--op2-fundo) 60%, transparent);
     grid-area: retrato;
 
     img {
@@ -279,8 +279,8 @@
   transform: skewX(-18deg);
 
   &--cheio {
-    border-color: var(--op2-tinta);
-    background: var(--op2-tinta);
+    border-color: var(--op2-texto);
+    background: var(--op2-texto);
   }
 
   &:hover { border-color: var(--op2-vermelho-claro); }
@@ -343,8 +343,8 @@
 
 @keyframes op2-pulso-critico {
   0%, 100% {
-    border-color: var(--op2-tinta);
-    background: var(--op2-tinta);
+    border-color: var(--op2-texto);
+    background: var(--op2-texto);
     box-shadow: 0 0 0 var(--op2-vermelho-claro);
   }
   50% {
@@ -376,7 +376,7 @@
 
   &__preenchido {
     height: 100%;
-    background: var(--op2-tinta);
+    background: var(--op2-texto);
     transition: width 0.2s ease-out;
   }
 }

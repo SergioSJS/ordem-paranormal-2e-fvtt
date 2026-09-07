@@ -808,7 +808,7 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   padding: 0.3em 0.7em;
   border: 0;
   background: linear-gradient(160deg, var(--op2-vermelho) 0%, var(--op2-vermelho-escuro) 100%);
-  color: #fff;
+  color: #fff !important; // sobre vermelho é sempre branco; o tema claro do core pinta button/select de escuro
   font-family: var(--op2-fonte-display);
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -859,7 +859,7 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   padding: 0;
   border: 0;
   background: linear-gradient(160deg, var(--op2-vermelho) 0%, var(--op2-vermelho-escuro) 100%);
-  color: #fff;
+  color: #fff !important; // sobre vermelho é sempre branco; o tema claro do core pinta button/select de escuro
   font-size: 1rem;
   cursor: pointer;
   clip-path: polygon(0 7%, 100% 0, 96% 93%, 4% 100%);
@@ -879,7 +879,7 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   &:active { transform: translateY(0); }
 
   &:focus-visible {
-    outline: 2px solid var(--op2-tinta);
+    outline: 2px solid var(--op2-texto);
     outline-offset: 2px;
   }
 }
