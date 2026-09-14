@@ -5,6 +5,8 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+- Rolagem sem a opção `rollMode` no `toMessage`: o core aplica o modo do usuário nas duas
+  versões, e no v14 a opção estava depreciada (aviso a cada rolagem).
 - A release no GitHub traz como corpo a seção da versão no CHANGELOG e a linha de
   instalação (antes era o assunto do commit da tag). As releases antigas foram reescritas.
 
