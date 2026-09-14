@@ -187,7 +187,10 @@ export async function enviarParaChat(roll, ator, { pularDados3D = false } = {}) 
         ...(pularDados3D ? { "dice-so-nice": { skip: true } } : {}),
       },
     },
-    { rollMode: game.settings.get("core", "rollMode"), create: true },
+    // Sem `rollMode`: o core aplica o modo do usuário nas duas versões (v13 lê
+    // `core.rollMode`, v14 lê `core.messageMode`) — e no v14 a opção `rollMode` está
+    // depreciada (até a 16), com aviso a cada rolagem.
+    { create: true },
   );
 }
 
