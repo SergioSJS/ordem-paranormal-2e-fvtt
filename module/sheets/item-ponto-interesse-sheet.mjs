@@ -154,18 +154,24 @@ export class PontoInteresseSheet extends OP2ItemSheet {
       // Só as ferramentas com reação (ou recém-adicionadas) aparecem; as demais
       // ficam no seletor. Vazio (null ou "") = leitura normal (spec §9.3). Rádio
       // Modificado tem editor próprio (conjuntos), não texto livre (docs/LACUNAS.md).
-      ferramentasConfiguradas: FERRAMENTAS_POI
+      // A leitura é HTML (o laser e a câmera trazem a imagem do handout; o EMF, o link
+      // da playlist): vai no editor rico, como as descrições. Num textarea as tags
+      // apareciam cruas na ficha (achado em uso real, no Ato II).
+      ferramentasConfiguradas: await Promise.all(FERRAMENTAS_POI
         .filter((chave) => ferramentas[chave] || this.#ferramentasNovas.has(chave))
-        .map((chave) => ({
+        .map(async (chave) => ({
           chave,
           rotulo: rotuloFerramenta(chave),
           ehRadio: chave === "radio",
+          campo: chave === "radio" ? null : this.item.system.schema.fields.ferramentas.fields[chave],
           valor: chave === "radio" ? "" : (ferramentas[chave] || ""),
+          enriquecido: chave === "radio" ? "" : await enriquecer(ferramentas[chave] || ""),
           conjuntos: chave === "radio"
             ? (ferramentas.radio?.conjuntos ?? []).map((conjunto, indice) => ({ ...conjunto, indice }))
             : [],
           radioTexto: chave === "radio" ? (ferramentas.radio?.texto ?? "") : "",
-        })),
+          radioTextoEnriquecido: chave === "radio" ? await enriquecer(ferramentas.radio?.texto ?? "") : "",
+        }))),
       ferramentasDisponiveis: FERRAMENTAS_POI
         .filter((chave) => !ferramentas[chave] && !this.#ferramentasNovas.has(chave))
         .map((chave) => ({ chave, rotulo: rotuloFerramenta(chave) })),

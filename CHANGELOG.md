@@ -17,6 +17,10 @@ Retorno de uma mesa que jogou o Ato I:
   aviso aponta as saídas, o botão do hack avisa "nesta rodada" antes do clique, a ficha do
   desafio tem *Liberar tentativa*, o mestre que clica pode "tentar mesmo assim", e
   encerrar a investigação zera o gate junto com a rodada.
+- **Setor de ferramentas na ficha do ponto em editor rico.** A leitura de cada ferramenta
+  é HTML (o laser e a câmera trazem o handout; o EMF, o link da playlist) e estava num
+  textarea: no Ato II, todas as 44 leituras apareciam com as tags cruas. A imagem fica
+  numa altura fixa na ficha; o card de chat segue mostrando inteira.
 - **Revelação pelo mestre** (setting de mundo, desligado por padrão): Examinar não entrega
   a pista direto ao jogador — o card vai só ao mestre, com *Entregar ao jogador*; o jogador
   vê a rolagem e um aviso. Para quem quer narrar antes.

@@ -2145,7 +2145,23 @@ const relato = await page.evaluate(async (boasVindas) => {
   // Fase 3 M2 (spec §9). Câmera tem reação nesse POI, Termômetro não — "sem
   // reação" também é informação e precisa aparecer, nunca ficar em silêncio.
   {
-    await poi.update({ "system.ferramentas.camera": "Uma foto revela uma sombra estranha atrás do quadro." });
+    await poi.update({ "system.ferramentas.camera": "<p>Uma foto revela uma <strong>sombra estranha</strong> atrás do quadro.</p>" });
+
+    // A leitura é HTML (o laser e a câmera do Ato II trazem a imagem do handout): a
+    // ficha do ponto mostra o texto formatado, não as tags cruas de um textarea
+    // (achado em uso real).
+    await poi.sheet.render(true);
+    await esperar(800);
+    {
+      const ficha = poi.sheet.element;
+      ficha.querySelector("[data-action='tab'][data-tab='mestre']")?.click();
+      await esperar(300);
+      const leitura = ficha.querySelector("[name='system.ferramentas.camera'], prose-mirror[name='system.ferramentas.camera']");
+      ok("a leitura da ferramenta na ficha do ponto é editor rico, sem tag crua",
+        leitura?.tagName === "PROSE-MIRROR" && !/<\/?p>|<strong>/.test(ficha.textContent ?? "")
+        && Boolean(ficha.querySelector("prose-mirror[name='system.ferramentas.camera'] strong")));
+    }
+    await poi.sheet.close();
 
     await ator.createEmbeddedDocuments("Item", [
       { name: "Câmera Modificada", type: "ferramenta", system: { subtipo: "camera" } },
@@ -3438,7 +3454,7 @@ const relato = await page.evaluate(async (boasVindas) => {
       await new Promise((res) => setTimeout(res, 1200));
       const fichaIdolo = idolo.sheet.element;
       r.fichaIdolo = fichaIdolo?.querySelectorAll(".op2-poi__ferramenta").length === 8
-        && fichaIdolo.querySelector('textarea[name="system.ferramentas.radio.texto"]')?.value.includes("gritos")
+        && fichaIdolo.querySelector('prose-mirror[name="system.ferramentas.radio.texto"]')?.textContent.includes("gritos")
         && fichaIdolo.querySelector('input[name="system.laboratorioDados"]')?.value === "6";
       await idolo.sheet.close();
 

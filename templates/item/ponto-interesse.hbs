@@ -156,16 +156,18 @@
                 <p class="op2-ajuda">{{localize "OP2.POI.RadioAjudaAutor"}}</p>
                 <label class="op2-campo">
                   <span>{{localize "OP2.POI.RadioTexto"}}</span>
-                  <textarea name="system.ferramentas.radio.texto" rows="2"
-                    {{#unless @root.editavel}}disabled{{/unless}}>{{radioTexto}}</textarea>
+                  {{formInput @root.fields.ferramentas.fields.radio.fields.texto value=radioTexto enriched=radioTextoEnriquecido
+                    toggled=true editable=@root.editavel name="system.ferramentas.radio.texto"}}
                 </label>
                 <p class="op2-ajuda">{{localize "OP2.POI.RadioTextoAjuda"}}</p>
               </fieldset>
             {{else}}
+              {{!-- Leitura em HTML (imagem do handout, link da playlist): editor rico,
+                    não textarea — as tags apareciam cruas (achado em uso real). --}}
               <label class="op2-campo">
                 <span>{{rotulo}}</span>
-                <textarea name="system.ferramentas.{{chave}}" rows="2"
-                  {{#unless @root.editavel}}disabled{{/unless}}>{{valor}}</textarea>
+                {{formInput campo value=valor enriched=enriquecido toggled=true editable=@root.editavel
+                  name=(op2Concat "system.ferramentas." chave)}}
               </label>
             {{/if}}
             {{#if @root.editavel}}
