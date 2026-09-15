@@ -478,6 +478,63 @@ const relato = await page.evaluate(async (boasVindas) => {
     await amor.delete();
     await poiAmor.delete();
   }
+
+  // "Pesquisar ou Tecnologia" (o Computador do Ato I): a linha sai com qualquer uma
+  // das duas. Antes o "ou" ficava só no texto, e Examinar com Tecnologia não achava
+  // nada — e cobrava o PD (achado em uso real: "deu 10 mas deu falho").
+  {
+    const computador = await Item.create({
+      name: "Computador de teste", type: "ponto-interesse",
+      system: { informacoes: [
+        { id: "c1", pericia: "pesquisar", dt: 5, texto: "<p>Contabilidade.</p>" },
+        { id: "c2", pericia: "pesquisar", periciaAlternativa: "tecnologia", dt: 5, texto: "<p>E-mail de 12 de março.</p>" },
+      ] },
+    });
+    const porTecnologia = await comDadosNoMaximo(() => game.op2.examinar(ator, computador.uuid, "tecnologia", { rapido: true }));
+    ok("linha 'Pesquisar ou Tecnologia' sai ao examinar com Tecnologia, sem custar PD",
+      porTecnologia?.perdePD === false && porTecnologia.revelaveis.includes("c2") && !porTecnologia.revelaveis.includes("c1"));
+    await esperar(400);
+    ok("o card diz as duas perícias da linha",
+      /Pesquisar ou Tecnologia/.test(game.messages.contents.at(-1)?.content ?? ""));
+    await computador.sheet.render(true);
+    await esperar(600);
+    const fichaComputador = computador.sheet.element;
+    ok("a ficha do ponto edita a perícia alternativa da linha",
+      fichaComputador?.querySelector("select[name='system.informacoes.1.periciaAlternativa']")?.value === "tecnologia");
+    await computador.sheet.close();
+
+    // Revelação pelo mestre (setting): Examinar não entrega nada ao jogador — o card
+    // inteiro vai ao mestre, com o botão de entregar; o jogador só vê os dados. Foi
+    // pedido em mesa: o mestre proibiu rolar pelo sistema para a pista não vazar.
+    await game.settings.set("ordem-paranormal-2e", "revelacaoPeloMestre", true);
+    const antesDoGate = game.messages.size;
+    const porPesquisar = await comDadosNoMaximo(() => game.op2.examinar(ator, computador.uuid, "pesquisar", { rapido: true }));
+    await esperar(600);
+    ok("com revelação pelo mestre, o achado NÃO é gravado no personagem",
+      porPesquisar?.aguardaMestre === true && !ator.system.estado.infosReveladas.has(`${computador.uuid}:c1`));
+    const cardsDoGate = game.messages.contents.slice(antesDoGate);
+    const cardMestre = cardsDoGate.find((m) => /entregar-revelacao/.test(m.content));
+    const cardJogadorGate = cardsDoGate.find((m) => !/entregar-revelacao/.test(m.content));
+    ok("o card do mestre traz a pista e o botão de entregar, sussurrado só a ele",
+      Boolean(cardMestre) && /Contabilidade/.test(cardMestre.content)
+      && cardMestre.whisper.length > 0 && cardMestre.whisper.every((id) => game.users.get(id)?.isGM));
+    ok("o card do jogador tem os dados e o aviso, mas nenhuma pista",
+      Boolean(cardJogadorGate) && /op2-card__dados/.test(cardJogadorGate.content)
+      && !/Contabilidade/.test(cardJogadorGate.content)
+      && cardJogadorGate.content.includes(game.i18n.localize("OP2.Investigacao.AguardaMestre")));
+    const botaoEntregar = new DOMParser().parseFromString(cardMestre?.content ?? "", "text/html")
+      .querySelector("[data-op2-acao='entregar-revelacao']");
+    const entregue = await game.op2.entregarRevelacao(ator, { ...botaoEntregar?.dataset });
+    await esperar(400);
+    ok("entregar grava a revelação no personagem e manda o card com a pista",
+      entregue?.revelaveis.includes("c1") && ator.system.estado.infosReveladas.has(`${computador.uuid}:c1`)
+      && /Contabilidade/.test(game.messages.contents.at(-1)?.content ?? "")
+      && !/entregar-revelacao/.test(game.messages.contents.at(-1)?.content ?? ""));
+    ok("entregar de novo não repete",
+      await game.op2.entregarRevelacao(ator, { ...botaoEntregar?.dataset }) === null);
+    await game.settings.set("ordem-paranormal-2e", "revelacaoPeloMestre", false);
+    await computador.delete();
+  }
   await esperar(600);
   ok("o card de custo explica o motivo",
     [...document.querySelectorAll(".op2-card--falha")].some((c) => c.querySelector(".op2-ajuda")));
@@ -2299,7 +2356,10 @@ const relato = await page.evaluate(async (boasVindas) => {
       await game.op2.hackTecnico(ator, painelFacil.uuid, { rapido: true }) === null);
     await painelFacil.delete();
 
-    const painelDificil = await Item.create({ name: "Painel Impossível", type: "desafio-acesso", system: { dtObjeto: 999 } });
+    const painelDificil = await Item.create({
+      name: "Painel Impossível", type: "desafio-acesso",
+      system: { dtObjeto: 999, abordagens: { hackTecnico: true } },
+    });
     const rodadaDoTeste = investigacao.system.rodada;
     const hackFalhou = await game.op2.hackTecnico(ator, painelDificil.uuid, { rapido: true });
     ok("hack técnico com DT 999 falha", hackFalhou?.sucesso === false);
@@ -2311,6 +2371,28 @@ const relato = await page.evaluate(async (boasVindas) => {
     await esperar(500);
     const novaTentativa = await game.op2.hackTecnico(ator, painelDificil.uuid, { rapido: true });
     ok("rodada seguinte libera nova tentativa", novaTentativa !== null);
+
+    // O gate prende a mesa que não avança rodada (achado em uso real: "já tentou
+    // nesta rodada", e o contador parado). A ficha do desafio solta sem avançar.
+    await painelDificil.sheet.render(true);
+    await esperar(600);
+    const fichaPainel = painelDificil.sheet.element;
+    const liberar = fichaPainel?.querySelector("[data-action='liberarHack'][data-hack='hackTecnico']");
+    ok("a ficha do desafio mostra o bloqueio da rodada e o botão de liberar", Boolean(liberar));
+    liberar?.click();
+    await esperar(500);
+    ok("liberar zera a tentativa sem avançar a rodada",
+      painelDificil.system.hackTecnico.ultimaTentativaRodada === -1
+      && await game.op2.hackTecnico(ator, painelDificil.uuid, { rapido: true }) !== null);
+    await painelDificil.sheet.close();
+    // A tentativa da sessão passada não pode trancar a próxima: a rodada volta a 0,
+    // e o gate volta junto.
+    await game.op2.vincularDesafio(investigacao, painelDificil.uuid, { oculto: false });
+    await game.op2.encerrarCena({ avisar: false });
+    await esperar(500);
+    ok("encerrar a investigação solta o gate do hack",
+      painelDificil.system.hackTecnico.ultimaTentativaRodada === -1 && investigacao.system.rodada === 0);
+    await game.op2.removerDesafio(investigacao, painelDificil.uuid);
     await painelDificil.delete();
 
     // Hack social: sucesso revela o banco de perguntas pro mestre (elemento

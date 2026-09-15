@@ -6,7 +6,7 @@
  */
 import { SYSTEM_ID, CUSTO_PD_EXAMINAR } from "../config.mjs";
 import { rolarFalhaCritica, aplicarFalhaCritica, aplicarDano } from "../dice/falha-critica.mjs";
-import { testarCompartilhamento, registrarTravaDeCena, contarAoGrupo } from "../cena/acoes-investigacao.mjs";
+import { testarCompartilhamento, registrarTravaDeCena, contarAoGrupo, entregarRevelacao } from "../cena/acoes-investigacao.mjs";
 import { rolarSobrecarga } from "../cena/rodada.mjs";
 import { marcarHackSocialResolvido, marcarHackTecnicoResolvido } from "../cena/acoes-desafio.mjs";
 import { iniciarHackTecnico, encerrarHackTecnico } from "../cena/timer-hack.mjs";
@@ -22,6 +22,12 @@ const ACOES = {
   },
   async "contar-ao-grupo"(ator, dataset) {
     await contarAoGrupo(ator, dataset.poiUuid, dataset.infoId);
+  },
+  // Revelação pelo mestre (setting): o card de Examinar ficou com ele; entregar grava
+  // no personagem e manda o card do jogador.
+  async "entregar-revelacao"(ator, dataset) {
+    if (!game.user.isGM) return;
+    await entregarRevelacao(ator, dataset);
   },
   async "aplicar-falha-critica"(ator, dataset) {
     await aplicarFalhaCritica(ator, Number(dataset.face));

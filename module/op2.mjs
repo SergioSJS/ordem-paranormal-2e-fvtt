@@ -39,7 +39,7 @@ import {
   vincularEvento, removerEvento, eventosDaInvestigacao, dispararEvento, reiniciarEvento,
 } from "./cena/investigacao-ativa.mjs";
 import {
-  examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo,
+  examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo, entregarRevelacao,
   limparRevelacao, contarAoGrupo,
 } from "./cena/acoes-investigacao.mjs";
 import {
@@ -115,7 +115,7 @@ Hooks.once("init", () => {
   game.op2 = {
     migrarLinhasDoQuadro,
     rolarTeste, encerrarCena, stepDie, faces, OP2Roll,
-    examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo,
+    examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo, entregarRevelacao,
     limparRevelacao, contarAoGrupo,
     painelInvestigacao: abrirPainelInvestigacao, acoesInvestigacao: abrirAcoesInvestigacao, avancarRodada,
     arrombar, alcancar, sustentar, pararDeSustentar,

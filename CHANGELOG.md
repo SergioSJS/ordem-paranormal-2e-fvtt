@@ -5,6 +5,21 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+Retorno de uma mesa que jogou o Ato I:
+
+- **Linha do quadro com perícia alternativa** ("Pesquisar ou Tecnologia", o Computador):
+  campo próprio na ficha do ponto, e Examinar acha a linha com qualquer uma das duas. Antes
+  a segunda perícia ficava só no texto, e um 10 em Tecnologia saía como falha e cobrava o
+  PD. As aventuras montadas do PDF já preenchem o campo.
+- **O hack não fica preso para sempre.** O gate "só na rodada seguinte" (spec §7.3) conta
+  pela rodada da investigação: com o contador parado, a primeira tentativa trancava o
+  dispositivo para a mesa inteira, e "já tentou nesta rodada" não dizia como sair. Agora o
+  aviso aponta as saídas, o botão do hack avisa "nesta rodada" antes do clique, a ficha do
+  desafio tem *Liberar tentativa*, o mestre que clica pode "tentar mesmo assim", e
+  encerrar a investigação zera o gate junto com a rodada.
+- **Revelação pelo mestre** (setting de mundo, desligado por padrão): Examinar não entrega
+  a pista direto ao jogador — o card vai só ao mestre, com *Entregar ao jogador*; o jogador
+  vê a rolagem e um aviso. Para quem quer narrar antes.
 - Rolagem sem a opção `rollMode` no `toMessage`: o core aplica o modo do usuário nas duas
   versões, e no v14 a opção estava depreciada (aviso a cada rolagem).
 - A release no GitHub traz como corpo a seção da versão no CHANGELOG e a linha de

@@ -321,7 +321,11 @@
       "ContadaPor": "Contada ao grupo por {nomes}",
       "ContouAoGrupo": "{ator} contou ao grupo",
       "ContadaVisivel": "A pista agora aparece no painel de todos os participantes.",
-      "ContarSoQuemAchou": "Só quem achou a pista pode contá-la ao grupo."
+      "ContarSoQuemAchou": "Só quem achou a pista pode contá-la ao grupo.",
+      "AguardaMestre": "O mestre recebeu o que você achou — ele narra e entrega.",
+      "RevelacaoSoMestre": "Só você vê isto. O jogador recebe a pista quando você entregar.",
+      "EntregarAoJogador": "Entregar ao jogador",
+      "JaEntregue": "Esta revelação já foi entregue."
     },
     "Dialog": {
       "Teste": {
@@ -555,6 +559,10 @@
       "idiomaPadraoPtBR": {
         "name": "Padronizar o idioma em português",
         "hint": "Jogadores que ainda não escolheram um idioma entram em pt-BR. Quem já escolheu mantém o seu."
+      },
+      "revelacaoPeloMestre": {
+        "name": "Revelação pelo mestre",
+        "hint": "Examinar não entrega a pista direto ao jogador: o card vai só ao mestre, com um botão para entregar quando ele narrar. O jogador vê a rolagem e um aviso de que o mestre recebeu o achado."
       },
       "cliqueAbreDialogo": {
         "name": "Clique abre o diálogo de teste",

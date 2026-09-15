@@ -136,6 +136,11 @@ Compartilhar continua sendo outra coisa, o teste do aliado por uma pista nova.
 O painel mostra ao mestre quem descobriu cada linha e um botão para **desfazer** a
 descoberta (e o "contado ao grupo" junto), sem precisar encerrar a cena.
 
+Uma linha pode ter **perícia alternativa** ("Pesquisar ou Tecnologia", o Computador):
+Examinar a acha com qualquer uma das duas. E o mestre que prefere narrar antes de a
+pista cair na tela liga **Revelação pelo mestre** nas configurações do mundo: o card de
+Examinar vai só a ele, com *Entregar ao jogador*; o jogador vê a rolagem e um aviso.
+
 ![Ficha de ponto de interesse](docs/img/ficha-poi.png)
 
 **Sobrecarga mental** (spec §7.6): ao fim de cada rodada, a tabela da cena cobra PD de
@@ -175,7 +180,10 @@ no braço.
   do mestre; a tela do jogador só tem o palpite.
 - **Hackear** (§7.3) — técnico: o jogador rola, só o mestre recebe a conta e a resposta,
   revela para a mesa com um contador grande na tela de todos e dá o veredito; social (banco de perguntas do
-  mestre), cada um com o próprio gate de rodada.
+  mestre), cada um com o próprio gate de rodada: falhou, só tenta de novo na rodada
+  seguinte da investigação. Mesa que não avança rodada? O botão avisa "nesta rodada"
+  antes do clique, a ficha do desafio tem *Liberar tentativa*, e o mestre que clica
+  pode tentar mesmo assim.
 - **Genérico** — qualquer outra situação: o mestre diz a perícia e o rótulo.
 
 ## Combate e ferimentos

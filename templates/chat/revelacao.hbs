@@ -4,6 +4,17 @@
     <span class="op2-card__dt">{{poiNome}}</span>
   </header>
 
+  {{!-- Cópia do mestre (setting "revelação pelo mestre"): o jogador ainda não tem
+        nada disto — o botão entrega, e aí sai o card dele. --}}
+  {{#if entregar}}
+    <p class="op2-ajuda"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> {{localize "OP2.Investigacao.RevelacaoSoMestre"}}</p>
+    <button type="button" class="op2-botao op2-botao--pequeno" data-op2-acao="entregar-revelacao" data-op2-gm
+      data-ator-id="{{entregar.atorId}}" data-poi-uuid="{{entregar.poiUuid}}" data-chave-pericia="{{entregar.chavePericia}}"
+      data-total="{{entregar.total}}" data-gratis="{{entregar.gratis}}" data-teste="{{entregar.teste}}">
+      <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> {{localize "OP2.Investigacao.EntregarAoJogador"}}
+    </button>
+  {{/if}}
+
   {{#if primeiraVez}}
     <div class="op2-card__texto">{{{descricaoBasica}}}</div>
   {{/if}}
@@ -25,6 +36,11 @@
       <span class="op2-card__igual" aria-hidden="true">=</span>
       <span class="op2-card__total">{{total}}</span>
     </div>
+  {{/if}}
+
+  {{!-- O jogador, com a revelação nas mãos do mestre: só os dados, e o aviso. --}}
+  {{#if aguardaMestre}}
+    <p class="op2-ajuda"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> {{localize "OP2.Investigacao.AguardaMestre"}}</p>
   {{/if}}
 
   {{#if desfechoTeste}}
@@ -81,21 +97,24 @@
         <li>
           <span class="op2-card__info-pericia">{{rotuloPericia}}:</span> {{{texto}}}
           {{#if semRolar}}<span class="op2-card__info-marca">{{localize "OP2.Investigacao.SemRolar"}}</span>{{/if}}
-          {{!-- A pista é de quem achou; contar ao grupo é decisão dele, aqui mesmo. --}}
-          <button type="button" class="op2-botao op2-botao--pequeno" data-op2-acao="contar-ao-grupo"
-            data-ator-id="{{../atorId}}" data-poi-uuid="{{../poiUuid}}" data-info-id="{{id}}">
-            <i class="fa-solid fa-bullhorn" aria-hidden="true"></i> {{localize "OP2.Investigacao.ContarAoGrupo"}}
-          </button>
+          {{!-- A pista é de quem achou; contar ao grupo é decisão dele, aqui mesmo.
+                Na cópia do mestre ainda não é de ninguém: sem botão. --}}
+          {{#unless ../entregar}}
+            <button type="button" class="op2-botao op2-botao--pequeno" data-op2-acao="contar-ao-grupo"
+              data-ator-id="{{../atorId}}" data-poi-uuid="{{../poiUuid}}" data-info-id="{{id}}">
+              <i class="fa-solid fa-bullhorn" aria-hidden="true"></i> {{localize "OP2.Investigacao.ContarAoGrupo"}}
+            </button>
+          {{/unless}}
         </li>
       {{/each}}
     </ol>
-  {{else}}
+  {{else}}{{#unless aguardaMestre}}
     {{!-- Dizer o porquê: sem isso o jogador não sabe se insiste com outro dado,
           troca de perícia ou desiste do ponto (achado em uso real). --}}
     <p class="op2-ajuda">{{#if motivo}}{{motivo}}{{else}}{{localize "OP2.Investigacao.NadaNovo"}}{{/if}}</p>
     {{#if dtMinima}}
       <p class="op2-ajuda" data-op2-gm>{{localize "OP2.Investigacao.DtQueFaltava" dt=dtMinima}}</p>
     {{/if}}
-  {{/if}}
+  {{/unless}}{{/if}}
 
 </div>

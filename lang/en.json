@@ -321,7 +321,11 @@
       "ContadaPor": "Told to the group by {nomes}",
       "ContouAoGrupo": "{ator} told the group",
       "ContadaVisivel": "The clue now shows on every participant's panel.",
-      "ContarSoQuemAchou": "Only whoever found the clue can tell it to the group."
+      "ContarSoQuemAchou": "Only whoever found the clue can tell it to the group.",
+      "AguardaMestre": "The GM received what you found — they narrate and deliver.",
+      "RevelacaoSoMestre": "Only you see this. The player gets the clue when you deliver it.",
+      "EntregarAoJogador": "Deliver to player",
+      "JaEntregue": "This revelation was already delivered."
     },
     "Dialog": {
       "Teste": {
@@ -555,6 +559,10 @@
       "idiomaPadraoPtBR": {
         "name": "Default the interface to Portuguese",
         "hint": "Players who have not picked a language yet start in pt-BR. An explicit choice is always respected."
+      },
+      "revelacaoPeloMestre": {
+        "name": "Revelation through the GM",
+        "hint": "Examine does not hand the clue straight to the player: the card goes to the GM only, with a button to deliver it once narrated. The player sees the roll and a notice that the GM received the find."
       },
       "cliqueAbreDialogo": {
         "name": "Click opens the check dialog",

@@ -109,6 +109,16 @@ curva do problema matemático nem o formato do timer nem onde mora o banco de pe
 padrão de Arrombar) e o gate "falha só libera nova tentativa na rodada seguinte" (regra
 explícita, spec §7.3). O resto é manual, no espírito do que a spec pede:
 
+- **O gate é do dispositivo e conta pela rodada da investigação** — e por isso prende a
+  mesa que não avança rodada (o contador fica em 0 e a primeira tentativa tranca o
+  painel para todo mundo), ou o mestre que testou o hack antes da sessão (achado em uso
+  real: "já tentou nesta rodada", com o mestre sem saber o porquê). Saídas: o aviso diz
+  como destravar; o botão do hack na janela de ações mostra "nesta rodada" antes do
+  clique; a ficha do desafio tem *Liberar tentativa*; o mestre que clica no hack
+  travado recebe "tentar mesmo assim?"; e encerrar a investigação zera o gate junto com
+  a rodada (uma tentativa na rodada 3 da sessão passada trancava até a rodada 4 da
+  seguinte).
+
 - **Hack técnico:** sem curva automática — o card mostra o resultado do teste (quanto
   maior, mais fácil deveria ser o problema que o mestre escolhe) e um timer visual de
   10s que o mestre inicia na ficha do desafio, cliente-only, sem persistência.
@@ -362,6 +372,14 @@ Todas as caixas de acesso do porão têm campo no `desafio-acesso`:
 
   A decisão de mesa que fica de fora: o sistema não adivinha o gatilho. Ninguém marca
   "o grupo viu o Ídolo" para o sistema — é o mestre que aperta o botão quando acontece.
+- **O mestre que quer narrar antes de a pista cair na tela.** Examinar entrega a linha
+  na hora, no card sussurrado ao jogador — e há mesa em que o mestre proibiu rolar pelo
+  sistema por isso ("tem uma descrição que vai aparecer se você passar"; achado em uso
+  real). **Decisão:** setting de mundo *Revelação pelo mestre* (desligado por padrão).
+  Ligado, Examinar não grava nem entrega nada: o jogador recebe só os dados e "o mestre
+  recebeu o que você achou"; o card inteiro nasce no cliente do mestre, com *Entregar ao
+  jogador*, que grava a revelação e manda o card de sempre. O custo de 1 PD, que não
+  tem pista dentro, sai como antes.
 - **"Fica a cargo dele compartilhar a informação com os outros ou não."** A pista é
   de quem achou (spec §6.2, revelação por personagem). O livro deixa ao jogador
   decidir se conta; o sistema dá o botão *Contar ao grupo* na linha (card de Examinar
@@ -371,8 +389,10 @@ Todas as caixas de acesso do porão têm campo no `desafio-acesso`:
   aliado por uma pista NOVA. Desfazer é o mesmo "limpar revelação" do mestre.
 - **Linhas condicionais** ("apenas Victor", "se o ídolo for quebrado") entram como
   rascunho: Examinar não as alcança, o mestre libera quando a condição acontece. "ou
-  Tecnologia" é perícia alternativa e segue descobrível — o sistema testa uma perícia
-  por linha, a alternativa fica no texto.
+  Tecnologia" é perícia alternativa e segue descobrível: vai para o campo
+  `periciaAlternativa` da linha, e Examinar acha a linha com qualquer uma das duas.
+  (Antes a alternativa ficava só no texto, e Examinar com Tecnologia no Computador
+  não achava nada — e cobrava o PD. Achado em uso real.)
 
 ## O extrator do PDF e as revisões do livro
 
