@@ -27,7 +27,8 @@ import { atacar } from "./acoes-combate.mjs";
 import { usarHabilidadeOuItem } from "./acoes-recurso.mjs";
 import { abrirDestrancar } from "./destrancar-app.mjs";
 import { guardarRolagem, restaurarRolagem, esquecerRolagem } from "../ui/rolagem.mjs";
-import { semPrefixoDoPonto, desafioResolvido } from "./desafios.mjs";
+import { semPrefixoDoPonto, desafioResolvido, podeTentarHackNestaRodada } from "./desafios.mjs";
+import { rodadaAtual } from "./rodada.mjs";
 import { chaveInfo, periciasDoQuadro } from "./investigacao.mjs";
 import { marcadoresDoPonto } from "./marcadores.mjs";
 import { filtrosVazios, filtrando } from "./filtros-painel.mjs";
@@ -66,6 +67,9 @@ function contextoDoDesafio(desafio, investigacao, indice) {
     destrancado: desafio.system.destrancado,
     hackTecnicoResolvido: desafio.system.hackTecnico.resolvido,
     hackSocialResolvido: desafio.system.hackSocial.resolvido,
+    // O gate de uma tentativa por rodada (spec §7.3), visível antes do clique.
+    hackTecnicoTravado: !podeTentarHackNestaRodada(desafio.system.hackTecnico.ultimaTentativaRodada, rodadaAtual(investigacao)),
+    hackSocialTravado: !podeTentarHackNestaRodada(desafio.system.hackSocial.ultimaTentativaRodada, rodadaAtual(investigacao)),
     genericoResolvido: desafio.system.generico.resolvido,
     sustentarDt: desafio.system.sustentar.dt,
     genericoRotulo: desafio.system.generico.rotulo?.trim() || game.i18n.localize("OP2.Desafio.Generico"),

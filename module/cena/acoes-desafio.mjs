@@ -416,6 +416,29 @@ export function posicoesDoPalpite(palpite, resultado) {
   }));
 }
 
+/**
+ * O gate "falha só libera nova tentativa na rodada seguinte" (spec §7.3), com saída.
+ * Ele conta pela rodada da investigação: com o contador parado (mesa que não avança
+ * rodada) ou depois de um teste do mestre antes da sessão, o dispositivo ficava preso
+ * para todo mundo, e "espere a próxima" não dizia como (achado em uso real). O aviso
+ * agora aponta as duas saídas — avançar a rodada ou liberar na ficha do desafio — e o
+ * mestre, que julga se a rodada de fato passou, pode passar por cima na hora.
+ */
+async function hackLiberado(desafio, hack, rodada, { rapido = false } = {}) {
+  const ultima = desafio.system[hack].ultimaTentativaRodada;
+  if (podeTentarHackNestaRodada(ultima, rodada)) return true;
+  // `rapido` é "sem diálogo": aí a resposta é a mesma do jogador.
+  if (!game.user.isGM || rapido) {
+    ui.notifications.warn(game.i18n.localize("OP2.Desafio.HackEsperaRodada"));
+    return false;
+  }
+  return foundry.applications.api.DialogV2.confirm({
+    window: { title: desafio.name },
+    content: `<p>${game.i18n.format("OP2.Desafio.HackEsperaRodadaMestre", { rodada: ultima })}</p>`,
+    rejectClose: false,
+  });
+}
+
 export async function hackTecnico(ator, desafioUuid, { rapido = false } = {}) {
   const desafio = await carregarDesafio(desafioUuid);
   if (!desafio) return null;
@@ -424,10 +447,7 @@ export async function hackTecnico(ator, desafioUuid, { rapido = false } = {}) {
     return null;
   }
   const rodada = rodadaAtual();
-  if (!podeTentarHackNestaRodada(desafio.system.hackTecnico.ultimaTentativaRodada, rodada)) {
-    ui.notifications.warn(game.i18n.localize("OP2.Desafio.HackEsperaRodada"));
-    return null;
-  }
+  if (!(await hackLiberado(desafio, "hackTecnico", rodada, { rapido }))) return null;
 
   const roll = await rolarTeste(ator, {
     chavePericia: "tecnologia",
@@ -511,10 +531,7 @@ export async function hackSocial(ator, desafioUuid, { rapido = false } = {}) {
     return null;
   }
   const rodada = rodadaAtual();
-  if (!podeTentarHackNestaRodada(desafio.system.hackSocial.ultimaTentativaRodada, rodada)) {
-    ui.notifications.warn(game.i18n.localize("OP2.Desafio.HackEsperaRodada"));
-    return null;
-  }
+  if (!(await hackLiberado(desafio, "hackSocial", rodada, { rapido }))) return null;
 
   const roll = await rolarTeste(ator, {
     chavePericia: "intuicao",
