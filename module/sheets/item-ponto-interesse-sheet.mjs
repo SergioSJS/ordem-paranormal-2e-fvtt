@@ -197,7 +197,7 @@ export class PontoInteresseSheet extends OP2ItemSheet {
 
   static async #adicionarInformacao() {
     const informacoes = this.item.system.informacoes.map((i) => ({ ...i }));
-    informacoes.push({ id: foundry.utils.randomID(), pericia: "percepcao", dt: 7, texto: "" });
+    informacoes.push({ id: foundry.utils.randomID(), pericia: "percepcao", periciaAlternativa: "", dt: 7, texto: "" });
     await this.item.update({ "system.informacoes": informacoes });
   }
 

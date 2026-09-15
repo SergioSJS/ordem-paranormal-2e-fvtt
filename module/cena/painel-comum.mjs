@@ -16,7 +16,7 @@
  * lado do jogador.
  */
 import { SYSTEM_ID } from "../config.mjs";
-import { periciasDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs";
+import { periciasDoQuadro, gruposDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs";
 import { semPrefixoDoPonto, desafioResolvido } from "./desafios.mjs";
 import { rodadaRelativa, proximaRodadaDaCena, linhaDaRodada } from "./eventos.mjs";
 import { marcarNoMapa, desmarcarDoMapa, marcadoresDoPonto } from "./marcadores.mjs";
@@ -299,17 +299,17 @@ export function PainelInvestigacaoMixin(Base) {
           // o gate de `poisInvestigados` competia com o toggle e escondia o que
           // devia mostrar).
           descricaoBasica: await editor.enrichHTML(poi.system.descricaoBasica, { relativeTo: poi }),
-          quadro: periciasDoQuadro(poi.system.informacoes).map((chave) => ({
-            chave,
-            rotulo: rotuloDePericia(chave),
-            infos: poi.system.informacoes
+          // "Pesquisar ou Tecnologia" é um grupo só, com as duas no título.
+          quadro: gruposDoQuadro(poi.system.informacoes).map((grupo) => ({
+            chave: grupo.chave,
+            rotulo: grupo.chaves.map(rotuloDePericia).join(` ${game.i18n.localize("OP2.POI.Ou")} `),
+            infos: grupo.infos
               // O jogador lê o que o mestre abriu e o que o personagem DELE
               // descobriu — nada mais. Antes bastava não ser rascunho pra linha
               // aparecer pronta na tela, e aí não sobrava nada pra procurar
               // (achado em uso real).
               // …e o que alguém contou ao grupo, que é da mesa inteira.
-              .filter((info) => info.pericia === chave
-                && (ehGM || info.aberta || contada(info) || this.#jaDescobriu(uuid, info.id)))
+              .filter((info) => ehGM || info.aberta || contada(info) || this.#jaDescobriu(uuid, info.id))
               .map((info) => ({
                 ...info,
                 // O mestre vê a DT e quem já descobriu cada informação.

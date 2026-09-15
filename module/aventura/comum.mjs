@@ -7,6 +7,25 @@
  * de `node:` aqui.
  */
 
+import { chaveDePericia } from "../extrator/ato-i.mjs";
+
+/**
+ * "ou Tecnologia; apenas Victor" → a perícia alternativa vira campo da linha do quadro
+ * (`periciaAlternativa`), e o que sobrar da condição segue como aviso no texto. O
+ * extrator não muda: ele lê o que o livro imprime; quem sabe que o sistema tem o
+ * campo é o montador.
+ * @returns {{ alternativa: string, condicao: string }}
+ */
+export function separarAlternativa(condicao) {
+  const partes = String(condicao ?? "").split(/;\s*/).filter(Boolean);
+  const i = partes.findIndex((p) => /^ou\s+/i.test(p));
+  if (i < 0) return { alternativa: "", condicao: condicao ?? "" };
+  const [chave] = chaveDePericia(partes[i].replace(/^ou\s+/i, ""));
+  // Perícia que o sistema não conhece fica no texto, como antes — nada se perde.
+  if (!chave) return { alternativa: "", condicao: condicao ?? "" };
+  return { alternativa: chave, condicao: partes.filter((_p, k) => k !== i).join("; ") };
+}
+
 /**
  * Id estável a partir de uma semente — regenerar não troca id, e importar de novo
  * atualiza. FNV-1a de 64 bits, em hexadecimal: 16 caracteres, como o Foundry pede, e

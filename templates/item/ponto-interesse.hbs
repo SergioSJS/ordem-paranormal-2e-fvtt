@@ -52,6 +52,15 @@
                   <option value="{{chave}}" {{#if (op2Eq chave ../pericia)}}selected{{/if}}>{{rotulo}}</option>
                 {{/each}}
               </select>
+              {{!-- "Pesquisar ou Tecnologia": a linha sai com qualquer uma das duas. --}}
+              <select name="system.informacoes.{{indice}}.periciaAlternativa" class="op2-poi__alternativa"
+                aria-label="{{localize 'OP2.POI.PericiaAlternativa'}}"
+                data-tooltip="{{localize 'OP2.POI.PericiaAlternativaAjuda'}}" {{#unless @root.editavel}}disabled{{/unless}}>
+                <option value="" {{#unless periciaAlternativa}}selected{{/unless}}>{{localize "OP2.POI.PericiaAlternativa"}}</option>
+                {{#each @root.opcoesPericia}}
+                  <option value="{{chave}}" {{#if (op2Eq chave ../periciaAlternativa)}}selected{{/if}}>{{rotulo}}</option>
+                {{/each}}
+              </select>
               <label class="op2-poi__dt">
                 <span>{{localize "OP2.DT"}}</span>
                 <input type="number" name="system.informacoes.{{indice}}.dt" value="{{dt}}" min="0" step="1"

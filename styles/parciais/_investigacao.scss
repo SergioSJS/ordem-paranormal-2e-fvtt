@@ -70,6 +70,12 @@
     gap: var(--op2-e2);
 
     select { flex: 1; }
+
+    // A alternativa é a exceção ("Pesquisar ou Tecnologia"): menor, atrás da principal.
+    select.op2-poi__alternativa {
+      flex: 0 1 8rem;
+      color: var(--op2-texto-fraco);
+    }
   }
 
   &__dt {

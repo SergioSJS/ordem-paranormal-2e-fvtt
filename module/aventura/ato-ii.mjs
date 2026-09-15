@@ -22,6 +22,7 @@
  */
 import {
   ident, semAcento, tituloLegivel, pasta, em, escapar, html, iconeDoPonto, eventoDaMaldicao, posicionarNaCena,
+  separarAlternativa,
 } from "./comum.mjs";
 
 const RAIZ = "Ato II — O Porão";
@@ -290,15 +291,17 @@ export function montarAtoII(dados, fontes, { avisos = [] } = {}) {
     const informacoes = ponto.informacoes.map((info, indice) => {
       const dono = linhaRepetidaDeOutro(ponto, info);
       if (dono) repetidas.push(`"${info.texto.slice(0, 40)}…" (${tituloLegivel(dono.nome)})`);
-      const condicional = Boolean(info.condicao) && !/^ou /i.test(info.condicao);
+      // "ou Tecnologia" é perícia alternativa, não condição: vai para o campo da linha.
+      const { alternativa, condicao } = separarAlternativa(info.condicao);
       return {
         id: `i${indice + 1}`,
         pericia: info.chave,
+        periciaAlternativa: alternativa,
         dt: info.dt,
         // Texto puro: a ficha do ponto edita a linha num textarea, e HTML aparecia
         // como tag na tela (achado em uso real). A condição vai entre parênteses.
-        texto: info.condicao ? `(${info.condicao}) ${info.texto}` : info.texto,
-        oculta: condicional || Boolean(dono),
+        texto: condicao ? `(${condicao}) ${info.texto}` : info.texto,
+        oculta: Boolean(condicao) || Boolean(dono),
         aberta: false,
       };
     });

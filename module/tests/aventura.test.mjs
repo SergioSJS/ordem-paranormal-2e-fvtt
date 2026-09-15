@@ -69,9 +69,12 @@ test("montarAtoI: a linha do quadro leva condição e DT alternativa no texto, e
   const aventura = montarAtoI(extraidoAtoI(), fontesAtoI());
   const [molho, simbolo] = aventura.items.filter((i) => i.type === "ponto-interesse");
   assert.equal(molho.system.informacoes[1].pericia, "pesquisar");
-  assert.equal(molho.system.informacoes[1].texto, "(DT 6 ou 10; ou Tecnologia) Duas são iguais.");
-  // "ou Tecnologia" é perícia alternativa, não condição: a linha segue descobrível.
+  // "ou Tecnologia" é perícia alternativa, não condição: vira campo da linha (Examinar
+  // com Tecnologia acha a linha), sai do texto, e a linha segue descobrível.
+  assert.equal(molho.system.informacoes[1].periciaAlternativa, "tecnologia");
+  assert.equal(molho.system.informacoes[1].texto, "(DT 6 ou 10) Duas são iguais.");
   assert.equal(molho.system.informacoes[1].oculta, false);
+  assert.equal(molho.system.informacoes[0].periciaAlternativa, "");
   assert.equal(simbolo.system.informacoes[0].oculta, true);
   // O handout citado vai para a descrição de mestre do ponto que combina com ele.
   assert.match(simbolo.system.descricaoContextual, /handout-02-simbolo-no-teto\.jpg/);
