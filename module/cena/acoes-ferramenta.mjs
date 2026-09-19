@@ -6,9 +6,12 @@
  */
 import { SYSTEM_ID } from "../config.mjs";
 import { podeUsarCarga, temReacaoFerramenta, conjuntosFalsosRemovidos, conjuntosRestantes } from "./ferramentas.mjs";
+import { leituraParaJogador, parteDoMestre, chaveLeitura } from "./leitura-ferramenta.mjs";
 import { investigacaoAtiva } from "./investigacao-ativa.mjs";
 import { rolarTeste, renderizar } from "../dice/teste.mjs";
 import { comoMestre, registrarAcaoDeMestre } from "../ui/socket.mjs";
+import { enviarCardAoMestre } from "../ui/card-mestre.mjs";
+import { lerConfig } from "../settings/register.mjs";
 
 // POI é documento de mundo: o jogador não tem permissão de marcar o selo do laser.
 registrarAcaoDeMestre("marcarReveladoPorLaser", async ({ uuid }) => {
@@ -53,7 +56,7 @@ async function enviarCard(ator, contexto, whisper) {
  * `null`/vazio é "leitura normal, sem reação" — que também é informação, por isso
  * revela um card de qualquer jeito, nunca fica em silêncio. Consome 1 carga quando
  * a ferramenta controla carga (Lanterna UV, Pó Revelador).
- * @returns {Promise<{temReacao: boolean}|null>}
+ * @returns {Promise<{temReacao: boolean, aguardaMestre?: boolean}|null>}
  */
 export async function usarFerramenta(ator, poiUuid, subtipo) {
   // Rádio Modificado guarda conjuntos estruturados, não texto — tem app e ação
@@ -77,17 +80,134 @@ export async function usarFerramenta(ator, poiUuid, subtipo) {
     await ferramentaItem.update({ "system.cargas.value": ferramentaItem.system.cargas.value - 1 });
   }
 
-  const textoReacao = poi.system.ferramentas[subtipo];
-  const temReacao = Boolean(textoReacao?.trim());
+  return entregarLeitura(ator, poi, subtipo);
+}
 
+/** A leitura de uma ferramenta num ponto, como texto (o rádio guarda a dele à parte). */
+function leituraBruta(poi, chave) {
+  const valor = poi.system.ferramentas[chave];
+  return typeof valor === "string" ? valor : (valor?.texto ?? "");
+}
+
+/**
+ * Entrega a leitura de uma ferramenta num ponto — o caminho comum de usar a
+ * ferramenta, do Laboratório que passou na escada e do rádio sem enigma. É o
+ * espelho de Examinar para o setor de ferramentas:
+ *
+ * - **Grava no personagem** (`estado.ferramentasReveladas`): a leitura passa a
+ *   aparecer no painel dele, com reação ou "leitura normal". Antes ia só para o chat,
+ *   e o jogador não tinha onde reler (achado em uso real, Ato II).
+ * - **A parte do mestre não vai ao jogador.** O livro imprime junto a instrução de
+ *   mesa ("envie o handout", a condição); ela fica só no card do mestre.
+ * - **Rascunho** (`ferramentasOcultas`): até o mestre liberar, a ferramenta devolve
+ *   leitura normal — "apenas se o Ídolo for quebrado". O mestre vê o rascunho no card
+ *   dele, com o aviso.
+ * - **Revelação pelo mestre** (setting): como em Examinar, o card fica com ele, com o
+ *   botão de entregar; o jogador só sabe que usou.
+ * @param {Actor} ator
+ * @param {Item} poi
+ * @param {string} chave   a ferramenta ("camera", "laboratorio"…)
+ * @returns {Promise<{temReacao: boolean, aguardaMestre: boolean}>}
+ */
+export async function entregarLeitura(ator, poi, chave) {
+  const titulo = game.i18n.localize(`OP2.Ferramenta.Subtipo.${chave}`);
+  const bruto = leituraBruta(poi, chave);
+  const oculta = (poi.system.ferramentasOcultas ?? []).includes(chave);
+  const textoJogador = oculta ? "" : leituraParaJogador(bruto);
+  const temReacao = Boolean(textoJogador.trim());
+  const peloMestre = temReacao && Boolean(lerConfig("revelacaoPeloMestre"));
+  const nota = parteDoMestre(bruto);
+  const enriquecer = (html) => editorDeTexto().enrichHTML(html, { relativeTo: poi });
+
+  const cartao = { titulo, poiNome: poi.name, atorId: ator.id, poiUuid: poi.uuid, chave };
+  if (peloMestre) {
+    await enviarCard(ator, { ...cartao, aguardaMestre: true }, sussurroPara(ator));
+  } else {
+    await gravarLeitura(ator, poi.uuid, chave);
+    await enviarCard(ator, {
+      ...cartao, temReacao, resultado: temReacao ? await enriquecer(textoJogador) : null,
+    }, sussurroPara(ator));
+  }
+
+  // O mestre vê o que o jogador não vê: a instrução, o rascunho trancado, o botão de
+  // entregar. Sem nada disso, o card dele é o mesmo do jogador — e já chegou.
+  if (oculta || nota || peloMestre) {
+    await enviarCardAoMestre(ator, "ferramenta", {
+      ...cartao,
+      soMestre: true,
+      oculta,
+      temReacao: temReacaoFerramenta(leituraParaJogador(bruto)),
+      resultado: await enriquecer(leituraParaJogador(bruto)),
+      nota: nota ? await enriquecer(nota) : "",
+      entregar: peloMestre ? { atorId: ator.id, poiUuid: poi.uuid, chave } : null,
+    }, { tipo: "ferramenta" });
+  }
+
+  return { temReacao, aguardaMestre: peloMestre };
+}
+
+/** A leitura é do personagem que a fez: grava a chave "<poi>:<ferramenta>" nele. */
+export async function gravarLeitura(ator, poiUuid, chave) {
+  const atual = ator.system.estado.ferramentasReveladas;
+  const nova = chaveLeitura(poiUuid, chave);
+  if (atual.has(nova)) return;
+  await ator.update({ "system.estado.ferramentasReveladas": [...atual, nova] });
+}
+
+/**
+ * O mestre entrega ao jogador a leitura que ficou com ele (setting
+ * `revelacaoPeloMestre`): grava e manda o card que teria saído na hora.
+ */
+export async function entregarLeituraDoMestre(ator, { poiUuid, chave }) {
+  if (!game.user.isGM) return null;
+  const poi = await carregarPoi(poiUuid);
+  if (!poi) return null;
+  if (ator.system.estado.ferramentasReveladas.has(chaveLeitura(poiUuid, chave))) {
+    ui.notifications.info(game.i18n.localize("OP2.Investigacao.JaEntregue"));
+    return null;
+  }
+  const oculta = (poi.system.ferramentasOcultas ?? []).includes(chave);
+  const texto = oculta ? "" : leituraParaJogador(leituraBruta(poi, chave));
+  const temReacao = Boolean(texto.trim());
+  await gravarLeitura(ator, poiUuid, chave);
   await enviarCard(ator, {
-    titulo: rotulo,
-    poiNome: poi.name,
-    temReacao,
-    resultado: temReacao ? await editorDeTexto().enrichHTML(textoReacao, { relativeTo: poi }) : null,
+    titulo: game.i18n.localize(`OP2.Ferramenta.Subtipo.${chave}`),
+    poiNome: poi.name, atorId: ator.id, poiUuid, chave, temReacao,
+    resultado: temReacao ? await editorDeTexto().enrichHTML(texto, { relativeTo: poi }) : null,
   }, sussurroPara(ator));
-
   return { temReacao };
+}
+
+/**
+ * Desfaz a leitura de uma ferramenta num ponto, para todo personagem que a tenha —
+ * o "limpar revelação" do setor de ferramentas. Ato de mestre: escreve nos atores.
+ * @returns {Promise<string[]>} nomes de quem perdeu a leitura
+ */
+export async function limparLeitura(poiUuid, chave) {
+  if (!game.user.isGM) return [];
+  const alvo = chaveLeitura(poiUuid, chave);
+  const afetados = game.actors.filter((a) => a.type === "personagem" && a.system.estado.ferramentasReveladas.has(alvo));
+  for (const ator of afetados) {
+    await ator.update({ "system.estado.ferramentasReveladas": [...ator.system.estado.ferramentasReveladas].filter((c) => c !== alvo) });
+  }
+  return afetados.map((a) => a.name);
+}
+
+/**
+ * Rascunho ↔ liberada, para uma ferramenta de um ponto (o mesmo botão de olho das
+ * linhas do quadro). POI é documento de mundo: passa pela ponte.
+ * @returns {Promise<boolean>} se ficou em rascunho
+ */
+export async function alternarFerramentaOculta(poiUuid, chave) {
+  const poi = await carregarPoi(poiUuid);
+  if (!poi) return false;
+  const atuais = poi.system.ferramentasOcultas ?? [];
+  const oculta = !atuais.includes(chave);
+  await comoMestre("atualizarPoi", {
+    uuid: poi.uuid,
+    dados: { "system.ferramentasOcultas": oculta ? [...atuais, chave] : atuais.filter((c) => c !== chave) },
+  });
+  return oculta;
 }
 
 /**
@@ -127,7 +247,7 @@ export async function usarLaser(ator) {
     marcados.push(poi.name);
     leituras.push({
       nome: poi.name,
-      leitura: explicito ? await editorDeTexto().enrichHTML(poi.system.ferramentas.laser, { relativeTo: poi }) : "",
+      leitura: explicito ? await editorDeTexto().enrichHTML(leituraParaJogador(poi.system.ferramentas.laser), { relativeTo: poi }) : "",
     });
   }
 
@@ -162,17 +282,11 @@ export async function usarRadio(ator, poiUuid, { rapido = false } = {}) {
 
   const conjuntos = poi.system.ferramentas.radio?.conjuntos ?? [];
   if (!conjuntos.length) {
-    // Reação sem enigma (o Ídolo grita, nada para ordenar): revela como qualquer
-    // outra ferramenta, sem teste — o teste de Tecnologia só serve para tirar falsos.
-    const texto = poi.system.ferramentas.radio?.texto ?? "";
-    if (texto.trim()) {
-      await enviarCard(ator, {
-        titulo: rotulo, poiNome: poi.name, temReacao: true,
-        resultado: await editorDeTexto().enrichHTML(texto, { relativeTo: poi }),
-      }, sussurroPara(ator));
-      return null;
-    }
-    ui.notifications.warn(game.i18n.localize("OP2.Ferramenta.RadioSemConjuntos"));
+    // Reação sem enigma (o Ídolo grita, nada para ordenar) — ou nenhuma: revela como
+    // qualquer outra ferramenta, sem teste. "Sem reação" também é leitura (spec §9.3);
+    // antes o rádio avisava "sem conjuntos" e não fazia nada, entregando que ali não
+    // há enigma.
+    await entregarLeitura(ator, poi, "radio");
     return null;
   }
 

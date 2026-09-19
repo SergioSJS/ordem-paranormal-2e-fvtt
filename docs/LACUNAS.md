@@ -150,15 +150,38 @@ cumulativa do teste.
 **Decisão:** `estado.sustentando` guarda só `ativo` e `fadiga` no ator. O card de chat
 avisa quando alguém solta; o que isso significa na cena é narrativo, decidido pela mesa.
 
-### Resultado do uso de ferramenta não fica gravado no personagem (spec §9)
+### Leitura de ferramenta é revelação, como a linha do quadro (spec §9.3)
 
-Investigar/Examinar gravam `infosReveladas` no ator porque a revelação é por
-informação, reaproveitável entre cenas. Uma ferramenta não tem "informações"
-discretas — só um texto de reação por POI.
+A primeira versão mandava a leitura só para o chat: "uma ferramenta não tem
+informações discretas". Em mesa, o jogador ficou sem ter onde reler o que o
+termômetro disse, e o setor de ferramentas só existia na aba do mestre — parecia
+que a informação era dele (achado em uso real, Ato II).
 
-**Decisão:** o resultado só vai para o chat (sussurro dono + mestre), igual
-Interagir. Usar a mesma ferramenta duas vezes no mesmo POI manda o card de novo,
-sem controle de repetição — nada na spec pede isso.
+**Decisão:** a leitura é uma revelação por personagem, `<poi>:<ferramenta>` em
+`estado.ferramentasReveladas` — normal ou com reação, porque "uma leitura normal
+também é informação" (§9.3). O painel do jogador mostra o que o personagem dele leu;
+o do mestre mostra cada leitura, quem a fez e o limpar. Reler é livre e não repete
+a gravação. Encerrar a investigação zera junto com as linhas. Três coisas vêm junto:
+
+- **A parte do mestre não vai ao jogador.** O livro imprime no mesmo setor a leitura
+  e a instrução de mesa ("envie o handout: X", "apenas se…", a solução do rádio, o
+  padrão de bipes por extenso). O montador marca a instrução com
+  `<p class="op2-mestre">`; `leituraParaJogador()` a tira do card e do painel do
+  jogador, e ela sai num card só do mestre. Na ficha do ponto, a mesma classe vale
+  para texto escrito à mão.
+- **Rascunho por ferramenta** (`ferramentasOcultas`): "apenas se o Ídolo for
+  quebrado" (o Laboratório no Ídolo) é o `oculta` da linha do quadro. Até o mestre
+  liberar, a ferramenta devolve leitura normal, e o mestre vê o rascunho no card
+  dele. O montador põe em rascunho toda leitura com condição.
+- **Revelação pelo mestre** (setting) vale para as ferramentas: o card fica com ele,
+  com *Entregar ao jogador*.
+
+O Medidor EMF entrega ao jogador um link que toca o mp3 só no cliente dele
+(`[data-op2-audio]`), como se segurasse o medidor; o link da playlist e o padrão
+ditado ficam com o mestre. O Laboratório rola a sequência mínima do ponto sem
+perguntar ao jogador (só o mestre pode mudar na hora) e entrega a leitura pelo
+mesmo caminho das outras ferramentas. O rádio sem enigma — ou sem nada — também
+responde: "sem conjuntos" avisava que ali não há enigma.
 
 ### EMF e Compêndio não têm mecânica automatizável (spec §9)
 

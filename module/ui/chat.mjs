@@ -14,6 +14,7 @@ import { rolarTesteDeQueda } from "../cena/ferimentos.mjs";
 import { defender } from "../cena/acoes-combate.mjs";
 import { concederPasso } from "../cena/acoes-recurso.mjs";
 import { preencherImpeto } from "../cena/impeto.mjs";
+import { entregarLeituraDoMestre } from "../cena/acoes-ferramenta.mjs";
 
 /** @type {Record<string, (ator: Actor, dataset: DOMStringMap) => Promise<void>>} */
 const ACOES = {
@@ -28,6 +29,10 @@ const ACOES = {
   async "entregar-revelacao"(ator, dataset) {
     if (!game.user.isGM) return;
     await entregarRevelacao(ator, dataset);
+  },
+  async "entregar-leitura"(ator, dataset) {
+    if (!game.user.isGM) return;
+    await entregarLeituraDoMestre(ator, dataset);
   },
   async "aplicar-falha-critica"(ator, dataset) {
     await aplicarFalhaCritica(ator, Number(dataset.face));
@@ -158,6 +163,16 @@ function atoresSelecionados(padrao) {
   return selecionados.length ? selecionados : [padrao];
 }
 
+/**
+ * O áudio do Medidor EMF toca só na tela de quem clica (`AudioHelper.play` sem
+ * difundir): o jogador ouve o medidor "na própria mão", como o livro descreve — e o
+ * mestre não precisa mandar a playlist para a mesa inteira.
+ */
+export function tocarAudioLocal(src) {
+  const AudioHelper = foundry.audio?.AudioHelper ?? globalThis.AudioHelper;
+  return AudioHelper.play({ src, volume: 0.8, loop: false }, false);
+}
+
 /** @param {HTMLElement} elemento */
 function ligar(elemento) {
   for (const botao of elemento.querySelectorAll("[data-op2-acao]")) {
@@ -195,6 +210,14 @@ function teatralizarEnvelope(html) {
 }
 
 export function registrarChat() {
+  // O link do áudio aparece em texto enriquecido de card, painel e ficha: um ouvinte
+  // delegado no documento cobre todos, sem cada tela ter que religar.
+  document.addEventListener("click", (evento) => {
+    const link = evento.target?.closest?.("[data-op2-audio]");
+    if (!link) return;
+    evento.preventDefault();
+    tocarAudioLocal(link.dataset.op2Audio);
+  });
   // Só `renderChatMessageHTML`: o `renderChatMessage` está depreciado desde o v13 e
   // registrá-lo faz o core avisar a cada mensagem. O sistema exige v13 no mínimo.
   Hooks.on("renderChatMessageHTML", (msg, html) => {

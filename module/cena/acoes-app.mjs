@@ -30,6 +30,7 @@ import { guardarRolagem, restaurarRolagem, esquecerRolagem } from "../ui/rolagem
 import { semPrefixoDoPonto, desafioResolvido, podeTentarHackNestaRodada } from "./desafios.mjs";
 import { rodadaAtual } from "./rodada.mjs";
 import { chaveInfo, periciasDoQuadro } from "./investigacao.mjs";
+import { chaveLeitura } from "./leitura-ferramenta.mjs";
 import { marcadoresDoPonto } from "./marcadores.mjs";
 import { filtrosVazios, filtrando } from "./filtros-painel.mjs";
 import {
@@ -325,7 +326,12 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
         // escondida até o uso (spec §9.3).
         ferramentas: FERRAMENTAS_POI
           .filter((chave) => temFerramenta(ator.items, chave))
-          .map((chave) => ({ chave, rotulo: game.i18n.localize(`OP2.Ferramenta.Subtipo.${chave}`) })),
+          .map((chave) => ({
+            chave,
+            rotulo: game.i18n.localize(`OP2.Ferramenta.Subtipo.${chave}`),
+            // Já leu aqui: o botão marca, e a leitura está no painel dele.
+            lida: ator.system.estado.ferramentasReveladas?.has(chaveLeitura(poi.uuid, chave)) ?? false,
+          })),
       }));
 
 
@@ -398,6 +404,12 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
   static async #usarLaboratorio(_evento, alvo) {
     const poi = alvo.dataset.poiUuid ? fromUuidSync(alvo.dataset.poiUuid) : null;
     const padrao = poi?.system?.laboratorioDados ?? 4;
+    // A "sequência mínima" é do ponto ("conforme instruções no ponto de interesse"):
+    // o jogador não escolhe quantos dados rola. O mestre ainda pode mudar na hora.
+    if (!game.user.isGM) {
+      await abrirLaboratorio(this.ator, padrao, alvo.dataset.poiUuid);
+      return true;
+    }
     const qtdDados = await foundry.applications.api.DialogV2.prompt({
       window: { title: game.i18n.localize("OP2.Ferramenta.Subtipo.laboratorio") },
       content: `

@@ -17,6 +17,14 @@ Retorno de uma mesa que jogou o Ato I:
   aviso aponta as saídas, o botão do hack avisa "nesta rodada" antes do clique, a ficha do
   desafio tem *Liberar tentativa*, o mestre que clica pode "tentar mesmo assim", e
   encerrar a investigação zera o gate junto com a rodada.
+- **Ferramentas da Ordo Realitas como revelação.** A leitura de uma ferramenta num ponto
+  fica com o personagem e aparece no painel dele (com reação ou leitura normal), com quem
+  leu e o limpar no painel do mestre; o botão marca o que já foi lido ali. A instrução de
+  mesa que o livro imprime junto ("envie o handout", a condição, a solução do rádio) vai
+  só ao mestre. Leitura condicionada ("apenas se o Ídolo for quebrado") entra em rascunho
+  — leitura normal até o mestre liberar. O Medidor EMF toca o áudio na tela do jogador; a
+  Câmera entrega a foto e a descrição; o Laboratório usa a sequência mínima do ponto sem
+  perguntar ao jogador. O setting *Revelação pelo mestre* vale para as ferramentas.
 - **Setor de ferramentas na ficha do ponto em editor rico.** A leitura de cada ferramenta
   é HTML (o laser e a câmera trazem o handout; o EMF, o link da playlist) e estava num
   textarea: no Ato II, todas as 44 leituras apareciam com as tags cruas. A imagem fica

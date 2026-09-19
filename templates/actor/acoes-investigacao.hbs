@@ -134,10 +134,12 @@
                 <span class="op2-acoes__rotulo">{{localize "OP2.Investigacao.Examinar"}}</span>
               </button>
               {{#each ferramentas}}
-                <button type="button" class="op2-botao op2-botao--pequeno"
+                {{!-- Já lida neste ponto: marca, sem bloquear — ler de novo é livre. --}}
+                <button type="button" class="op2-botao op2-botao--pequeno{{#if lida}} op2-acoes__ferramenta--lida{{/if}}"
                   data-action="{{#if (op2Eq chave 'laboratorio')}}usarLaboratorio{{else if (op2Eq chave 'radio')}}usarRadio{{else}}usarFerramenta{{/if}}"
-                  data-poi-uuid="{{../uuid}}" data-ferramenta="{{chave}}" data-tooltip="{{rotulo}}">
-                  <i class="fa-solid {{#if (op2Eq chave 'laboratorio')}}fa-flask{{else if (op2Eq chave 'radio')}}fa-radio{{else}}fa-screwdriver-wrench{{/if}}" aria-hidden="true"></i>
+                  data-poi-uuid="{{../uuid}}" data-ferramenta="{{chave}}"
+                  data-tooltip="{{#if lida}}{{localize 'OP2.Acoes.FerramentaLida' ferramenta=rotulo}}{{else}}{{rotulo}}{{/if}}">
+                  <i class="fa-solid {{#if lida}}fa-check{{else if (op2Eq chave 'laboratorio')}}fa-flask{{else if (op2Eq chave 'radio')}}fa-radio{{else}}fa-screwdriver-wrench{{/if}}" aria-hidden="true"></i>
                   <span class="op2-acoes__rotulo">{{rotulo}}</span>
                 </button>
               {{/each}}

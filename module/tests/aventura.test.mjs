@@ -158,7 +158,11 @@ const dadosAtoII = () => ({
     {
       numero: 7, nome: "O ÍDOLO DE PEDRA", descricao: "Uma estatueta.", notas: ["Nota."], desafio: null,
       informacoes: [{ pericia: "Ocultismo", chave: "ocultismo", dt: 10, texto: "É antiga.", condicao: "" }],
-      ferramentas: [{ chave: "camera", rotulo: "Câmera Modificada", texto: "Envie ao jogador o handout: HANDOUT 03 - FOTO DO ALTAR DE MADEIRA Caso não consiga, descreva.", handouts: ["HANDOUT 03 - FOTO DO ALTAR DE MADEIRA"] }],
+      ferramentas: [
+        { chave: "camera", rotulo: "Câmera Modificada", texto: "Ao tirar uma foto, envie ao jogador o handout:\nHANDOUT 03 - FOTO DO ALTAR DE MADEIRA\nCaso não consiga enviar a imagem, descreva:\n“Há três silhuetas.”", handouts: ["HANDOUT 03 - FOTO DO ALTAR DE MADEIRA"] },
+        { chave: "laboratorio", rotulo: "Laboratório Portátil (apenas se o Ídolo for quebrado) Sequência Mínima: 6", dados: 6, condicao: "apenas se o Ídolo for quebrado", texto: "O interior não é natural.", handouts: [] },
+        { chave: "emf", rotulo: "Medidor EMF", texto: "Envie ou toque o arquivo ÁUDIO EMF 1 para o jogador.\nCaso não consiga, o padrão é (1 - 1 - 3).", audio: 1, handouts: [] },
+      ],
       handoutsCitados: [], leituraNormal: "",
     },
     { numero: 8, nome: "DEPÓSITO A", descricao: "Um depósito.", notas: [], desafio: null, informacoes: [], ferramentas: [], handoutsCitados: [], leituraNormal: "Todas as ferramentas resultam em leitura normal." },
@@ -198,6 +202,23 @@ test("montarAtoII: o handout citado solto no texto ganha a imagem, com o número
   const aventura = montarAtoII(dadosAtoII(), fontesAtoII());
   const idolo = aventura.items.find((i) => i.name === "O Ídolo de Pedra");
   assert.match(idolo.system.ferramentas.camera, /handout-03-foto-do-altar-de-madeira\.png/);
+  // O jogador recebe a imagem e a descrição; "envie ao jogador o handout" é do mestre
+  // (`op2-mestre`, que o card do jogador não leva).
+  const soJogador = (html) => html.replace(/<p class="op2-mestre">[\s\S]*?<\/p>/g, "");
+  assert.match(soJogador(idolo.system.ferramentas.camera), /<img [^>]*handout-03[^>]*>.*<p>“Há três silhuetas.”<\/p>/s);
+  assert.doesNotMatch(soJogador(idolo.system.ferramentas.camera), /envie ao jogador|HANDOUT 03/);
+  assert.match(idolo.system.ferramentas.camera, /<p class="op2-mestre">Ao tirar uma foto, envie ao jogador o handout: HANDOUT 03/);
+  // Leitura com condição entra em rascunho, e a condição fica só com o mestre.
+  assert.deepEqual(idolo.system.ferramentasOcultas, ["laboratorio"]);
+  assert.equal(soJogador(idolo.system.ferramentas.laboratorio), "<p>O interior não é natural.</p>");
+  assert.match(idolo.system.ferramentas.laboratorio, /op2-mestre[^>]*><em>\(apenas se o Ídolo for quebrado\)/);
+  // O EMF: o jogador ouve (link que toca só no cliente dele); o padrão por extenso e
+  // o link da playlist são do mestre.
+  assert.match(soJogador(idolo.system.ferramentas.emf), /^<p><a data-op2-audio="systems\/ordem-paranormal-2e\/assets\/ato-ii\/musicas\/audio-emf-1\.mp3">/);
+  assert.doesNotMatch(soJogador(idolo.system.ferramentas.emf), /1 - 1 - 3|@UUID/);
+  assert.match(idolo.system.ferramentas.emf, /op2-mestre">Envie ou toque o arquivo ÁUDIO EMF 1 \(@UUID\[Playlist\./);
+  // O laser: parágrafo e imagem, sem <p> dentro de <p>.
+  assert.doesNotMatch(idolo.system.ferramentas.laser, /<p>[^<]*<p>/);
   assert.match(idolo.system.ferramentas.laser, /handout-02a-laser-porao\.jpg/);
   const handouts = aventura.journal.find((j) => j.name === "Handouts — Ato II");
   const altar = handouts.pages.find((p) => p.name.startsWith("Foto do Altar"));

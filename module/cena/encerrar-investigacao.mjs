@@ -35,6 +35,7 @@ export async function encerrarCena({ atores, avisar = true, investigacao = inves
     // conhecimento da mesa, não estado do sistema.
     "system.estado.poisInvestigados": [],
     "system.estado.infosReveladas": [],
+    "system.estado.ferramentasReveladas": [],
   };
 
   const atualizacoes = alvos.map((ator) => ({ _id: ator.id, ...zerado }));

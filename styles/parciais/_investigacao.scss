@@ -1665,3 +1665,67 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   flex-direction: column;
   gap: var(--op2-e2);
 }
+
+// Setor de ferramentas no card do ponto (spec §9.3): o mestre vê cada leitura,
+// rascunho e quem fez; o jogador, só o que o personagem dele leu.
+.op2-poi-card__ferramentas {
+  margin-top: var(--op2-e2);
+  padding-top: var(--op2-e2);
+  border-top: 1px dashed var(--op2-linha);
+}
+
+.op2-poi-card__leituras {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li + li { margin-top: var(--op2-e2); }
+}
+
+.op2-poi-card__leitura-topo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--op2-e1);
+}
+
+.op2-poi-card__leitura .op2-poi-card__texto img { max-height: 10rem; width: auto; }
+
+.op2-poi-card__conjuntos {
+  margin: var(--op2-e1) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--op2-e1);
+
+  li {
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--op2-linha-forte);
+    font-family: var(--op2-fonte-mono);
+    font-size: 0.8rem;
+  }
+}
+
+.op2-poi-card__conjunto--falso {
+  color: var(--op2-texto-fraco);
+  text-decoration: line-through;
+}
+
+// Ferramenta já lida neste ponto: marca no botão da janela de ações.
+.op2-acoes__ferramenta--lida { opacity: 0.7; }
+
+// O olho de rascunho ao lado do nome da ferramenta, na ficha do ponto.
+.op2-poi__ferramenta-rotulo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--op2-e1);
+}
+
+// O link que toca o áudio do Medidor EMF (card, painel e ficha).
+.op2 [data-op2-audio] {
+  cursor: pointer;
+  text-decoration: underline dotted;
+
+  i { margin-right: 0.25rem; }
+}

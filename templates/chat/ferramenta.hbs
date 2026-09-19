@@ -1,4 +1,4 @@
-<div class="op2 op2-card op2-card--investigacao">
+<div class="op2 op2-card op2-card--investigacao{{#if soMestre}} op2-card--mestre{{/if}}">
   <header class="op2-card__topo">
     <span class="op2-tag op2-tag--pequena">{{titulo}}</span>
     {{#if poiNome}}<span class="op2-card__dt">{{poiNome}}</span>{{/if}}
@@ -13,9 +13,29 @@
     {{else}}
       <p class="op2-ajuda">{{localize "OP2.Ferramenta.LaserNada"}}</p>
     {{/if}}
-  {{else if temReacao}}
-    <div class="op2-card__texto">{{{resultado}}}</div>
+  {{else if aguardaMestre}}
+    {{!-- Revelação pelo mestre (setting): o jogador só sabe que usou. --}}
+    <p class="op2-ajuda"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> {{localize "OP2.Ferramenta.AguardaMestre"}}</p>
   {{else}}
-    <p class="op2-ajuda">{{localize "OP2.Ferramenta.SemReacao"}}</p>
+    {{#if soMestre}}
+      <p class="op2-card__so-mestre">
+        <i class="fa-solid fa-user-secret" aria-hidden="true"></i>
+        {{#if oculta}}{{localize "OP2.Ferramenta.RascunhoNoCard"}}{{else}}{{localize "OP2.Ferramenta.SoMestreNoCard"}}{{/if}}
+      </p>
+      {{#if entregar}}
+        <button type="button" class="op2-botao op2-botao--pequeno" data-op2-acao="entregar-leitura" data-op2-gm
+          data-ator-id="{{entregar.atorId}}" data-poi-uuid="{{entregar.poiUuid}}" data-chave="{{entregar.chave}}">
+          <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> {{localize "OP2.Investigacao.EntregarAoJogador"}}
+        </button>
+      {{/if}}
+    {{/if}}
+    {{#if temReacao}}
+      <div class="op2-card__texto">{{{resultado}}}</div>
+    {{else}}
+      <p class="op2-ajuda">{{localize "OP2.Ferramenta.SemReacao"}}</p>
+    {{/if}}
+    {{#if nota}}
+      <div class="op2-card__texto op2-card__nota-mestre">{{{nota}}}</div>
+    {{/if}}
   {{/if}}
 </div>

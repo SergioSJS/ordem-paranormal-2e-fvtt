@@ -9,6 +9,7 @@ import { PERICIAS, APTIDOES_PADRAO, FERRAMENTAS_POI } from "../config.mjs";
 import { OP2ItemSheet } from "./item-sheet.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
 import { cicloVisibilidadeInfo, limparRevelacao } from "../cena/acoes-investigacao.mjs";
+import { alternarFerramentaOculta } from "../cena/acoes-ferramenta.mjs";
 import { vincularDesafioAoPonto, removerDesafioDoPonto, todasInvestigacoes, alternarOculto } from "../cena/investigacao-ativa.mjs";
 import { chaveInfo } from "../cena/investigacao.mjs";
 import { textoPuroDaLinha } from "../cena/texto-linha.mjs";
@@ -28,6 +29,7 @@ export class PontoInteresseSheet extends OP2ItemSheet {
       removerDesafioVinculado: PontoInteresseSheet.#removerDesafioVinculado,
       alternarOcultoNaInvestigacao: PontoInteresseSheet.#alternarOcultoNaInvestigacao,
       limparRevelacao: PontoInteresseSheet.#limparRevelacao,
+      alternarFerramentaOculta: PontoInteresseSheet.#alternarFerramentaOculta,
     },
   };
 
@@ -163,6 +165,7 @@ export class PontoInteresseSheet extends OP2ItemSheet {
           chave,
           rotulo: rotuloFerramenta(chave),
           ehRadio: chave === "radio",
+          oculta: (this.item.system.ferramentasOcultas ?? []).includes(chave),
           campo: chave === "radio" ? null : this.item.system.schema.fields.ferramentas.fields[chave],
           valor: chave === "radio" ? "" : (ferramentas[chave] || ""),
           enriquecido: chave === "radio" ? "" : await enriquecer(ferramentas[chave] || ""),
@@ -199,6 +202,12 @@ export class PontoInteresseSheet extends OP2ItemSheet {
       this.#ferramentasNovas.add(seletor.value);
       this.render();
     });
+  }
+
+  /** Rascunho ↔ liberada, para a leitura de uma ferramenta (o mesmo olho do painel). */
+  static async #alternarFerramentaOculta(_evento, alvo) {
+    if (!this.isEditable) return;
+    await alternarFerramentaOculta(this.item.uuid, alvo.dataset.ferramenta);
   }
 
   static async #adicionarInformacao() {

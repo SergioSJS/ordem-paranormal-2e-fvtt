@@ -123,7 +123,7 @@
 
       <fieldset class="op2-poi__ferramentas">
         <legend>{{localize "OP2.POI.Ferramentas"}}</legend>
-        <p class="op2-ajuda">{{localize "OP2.POI.FerramentasAjuda"}}</p>
+        <p class="op2-ajuda">{{localize "OP2.POI.FerramentasAjuda"}} {{localize "OP2.POI.FerramentasMestreAjuda"}}</p>
 
         {{#each ferramentasConfiguradas}}
           <div class="op2-poi__ferramenta">
@@ -165,7 +165,17 @@
               {{!-- Leitura em HTML (imagem do handout, link da playlist): editor rico,
                     não textarea — as tags apareciam cruas (achado em uso real). --}}
               <label class="op2-campo">
-                <span>{{rotulo}}</span>
+                <span class="op2-poi__ferramenta-rotulo">
+                  {{!-- Rascunho: a ferramenta devolve leitura normal até o mestre liberar
+                        ("apenas se o Ídolo for quebrado"). --}}
+                  <button type="button" class="op2-botao-icone op2-poi__info-oculta op2-poi-card__visibilidade--{{#if oculta}}rascunho{{else}}descobrivel{{/if}}"
+                    data-action="alternarFerramentaOculta" data-ferramenta="{{chave}}" {{#unless @root.editavel}}disabled{{/unless}}
+                    aria-label="{{#if oculta}}{{localize 'OP2.POI.FerramentaVisibilidade.rascunho'}}{{else}}{{localize 'OP2.POI.FerramentaVisibilidade.liberada'}}{{/if}}"
+                    data-tooltip="{{#if oculta}}{{localize 'OP2.POI.FerramentaVisibilidade.rascunho'}}{{else}}{{localize 'OP2.POI.FerramentaVisibilidade.liberada'}}{{/if}}">
+                    <i class="fa-solid {{#if oculta}}fa-eye-slash{{else}}fa-screwdriver-wrench{{/if}}" aria-hidden="true"></i>
+                  </button>
+                  {{rotulo}}
+                </span>
                 {{formInput campo value=valor enriched=enriquecido toggled=true editable=@root.editavel
                   name=(op2Concat "system.ferramentas." chave)}}
               </label>

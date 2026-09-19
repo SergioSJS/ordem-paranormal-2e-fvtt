@@ -82,6 +82,11 @@ export class PontoInteresseData extends foundry.abstract.TypeDataModel {
       })),
 
       ferramentas: new SchemaField(ferramentas),
+      // Leitura que só existe depois de uma condição ("apenas se o Ídolo for quebrado",
+      // o Laboratório no Ídolo): rascunho do mestre, como a linha `oculta` do quadro —
+      // até ele liberar, a ferramenta devolve leitura normal (spec §9.3: "só revele
+      // depois que investigarem"). Guarda as chaves das ferramentas em rascunho.
+      ferramentasOcultas: new ArrayField(new StringField({ required: true, blank: false }), { initial: [] }),
 
       /**
        * Quantos dados o Laboratório Portátil rola neste ponto (spec §9.1: 4 a 6, "conforme

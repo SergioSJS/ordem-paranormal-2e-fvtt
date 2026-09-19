@@ -2183,6 +2183,74 @@ const relato = await page.evaluate(async (boasVindas) => {
     ok("card avisa leitura normal, sem reação",
       Boolean([...document.querySelectorAll(".op2-card")].at(-1)?.textContent.includes(game.i18n.localize("OP2.Ferramenta.SemReacao"))));
 
+    // A leitura fica com o personagem (como a linha do quadro) e aparece no painel:
+    // antes ia só para o chat, e o jogador não tinha onde reler (achado em uso real).
+    ok("usar a ferramenta grava a leitura no personagem (com reação e leitura normal)",
+      ator.system.estado.ferramentasReveladas.has(`${poi.uuid}:camera`)
+      && ator.system.estado.ferramentasReveladas.has(`${poi.uuid}:termometro`));
+    {
+      const texto = (m) => new DOMParser().parseFromString(m?.content ?? "", "text/html").body.textContent;
+      // A parte do mestre ("envie o handout") não vai ao jogador; ele recebe o resto.
+      await poi.update({ "system.ferramentas.infravermelho": "<p class=\"op2-mestre\">Só o mestre: descreva devagar.</p><p>Um rastro quente na parede.</p>" });
+      await ator.createEmbeddedDocuments("Item", [{ name: "Leitor Infravermelho", type: "ferramenta", system: { subtipo: "infravermelho" } }]);
+      const antes = game.messages.size;
+      await game.op2.usarFerramenta(ator, poi.uuid, "infravermelho");
+      await esperar(600);
+      const novos = game.messages.contents.slice(antes);
+      const doJogador = novos.find((m) => !m.getFlag("ordem-paranormal-2e", "soMestre"));
+      const doMestre = novos.find((m) => m.getFlag("ordem-paranormal-2e", "soMestre"));
+      ok("o card do jogador leva a leitura sem a parte do mestre; a parte do mestre vai num card só dele",
+        /rastro quente/.test(texto(doJogador)) && !/Só o mestre/.test(texto(doJogador))
+        && Boolean(doMestre) && /Só o mestre/.test(texto(doMestre)) && doMestre.whisper.every((id) => game.users.get(id)?.isGM));
+
+      // Rascunho ("apenas se o Ídolo for quebrado"): a ferramenta devolve leitura
+      // normal até o mestre liberar — o mestre vê o rascunho no card dele.
+      await poi.update({ "system.ferramentasOcultas": ["infravermelho"] });
+      const antes2 = game.messages.size;
+      const emRascunho = await game.op2.usarFerramenta(ator, poi.uuid, "infravermelho");
+      await esperar(600);
+      const novos2 = game.messages.contents.slice(antes2);
+      const jogador2 = novos2.find((m) => !m.getFlag("ordem-paranormal-2e", "soMestre"));
+      ok("leitura em rascunho sai como leitura normal para o jogador, e o mestre vê o rascunho",
+        emRascunho?.temReacao === false && texto(jogador2).includes(game.i18n.localize("OP2.Ferramenta.SemReacao"))
+        && novos2.some((m) => m.getFlag("ordem-paranormal-2e", "soMestre") && /rastro quente/.test(texto(m))));
+      await poi.update({ "system.ferramentasOcultas": [] });
+
+      // O painel do mestre mostra o setor: cada leitura, quem já leu, o olho e o limpar.
+      await painel.render();
+      await esperar(800);
+      const setor = painel.element?.querySelector(".op2-poi-card__ferramentas");
+      const leituraIV = [...(setor?.querySelectorAll(".op2-poi-card__leitura") ?? [])]
+        .find((li) => li.textContent.includes("Leitor Infravermelho"));
+      ok("o painel do mestre lista a leitura da ferramenta com quem a fez, o olho e o limpar",
+        Boolean(leituraIV) && leituraIV.textContent.includes(ator.name)
+        && Boolean(leituraIV.querySelector("[data-action='alternarFerramentaOculta']"))
+        && Boolean(leituraIV.querySelector("[data-action='limparLeitura']")));
+      leituraIV?.querySelector("[data-action='limparLeitura']")?.click();
+      await esperar(500);
+      ok("limpar a leitura tira a chave do personagem",
+        !ator.system.estado.ferramentasReveladas.has(`${poi.uuid}:infravermelho`));
+
+      // Revelação pelo mestre vale para as ferramentas também.
+      await game.settings.set("ordem-paranormal-2e", "revelacaoPeloMestre", true);
+      const antes3 = game.messages.size;
+      const aguardando = await game.op2.usarFerramenta(ator, poi.uuid, "infravermelho");
+      await esperar(600);
+      const cardEntregar = game.messages.contents.slice(antes3).find((m) => /entregar-leitura/.test(m.content));
+      ok("com revelação pelo mestre, a leitura fica com ele, com o botão de entregar, e não é gravada",
+        aguardando?.aguardaMestre === true && Boolean(cardEntregar)
+        && !ator.system.estado.ferramentasReveladas.has(`${poi.uuid}:infravermelho`));
+      const botao = new DOMParser().parseFromString(cardEntregar?.content ?? "", "text/html").querySelector("[data-op2-acao='entregar-leitura']");
+      const entregue = await game.op2.entregarLeituraDoMestre(ator, { ...botao?.dataset });
+      await esperar(400);
+      ok("entregar grava a leitura e manda o card do jogador",
+        entregue?.temReacao === true && ator.system.estado.ferramentasReveladas.has(`${poi.uuid}:infravermelho`)
+        && /rastro quente/.test(texto(game.messages.contents.at(-1))));
+      await game.settings.set("ordem-paranormal-2e", "revelacaoPeloMestre", false);
+      await poi.update({ "system.ferramentas.infravermelho": null });
+      await ator.items.getName("Leitor Infravermelho")?.delete();
+    }
+
     const lanternaItem = ator.items.getName("Lanterna de Estouro UV");
     await game.op2.usarFerramenta(ator, poi.uuid, "lanternaUV");
     await esperar(300);
@@ -3453,6 +3521,9 @@ const relato = await page.evaluate(async (boasVindas) => {
       await idolo.sheet.render(true);
       await new Promise((res) => setTimeout(res, 1200));
       const fichaIdolo = idolo.sheet.element;
+      r.idoloRascunho = idolo.system.ferramentasOcultas.includes("laboratorio")
+        && new RegExp(`data-op2-audio="${raiz}/musicas/audio-emf-1\\.mp3"`).test(idolo.system.ferramentas.emf)
+        && Boolean(fichaIdolo?.querySelector("[data-action='alternarFerramentaOculta'][data-ferramenta='laboratorio'] .fa-eye-slash"));
       r.fichaIdolo = fichaIdolo?.querySelectorAll(".op2-poi__ferramenta").length === 8
         && fichaIdolo.querySelector('prose-mirror[name="system.ferramentas.radio.texto"]')?.textContent.includes("gritos")
         && fichaIdolo.querySelector('input[name="system.laboratorioDados"]')?.value === "6";
@@ -3480,6 +3551,7 @@ const relato = await page.evaluate(async (boasVindas) => {
     relato.passos.push([mundo.radio, "o rádio do Depósito B joga em blocos, como o livro"]);
     relato.passos.push([mundo.painel, "o painel do mestre lista os 25 pontos e os 3 desafios do Ato II"]);
     relato.passos.push([mundo.fichaIdolo, "a ficha do Ídolo mostra as sete ferramentas mais o laser, o rádio em texto e os 6 dados do Laboratório"]);
+    relato.passos.push([mundo.idoloRascunho, "o Laboratório do Ídolo entra em rascunho (\"apenas se o Ídolo for quebrado\"), e o EMF toca o mp3 da pasta do mundo"]);
 
     // Segunda importação, com os arquivos já no lugar: nada de pedir o zip de novo.
     await limparAtoII();
