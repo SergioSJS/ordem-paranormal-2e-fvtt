@@ -176,8 +176,9 @@ a gravação. Encerrar a investigação zera junto com as linhas. Três coisas v
 - **Revelação pelo mestre** (setting) vale para as ferramentas: o card fica com ele,
   com *Entregar ao jogador*.
 
-O Medidor EMF entrega ao jogador um link que toca o mp3 só no cliente dele
-(`[data-op2-audio]`), como se segurasse o medidor; o link da playlist e o padrão
+O Medidor EMF entrega ao jogador dois links (`[data-op2-audio]`): ouvir só no
+cliente dele, como se segurasse o medidor, ou tocar para a mesa inteira — o
+servidor relaia `playAudio` de qualquer usuário; o link da playlist e o padrão
 ditado ficam com o mestre. O Laboratório rola a sequência mínima do ponto sem
 perguntar ao jogador (só o mestre pode mudar na hora) e entrega a leitura pelo
 mesmo caminho das outras ferramentas. O rádio sem enigma — ou sem nada — também

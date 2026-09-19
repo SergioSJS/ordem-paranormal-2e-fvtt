@@ -243,10 +243,13 @@ export function montarAtoII(dados, fontes, { avisos = [] } = {}) {
     if (!texto) {
       // Nada além do que já foi montado acima.
     } else if (f.audio) {
-      // O jogador ouve o medidor: um link que toca o mp3 só no cliente dele
-      // (`[data-op2-audio]`, chat.mjs). A instrução do livro — o padrão de bipes por
+      // O jogador ouve o medidor: um link toca o mp3 só no cliente dele, outro toca
+      // para a mesa inteira (`[data-op2-audio]`, chat.mjs) — ele escolhe se mostra
+      // aos outros o que está ouvindo. A instrução do livro — o padrão de bipes por
       // extenso, o link da playlist — é do mestre: dita o padrão só se o áudio falhar.
-      partes.push(`<p><a data-op2-audio="${caminho(`musicas/audio-emf-${f.audio}.mp3`)}"><i class="fa-solid fa-play"></i> Ouvir o Medidor EMF (Áudio EMF ${f.audio})</a></p>`);
+      const mp3 = caminho(`musicas/audio-emf-${f.audio}.mp3`);
+      partes.push(`<p><a data-op2-audio="${mp3}"><i class="fa-solid fa-play"></i> Ouvir o Medidor EMF (Áudio EMF ${f.audio})</a>`
+        + ` · <a data-op2-audio="${mp3}" data-op2-audio-todos="1"><i class="fa-solid fa-users"></i> tocar para a mesa</a></p>`);
       texto = texto.replace(/ÁUDIO EMF \d/, (m) => `${m} (${linkPlaylist})`);
       partes.push(paragrafoDoMestre(texto.replace(/\n\s*\n/g, "</p><p>").replace(/\n/g, " ")));
     } else {

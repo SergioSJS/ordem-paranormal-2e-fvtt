@@ -322,7 +322,7 @@ Examinar: a **leitura fica com o personagem** e aparece no painel dele — com r
 "leitura normal", que também é informação (§9.3). O botão da ferramenta marca o que ele
 já leu ali; reler é livre. O que o livro imprime junto para o mestre ("envie o handout",
 a condição, a solução do rádio) fica só no card do mestre. A Câmera entrega a foto; o
-Medidor EMF entrega um link que toca o áudio só na tela de quem clicou; o Laboratório
+Medidor EMF entrega dois links — ouvir só na própria tela ou tocar para a mesa; o Laboratório
 rola a escada com a sequência mínima do ponto, sem perguntar ao jogador. Leitura que só
 existe depois de uma condição ("apenas se o Ídolo for quebrado") entra em **rascunho**:
 até o mestre liberar — no painel ou na ficha do ponto —, a ferramenta devolve leitura

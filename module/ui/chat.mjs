@@ -164,13 +164,14 @@ function atoresSelecionados(padrao) {
 }
 
 /**
- * O áudio do Medidor EMF toca só na tela de quem clica (`AudioHelper.play` sem
- * difundir): o jogador ouve o medidor "na própria mão", como o livro descreve — e o
- * mestre não precisa mandar a playlist para a mesa inteira.
+ * O áudio do Medidor EMF: por padrão toca só na tela de quem clica (`AudioHelper.play`
+ * sem difundir) — o jogador ouve o medidor "na própria mão", como o livro descreve.
+ * Com `todos`, difunde pelo socket para a mesa inteira; o servidor relaia `playAudio`
+ * de qualquer usuário, então o próprio jogador decide mostrar o que está ouvindo.
  */
-export function tocarAudioLocal(src) {
+export function tocarAudio(src, { todos = false } = {}) {
   const AudioHelper = foundry.audio?.AudioHelper ?? globalThis.AudioHelper;
-  return AudioHelper.play({ src, volume: 0.8, loop: false }, false);
+  return AudioHelper.play({ src, volume: 0.8, loop: false }, todos);
 }
 
 /** @param {HTMLElement} elemento */
@@ -216,7 +217,7 @@ export function registrarChat() {
     const link = evento.target?.closest?.("[data-op2-audio]");
     if (!link) return;
     evento.preventDefault();
-    tocarAudioLocal(link.dataset.op2Audio);
+    tocarAudio(link.dataset.op2Audio, { todos: "op2AudioTodos" in link.dataset });
   });
   // Só `renderChatMessageHTML`: o `renderChatMessage` está depreciado desde o v13 e
   // registrá-lo faz o core avisar a cada mensagem. O sistema exige v13 no mínimo.

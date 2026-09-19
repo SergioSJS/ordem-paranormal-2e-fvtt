@@ -2249,6 +2249,32 @@ const relato = await page.evaluate(async (boasVindas) => {
       await game.settings.set("ordem-paranormal-2e", "revelacaoPeloMestre", false);
       await poi.update({ "system.ferramentas.infravermelho": null });
       await ator.items.getName("Leitor Infravermelho")?.delete();
+
+      // O Medidor EMF: o link da leitura toca o mp3 só no cliente de quem clicou
+      // (`AudioHelper.play` sem difundir) — o jogador ouve o medidor na própria mão.
+      await poi.update({ "system.ferramentas.emf": "<p><a data-op2-audio=\"worlds/x/emf.mp3\">Ouvir</a> <a data-op2-audio=\"worlds/x/emf.mp3\" data-op2-audio-todos=\"1\">mesa</a></p>" });
+      await ator.createEmbeddedDocuments("Item", [{ name: "Medidor EMF", type: "ferramenta", system: { subtipo: "emf" } }]);
+      const AudioHelper = foundry.audio.AudioHelper;
+      const playOriginal = AudioHelper.play;
+      const tocados = [];
+      AudioHelper.play = (dados, difundir) => { tocados.push({ src: dados.src, difundir }); return Promise.resolve(null); };
+      try {
+        await game.op2.usarFerramenta(ator, poi.uuid, "emf");
+        await esperar(700);
+        const links = [...document.querySelectorAll(".chat-message .op2-card [data-op2-audio]")].slice(-2);
+        links[0]?.click();
+        await esperar(200);
+        ok("o link do EMF no card toca o áudio só no cliente de quem clicou",
+          links.length === 2 && tocados.length === 1 && tocados[0].src === "worlds/x/emf.mp3" && tocados[0].difundir === false);
+        // O jogador escolhe: o segundo link difunde para a mesa inteira.
+        links[1]?.click();
+        await esperar(200);
+        ok("e o link 'tocar para a mesa' difunde", tocados.length === 2 && tocados[1].difundir === true);
+      } finally {
+        AudioHelper.play = playOriginal;
+      }
+      await poi.update({ "system.ferramentas.emf": null });
+      await ator.items.getName("Medidor EMF")?.delete();
     }
 
     const lanternaItem = ator.items.getName("Lanterna de Estouro UV");

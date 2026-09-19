@@ -216,6 +216,7 @@ test("montarAtoII: o handout citado solto no texto ganha a imagem, com o número
   // o link da playlist são do mestre.
   assert.match(soJogador(idolo.system.ferramentas.emf), /^<p><a data-op2-audio="systems\/ordem-paranormal-2e\/assets\/ato-ii\/musicas\/audio-emf-1\.mp3">/);
   assert.doesNotMatch(soJogador(idolo.system.ferramentas.emf), /1 - 1 - 3|@UUID/);
+  assert.match(soJogador(idolo.system.ferramentas.emf), /data-op2-audio-todos="1"[^>]*>.*tocar para a mesa/);
   assert.match(idolo.system.ferramentas.emf, /op2-mestre">Envie ou toque o arquivo ÁUDIO EMF 1 \(@UUID\[Playlist\./);
   // O laser: parágrafo e imagem, sem <p> dentro de <p>.
   assert.doesNotMatch(idolo.system.ferramentas.laser, /<p>[^<]*<p>/);

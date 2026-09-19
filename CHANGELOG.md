@@ -22,7 +22,7 @@ Retorno de uma mesa que jogou o Ato I:
   leu e o limpar no painel do mestre; o botão marca o que já foi lido ali. A instrução de
   mesa que o livro imprime junto ("envie o handout", a condição, a solução do rádio) vai
   só ao mestre. Leitura condicionada ("apenas se o Ídolo for quebrado") entra em rascunho
-  — leitura normal até o mestre liberar. O Medidor EMF toca o áudio na tela do jogador; a
+  — leitura normal até o mestre liberar. O Medidor EMF toca o áudio na tela do jogador (ou, se ele quiser, na mesa inteira); a
   Câmera entrega a foto e a descrição; o Laboratório usa a sequência mínima do ponto sem
   perguntar ao jogador. O setting *Revelação pelo mestre* vale para as ferramentas.
 - **Setor de ferramentas na ficha do ponto em editor rico.** A leitura de cada ferramenta
