@@ -126,6 +126,18 @@ rádio. Aponte `OP2_E2E_DATA` para o User Data descartável para ele zerar
 OP2_E2E_DATA="$DATA" node scripts/e2e/verificar.mjs http://localhost:30099 /tmp
 ```
 
+## Dois clientes — o que o jogador vê
+
+`scripts/e2e/dois-clientes.mjs` abre um mestre e um jogador de verdade no mesmo Foundry
+descartável (depois de uma rodada do e2e, que deixa os atos no compêndio do mundo) e
+confere dos dois lados: cards de ferramenta e de Examinar, o card só do mestre invisível
+para o jogador, o setor de ferramentas no painel do jogador, o áudio do EMF (só para si
+e para a mesa), o hack travado e o "Liberar tentativa" do mestre, a revelação pelo mestre.
+
+```bash
+node scripts/e2e/dois-clientes.mjs
+```
+
 ## Auditoria visual (tema claro e escuro)
 
 `scripts/e2e/auditoria-visual.mjs` abre cada tela do sistema — settings, menus, fichas de

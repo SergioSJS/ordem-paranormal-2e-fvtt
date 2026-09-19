@@ -38,8 +38,9 @@ dentro da aventura. O selo da licença (`assets/licenca/`) é o único arquivo d
 no pacote. Pronto para a rodada de teste manual que fecha a v1.
 **Versão:** 0.0.1 (a v1 é decisão de release).
 **Próximo:** o que o playtest ainda não publicou (NEX, progressão, traumas
-permanentes). **v13 e v14 exercitados pelo e2e** (13.351: 532 verificações; 14.363:
-634) — o bundle da cena leva os dois formatos de fundo, e o que só existe no v14 (níveis,
+permanentes). **v13 e v14 exercitados pelo e2e** (13.351 e 14.363: 645 verificações
+cada; `dois-clientes.mjs` confere a visão do jogador) — o bundle da cena leva os dois
+formatos de fundo, e o que só existe no v14 (níveis,
 `Collection#every`, `Note.author`) é tratado com guarda dos dois lados.
 
 ## Convenções
