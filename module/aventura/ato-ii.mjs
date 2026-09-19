@@ -344,7 +344,8 @@ export function montarAtoII(dados, fontes, { avisos = [] } = {}) {
         // Texto puro: a ficha do ponto edita a linha num textarea, e HTML aparecia
         // como tag na tela (achado em uso real). A condição vai entre parênteses.
         texto: condicao ? `(${condicao}) ${info.texto}` : info.texto,
-        oculta: Boolean(condicao) || Boolean(dono),
+        // "(Requer ter encontrado os e-mails)" no texto é condição: rascunho até o mestre liberar.
+        oculta: Boolean(condicao) || Boolean(dono) || /^\s*\(Requer\b/i.test(info.texto),
         aberta: false,
       };
     });

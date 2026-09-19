@@ -25,6 +25,8 @@ Retorno de uma mesa que jogou o Ato I:
   — leitura normal até o mestre liberar. O Medidor EMF toca o áudio na tela do jogador (ou, se ele quiser, na mesa inteira); a
   Câmera entrega a foto e a descrição; o Laboratório usa a sequência mínima do ponto sem
   perguntar ao jogador. O setting *Revelação pelo mestre* vale para as ferramentas.
+- Linha do quadro que começa com "(Requer …)" (o Computador, nos dois atos) nasce em
+  rascunho: é condição, e Examinar a entregava antes do hack social.
 - **Setor de ferramentas na ficha do ponto em editor rico.** A leitura de cada ferramenta
   é HTML (o laser e a câmera trazem o handout; o EMF, o link da playlist) e estava num
   textarea: no Ato II, todas as 44 leituras apareciam com as tags cruas. A imagem fica

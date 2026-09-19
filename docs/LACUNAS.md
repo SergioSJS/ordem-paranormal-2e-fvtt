@@ -411,8 +411,9 @@ Todas as caixas de acesso do porão têm campo no `desafio-acesso`:
   contou e a tira do que Examinar acha de novo — como uma linha aberta pelo mestre.
   **Decisão:** é diferente da ação Compartilhar (§6.5), que continua sendo o teste do
   aliado por uma pista NOVA. Desfazer é o mesmo "limpar revelação" do mestre.
-- **Linhas condicionais** ("apenas Victor", "se o ídolo for quebrado") entram como
-  rascunho: Examinar não as alcança, o mestre libera quando a condição acontece. "ou
+- **Linhas condicionais** ("apenas Victor", "se o ídolo for quebrado", e o "(Requer ter
+  feito o hack social…)" escrito no começo do texto — o Computador nos dois atos) entram
+  como rascunho: Examinar não as alcança, o mestre libera quando a condição acontece. "ou
   Tecnologia" é perícia alternativa e segue descobrível: vai para o campo
   `periciaAlternativa` da linha, e Examinar acha a linha com qualquer uma das duas.
   (Antes a alternativa ficava só no texto, e Examinar com Tecnologia no Computador

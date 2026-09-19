@@ -300,8 +300,9 @@ export function montarAtoI(extraido, fontes) {
               texto: prefixoDaLinha({ ...info, condicao }) + info.texto,
               // "Só pode ser acessada após cumprir uma condição" (o símbolo do livro):
               // entra como rascunho, que é o estado que Examinar não alcança — o mestre
-              // libera quando a condição acontecer.
-              oculta: Boolean(condicao),
+              // libera quando a condição acontecer. "(Requer ter feito o hack social…)"
+              // no começo do texto é a mesma condição, escrita na coluna da informação.
+              oculta: Boolean(condicao) || /^\s*\(Requer\b/i.test(info.texto),
               aberta: false,
             };
           }),

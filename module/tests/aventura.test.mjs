@@ -157,7 +157,10 @@ const dadosAtoII = () => ({
   pontos: [
     {
       numero: 7, nome: "O ÍDOLO DE PEDRA", descricao: "Uma estatueta.", notas: ["Nota."], desafio: null,
-      informacoes: [{ pericia: "Ocultismo", chave: "ocultismo", dt: 10, texto: "É antiga.", condicao: "" }],
+      informacoes: [
+        { pericia: "Ocultismo", chave: "ocultismo", dt: 10, texto: "É antiga.", condicao: "" },
+        { pericia: "Intuição", chave: "intuicao", dt: 6, texto: "(Requer ter encontrado os e-mails) Victor era o mais próximo.", condicao: "" },
+      ],
       ferramentas: [
         { chave: "camera", rotulo: "Câmera Modificada", texto: "Ao tirar uma foto, envie ao jogador o handout:\nHANDOUT 03 - FOTO DO ALTAR DE MADEIRA\nCaso não consiga enviar a imagem, descreva:\n“Há três silhuetas.”", handouts: ["HANDOUT 03 - FOTO DO ALTAR DE MADEIRA"] },
         { chave: "laboratorio", rotulo: "Laboratório Portátil (apenas se o Ídolo for quebrado) Sequência Mínima: 6", dados: 6, condicao: "apenas se o Ídolo for quebrado", texto: "O interior não é natural.", handouts: [] },
@@ -210,6 +213,9 @@ test("montarAtoII: o handout citado solto no texto ganha a imagem, com o número
   assert.match(idolo.system.ferramentas.camera, /<p class="op2-mestre">Ao tirar uma foto, envie ao jogador o handout: HANDOUT 03/);
   // Leitura com condição entra em rascunho, e a condição fica só com o mestre.
   assert.deepEqual(idolo.system.ferramentasOcultas, ["laboratorio"]);
+  // "(Requer …)" no texto é condição: a linha nasce em rascunho, a outra não.
+  assert.equal(idolo.system.informacoes[0].oculta, false);
+  assert.equal(idolo.system.informacoes[1].oculta, true);
   assert.equal(soJogador(idolo.system.ferramentas.laboratorio), "<p>O interior não é natural.</p>");
   assert.match(idolo.system.ferramentas.laboratorio, /op2-mestre[^>]*><em>\(apenas se o Ídolo for quebrado\)/);
   // O EMF: o jogador ouve (link que toca só no cliente dele); o padrão por extenso e
