@@ -27,6 +27,31 @@ export function separarAlternativa(condicao) {
 }
 
 /**
+ * "Mostre o handout: HANDOUT 02 - SÍMBOLO NO TETO." no texto de uma linha do quadro é
+ * instrução de mesa — e a linha é texto puro, lido pelo jogador quando a descobre. Vira
+ * "(handout: Símbolo no Teto)": ele sabe que há um handout a pedir, o mestre tem a
+ * imagem na nota do ponto. Só códigos ("HANDOUTS 12A, 12B e 12C") viram "(handouts 12A,
+ * 12B e 12C)". A revisão 1 escreve "Mostre o HANDOUT 02"; a 1.1, "Mostre o handout:
+ * HANDOUT 02"; o Corpo no Freezer cita entre parênteses e sem traço ("(mostre o HANDOUT
+ * 14 FOTO DE ANIVERSÁRIO)"). Nada mais do texto muda.
+ */
+export function citacaoDeHandout(texto) {
+  const juntar = (lista) => (lista.length > 1 ? `${lista.slice(0, -1).join(", ")} e ${lista.at(-1)}` : lista[0]);
+  return String(texto ?? "")
+    .replace(/\s*mostre (?:o|os) (?:handouts?:\s*)?(handouts?\s+[^.()]+)\.?/gi, (_m, lista) => {
+      const itens = lista.split(/\s*,\s*|\s+e\s+/).map((t) => t.replace(/^HANDOUTS?\s+/i, "").trim()).filter(Boolean);
+      const partes = itens.map((t) => /^(\S+)\s*(?:-\s*)?(.*)$/.exec(t)).map((m) => ({ codigo: m[1], titulo: m[2].trim() }));
+      // "RG DE GUSTAVO" → "RG de Gustavo": a sigla fica em caixa alta.
+      const titulo = (t) => tituloLegivel(t).replace(/\bRg\b/g, "RG");
+      if (partes.every((p) => p.titulo)) return ` (${partes.length > 1 ? "handouts" : "handout"}: ${juntar(partes.map((p) => titulo(p.titulo)))})`;
+      return ` (${partes.length > 1 ? "handouts" : "handout"} ${juntar(partes.map((p) => p.codigo))})`;
+    })
+    // Citação que já estava entre parênteses: um par só.
+    .replace(/\(\s*\((handouts?[^()]*)\)\s*\)/g, "($1)")
+    .replace(/\s{2,}/g, " ").trim();
+}
+
+/**
  * Id estável a partir de uma semente — regenerar não troca id, e importar de novo
  * atualiza. FNV-1a de 64 bits, em hexadecimal: 16 caracteres, como o Foundry pede, e
  * síncrono (o Web Crypto só faz hash em promessa, e os ids entram em todo lugar).

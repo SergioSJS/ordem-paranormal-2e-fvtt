@@ -22,7 +22,7 @@
  */
 import {
   ident, semAcento, tituloLegivel, pasta, em, escapar, html, iconeDoPonto, eventoDaMaldicao, posicionarNaCena,
-  separarAlternativa,
+  separarAlternativa, citacaoDeHandout,
 } from "./comum.mjs";
 import { paragrafoDoMestre } from "../cena/leitura-ferramenta.mjs";
 
@@ -214,7 +214,9 @@ export function montarAtoII(dados, fontes, { avisos = [] } = {}) {
     const semInstrucoes = f.texto.replace(/\s*\((?:leia|veja|jogador\s+precisa|mostre|envie)\b[^()]*(?:\([^()]*\)[^()]*)*\)/gi, (m) => {
       instrucoes.push(m.trim().replace(/\s*\n\s*/g, " "));
       return "";
-    });
+    // "Caso contrário, sem reação." fecha a leitura do Termômetro no Ídolo: é o mestre
+    // decidindo se o jogador mediu por dentro, não o que o aparelho mostra.
+    }).replace(/\s*Caso contrário, sem reação\.?/gi, (m) => { instrucoes.push(m.trim()); return ""; });
     let texto = escapar(semInstrucoes);
     if (f.handouts?.length) {
       // "Ao tirar uma foto, envie ao jogador o handout: X. Caso não consiga, descreva:
@@ -343,7 +345,7 @@ export function montarAtoII(dados, fontes, { avisos = [] } = {}) {
         dt: info.dt,
         // Texto puro: a ficha do ponto edita a linha num textarea, e HTML aparecia
         // como tag na tela (achado em uso real). A condição vai entre parênteses.
-        texto: condicao ? `(${condicao}) ${info.texto}` : info.texto,
+        texto: condicao ? `(${condicao}) ${citacaoDeHandout(info.texto)}` : citacaoDeHandout(info.texto),
         // "(Requer ter encontrado os e-mails)" no texto é condição: rascunho até o mestre liberar.
         oculta: Boolean(condicao) || Boolean(dono) || /^\s*\(Requer\b/i.test(info.texto),
         aberta: false,

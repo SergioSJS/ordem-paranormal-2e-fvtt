@@ -411,6 +411,14 @@ Todas as caixas de acesso do porão têm campo no `desafio-acesso`:
   contou e a tira do que Examinar acha de novo — como uma linha aberta pelo mestre.
   **Decisão:** é diferente da ação Compartilhar (§6.5), que continua sendo o teste do
   aliado por uma pista NOVA. Desfazer é o mesmo "limpar revelação" do mestre.
+- **"Mostre o handout: HANDOUT 02 - SÍMBOLO NO TETO."** numa linha do quadro é instrução
+  de mesa dentro do texto que o jogador lê ao descobrir a linha. Vira "(handout: Símbolo
+  no Teto)" — ele sabe que há um handout a pedir; a imagem continua na nota do mestre.
+  Só códigos viram "(handouts 05A, 05B e 06C)" (o "06C" é do livro). Nada mais muda.
+- **A sexta linha do Computador (Ato I).** "Intuição 6: Pela linguagem…", com a contagem
+  de jogadores, vem depois de três linhas em branco na p. 56 — o leitor (e o gabarito
+  Python) tomava por fim da tabela e a linha ia para as notas. O leitor agora segue
+  quando há rótulo e DT logo adiante; 88 linhas no Ato I, nas três edições do PDF.
 - **Linhas condicionais** ("apenas Victor", "se o ídolo for quebrado", e o "(Requer ter
   feito o hack social…)" escrito no começo do texto — o Computador nos dois atos) entram
   como rascunho: Examinar não as alcança, o mestre libera quando a condição acontece. "ou

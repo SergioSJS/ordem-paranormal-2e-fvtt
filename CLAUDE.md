@@ -21,7 +21,7 @@ O texto do livro não entra no pacote (Licença da Comunidade): o sistema leva o
 **extrator** (`module/extrator/`) e a janela *Aventuras do playtest*
 (`module/aventura/`) lê o PDF do mestre no navegador, monta cada ato como um único
 `Adventure` e guarda no compêndio do mundo `world.op2-aventuras`. Ato I (`Ato I — O
-Porão`): cena murada, trilha, pré-gerados, handouts, 31 pontos com 87 linhas de quadro,
+Porão`): cena murada, trilha, pré-gerados, handouts, 31 pontos com 88 linhas de quadro,
 10 desafios, itens de mesa, roteiro e maldição rodada a rodada. Ato II (`Ato II — O
 Porão`, só do PDF completo): cena com as paredes transportadas, os cinco agentes,
 handouts e Compêndio em PDF, áudios EMF, as dez ferramentas, 25 pontos com 63 linhas e

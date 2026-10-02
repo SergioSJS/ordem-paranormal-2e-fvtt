@@ -25,6 +25,12 @@ Retorno de uma mesa que jogou o Ato I:
   — leitura normal até o mestre liberar. O Medidor EMF toca o áudio na tela do jogador (ou, se ele quiser, na mesa inteira); a
   Câmera entrega a foto e a descrição; o Laboratório usa a sequência mínima do ponto sem
   perguntar ao jogador. O setting *Revelação pelo mestre* vale para as ferramentas.
+- "Mostre o handout: X" no texto da linha do quadro vira "(handout: X)" para o jogador;
+  a imagem segue na nota do mestre.
+- A sexta linha do Computador do Ato I ("Intuição 6", com a contagem de jogadores) ia
+  para as notas do mestre: o leitor do quadro tomava três linhas em branco por fim da
+  tabela. 88 linhas no Ato I.
+- "Caso contrário, sem reação." no Termômetro do Ídolo é do mestre, não da leitura.
 - Linha do quadro que começa com "(Requer …)" (o Computador, nos dois atos) nasce em
   rascunho: é condição, e Examinar a entregava antes do hack social.
 - **Setor de ferramentas na ficha do ponto em editor rico.** A leitura de cada ferramenta

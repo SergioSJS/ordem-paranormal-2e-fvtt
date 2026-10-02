@@ -3086,7 +3086,7 @@ const relato = await page.evaluate(async (boasVindas) => {
     }));
     const completo = janela.prontos === 2;
     relato.dados.aventurasDoPdf.janela = janela;
-    relato.passos.push([janela.prontos >= 1 && /31 pontos de interesse, 87 linhas de quadro, 10 desafios, maldição em 6 rodadas, 3 itens/.test(janela.resumos[0] ?? ""),
+    relato.passos.push([janela.prontos >= 1 && /31 pontos de interesse, 88 linhas de quadro, 10 desafios, maldição em 6 rodadas, 3 itens/.test(janela.resumos[0] ?? ""),
       `o PDF vira o Ato I na janela (${janela.resumos[0] ?? "sem resumo"})`]);
     relato.passos.push([completo
       ? /25 pontos de interesse, 63 linhas de quadro, 3 desafios, 34 leituras/.test(janela.resumos[1] ?? "")
@@ -3133,14 +3133,18 @@ const relato = await page.evaluate(async (boasVindas) => {
         niveisMontados.size <= 1 && [...cenaMontada.walls].every((w) => noNivel(w).every((id) => niveisMontados.has(id))));
       const pontos = [...aventura.items].filter((i) => i.type === "ponto-interesse");
       const linhas = pontos.flatMap((p) => p.system.informacoes);
-      ok("31 pontos com 87 linhas de quadro, todas com perícia e DT",
-        pontos.length === 31 && linhas.length === 87 && linhas.every((l) => l.pericia && Number.isInteger(l.dt) && l.dt > 0));
+      ok("31 pontos com 88 linhas de quadro, todas com perícia e DT",
+        pontos.length === 31 && linhas.length === 88 && linhas.every((l) => l.pericia && Number.isInteger(l.dt) && l.dt > 0));
       const armario = pontos.find((p) => p.name === "Armário de Metal");
       ok("\"DT 6 ou 10\" do Armário de Metal chega como DT 6, com a segunda no texto",
         armario?.system.informacoes.some((l) => l.dt === 6 && /DT 6 ou 10/.test(l.texto)));
       const computador = pontos.find((p) => p.name.startsWith("Computador"));
-      ok("o Computador tem as cinco linhas do livro, a última com DT 10",
-        computador?.system.informacoes.length === 5 && computador.system.informacoes[4].dt === 10);
+      // A sexta linha ("Intuição 6", com a contagem de jogadores) vem depois de três
+      // linhas em branco na p. 56 — ia para as notas do mestre. Em rascunho: "(Requer…)".
+      ok("o Computador tem as seis linhas do livro: a quinta com DT 10, a sexta Intuição 6 em rascunho com a contagem de jogadores",
+        computador?.system.informacoes.length === 6 && computador.system.informacoes[4].dt === 10
+        && computador.system.informacoes[5].pericia === "intuicao" && computador.system.informacoes[5].dt === 6
+        && computador.system.informacoes[5].oculta === true && /\(3 ou 4 jogadores\)/.test(computador.system.informacoes[5].texto));
       const inv = [...aventura.actors].find((a) => a.type === "investigacao");
       ok("a investigação chega com 31 pontos, 10 desafios e 5 participantes, tudo oculto",
         inv.system.pois.length === 31 && inv.system.desafios.length === 10 && inv.system.participantes.length === 5
@@ -3282,8 +3286,8 @@ const relato = await page.evaluate(async (boasVindas) => {
 
       // O quadro, os desafios e o roteiro, como o livro imprime.
       const linhas = pontos.flatMap((p) => p.system.informacoes);
-      ok("os pontos chegam ao mundo com as 87 linhas do quadro, perícia e DT em todas",
-        linhas.length === 87 && linhas.every((l) => l.pericia && l.dt > 0 && l.texto.length > 10));
+      ok("os pontos chegam ao mundo com as 88 linhas do quadro, perícia e DT em todas",
+        linhas.length === 88 && linhas.every((l) => l.pericia && l.dt > 0 && l.texto.length > 10));
       const deposito = desafios.find((d) => d.name.startsWith("Depósito A"));
       const freezer = desafios.find((d) => d.name.includes("Freezer"));
       ok("os desafios saem das caixas do PDF com DT, PA e senha, e a senha não vem sorteada",

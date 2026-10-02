@@ -126,6 +126,9 @@ rádio. Aponte `OP2_E2E_DATA` para o User Data descartável para ele zerar
 OP2_E2E_DATA="$DATA" node scripts/e2e/verificar.mjs http://localhost:30099 /tmp
 ```
 
+> O `/tmp` do macOS some de tempos em tempos (duas semanas paradas levaram `fvtt-e2e`,
+> `fvtt-e2e-v13` e as cópias). Recrie pelo bloco acima; o e2e monta o mundo do zero.
+
 ## Dois clientes — o que o jogador vê
 
 `scripts/e2e/dois-clientes.mjs` abre um mestre e um jogador de verdade no mesmo Foundry

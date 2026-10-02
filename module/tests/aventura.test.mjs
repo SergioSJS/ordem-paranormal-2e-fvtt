@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { montarAtoI } from "../aventura/ato-i.mjs";
 import { montarAtoII } from "../aventura/ato-ii.mjs";
+import { citacaoDeHandout } from "../aventura/comum.mjs";
 import { alinharNiveis } from "../aventura/niveis.mjs";
 
 /** Um Ato I mínimo, no formato que `extrairAtoI` devolve. */
@@ -266,4 +267,18 @@ test("alinharNiveis: a cena que chega usa o nível da cena que já existe, e par
   const c3 = { walls: [{ _id: "a", levels: ["defaultLevel0000"] }] };
   assert.deepEqual(alinharNiveis(c3, ["x"]), { niveis: 0, referencias: 1 });
   assert.deepEqual(c3.walls[0].levels, []);
+});
+
+test("citacaoDeHandout: a instrução de mesa vira citação para o jogador, nas duas revisões", () => {
+  assert.equal(citacaoDeHandout("O símbolo é idêntico. Mostre o handout: HANDOUT 02 - SÍMBOLO NO TETO."),
+    "O símbolo é idêntico. (handout: Símbolo no Teto)");
+  assert.equal(citacaoDeHandout("O símbolo é idêntico. Mostre o HANDOUT 02 - SÍMBOLO NO TETO."),
+    "O símbolo é idêntico. (handout: Símbolo no Teto)");
+  assert.equal(citacaoDeHandout("Há conversas. Mostre os handouts: HANDOUT 05A, HANDOUT 05B e HANDOUT 05C."),
+    "Há conversas. (handouts 05A, 05B e 05C)");
+  assert.equal(citacaoDeHandout("Há conversas. Mostre os HANDOUTS 12A, 12B e 12C."), "Há conversas. (handouts 12A, 12B e 12C)");
+  assert.equal(citacaoDeHandout("há uma foto dobrada (mostre o HANDOUT 14 FOTO DE ANIVERSÁRIO) e, em seu pulso, uma pulseira."),
+    "há uma foto dobrada (handout: Foto de Aniversário) e, em seu pulso, uma pulseira.");
+  assert.equal(citacaoDeHandout("Sem citação nenhuma."), "Sem citação nenhuma.");
+  assert.equal(citacaoDeHandout("Um documento. Mostre o HANDOUT 03 - RG DE GUSTAVO."), "Um documento. (handout: RG de Gustavo)");
 });

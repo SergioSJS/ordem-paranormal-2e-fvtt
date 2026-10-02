@@ -18,7 +18,7 @@
  */
 import {
   ident, palavras, afinidade, arquivoPublico, tituloLegivel, pasta, em, iconeDoPonto, eventoDaMaldicao,
-  arquivosDeHandout, posicionarNaCena, separarAlternativa,
+  arquivosDeHandout, posicionarNaCena, separarAlternativa, citacaoDeHandout,
 } from "./comum.mjs";
 
 const RAIZ = "Ato I — O Porão";
@@ -297,7 +297,7 @@ export function montarAtoI(extraido, fontes) {
               // tem campo no sistema: fica no começo do texto, onde o mestre lê antes
               // de liberar a linha. "DT 6 ou 10" (o Armário de Ferramentas) idem: o
               // campo guarda a primeira, o texto avisa da segunda.
-              texto: prefixoDaLinha({ ...info, condicao }) + info.texto,
+              texto: prefixoDaLinha({ ...info, condicao }) + citacaoDeHandout(info.texto),
               // "Só pode ser acessada após cumprir uma condição" (o símbolo do livro):
               // entra como rascunho, que é o estado que Examinar não alcança — o mestre
               // libera quando a condição acontecer. "(Requer ter feito o hack social…)"

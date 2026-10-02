@@ -262,7 +262,11 @@ export function lerTabela(linhas, i, colDt, colInfo) {
     if (!pericia && !meio && !info) {
       vazias += 1;
       if (atual.length) { blocos.push(atual); atual = []; }
-      if (vazias >= 3) break;          // fim da tabela: o texto de mestre vem depois
+      // Fim da tabela: o texto de mestre vem depois — a não ser que logo adiante haja
+      // outra linha do quadro, com rótulo e DT nas colunas delas. O Computador (p. 56)
+      // respira três linhas em branco antes da última linha ("Intuição 6"), que ia
+      // inteira para as notas do mestre.
+      if (vazias >= 3 && !continuaAdiante(linhas, i, colDt, colInfo)) break;
       i += 1;
       continue;
     }
@@ -402,6 +406,34 @@ export function lerTabela(linhas, i, colDt, colInfo) {
   }
 
   return [infos, i, sobras];
+}
+
+/**
+ * Depois de três linhas em branco, ainda é tabela? Só se a primeira linha com texto
+ * adiante está escrita na coluna da informação (nada na perícia nem na DT) e, até
+ * oito linhas abaixo, aparece um rótulo de perícia com DT ao lado — prosa de mestre
+ * atravessa as colunas, e um título fecha tudo.
+ */
+function continuaAdiante(linhas, i, colDt, colInfo) {
+  let primeira = true;
+  for (let j = i + 1; j < Math.min(linhas.length, i + 10); j += 1) {
+    const linha = linhas[j];
+    if (!linha.trim()) continue;
+    if (ehTitulo(linhas, j) || CABECALHO.test(linha)) return false;
+    if (/^\s*\d{1,3}\s*$/.test(linha)) return false;
+    const corte = corteNaFolga(linha, Math.max(0, colDt - 2));
+    const pericia = linha.slice(0, corte).trim();
+    const meio = linha.slice(corte, Math.max(corte, colInfo)).trim();
+    const info = linha.slice(Math.max(corte, colInfo)).trim();
+    if (primeira) {
+      if (pericia || meio || !info) return false;
+      primeira = false;
+      continue;
+    }
+    if (NOMES_DE_PERICIA.test(pericia) && ehNumero(meio)) return true;
+    if (pericia || /[A-Za-zÀ-ÿ]/.test(meio)) return false;
+  }
+  return false;
 }
 
 /**
@@ -860,6 +892,14 @@ export function extrairPontos(linhas) {
     if (cab && atual !== null) {
       const [colDt, colInfo] = colunas(linha);
       const [novas, fim, sobras] = lerTabela(linhas, i + 1, colDt, colInfo);
+      // "3 ou 4 Eloísa não parecia…" / "5 Kênia e Eloísa…": os ícones de contagem de
+      // jogadores do livro viram só o número na extração (como no Ato II).
+      for (const info of novas) {
+        if (/\b3\s+ou 4\s+[A-ZÁ-Ú]/.test(info.texto)) {
+          info.texto = info.texto.replace(/\b(\d)\s+ou\s+(\d)\s+(?=[A-ZÁ-Ú])/g, "($1 ou $2 jogadores) ");
+          info.texto = info.texto.replace(/\.\s+(\d)\s+(?=[A-ZÁ-Ú])/g, ". ($1 jogadores) ");
+        }
+      }
       atual.informacoes.push(...novas);
       atual.notas.push(...sobras);
       atual.bruto.push(...linhas.slice(i, fim));
