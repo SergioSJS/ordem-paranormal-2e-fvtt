@@ -136,6 +136,11 @@ Compartilhar continua sendo outra coisa, o teste do aliado por uma pista nova.
 O painel mostra ao mestre quem descobriu cada linha e um botão para **desfazer** a
 descoberta (e o "contado ao grupo" junto), sem precisar encerrar a cena.
 
+Uma linha pode ter **perícia alternativa** ("Pesquisar ou Tecnologia", o Computador):
+Examinar a acha com qualquer uma das duas. E o mestre que prefere narrar antes de a
+pista cair na tela liga **Revelação pelo mestre** nas configurações do mundo: o card de
+Examinar vai só a ele, com *Entregar ao jogador*; o jogador vê a rolagem e um aviso.
+
 ![Ficha de ponto de interesse](docs/img/ficha-poi.png)
 
 **Sobrecarga mental** (spec §7.6): ao fim de cada rodada, a tabela da cena cobra PD de
@@ -175,7 +180,10 @@ no braço.
   do mestre; a tela do jogador só tem o palpite.
 - **Hackear** (§7.3) — técnico: o jogador rola, só o mestre recebe a conta e a resposta,
   revela para a mesa com um contador grande na tela de todos e dá o veredito; social (banco de perguntas do
-  mestre), cada um com o próprio gate de rodada.
+  mestre), cada um com o próprio gate de rodada: falhou, só tenta de novo na rodada
+  seguinte da investigação. Mesa que não avança rodada? O botão avisa "nesta rodada"
+  antes do clique, a ficha do desafio tem *Liberar tentativa*, e o mestre que clica
+  pode tentar mesmo assim.
 - **Genérico** — qualquer outra situação: o mestre diz a perícia e o rótulo.
 
 ## Combate e ferimentos
@@ -306,6 +314,19 @@ conferidas contra a tabela *Locais de uso de cada ferramenta* do livro), os trê
 desafios de acesso, o roteiro do ato com as instruções de mestre de cada ferramenta,
 a maldição como evento já vinculado — parado, porque no Ato II o gatilho é danificar o
 Ídolo (p. 87) —, e a investigação com tudo vinculado.
+
+### As ferramentas na mesa
+
+Usar uma ferramenta num ponto é ação do jogador, na janela de ações, e funciona como
+Examinar: a **leitura fica com o personagem** e aparece no painel dele — com reação ou
+"leitura normal", que também é informação (§9.3). O botão da ferramenta marca o que ele
+já leu ali; reler é livre. O que o livro imprime junto para o mestre ("envie o handout",
+a condição, a solução do rádio) fica só no card do mestre. A Câmera entrega a foto; o
+Medidor EMF entrega dois links — ouvir só na própria tela ou tocar para a mesa; o Laboratório
+rola a escada com a sequência mínima do ponto, sem perguntar ao jogador. Leitura que só
+existe depois de uma condição ("apenas se o Ídolo for quebrado") entra em **rascunho**:
+até o mestre liberar — no painel ou na ficha do ponto —, a ferramenta devolve leitura
+normal. O setting *Revelação pelo mestre* vale para as ferramentas também.
 
 ### As artes vêm do seu zip
 

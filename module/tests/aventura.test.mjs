@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { montarAtoI } from "../aventura/ato-i.mjs";
 import { montarAtoII } from "../aventura/ato-ii.mjs";
+import { citacaoDeHandout } from "../aventura/comum.mjs";
 import { alinharNiveis } from "../aventura/niveis.mjs";
 
 /** Um Ato I mínimo, no formato que `extrairAtoI` devolve. */
@@ -69,9 +70,12 @@ test("montarAtoI: a linha do quadro leva condição e DT alternativa no texto, e
   const aventura = montarAtoI(extraidoAtoI(), fontesAtoI());
   const [molho, simbolo] = aventura.items.filter((i) => i.type === "ponto-interesse");
   assert.equal(molho.system.informacoes[1].pericia, "pesquisar");
-  assert.equal(molho.system.informacoes[1].texto, "(DT 6 ou 10; ou Tecnologia) Duas são iguais.");
-  // "ou Tecnologia" é perícia alternativa, não condição: a linha segue descobrível.
+  // "ou Tecnologia" é perícia alternativa, não condição: vira campo da linha (Examinar
+  // com Tecnologia acha a linha), sai do texto, e a linha segue descobrível.
+  assert.equal(molho.system.informacoes[1].periciaAlternativa, "tecnologia");
+  assert.equal(molho.system.informacoes[1].texto, "(DT 6 ou 10) Duas são iguais.");
   assert.equal(molho.system.informacoes[1].oculta, false);
+  assert.equal(molho.system.informacoes[0].periciaAlternativa, "");
   assert.equal(simbolo.system.informacoes[0].oculta, true);
   // O handout citado vai para a descrição de mestre do ponto que combina com ele.
   assert.match(simbolo.system.descricaoContextual, /handout-02-simbolo-no-teto\.jpg/);
@@ -154,8 +158,15 @@ const dadosAtoII = () => ({
   pontos: [
     {
       numero: 7, nome: "O ÍDOLO DE PEDRA", descricao: "Uma estatueta.", notas: ["Nota."], desafio: null,
-      informacoes: [{ pericia: "Ocultismo", chave: "ocultismo", dt: 10, texto: "É antiga.", condicao: "" }],
-      ferramentas: [{ chave: "camera", rotulo: "Câmera Modificada", texto: "Envie ao jogador o handout: HANDOUT 03 - FOTO DO ALTAR DE MADEIRA Caso não consiga, descreva.", handouts: ["HANDOUT 03 - FOTO DO ALTAR DE MADEIRA"] }],
+      informacoes: [
+        { pericia: "Ocultismo", chave: "ocultismo", dt: 10, texto: "É antiga.", condicao: "" },
+        { pericia: "Intuição", chave: "intuicao", dt: 6, texto: "(Requer ter encontrado os e-mails) Victor era o mais próximo.", condicao: "" },
+      ],
+      ferramentas: [
+        { chave: "camera", rotulo: "Câmera Modificada", texto: "Ao tirar uma foto, envie ao jogador o handout:\nHANDOUT 03 - FOTO DO ALTAR DE MADEIRA\nCaso não consiga enviar a imagem, descreva:\n“Há três silhuetas.”", handouts: ["HANDOUT 03 - FOTO DO ALTAR DE MADEIRA"] },
+        { chave: "laboratorio", rotulo: "Laboratório Portátil (apenas se o Ídolo for quebrado) Sequência Mínima: 6", dados: 6, condicao: "apenas se o Ídolo for quebrado", texto: "O interior não é natural.", handouts: [] },
+        { chave: "emf", rotulo: "Medidor EMF", texto: "Envie ou toque o arquivo ÁUDIO EMF 1 para o jogador.\nCaso não consiga, o padrão é (1 - 1 - 3).", audio: 1, handouts: [] },
+      ],
       handoutsCitados: [], leituraNormal: "",
     },
     { numero: 8, nome: "DEPÓSITO A", descricao: "Um depósito.", notas: [], desafio: null, informacoes: [], ferramentas: [], handoutsCitados: [], leituraNormal: "Todas as ferramentas resultam em leitura normal." },
@@ -195,6 +206,27 @@ test("montarAtoII: o handout citado solto no texto ganha a imagem, com o número
   const aventura = montarAtoII(dadosAtoII(), fontesAtoII());
   const idolo = aventura.items.find((i) => i.name === "O Ídolo de Pedra");
   assert.match(idolo.system.ferramentas.camera, /handout-03-foto-do-altar-de-madeira\.png/);
+  // O jogador recebe a imagem e a descrição; "envie ao jogador o handout" é do mestre
+  // (`op2-mestre`, que o card do jogador não leva).
+  const soJogador = (html) => html.replace(/<p class="op2-mestre">[\s\S]*?<\/p>/g, "");
+  assert.match(soJogador(idolo.system.ferramentas.camera), /<img [^>]*handout-03[^>]*>.*<p>“Há três silhuetas.”<\/p>/s);
+  assert.doesNotMatch(soJogador(idolo.system.ferramentas.camera), /envie ao jogador|HANDOUT 03/);
+  assert.match(idolo.system.ferramentas.camera, /<p class="op2-mestre">Ao tirar uma foto, envie ao jogador o handout: HANDOUT 03/);
+  // Leitura com condição entra em rascunho, e a condição fica só com o mestre.
+  assert.deepEqual(idolo.system.ferramentasOcultas, ["laboratorio"]);
+  // "(Requer …)" no texto é condição: a linha nasce em rascunho, a outra não.
+  assert.equal(idolo.system.informacoes[0].oculta, false);
+  assert.equal(idolo.system.informacoes[1].oculta, true);
+  assert.equal(soJogador(idolo.system.ferramentas.laboratorio), "<p>O interior não é natural.</p>");
+  assert.match(idolo.system.ferramentas.laboratorio, /op2-mestre[^>]*><em>\(apenas se o Ídolo for quebrado\)/);
+  // O EMF: o jogador ouve (link que toca só no cliente dele); o padrão por extenso e
+  // o link da playlist são do mestre.
+  assert.match(soJogador(idolo.system.ferramentas.emf), /^<p><a data-op2-audio="systems\/ordem-paranormal-2e\/assets\/ato-ii\/musicas\/audio-emf-1\.mp3">/);
+  assert.doesNotMatch(soJogador(idolo.system.ferramentas.emf), /1 - 1 - 3|@UUID/);
+  assert.match(soJogador(idolo.system.ferramentas.emf), /data-op2-audio-todos="1"[^>]*>.*tocar para a mesa/);
+  assert.match(idolo.system.ferramentas.emf, /op2-mestre">Envie ou toque o arquivo ÁUDIO EMF 1 \(@UUID\[Playlist\./);
+  // O laser: parágrafo e imagem, sem <p> dentro de <p>.
+  assert.doesNotMatch(idolo.system.ferramentas.laser, /<p>[^<]*<p>/);
   assert.match(idolo.system.ferramentas.laser, /handout-02a-laser-porao\.jpg/);
   const handouts = aventura.journal.find((j) => j.name === "Handouts — Ato II");
   const altar = handouts.pages.find((p) => p.name.startsWith("Foto do Altar"));
@@ -235,4 +267,18 @@ test("alinharNiveis: a cena que chega usa o nível da cena que já existe, e par
   const c3 = { walls: [{ _id: "a", levels: ["defaultLevel0000"] }] };
   assert.deepEqual(alinharNiveis(c3, ["x"]), { niveis: 0, referencias: 1 });
   assert.deepEqual(c3.walls[0].levels, []);
+});
+
+test("citacaoDeHandout: a instrução de mesa vira citação para o jogador, nas duas revisões", () => {
+  assert.equal(citacaoDeHandout("O símbolo é idêntico. Mostre o handout: HANDOUT 02 - SÍMBOLO NO TETO."),
+    "O símbolo é idêntico. (handout: Símbolo no Teto)");
+  assert.equal(citacaoDeHandout("O símbolo é idêntico. Mostre o HANDOUT 02 - SÍMBOLO NO TETO."),
+    "O símbolo é idêntico. (handout: Símbolo no Teto)");
+  assert.equal(citacaoDeHandout("Há conversas. Mostre os handouts: HANDOUT 05A, HANDOUT 05B e HANDOUT 05C."),
+    "Há conversas. (handouts 05A, 05B e 05C)");
+  assert.equal(citacaoDeHandout("Há conversas. Mostre os HANDOUTS 12A, 12B e 12C."), "Há conversas. (handouts 12A, 12B e 12C)");
+  assert.equal(citacaoDeHandout("há uma foto dobrada (mostre o HANDOUT 14 FOTO DE ANIVERSÁRIO) e, em seu pulso, uma pulseira."),
+    "há uma foto dobrada (handout: Foto de Aniversário) e, em seu pulso, uma pulseira.");
+  assert.equal(citacaoDeHandout("Sem citação nenhuma."), "Sem citação nenhuma.");
+  assert.equal(citacaoDeHandout("Um documento. Mostre o HANDOUT 03 - RG DE GUSTAVO."), "Um documento. (handout: RG de Gustavo)");
 });

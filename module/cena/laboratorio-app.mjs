@@ -13,6 +13,7 @@ import { ESCADA, SYSTEM_ID } from "../config.mjs";
 import { sequenciaLaboratorio, rerrolagensLaboratorio, sequenciaValida } from "./ferramentas.mjs";
 import { renderizar } from "../dice/teste.mjs";
 import { vestirPerfil } from "../ui/perfil.mjs";
+import { entregarLeitura } from "./acoes-ferramenta.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -118,20 +119,9 @@ export class LaboratorioApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.finalizado = true;
     const sucesso = sequenciaValida(this.resultados);
 
-    // Sucesso é o que faz o equipamento entregar a leitura do POI — falhar na
-    // escada é falhar em operar o Laboratório, não em interpretar o resultado.
-    let resultadoPoi = null;
-    if (sucesso && this.poiUuid) {
-      const poi = await fromUuid(this.poiUuid);
-      const texto = poi?.system.ferramentas?.laboratorio;
-      const editor = foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
-      resultadoPoi = texto?.trim() ? await editor.enrichHTML(texto, { relativeTo: poi }) : null;
-    }
-
     const conteudo = await renderizar("systems/ordem-paranormal-2e/templates/chat/laboratorio.hbs", {
       titulo: game.i18n.localize("OP2.Ferramenta.Subtipo.laboratorio"),
       sucesso,
-      resultadoPoi,
       sequencia: this.resultados.map((resultado, i) => ({
         dado: this.sequenciaAlvo[i],
         resultado,
@@ -144,6 +134,15 @@ export class LaboratorioApp extends HandlebarsApplicationMixin(ApplicationV2) {
       whisper: game.users.filter((u) => u.isGM || this.ator.testUserPermission(u, "OWNER")).map((u) => u.id),
       flags: { [SYSTEM_ID]: { tipo: "laboratorio", atorId: this.ator.id } },
     });
+
+    // Sucesso é o que faz o equipamento entregar a leitura do POI — falhar na
+    // escada é falhar em operar o Laboratório, não em interpretar o resultado. A
+    // leitura sai pelo mesmo caminho das outras ferramentas: gravada no personagem,
+    // sem a parte do mestre, e respeitando rascunho e revelação pelo mestre.
+    if (sucesso && this.poiUuid) {
+      const poi = await fromUuid(this.poiUuid);
+      if (poi?.type === "ponto-interesse") await entregarLeitura(this.ator, poi, "laboratorio");
+    }
 
     this.render();
   }

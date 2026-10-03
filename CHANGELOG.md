@@ -5,6 +5,43 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+## [0.9.7] — 2026-10-03
+
+Retorno de uma mesa que jogou o Ato I:
+
+- **Linha do quadro com perícia alternativa** ("Pesquisar ou Tecnologia", o Computador):
+  campo próprio na ficha do ponto, e Examinar acha a linha com qualquer uma das duas. Antes
+  a segunda perícia ficava só no texto, e um 10 em Tecnologia saía como falha e cobrava o
+  PD. As aventuras montadas do PDF já preenchem o campo.
+- **O hack não fica preso para sempre.** O gate "só na rodada seguinte" (spec §7.3) conta
+  pela rodada da investigação: com o contador parado, a primeira tentativa trancava o
+  dispositivo para a mesa inteira, e "já tentou nesta rodada" não dizia como sair. Agora o
+  aviso aponta as saídas, o botão do hack avisa "nesta rodada" antes do clique, a ficha do
+  desafio tem *Liberar tentativa*, o mestre que clica pode "tentar mesmo assim", e
+  encerrar a investigação zera o gate junto com a rodada.
+- **Ferramentas da Ordo Realitas como revelação.** A leitura de uma ferramenta num ponto
+  fica com o personagem e aparece no painel dele (com reação ou leitura normal), com quem
+  leu e o limpar no painel do mestre; o botão marca o que já foi lido ali. A instrução de
+  mesa que o livro imprime junto ("envie o handout", a condição, a solução do rádio) vai
+  só ao mestre. Leitura condicionada ("apenas se o Ídolo for quebrado") entra em rascunho
+  — leitura normal até o mestre liberar. O Medidor EMF toca o áudio na tela do jogador (ou, se ele quiser, na mesa inteira); a
+  Câmera entrega a foto e a descrição; o Laboratório usa a sequência mínima do ponto sem
+  perguntar ao jogador. O setting *Revelação pelo mestre* vale para as ferramentas.
+- "Mostre o handout: X" no texto da linha do quadro vira "(handout: X)" para o jogador;
+  a imagem segue na nota do mestre.
+- A sexta linha do Computador do Ato I ("Intuição 6", com a contagem de jogadores) ia
+  para as notas do mestre: o leitor do quadro tomava três linhas em branco por fim da
+  tabela. 88 linhas no Ato I.
+- "Caso contrário, sem reação." no Termômetro do Ídolo é do mestre, não da leitura.
+- Linha do quadro que começa com "(Requer …)" (o Computador, nos dois atos) nasce em
+  rascunho: é condição, e Examinar a entregava antes do hack social.
+- **Setor de ferramentas na ficha do ponto em editor rico.** A leitura de cada ferramenta
+  é HTML (o laser e a câmera trazem o handout; o EMF, o link da playlist) e estava num
+  textarea: no Ato II, todas as 44 leituras apareciam com as tags cruas. A imagem fica
+  numa altura fixa na ficha; o card de chat segue mostrando inteira.
+- **Revelação pelo mestre** (setting de mundo, desligado por padrão): Examinar não entrega
+  a pista direto ao jogador — o card vai só ao mestre, com *Entregar ao jogador*; o jogador
+  vê a rolagem e um aviso. Para quem quer narrar antes.
 - Rolagem sem a opção `rollMode` no `toMessage`: o core aplica o modo do usuário nas duas
   versões, e no v14 a opção estava depreciada (aviso a cada rolagem).
 - A release no GitHub traz como corpo a seção da versão no CHANGELOG e a linha de

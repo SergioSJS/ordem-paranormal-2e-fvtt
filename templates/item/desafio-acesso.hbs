@@ -193,6 +193,18 @@
           {{#unless editavel}}disabled{{/unless}}>
         <span>{{localize "OP2.Desafio.HackSucesso"}}</span>
       </label>
+      {{!-- O gate "só na rodada seguinte" (spec §7.3) trava por rodada da investigação; se o
+            contador não anda, ou o mestre testou antes da sessão, ele fica preso — aqui
+            o mestre solta (achado em uso real). --}}
+      {{#if (op2Maior sistema.hackTecnico.ultimaTentativaRodada -1)}}
+        <div class="op2-campo op2-campo--inline">
+          <span class="op2-ajuda">{{localize "OP2.Desafio.HackTravadoNaRodada" rodada=sistema.hackTecnico.ultimaTentativaRodada}}</span>
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="liberarHack" data-hack="hackTecnico"
+            {{#unless editavel}}disabled{{/unless}} data-tooltip="{{localize 'OP2.Desafio.HackLiberarAjuda'}}">
+            <i class="fa-solid fa-unlock" aria-hidden="true"></i> {{localize "OP2.Desafio.HackLiberar"}}
+          </button>
+        </div>
+      {{/if}}
       {{!-- Painel que devolve um problema em vez de abrir: cada faixa de rolagem tem
             o seu (spec §7.3 não modela o problema; o livro imprime). --}}
       <div class="op2-desafio-hack__tabela">
@@ -244,6 +256,18 @@
           {{#unless editavel}}disabled{{/unless}}>
         <span>{{localize "OP2.Desafio.HackSucesso"}}</span>
       </label>
+      {{!-- O gate "só na rodada seguinte" (spec §7.3) trava por rodada da investigação; se o
+            contador não anda, ou o mestre testou antes da sessão, ele fica preso — aqui
+            o mestre solta (achado em uso real). --}}
+      {{#if (op2Maior sistema.hackSocial.ultimaTentativaRodada -1)}}
+        <div class="op2-campo op2-campo--inline">
+          <span class="op2-ajuda">{{localize "OP2.Desafio.HackTravadoNaRodada" rodada=sistema.hackSocial.ultimaTentativaRodada}}</span>
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="liberarHack" data-hack="hackSocial"
+            {{#unless editavel}}disabled{{/unless}} data-tooltip="{{localize 'OP2.Desafio.HackLiberarAjuda'}}">
+            <i class="fa-solid fa-unlock" aria-hidden="true"></i> {{localize "OP2.Desafio.HackLiberar"}}
+          </button>
+        </div>
+      {{/if}}
       <label class="op2-campo">
         <span>{{localize "OP2.Desafio.HackRespostasNecessarias"}}</span>
         <input type="number" name="system.hackSocial.respostasNecessarias"

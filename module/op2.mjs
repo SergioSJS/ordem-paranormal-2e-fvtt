@@ -39,7 +39,7 @@ import {
   vincularEvento, removerEvento, eventosDaInvestigacao, dispararEvento, reiniciarEvento,
 } from "./cena/investigacao-ativa.mjs";
 import {
-  examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo,
+  examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo, entregarRevelacao,
   limparRevelacao, contarAoGrupo,
 } from "./cena/acoes-investigacao.mjs";
 import {
@@ -47,7 +47,7 @@ import {
   hackTecnico, hackSocial, marcarHackSocialResolvido, marcarHackTecnicoResolvido, desafioGenerico,
 } from "./cena/acoes-desafio.mjs";
 import { iniciarHackTecnico, encerrarHackTecnico } from "./cena/timer-hack.mjs";
-import { usarFerramenta, usarLaser, usarRadio } from "./cena/acoes-ferramenta.mjs";
+import { usarFerramenta, usarLaser, entregarLeituraDoMestre, usarRadio } from "./cena/acoes-ferramenta.mjs";
 import { abrirDestrancar } from "./cena/destrancar-app.mjs";
 import { abrirLaboratorio } from "./cena/laboratorio-app.mjs";
 import { abrirRadio } from "./cena/radio-app.mjs";
@@ -115,14 +115,14 @@ Hooks.once("init", () => {
   game.op2 = {
     migrarLinhasDoQuadro,
     rolarTeste, encerrarCena, stepDie, faces, OP2Roll,
-    examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo,
+    examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo, entregarRevelacao,
     limparRevelacao, contarAoGrupo,
     painelInvestigacao: abrirPainelInvestigacao, acoesInvestigacao: abrirAcoesInvestigacao, avancarRodada,
     arrombar, alcancar, sustentar, pararDeSustentar,
     hackTecnico, hackSocial, marcarHackSocialResolvido, marcarHackTecnicoResolvido, desafioGenerico,
     iniciarHackTecnico, encerrarHackTecnico,
     gerarSenhaDestrancar, tentarDestrancar, abrirDestrancar,
-    usarFerramenta, usarLaser, abrirLaboratorio, usarRadio, abrirRadio,
+    usarFerramenta, usarLaser, entregarLeituraDoMestre, abrirLaboratorio, usarRadio, abrirRadio,
     rolarTesteDeQueda, zerarContadoresDeQueda, ajudar, atacar, defender,
     usarHabilidadeOuItem, concederPasso,
     investigacaoAtiva, todasInvestigacoes, definirInvestigacaoAtiva, criarInvestigacao,

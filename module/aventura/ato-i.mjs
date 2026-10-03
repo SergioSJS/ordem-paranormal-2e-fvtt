@@ -18,7 +18,7 @@
  */
 import {
   ident, palavras, afinidade, arquivoPublico, tituloLegivel, pasta, em, iconeDoPonto, eventoDaMaldicao,
-  arquivosDeHandout, posicionarNaCena,
+  arquivosDeHandout, posicionarNaCena, separarAlternativa, citacaoDeHandout,
 } from "./comum.mjs";
 
 const RAIZ = "Ato I — O Porão";
@@ -284,22 +284,28 @@ export function montarAtoI(extraido, fontes) {
           descricaoBasica: `<p>${ponto.descricao}</p>`,
           descricaoContextual: [condicaoDoPonto, daCaixa, notas, prateleiras, conteudo, senha, ...imagens]
             .filter(Boolean).join("\n"),
-          informacoes: ponto.informacoes.map((info, indice) => ({
-            id: `i${indice + 1}`,
-            pericia: info.chave,
-            dt: info.dt,
-            // A condição da linha ("apenas Victor", "se o ídolo for quebrado") não
-            // tem campo no sistema: fica no começo do texto, onde o mestre lê antes
-            // de liberar a linha. "DT 6 ou 10" (o Armário de Ferramentas) idem: o
-            // campo guarda a primeira, o texto avisa da segunda.
-            texto: prefixoDaLinha(info) + info.texto,
-            // "Só pode ser acessada após cumprir uma condição" (o símbolo do livro):
-            // entra como rascunho, que é o estado que Examinar não alcança — o mestre
-            // libera quando a condição acontecer. "ou Tecnologia" não é condição de
-            // acesso: é perícia alternativa, e a linha segue descobrível.
-            oculta: Boolean(info.condicao) && !/^ou /i.test(info.condicao),
-            aberta: false,
-          })),
+          informacoes: ponto.informacoes.map((info, indice) => {
+            // "ou Tecnologia" não é condição de acesso: é perícia alternativa, e vai
+            // para o campo da linha — a linha segue descobrível pelas duas.
+            const { alternativa, condicao } = separarAlternativa(info.condicao);
+            return {
+              id: `i${indice + 1}`,
+              pericia: info.chave,
+              periciaAlternativa: alternativa,
+              dt: info.dt,
+              // A condição da linha ("apenas Victor", "se o ídolo for quebrado") não
+              // tem campo no sistema: fica no começo do texto, onde o mestre lê antes
+              // de liberar a linha. "DT 6 ou 10" (o Armário de Ferramentas) idem: o
+              // campo guarda a primeira, o texto avisa da segunda.
+              texto: prefixoDaLinha({ ...info, condicao }) + citacaoDeHandout(info.texto),
+              // "Só pode ser acessada após cumprir uma condição" (o símbolo do livro):
+              // entra como rascunho, que é o estado que Examinar não alcança — o mestre
+              // libera quando a condição acontecer. "(Requer ter feito o hack social…)"
+              // no começo do texto é a mesma condição, escrita na coluna da informação.
+              oculta: Boolean(condicao) || /^\s*\(Requer\b/i.test(info.texto),
+              aberta: false,
+            };
+          }),
         },
         effects: [], folder: null, sort: 0, ownership: { default: 0 }, flags: {},
       };

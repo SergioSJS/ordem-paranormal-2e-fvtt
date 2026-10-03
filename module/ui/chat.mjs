@@ -6,7 +6,7 @@
  */
 import { SYSTEM_ID, CUSTO_PD_EXAMINAR } from "../config.mjs";
 import { rolarFalhaCritica, aplicarFalhaCritica, aplicarDano } from "../dice/falha-critica.mjs";
-import { testarCompartilhamento, registrarTravaDeCena, contarAoGrupo } from "../cena/acoes-investigacao.mjs";
+import { testarCompartilhamento, registrarTravaDeCena, contarAoGrupo, entregarRevelacao } from "../cena/acoes-investigacao.mjs";
 import { rolarSobrecarga } from "../cena/rodada.mjs";
 import { marcarHackSocialResolvido, marcarHackTecnicoResolvido } from "../cena/acoes-desafio.mjs";
 import { iniciarHackTecnico, encerrarHackTecnico } from "../cena/timer-hack.mjs";
@@ -14,6 +14,7 @@ import { rolarTesteDeQueda } from "../cena/ferimentos.mjs";
 import { defender } from "../cena/acoes-combate.mjs";
 import { concederPasso } from "../cena/acoes-recurso.mjs";
 import { preencherImpeto } from "../cena/impeto.mjs";
+import { entregarLeituraDoMestre } from "../cena/acoes-ferramenta.mjs";
 
 /** @type {Record<string, (ator: Actor, dataset: DOMStringMap) => Promise<void>>} */
 const ACOES = {
@@ -22,6 +23,16 @@ const ACOES = {
   },
   async "contar-ao-grupo"(ator, dataset) {
     await contarAoGrupo(ator, dataset.poiUuid, dataset.infoId);
+  },
+  // Revelação pelo mestre (setting): o card de Examinar ficou com ele; entregar grava
+  // no personagem e manda o card do jogador.
+  async "entregar-revelacao"(ator, dataset) {
+    if (!game.user.isGM) return;
+    await entregarRevelacao(ator, dataset);
+  },
+  async "entregar-leitura"(ator, dataset) {
+    if (!game.user.isGM) return;
+    await entregarLeituraDoMestre(ator, dataset);
   },
   async "aplicar-falha-critica"(ator, dataset) {
     await aplicarFalhaCritica(ator, Number(dataset.face));
@@ -152,6 +163,17 @@ function atoresSelecionados(padrao) {
   return selecionados.length ? selecionados : [padrao];
 }
 
+/**
+ * O áudio do Medidor EMF: por padrão toca só na tela de quem clica (`AudioHelper.play`
+ * sem difundir) — o jogador ouve o medidor "na própria mão", como o livro descreve.
+ * Com `todos`, difunde pelo socket para a mesa inteira; o servidor relaia `playAudio`
+ * de qualquer usuário, então o próprio jogador decide mostrar o que está ouvindo.
+ */
+export function tocarAudio(src, { todos = false } = {}) {
+  const AudioHelper = foundry.audio?.AudioHelper ?? globalThis.AudioHelper;
+  return AudioHelper.play({ src, volume: 0.8, loop: false }, todos);
+}
+
 /** @param {HTMLElement} elemento */
 function ligar(elemento) {
   for (const botao of elemento.querySelectorAll("[data-op2-acao]")) {
@@ -189,6 +211,14 @@ function teatralizarEnvelope(html) {
 }
 
 export function registrarChat() {
+  // O link do áudio aparece em texto enriquecido de card, painel e ficha: um ouvinte
+  // delegado no documento cobre todos, sem cada tela ter que religar.
+  document.addEventListener("click", (evento) => {
+    const link = evento.target?.closest?.("[data-op2-audio]");
+    if (!link) return;
+    evento.preventDefault();
+    tocarAudio(link.dataset.op2Audio, { todos: "op2AudioTodos" in link.dataset });
+  });
   // Só `renderChatMessageHTML`: o `renderChatMessage` está depreciado desde o v13 e
   // registrá-lo faz o core avisar a cada mensagem. O sistema exige v13 no mínimo.
   Hooks.on("renderChatMessageHTML", (msg, html) => {

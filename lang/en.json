@@ -194,6 +194,9 @@
       "DescricaoBasica": "Basic description",
       "DescricaoBasicaAjuda": "Narrated the first time someone investigates this point of interest.",
       "Quadro": "Information board",
+      "Ou": "or",
+      "PericiaAlternativa": "or…",
+      "PericiaAlternativaAjuda": "Alternative skill: the line comes out with either of the two (the book prints \"Research or Technology\").",
       "QuadroAjuda": "Investigate compares the die size against the DT, without rolling. Examine rolls and compares the sum.",
       "AdicionarInformacao": "New information",
       "RemoverInformacao": "Remove information",
@@ -201,6 +204,11 @@
       "DescricaoContextualAjuda": "The full explanation. It resolves the players' freeform interactions.",
       "Ferramentas": "Tool section",
       "FerramentasAjuda": "Empty = normal reading, no reaction. A normal reading is also information — only reveal it after they investigate.",
+      "FerramentasMestreAjuda": "A paragraph with the op2-mestre class is your instruction (never sent to the player). The eye next to the name puts the reading in draft: until released, the tool returns a normal reading.",
+      "FerramentaVisibilidade": {
+        "rascunho": "Draft — the tool returns a normal reading until you release it. Click to release.",
+        "liberada": "Released — whoever uses the tool gets the reading. Click to put in draft."
+      },
       "FerramentasVazio": "No tools configured on this POI.",
       "AdicionarFerramenta": "Add tool…",
       "RemoverFerramenta": "Remove tool",
@@ -256,6 +264,7 @@
         "desafios": "Challenges"
       },
       "Filtrar": "Filter by name…",
+      "FerramentaLida": "{ferramenta} — already read here (see the panel). Reading again is free.",
       "VerDesafios": "See this point's challenges"
     },
     "Investigacao": {
@@ -318,7 +327,11 @@
       "ContadaPor": "Told to the group by {nomes}",
       "ContouAoGrupo": "{ator} told the group",
       "ContadaVisivel": "The clue now shows on every participant's panel.",
-      "ContarSoQuemAchou": "Only whoever found the clue can tell it to the group."
+      "ContarSoQuemAchou": "Only whoever found the clue can tell it to the group.",
+      "AguardaMestre": "The GM received what you found — they narrate and deliver.",
+      "RevelacaoSoMestre": "Only you see this. The player gets the clue when you deliver it.",
+      "EntregarAoJogador": "Deliver to player",
+      "JaEntregue": "This revelation was already delivered."
     },
     "Dialog": {
       "Teste": {
@@ -467,6 +480,7 @@
       "ProximoEventoTag": "Next",
       "OcultoTag": "Hidden",
       "DesafiosDoPonto": "Challenges",
+      "FerramentasDoPonto": "Tools",
       "EmPonto": "Challenge of {poi}",
       "IrParaDesafio": "Go to the challenge on the Challenges tab",
       "EventoNestaRodada": "A scripted event falls on this round.",
@@ -553,6 +567,10 @@
         "name": "Default the interface to Portuguese",
         "hint": "Players who have not picked a language yet start in pt-BR. An explicit choice is always respected."
       },
+      "revelacaoPeloMestre": {
+        "name": "Revelation through the GM",
+        "hint": "Examine does not hand the clue straight to the player: the card goes to the GM only, with a button to deliver it once narrated. The player sees the roll and a notice that the GM received the find."
+      },
       "cliqueAbreDialogo": {
         "name": "Click opens the check dialog",
         "hint": "By default a click rolls directly and Shift opens the dialog. Enable to swap them."
@@ -613,7 +631,12 @@
       "HackSucesso": "Test passed.",
       "HackFalha": "Test failed.",
       "HackJaResolvido": "This hack is already resolved.",
-      "HackEsperaRodada": "Already tried this round — wait for the next one.",
+      "HackEsperaRodada": "Already tried this round — wait for the next. The GM advances the round in the panel or releases the attempt in the challenge sheet.",
+      "HackEsperaRodadaMestre": "This device was already tried this round ({rodada}). Try anyway?",
+      "HackTravadoNaRodada": "Tried in round {rodada}: a new attempt only in the next one.",
+      "HackTravado": "this round",
+      "HackLiberar": "Release attempt",
+      "HackLiberarAjuda": "Lifts the one-attempt-per-round lock without advancing the round.",
       "HackTecnicoAjudaMestre": "The test passed. No table on this panel: read a problem aloud, reveal it with the countdown, or mark it solved.",
       "HackSocialChances": "{chances} chance(s) to get it wrong · {necessarias} correct answer(s) needed.",
       "HackMarcarResolvido": "Mark resolved",
@@ -696,6 +719,9 @@
       "CargasAjuda": "Only the UV Flash Light (3) and the Revealing Powder (5) have limited charges in the playtest; the rest are unlimited.",
       "SemCargas": "{ferramenta} is out of charges.",
       "SemReacao": "No reaction — normal reading.",
+      "AguardaMestre": "The GM received the reading — they narrate and deliver.",
+      "RascunhoNoCard": "Only you see this. The reading is a draft: the player got \"normal reading\". Release it in the panel when the condition happens.",
+      "SoMestreNoCard": "Only you see this reading's GM part.",
       "LaserMarcou": "The Scanning Laser found a reaction at:",
       "LaserNada": "No new point of interest reacted to other tools.",
       "LaserDica": "The Scanning Laser detected a reaction to some tool here.",

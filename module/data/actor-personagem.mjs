@@ -62,6 +62,10 @@ export class PersonagemData extends foundry.abstract.TypeDataModel {
         // Zerada ao encerrar a cena.
         poisInvestigados: new foundry.data.fields.SetField(new StringField(), { initial: [] }),
         infosReveladas: new foundry.data.fields.SetField(new StringField(), { initial: [] }),
+        // A leitura de ferramenta é da mesma natureza: "<poi>:<ferramenta>" de cada
+        // leitura que este personagem fez (normal ou com reação). Antes só ia para o
+        // chat e sumia da tela do jogador (achado em uso real, Ato II).
+        ferramentasReveladas: new foundry.data.fields.SetField(new StringField(), { initial: [] }),
 
         // Sustentar (spec §7.5): fadiga cumulativa própria, distinta de
         // `reducoesTemporarias` (aquela é o efeito "até o fim da cena" da falha

@@ -25,8 +25,20 @@ export class DesafioAcessoSheet extends OP2ItemSheet {
       adicionarLinhaHack: DesafioAcessoSheet.#adicionarLinhaHack,
       gerarSenha: DesafioAcessoSheet.#gerarSenha,
       limparSenha: DesafioAcessoSheet.#limparSenha,
+      liberarHack: DesafioAcessoSheet.#liberarHack,
     },
   };
+
+  /**
+   * Solta o gate de "uma tentativa por rodada" de um hack (spec §7.3) sem avançar a
+   * rodada: o contador parado em 0 — ou um teste do mestre antes da sessão — deixava
+   * o dispositivo preso para a mesa inteira (achado em uso real).
+   */
+  static async #liberarHack(_evento, alvo) {
+    if (!this.isEditable) return;
+    const hack = alvo.dataset.hack === "hackSocial" ? "hackSocial" : "hackTecnico";
+    await this.item.update({ [`system.${hack}.ultimaTentativaRodada`]: -1 });
+  }
 
   /** Sorteia a senha com o tamanho e as faces do cadastro; zera o histórico. */
   static async #gerarSenha() {

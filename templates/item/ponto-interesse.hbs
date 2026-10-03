@@ -52,6 +52,15 @@
                   <option value="{{chave}}" {{#if (op2Eq chave ../pericia)}}selected{{/if}}>{{rotulo}}</option>
                 {{/each}}
               </select>
+              {{!-- "Pesquisar ou Tecnologia": a linha sai com qualquer uma das duas. --}}
+              <select name="system.informacoes.{{indice}}.periciaAlternativa" class="op2-poi__alternativa"
+                aria-label="{{localize 'OP2.POI.PericiaAlternativa'}}"
+                data-tooltip="{{localize 'OP2.POI.PericiaAlternativaAjuda'}}" {{#unless @root.editavel}}disabled{{/unless}}>
+                <option value="" {{#unless periciaAlternativa}}selected{{/unless}}>{{localize "OP2.POI.PericiaAlternativa"}}</option>
+                {{#each @root.opcoesPericia}}
+                  <option value="{{chave}}" {{#if (op2Eq chave ../periciaAlternativa)}}selected{{/if}}>{{rotulo}}</option>
+                {{/each}}
+              </select>
               <label class="op2-poi__dt">
                 <span>{{localize "OP2.DT"}}</span>
                 <input type="number" name="system.informacoes.{{indice}}.dt" value="{{dt}}" min="0" step="1"
@@ -114,7 +123,7 @@
 
       <fieldset class="op2-poi__ferramentas">
         <legend>{{localize "OP2.POI.Ferramentas"}}</legend>
-        <p class="op2-ajuda">{{localize "OP2.POI.FerramentasAjuda"}}</p>
+        <p class="op2-ajuda">{{localize "OP2.POI.FerramentasAjuda"}} {{localize "OP2.POI.FerramentasMestreAjuda"}}</p>
 
         {{#each ferramentasConfiguradas}}
           <div class="op2-poi__ferramenta">
@@ -147,16 +156,28 @@
                 <p class="op2-ajuda">{{localize "OP2.POI.RadioAjudaAutor"}}</p>
                 <label class="op2-campo">
                   <span>{{localize "OP2.POI.RadioTexto"}}</span>
-                  <textarea name="system.ferramentas.radio.texto" rows="2"
-                    {{#unless @root.editavel}}disabled{{/unless}}>{{radioTexto}}</textarea>
+                  {{formInput @root.fields.ferramentas.fields.radio.fields.texto value=radioTexto enriched=radioTextoEnriquecido
+                    toggled=true editable=@root.editavel name="system.ferramentas.radio.texto"}}
                 </label>
                 <p class="op2-ajuda">{{localize "OP2.POI.RadioTextoAjuda"}}</p>
               </fieldset>
             {{else}}
+              {{!-- Leitura em HTML (imagem do handout, link da playlist): editor rico,
+                    não textarea — as tags apareciam cruas (achado em uso real). --}}
               <label class="op2-campo">
-                <span>{{rotulo}}</span>
-                <textarea name="system.ferramentas.{{chave}}" rows="2"
-                  {{#unless @root.editavel}}disabled{{/unless}}>{{valor}}</textarea>
+                <span class="op2-poi__ferramenta-rotulo">
+                  {{!-- Rascunho: a ferramenta devolve leitura normal até o mestre liberar
+                        ("apenas se o Ídolo for quebrado"). --}}
+                  <button type="button" class="op2-botao-icone op2-poi__info-oculta op2-poi-card__visibilidade--{{#if oculta}}rascunho{{else}}descobrivel{{/if}}"
+                    data-action="alternarFerramentaOculta" data-ferramenta="{{chave}}" {{#unless @root.editavel}}disabled{{/unless}}
+                    aria-label="{{#if oculta}}{{localize 'OP2.POI.FerramentaVisibilidade.rascunho'}}{{else}}{{localize 'OP2.POI.FerramentaVisibilidade.liberada'}}{{/if}}"
+                    data-tooltip="{{#if oculta}}{{localize 'OP2.POI.FerramentaVisibilidade.rascunho'}}{{else}}{{localize 'OP2.POI.FerramentaVisibilidade.liberada'}}{{/if}}">
+                    <i class="fa-solid {{#if oculta}}fa-eye-slash{{else}}fa-screwdriver-wrench{{/if}}" aria-hidden="true"></i>
+                  </button>
+                  {{rotulo}}
+                </span>
+                {{formInput campo value=valor enriched=enriquecido toggled=true editable=@root.editavel
+                  name=(op2Concat "system.ferramentas." chave)}}
               </label>
             {{/if}}
             {{#if @root.editavel}}

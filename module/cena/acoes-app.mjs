@@ -27,8 +27,10 @@ import { atacar } from "./acoes-combate.mjs";
 import { usarHabilidadeOuItem } from "./acoes-recurso.mjs";
 import { abrirDestrancar } from "./destrancar-app.mjs";
 import { guardarRolagem, restaurarRolagem, esquecerRolagem } from "../ui/rolagem.mjs";
-import { semPrefixoDoPonto, desafioResolvido } from "./desafios.mjs";
-import { chaveInfo } from "./investigacao.mjs";
+import { semPrefixoDoPonto, desafioResolvido, podeTentarHackNestaRodada } from "./desafios.mjs";
+import { rodadaAtual } from "./rodada.mjs";
+import { chaveInfo, periciasDoQuadro } from "./investigacao.mjs";
+import { chaveLeitura } from "./leitura-ferramenta.mjs";
 import { marcadoresDoPonto } from "./marcadores.mjs";
 import { filtrosVazios, filtrando } from "./filtros-painel.mjs";
 import {
@@ -66,6 +68,9 @@ function contextoDoDesafio(desafio, investigacao, indice) {
     destrancado: desafio.system.destrancado,
     hackTecnicoResolvido: desafio.system.hackTecnico.resolvido,
     hackSocialResolvido: desafio.system.hackSocial.resolvido,
+    // O gate de uma tentativa por rodada (spec §7.3), visível antes do clique.
+    hackTecnicoTravado: !podeTentarHackNestaRodada(desafio.system.hackTecnico.ultimaTentativaRodada, rodadaAtual(investigacao)),
+    hackSocialTravado: !podeTentarHackNestaRodada(desafio.system.hackSocial.ultimaTentativaRodada, rodadaAtual(investigacao)),
     genericoResolvido: desafio.system.generico.resolvido,
     sustentarDt: desafio.system.sustentar.dt,
     genericoRotulo: desafio.system.generico.rotulo?.trim() || game.i18n.localize("OP2.Desafio.Generico"),
@@ -321,7 +326,12 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
         // escondida até o uso (spec §9.3).
         ferramentas: FERRAMENTAS_POI
           .filter((chave) => temFerramenta(ator.items, chave))
-          .map((chave) => ({ chave, rotulo: game.i18n.localize(`OP2.Ferramenta.Subtipo.${chave}`) })),
+          .map((chave) => ({
+            chave,
+            rotulo: game.i18n.localize(`OP2.Ferramenta.Subtipo.${chave}`),
+            // Já leu aqui: o botão marca, e a leitura está no painel dele.
+            lida: ator.system.estado.ferramentasReveladas?.has(chaveLeitura(poi.uuid, chave)) ?? false,
+          })),
       }));
 
 
@@ -394,6 +404,12 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
   static async #usarLaboratorio(_evento, alvo) {
     const poi = alvo.dataset.poiUuid ? fromUuidSync(alvo.dataset.poiUuid) : null;
     const padrao = poi?.system?.laboratorioDados ?? 4;
+    // A "sequência mínima" é do ponto ("conforme instruções no ponto de interesse"):
+    // o jogador não escolhe quantos dados rola. O mestre ainda pode mudar na hora.
+    if (!game.user.isGM) {
+      await abrirLaboratorio(this.ator, padrao, alvo.dataset.poiUuid);
+      return true;
+    }
     const qtdDados = await foundry.applications.api.DialogV2.prompt({
       window: { title: game.i18n.localize("OP2.Ferramenta.Subtipo.laboratorio") },
       content: `
@@ -464,6 +480,6 @@ function resumoDoQuadro(poi, ator) {
     || ator.system.estado.infosReveladas.has(chaveInfo(poi.uuid, info.id)));
   return {
     progresso: visiveis.length > 0 ? "andamento" : "intocado",
-    pericias: [...new Set(visiveis.map((info) => info.pericia))].join(" "),
+    pericias: periciasDoQuadro(visiveis).join(" "),
   };
 }

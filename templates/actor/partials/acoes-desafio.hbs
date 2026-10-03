@@ -30,17 +30,21 @@
   {{#if abordagens.hackTecnico}}
     <button type="button" class="op2-botao op2-botao--pequeno" data-action="hackTecnico"
       data-desafio-uuid="{{uuid}}" {{#if hackTecnicoResolvido}}disabled{{/if}}
-      data-tooltip="{{localize 'OP2.Desafio.HackTecnico'}}">
+      data-tooltip="{{#if hackTecnicoTravado}}{{localize 'OP2.Desafio.HackEsperaRodada'}}{{else}}{{localize 'OP2.Desafio.HackTecnico'}}{{/if}}">
       <i class="fa-solid fa-laptop-code" aria-hidden="true"></i>
-      <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.HackTecnico"}}</span>
+      <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.HackTecnico"}}
+        {{!-- Já tentado nesta rodada: avisa antes do clique, em vez de barrar depois. --}}
+        {{#if hackTecnicoTravado}}<span class="op2-painel-trava">· {{localize "OP2.Desafio.HackTravado"}}</span>{{/if}}</span>
     </button>
   {{/if}}
   {{#if abordagens.hackSocial}}
     <button type="button" class="op2-botao op2-botao--pequeno" data-action="hackSocial"
       data-desafio-uuid="{{uuid}}" {{#if hackSocialResolvido}}disabled{{/if}}
-      data-tooltip="{{localize 'OP2.Desafio.HackSocial'}}">
+      data-tooltip="{{#if hackSocialTravado}}{{localize 'OP2.Desafio.HackEsperaRodada'}}{{else}}{{localize 'OP2.Desafio.HackSocial'}}{{/if}}">
       <i class="fa-solid fa-comments" aria-hidden="true"></i>
-      <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.HackSocial"}}</span>
+      <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.HackSocial"}}
+        {{!-- Já tentado nesta rodada: avisa antes do clique, em vez de barrar depois. --}}
+        {{#if hackSocialTravado}}<span class="op2-painel-trava">· {{localize "OP2.Desafio.HackTravado"}}</span>{{/if}}</span>
     </button>
   {{/if}}
   {{#if abordagens.sustentar}}

@@ -35,6 +35,7 @@ export async function encerrarCena({ atores, avisar = true, investigacao = inves
     // conhecimento da mesa, não estado do sistema.
     "system.estado.poisInvestigados": [],
     "system.estado.infosReveladas": [],
+    "system.estado.ferramentasReveladas": [],
   };
 
   const atualizacoes = alvos.map((ator) => ({ _id: ator.id, ...zerado }));
@@ -50,6 +51,18 @@ export async function encerrarCena({ atores, avisar = true, investigacao = inves
       "system.compartilharUsado": { usado: false, atorId: "", nome: "" },
       "system.ordemParticipantes": [],
     });
+    // O gate do hack (spec §7.3) é "rodada da última tentativa": com a rodada de volta
+    // a 0, uma tentativa na rodada 3 da sessão passada trancava o dispositivo até a
+    // rodada 4 da próxima. O progresso do desafio (pontuação, senha, resolvido) fica.
+    for (const uuid of investigacao.system.desafios ?? []) {
+      const desafio = await fromUuid(uuid);
+      if (desafio?.type !== "desafio-acesso") continue;
+      const dados = {};
+      for (const hack of ["hackTecnico", "hackSocial"]) {
+        if (desafio.system[hack].ultimaTentativaRodada >= 0) dados[`system.${hack}.ultimaTentativaRodada`] = -1;
+      }
+      if (Object.keys(dados).length) await desafio.update(dados);
+    }
   }
 
   if (avisar) {

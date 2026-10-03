@@ -478,6 +478,63 @@ const relato = await page.evaluate(async (boasVindas) => {
     await amor.delete();
     await poiAmor.delete();
   }
+
+  // "Pesquisar ou Tecnologia" (o Computador do Ato I): a linha sai com qualquer uma
+  // das duas. Antes o "ou" ficava só no texto, e Examinar com Tecnologia não achava
+  // nada — e cobrava o PD (achado em uso real: "deu 10 mas deu falho").
+  {
+    const computador = await Item.create({
+      name: "Computador de teste", type: "ponto-interesse",
+      system: { informacoes: [
+        { id: "c1", pericia: "pesquisar", dt: 5, texto: "<p>Contabilidade.</p>" },
+        { id: "c2", pericia: "pesquisar", periciaAlternativa: "tecnologia", dt: 5, texto: "<p>E-mail de 12 de março.</p>" },
+      ] },
+    });
+    const porTecnologia = await comDadosNoMaximo(() => game.op2.examinar(ator, computador.uuid, "tecnologia", { rapido: true }));
+    ok("linha 'Pesquisar ou Tecnologia' sai ao examinar com Tecnologia, sem custar PD",
+      porTecnologia?.perdePD === false && porTecnologia.revelaveis.includes("c2") && !porTecnologia.revelaveis.includes("c1"));
+    await esperar(400);
+    ok("o card diz as duas perícias da linha",
+      /Pesquisar ou Tecnologia/.test(game.messages.contents.at(-1)?.content ?? ""));
+    await computador.sheet.render(true);
+    await esperar(600);
+    const fichaComputador = computador.sheet.element;
+    ok("a ficha do ponto edita a perícia alternativa da linha",
+      fichaComputador?.querySelector("select[name='system.informacoes.1.periciaAlternativa']")?.value === "tecnologia");
+    await computador.sheet.close();
+
+    // Revelação pelo mestre (setting): Examinar não entrega nada ao jogador — o card
+    // inteiro vai ao mestre, com o botão de entregar; o jogador só vê os dados. Foi
+    // pedido em mesa: o mestre proibiu rolar pelo sistema para a pista não vazar.
+    await game.settings.set("ordem-paranormal-2e", "revelacaoPeloMestre", true);
+    const antesDoGate = game.messages.size;
+    const porPesquisar = await comDadosNoMaximo(() => game.op2.examinar(ator, computador.uuid, "pesquisar", { rapido: true }));
+    await esperar(600);
+    ok("com revelação pelo mestre, o achado NÃO é gravado no personagem",
+      porPesquisar?.aguardaMestre === true && !ator.system.estado.infosReveladas.has(`${computador.uuid}:c1`));
+    const cardsDoGate = game.messages.contents.slice(antesDoGate);
+    const cardMestre = cardsDoGate.find((m) => /entregar-revelacao/.test(m.content));
+    const cardJogadorGate = cardsDoGate.find((m) => !/entregar-revelacao/.test(m.content));
+    ok("o card do mestre traz a pista e o botão de entregar, sussurrado só a ele",
+      Boolean(cardMestre) && /Contabilidade/.test(cardMestre.content)
+      && cardMestre.whisper.length > 0 && cardMestre.whisper.every((id) => game.users.get(id)?.isGM));
+    ok("o card do jogador tem os dados e o aviso, mas nenhuma pista",
+      Boolean(cardJogadorGate) && /op2-card__dados/.test(cardJogadorGate.content)
+      && !/Contabilidade/.test(cardJogadorGate.content)
+      && cardJogadorGate.content.includes(game.i18n.localize("OP2.Investigacao.AguardaMestre")));
+    const botaoEntregar = new DOMParser().parseFromString(cardMestre?.content ?? "", "text/html")
+      .querySelector("[data-op2-acao='entregar-revelacao']");
+    const entregue = await game.op2.entregarRevelacao(ator, { ...botaoEntregar?.dataset });
+    await esperar(400);
+    ok("entregar grava a revelação no personagem e manda o card com a pista",
+      entregue?.revelaveis.includes("c1") && ator.system.estado.infosReveladas.has(`${computador.uuid}:c1`)
+      && /Contabilidade/.test(game.messages.contents.at(-1)?.content ?? "")
+      && !/entregar-revelacao/.test(game.messages.contents.at(-1)?.content ?? ""));
+    ok("entregar de novo não repete",
+      await game.op2.entregarRevelacao(ator, { ...botaoEntregar?.dataset }) === null);
+    await game.settings.set("ordem-paranormal-2e", "revelacaoPeloMestre", false);
+    await computador.delete();
+  }
   await esperar(600);
   ok("o card de custo explica o motivo",
     [...document.querySelectorAll(".op2-card--falha")].some((c) => c.querySelector(".op2-ajuda")));
@@ -2088,7 +2145,23 @@ const relato = await page.evaluate(async (boasVindas) => {
   // Fase 3 M2 (spec §9). Câmera tem reação nesse POI, Termômetro não — "sem
   // reação" também é informação e precisa aparecer, nunca ficar em silêncio.
   {
-    await poi.update({ "system.ferramentas.camera": "Uma foto revela uma sombra estranha atrás do quadro." });
+    await poi.update({ "system.ferramentas.camera": "<p>Uma foto revela uma <strong>sombra estranha</strong> atrás do quadro.</p>" });
+
+    // A leitura é HTML (o laser e a câmera do Ato II trazem a imagem do handout): a
+    // ficha do ponto mostra o texto formatado, não as tags cruas de um textarea
+    // (achado em uso real).
+    await poi.sheet.render(true);
+    await esperar(800);
+    {
+      const ficha = poi.sheet.element;
+      ficha.querySelector("[data-action='tab'][data-tab='mestre']")?.click();
+      await esperar(300);
+      const leitura = ficha.querySelector("[name='system.ferramentas.camera'], prose-mirror[name='system.ferramentas.camera']");
+      ok("a leitura da ferramenta na ficha do ponto é editor rico, sem tag crua",
+        leitura?.tagName === "PROSE-MIRROR" && !/<\/?p>|<strong>/.test(ficha.textContent ?? "")
+        && Boolean(ficha.querySelector("prose-mirror[name='system.ferramentas.camera'] strong")));
+    }
+    await poi.sheet.close();
 
     await ator.createEmbeddedDocuments("Item", [
       { name: "Câmera Modificada", type: "ferramenta", system: { subtipo: "camera" } },
@@ -2109,6 +2182,100 @@ const relato = await page.evaluate(async (boasVindas) => {
     ok("ferramenta sem reação também revela um card (é informação)", semReacao?.temReacao === false);
     ok("card avisa leitura normal, sem reação",
       Boolean([...document.querySelectorAll(".op2-card")].at(-1)?.textContent.includes(game.i18n.localize("OP2.Ferramenta.SemReacao"))));
+
+    // A leitura fica com o personagem (como a linha do quadro) e aparece no painel:
+    // antes ia só para o chat, e o jogador não tinha onde reler (achado em uso real).
+    ok("usar a ferramenta grava a leitura no personagem (com reação e leitura normal)",
+      ator.system.estado.ferramentasReveladas.has(`${poi.uuid}:camera`)
+      && ator.system.estado.ferramentasReveladas.has(`${poi.uuid}:termometro`));
+    {
+      const texto = (m) => new DOMParser().parseFromString(m?.content ?? "", "text/html").body.textContent;
+      // A parte do mestre ("envie o handout") não vai ao jogador; ele recebe o resto.
+      await poi.update({ "system.ferramentas.infravermelho": "<p class=\"op2-mestre\">Só o mestre: descreva devagar.</p><p>Um rastro quente na parede.</p>" });
+      await ator.createEmbeddedDocuments("Item", [{ name: "Leitor Infravermelho", type: "ferramenta", system: { subtipo: "infravermelho" } }]);
+      const antes = game.messages.size;
+      await game.op2.usarFerramenta(ator, poi.uuid, "infravermelho");
+      await esperar(600);
+      const novos = game.messages.contents.slice(antes);
+      const doJogador = novos.find((m) => !m.getFlag("ordem-paranormal-2e", "soMestre"));
+      const doMestre = novos.find((m) => m.getFlag("ordem-paranormal-2e", "soMestre"));
+      ok("o card do jogador leva a leitura sem a parte do mestre; a parte do mestre vai num card só dele",
+        /rastro quente/.test(texto(doJogador)) && !/Só o mestre/.test(texto(doJogador))
+        && Boolean(doMestre) && /Só o mestre/.test(texto(doMestre)) && doMestre.whisper.every((id) => game.users.get(id)?.isGM));
+
+      // Rascunho ("apenas se o Ídolo for quebrado"): a ferramenta devolve leitura
+      // normal até o mestre liberar — o mestre vê o rascunho no card dele.
+      await poi.update({ "system.ferramentasOcultas": ["infravermelho"] });
+      const antes2 = game.messages.size;
+      const emRascunho = await game.op2.usarFerramenta(ator, poi.uuid, "infravermelho");
+      await esperar(600);
+      const novos2 = game.messages.contents.slice(antes2);
+      const jogador2 = novos2.find((m) => !m.getFlag("ordem-paranormal-2e", "soMestre"));
+      ok("leitura em rascunho sai como leitura normal para o jogador, e o mestre vê o rascunho",
+        emRascunho?.temReacao === false && texto(jogador2).includes(game.i18n.localize("OP2.Ferramenta.SemReacao"))
+        && novos2.some((m) => m.getFlag("ordem-paranormal-2e", "soMestre") && /rastro quente/.test(texto(m))));
+      await poi.update({ "system.ferramentasOcultas": [] });
+
+      // O painel do mestre mostra o setor: cada leitura, quem já leu, o olho e o limpar.
+      await painel.render();
+      await esperar(800);
+      const setor = painel.element?.querySelector(".op2-poi-card__ferramentas");
+      const leituraIV = [...(setor?.querySelectorAll(".op2-poi-card__leitura") ?? [])]
+        .find((li) => li.textContent.includes("Leitor Infravermelho"));
+      ok("o painel do mestre lista a leitura da ferramenta com quem a fez, o olho e o limpar",
+        Boolean(leituraIV) && leituraIV.textContent.includes(ator.name)
+        && Boolean(leituraIV.querySelector("[data-action='alternarFerramentaOculta']"))
+        && Boolean(leituraIV.querySelector("[data-action='limparLeitura']")));
+      leituraIV?.querySelector("[data-action='limparLeitura']")?.click();
+      await esperar(500);
+      ok("limpar a leitura tira a chave do personagem",
+        !ator.system.estado.ferramentasReveladas.has(`${poi.uuid}:infravermelho`));
+
+      // Revelação pelo mestre vale para as ferramentas também.
+      await game.settings.set("ordem-paranormal-2e", "revelacaoPeloMestre", true);
+      const antes3 = game.messages.size;
+      const aguardando = await game.op2.usarFerramenta(ator, poi.uuid, "infravermelho");
+      await esperar(600);
+      const cardEntregar = game.messages.contents.slice(antes3).find((m) => /entregar-leitura/.test(m.content));
+      ok("com revelação pelo mestre, a leitura fica com ele, com o botão de entregar, e não é gravada",
+        aguardando?.aguardaMestre === true && Boolean(cardEntregar)
+        && !ator.system.estado.ferramentasReveladas.has(`${poi.uuid}:infravermelho`));
+      const botao = new DOMParser().parseFromString(cardEntregar?.content ?? "", "text/html").querySelector("[data-op2-acao='entregar-leitura']");
+      const entregue = await game.op2.entregarLeituraDoMestre(ator, { ...botao?.dataset });
+      await esperar(400);
+      ok("entregar grava a leitura e manda o card do jogador",
+        entregue?.temReacao === true && ator.system.estado.ferramentasReveladas.has(`${poi.uuid}:infravermelho`)
+        && /rastro quente/.test(texto(game.messages.contents.at(-1))));
+      await game.settings.set("ordem-paranormal-2e", "revelacaoPeloMestre", false);
+      await poi.update({ "system.ferramentas.infravermelho": null });
+      await ator.items.getName("Leitor Infravermelho")?.delete();
+
+      // O Medidor EMF: o link da leitura toca o mp3 só no cliente de quem clicou
+      // (`AudioHelper.play` sem difundir) — o jogador ouve o medidor na própria mão.
+      await poi.update({ "system.ferramentas.emf": "<p><a data-op2-audio=\"worlds/x/emf.mp3\">Ouvir</a> <a data-op2-audio=\"worlds/x/emf.mp3\" data-op2-audio-todos=\"1\">mesa</a></p>" });
+      await ator.createEmbeddedDocuments("Item", [{ name: "Medidor EMF", type: "ferramenta", system: { subtipo: "emf" } }]);
+      const AudioHelper = foundry.audio.AudioHelper;
+      const playOriginal = AudioHelper.play;
+      const tocados = [];
+      AudioHelper.play = (dados, difundir) => { tocados.push({ src: dados.src, difundir }); return Promise.resolve(null); };
+      try {
+        await game.op2.usarFerramenta(ator, poi.uuid, "emf");
+        await esperar(700);
+        const links = [...document.querySelectorAll(".chat-message .op2-card [data-op2-audio]")].slice(-2);
+        links[0]?.click();
+        await esperar(200);
+        ok("o link do EMF no card toca o áudio só no cliente de quem clicou",
+          links.length === 2 && tocados.length === 1 && tocados[0].src === "worlds/x/emf.mp3" && tocados[0].difundir === false);
+        // O jogador escolhe: o segundo link difunde para a mesa inteira.
+        links[1]?.click();
+        await esperar(200);
+        ok("e o link 'tocar para a mesa' difunde", tocados.length === 2 && tocados[1].difundir === true);
+      } finally {
+        AudioHelper.play = playOriginal;
+      }
+      await poi.update({ "system.ferramentas.emf": null });
+      await ator.items.getName("Medidor EMF")?.delete();
+    }
 
     const lanternaItem = ator.items.getName("Lanterna de Estouro UV");
     await game.op2.usarFerramenta(ator, poi.uuid, "lanternaUV");
@@ -2299,7 +2466,10 @@ const relato = await page.evaluate(async (boasVindas) => {
       await game.op2.hackTecnico(ator, painelFacil.uuid, { rapido: true }) === null);
     await painelFacil.delete();
 
-    const painelDificil = await Item.create({ name: "Painel Impossível", type: "desafio-acesso", system: { dtObjeto: 999 } });
+    const painelDificil = await Item.create({
+      name: "Painel Impossível", type: "desafio-acesso",
+      system: { dtObjeto: 999, abordagens: { hackTecnico: true } },
+    });
     const rodadaDoTeste = investigacao.system.rodada;
     const hackFalhou = await game.op2.hackTecnico(ator, painelDificil.uuid, { rapido: true });
     ok("hack técnico com DT 999 falha", hackFalhou?.sucesso === false);
@@ -2311,6 +2481,28 @@ const relato = await page.evaluate(async (boasVindas) => {
     await esperar(500);
     const novaTentativa = await game.op2.hackTecnico(ator, painelDificil.uuid, { rapido: true });
     ok("rodada seguinte libera nova tentativa", novaTentativa !== null);
+
+    // O gate prende a mesa que não avança rodada (achado em uso real: "já tentou
+    // nesta rodada", e o contador parado). A ficha do desafio solta sem avançar.
+    await painelDificil.sheet.render(true);
+    await esperar(600);
+    const fichaPainel = painelDificil.sheet.element;
+    const liberar = fichaPainel?.querySelector("[data-action='liberarHack'][data-hack='hackTecnico']");
+    ok("a ficha do desafio mostra o bloqueio da rodada e o botão de liberar", Boolean(liberar));
+    liberar?.click();
+    await esperar(500);
+    ok("liberar zera a tentativa sem avançar a rodada",
+      painelDificil.system.hackTecnico.ultimaTentativaRodada === -1
+      && await game.op2.hackTecnico(ator, painelDificil.uuid, { rapido: true }) !== null);
+    await painelDificil.sheet.close();
+    // A tentativa da sessão passada não pode trancar a próxima: a rodada volta a 0,
+    // e o gate volta junto.
+    await game.op2.vincularDesafio(investigacao, painelDificil.uuid, { oculto: false });
+    await game.op2.encerrarCena({ avisar: false });
+    await esperar(500);
+    ok("encerrar a investigação solta o gate do hack",
+      painelDificil.system.hackTecnico.ultimaTentativaRodada === -1 && investigacao.system.rodada === 0);
+    await game.op2.removerDesafio(investigacao, painelDificil.uuid);
     await painelDificil.delete();
 
     // Hack social: sucesso revela o banco de perguntas pro mestre (elemento
@@ -2894,7 +3086,7 @@ const relato = await page.evaluate(async (boasVindas) => {
     }));
     const completo = janela.prontos === 2;
     relato.dados.aventurasDoPdf.janela = janela;
-    relato.passos.push([janela.prontos >= 1 && /31 pontos de interesse, 87 linhas de quadro, 10 desafios, maldição em 6 rodadas, 3 itens/.test(janela.resumos[0] ?? ""),
+    relato.passos.push([janela.prontos >= 1 && /31 pontos de interesse, 88 linhas de quadro, 10 desafios, maldição em 6 rodadas, 3 itens/.test(janela.resumos[0] ?? ""),
       `o PDF vira o Ato I na janela (${janela.resumos[0] ?? "sem resumo"})`]);
     relato.passos.push([completo
       ? /25 pontos de interesse, 63 linhas de quadro, 3 desafios, 34 leituras/.test(janela.resumos[1] ?? "")
@@ -2941,14 +3133,18 @@ const relato = await page.evaluate(async (boasVindas) => {
         niveisMontados.size <= 1 && [...cenaMontada.walls].every((w) => noNivel(w).every((id) => niveisMontados.has(id))));
       const pontos = [...aventura.items].filter((i) => i.type === "ponto-interesse");
       const linhas = pontos.flatMap((p) => p.system.informacoes);
-      ok("31 pontos com 87 linhas de quadro, todas com perícia e DT",
-        pontos.length === 31 && linhas.length === 87 && linhas.every((l) => l.pericia && Number.isInteger(l.dt) && l.dt > 0));
+      ok("31 pontos com 88 linhas de quadro, todas com perícia e DT",
+        pontos.length === 31 && linhas.length === 88 && linhas.every((l) => l.pericia && Number.isInteger(l.dt) && l.dt > 0));
       const armario = pontos.find((p) => p.name === "Armário de Metal");
       ok("\"DT 6 ou 10\" do Armário de Metal chega como DT 6, com a segunda no texto",
         armario?.system.informacoes.some((l) => l.dt === 6 && /DT 6 ou 10/.test(l.texto)));
       const computador = pontos.find((p) => p.name.startsWith("Computador"));
-      ok("o Computador tem as cinco linhas do livro, a última com DT 10",
-        computador?.system.informacoes.length === 5 && computador.system.informacoes[4].dt === 10);
+      // A sexta linha ("Intuição 6", com a contagem de jogadores) vem depois de três
+      // linhas em branco na p. 56 — ia para as notas do mestre. Em rascunho: "(Requer…)".
+      ok("o Computador tem as seis linhas do livro: a quinta com DT 10, a sexta Intuição 6 em rascunho com a contagem de jogadores",
+        computador?.system.informacoes.length === 6 && computador.system.informacoes[4].dt === 10
+        && computador.system.informacoes[5].pericia === "intuicao" && computador.system.informacoes[5].dt === 6
+        && computador.system.informacoes[5].oculta === true && /\(3 ou 4 jogadores\)/.test(computador.system.informacoes[5].texto));
       const inv = [...aventura.actors].find((a) => a.type === "investigacao");
       ok("a investigação chega com 31 pontos, 10 desafios e 5 participantes, tudo oculto",
         inv.system.pois.length === 31 && inv.system.desafios.length === 10 && inv.system.participantes.length === 5
@@ -3090,8 +3286,8 @@ const relato = await page.evaluate(async (boasVindas) => {
 
       // O quadro, os desafios e o roteiro, como o livro imprime.
       const linhas = pontos.flatMap((p) => p.system.informacoes);
-      ok("os pontos chegam ao mundo com as 87 linhas do quadro, perícia e DT em todas",
-        linhas.length === 87 && linhas.every((l) => l.pericia && l.dt > 0 && l.texto.length > 10));
+      ok("os pontos chegam ao mundo com as 88 linhas do quadro, perícia e DT em todas",
+        linhas.length === 88 && linhas.every((l) => l.pericia && l.dt > 0 && l.texto.length > 10));
       const deposito = desafios.find((d) => d.name.startsWith("Depósito A"));
       const freezer = desafios.find((d) => d.name.includes("Freezer"));
       ok("os desafios saem das caixas do PDF com DT, PA e senha, e a senha não vem sorteada",
@@ -3355,8 +3551,11 @@ const relato = await page.evaluate(async (boasVindas) => {
       await idolo.sheet.render(true);
       await new Promise((res) => setTimeout(res, 1200));
       const fichaIdolo = idolo.sheet.element;
+      r.idoloRascunho = idolo.system.ferramentasOcultas.includes("laboratorio")
+        && new RegExp(`data-op2-audio="${raiz}/musicas/audio-emf-1\\.mp3"`).test(idolo.system.ferramentas.emf)
+        && Boolean(fichaIdolo?.querySelector("[data-action='alternarFerramentaOculta'][data-ferramenta='laboratorio'] .fa-eye-slash"));
       r.fichaIdolo = fichaIdolo?.querySelectorAll(".op2-poi__ferramenta").length === 8
-        && fichaIdolo.querySelector('textarea[name="system.ferramentas.radio.texto"]')?.value.includes("gritos")
+        && fichaIdolo.querySelector('prose-mirror[name="system.ferramentas.radio.texto"]')?.textContent.includes("gritos")
         && fichaIdolo.querySelector('input[name="system.laboratorioDados"]')?.value === "6";
       await idolo.sheet.close();
 
@@ -3382,6 +3581,7 @@ const relato = await page.evaluate(async (boasVindas) => {
     relato.passos.push([mundo.radio, "o rádio do Depósito B joga em blocos, como o livro"]);
     relato.passos.push([mundo.painel, "o painel do mestre lista os 25 pontos e os 3 desafios do Ato II"]);
     relato.passos.push([mundo.fichaIdolo, "a ficha do Ídolo mostra as sete ferramentas mais o laser, o rádio em texto e os 6 dados do Laboratório"]);
+    relato.passos.push([mundo.idoloRascunho, "o Laboratório do Ídolo entra em rascunho (\"apenas se o Ídolo for quebrado\"), e o EMF toca o mp3 da pasta do mundo"]);
 
     // Segunda importação, com os arquivos já no lugar: nada de pedir o zip de novo.
     await limparAtoII();

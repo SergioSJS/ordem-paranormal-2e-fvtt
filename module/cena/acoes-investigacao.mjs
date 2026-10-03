@@ -9,6 +9,7 @@
  */
 import { SYSTEM_ID, DT_RECAPITULAR, DT_COMPARTILHAR, CUSTO_PD_EXAMINAR } from "../config.mjs";
 import { resolverInvestigacao, resolverExaminar, chaveInfo, motivoSemRevelacao, descobrivel,
+  linhaAceita, periciasDaLinha,
 } from "./investigacao.mjs";
 import { alvosDaCenaAtiva, alvosMarcados } from "./encerrar-investigacao.mjs";
 import { investigacaoAtiva } from "./investigacao-ativa.mjs";
@@ -20,6 +21,11 @@ import { lerConfig } from "../settings/register.mjs";
 import { renderDoPerfil } from "../ui/perfil.mjs";
 
 const CHAT = "systems/ordem-paranormal-2e/templates/chat";
+
+/** "Pesquisar ou Tecnologia": o rótulo de uma linha do quadro, com a alternativa. */
+export function rotuloDaLinha(info) {
+  return periciasDaLinha(info).map(rotuloDePericia).join(` ${game.i18n.localize("OP2.POI.Ou")} `);
+}
 
 /** @returns {Promise<Item|null>} */
 async function carregarPoi(poiUuid) {
@@ -150,7 +156,7 @@ registrarAcaoDeMestre("contarLinha", async ({ uuid, infoId, atorId }) => {
   await enviarCard(ator, "pista-contada", {
     titulo: game.i18n.format("OP2.Investigacao.ContouAoGrupo", { ator: ator.name }),
     poiNome: poi.name,
-    rotuloPericia: rotuloDePericia(info.pericia),
+    rotuloPericia: rotuloDaLinha(info),
     texto: info.texto,
   });
 });
@@ -226,12 +232,18 @@ export async function examinar(ator, poiUuid, chavePericia, { rapido = false } =
 
   const primeiraVez = !ator.system.estado.poisInvestigados.has(poiUuid);
 
+  // Com a revelação nas mãos do mestre (setting), nada é gravado nem entregue aqui:
+  // o que o personagem achou vai num card só dele, com o botão de entregar. Foi
+  // pedido em mesa: o mestre proibiu a rolagem pelo sistema porque a pista cairia
+  // na tela do jogador antes de ele narrar (achado em uso real).
+  const peloMestre = lerConfig("revelacaoPeloMestre");
+
   // Passo 1: o que o tamanho do dado alcança, sem rolar. Vai gravado antes do
   // teste porque não depende dele — é o que o personagem percebe ao olhar.
   const gratis = resolverInvestigacao(
     poi.system.informacoes, chavePericia, resolvido.valor, idsRevelados(ator, poiUuid),
   );
-  await gravarRevelacoes(ator, poiUuid, gratis, { investigado: true });
+  if (!peloMestre) await gravarRevelacoes(ator, poiUuid, gratis, { investigado: true });
 
   const roll = await rolarTeste(ator, {
     chavePericia,
@@ -245,12 +257,13 @@ export async function examinar(ator, poiUuid, chavePericia, { rapido = false } =
   });
   if (!roll) return null;
 
-  // Passo 2: o teste tenta o que ficou acima do dado.
+  // Passo 2: o teste tenta o que ficou acima do dado (o passo 1 já está fora, gravado
+  // ou não).
   const { revelaveis } = resolverExaminar(
-    poi.system.informacoes, chavePericia, roll.total, idsRevelados(ator, poiUuid),
+    poi.system.informacoes, chavePericia, roll.total, new Set([...idsRevelados(ator, poiUuid), ...gratis]),
     { ignorarDT: roll.critico },
   );
-  await gravarRevelacoes(ator, poiUuid, revelaveis);
+  if (!peloMestre) await gravarRevelacoes(ator, poiUuid, revelaveis);
 
   // Os dados vão no card da própria ação, não num card de teste à parte.
   const rolagem = {
@@ -286,20 +299,54 @@ export async function examinar(ator, poiUuid, chavePericia, { rapido = false } =
     return { roll, revelaveis: [], perdePD: true };
   }
 
-  const marcar = (ids, semRolar) => infosPorId(poi, ids)
-    .map((info) => ({ ...info, rotuloPericia: rotuloDePericia(info.pericia), semRolar }));
+  const titulo = `${game.i18n.localize("OP2.Investigacao.Examinar")} — ${rotuloDePericia(chavePericia)}`;
 
-  // O que ainda falta desta perícia depois desta ação: o card diz se a rolagem "não
-  // alcançou o resto" ou se simplesmente não havia mais nada para achar.
-  const reveladosAgora = idsRevelados(ator, poiUuid);
-  const restantes = poi.system.informacoes
-    .filter((info) => descobrivel(info) && info.pericia === chavePericia && !reveladosAgora.has(info.id)).length;
+  if (peloMestre) {
+    // O jogador fica com os dados e o aviso de que o mestre recebeu o achado; o
+    // mestre recebe o card inteiro, nascido no cliente dele, com o botão de entregar.
+    await enviarCard(ator, "revelacao", {
+      titulo, poiNome: poi.name, atorId: ator.id, ...rolagem, aguardaMestre: true,
+    }, { whisper: sussurroPara(ator) });
+    await enviarCardAoMestre(ator, "revelacao", {
+      ...(await contextoDaRevelacao(ator, poi, { chavePericia, gratis, revelaveis, primeiraVez, rolagem })),
+      soMestre: true,
+      entregar: {
+        atorId: ator.id, poiUuid, chavePericia, total: roll.total,
+        gratis: gratis.join(","), teste: revelaveis.join(","),
+      },
+    });
+    return { roll, revelaveis: [...gratis, ...revelaveis], perdePD: false, aguardaMestre: true };
+  }
 
   // "Quando examina um ponto de interesse e recebe uma informação nova, você recupera
   // 1 PD" (Amor pela Descoberta): houve informação nova, de graça ou pelo teste.
   const pdRecuperado = await recuperarPdAoDescobrir(ator);
 
   await enviarCard(ator, "revelacao", {
+    ...(await contextoDaRevelacao(ator, poi, { chavePericia, gratis, revelaveis, primeiraVez, rolagem })),
+    pdRecuperado,
+  }, { whisper: sussurroPara(ator) });
+
+  return { roll, revelaveis: [...gratis, ...revelaveis], perdePD: false, pdRecuperado: pdRecuperado?.pd ?? 0 };
+}
+
+/**
+ * O card de revelação de Examinar: a descrição básica na primeira vez, as linhas
+ * achadas (de graça e pelo teste) e o que ainda falta da perícia. O mesmo contexto
+ * serve ao card do jogador, à cópia do mestre e à entrega feita por ele — por isso
+ * conta o que falta sem depender de a revelação já estar gravada.
+ */
+async function contextoDaRevelacao(ator, poi, { chavePericia, gratis, revelaveis, primeiraVez, rolagem = {} }) {
+  const marcar = (ids, semRolar) => infosPorId(poi, ids)
+    .map((info) => ({ ...info, rotuloPericia: rotuloDaLinha(info), semRolar }));
+
+  // O que ainda falta desta perícia depois desta ação: o card diz se a rolagem "não
+  // alcançou o resto" ou se simplesmente não havia mais nada para achar.
+  const sabidos = new Set([...idsRevelados(ator, poi.uuid), ...gratis, ...revelaveis]);
+  const restantes = poi.system.informacoes
+    .filter((info) => descobrivel(info) && linhaAceita(info, chavePericia) && !sabidos.has(info.id)).length;
+
+  return {
     titulo: `${game.i18n.localize("OP2.Investigacao.Examinar")} — ${rotuloDePericia(chavePericia)}`,
     poiNome: poi.name,
     primeiraVez,
@@ -308,7 +355,7 @@ export async function examinar(ator, poiUuid, chavePericia, { rapido = false } =
       : null,
     infos: [...marcar(gratis, true), ...marcar(revelaveis, false)],
     temInfos: true,
-    poiUuid,
+    poiUuid: poi.uuid,
     ...rolagem,
     // O desfecho de Examinar não é o dado contra uma DT: é ter achado algo ou
     // não. Chegou aqui, achou — de graça pelo tamanho do dado, pelo teste, ou os
@@ -321,10 +368,42 @@ export async function examinar(ator, poiUuid, chavePericia, { rapido = false } =
     quantidadeTeste: revelaveis.length,
     quantidadeGratis: gratis.length,
     restantes,
+  };
+}
+
+/**
+ * O mestre entrega ao jogador o que Examinar achou (setting `revelacaoPeloMestre`):
+ * grava a revelação no personagem e manda o card que, sem o setting, teria saído na
+ * hora. Roda no cliente do mestre, pelo botão do card dele.
+ * @param {Actor} ator
+ * @param {{poiUuid: string, chavePericia: string, gratis?: string, teste?: string, total?: string}} dados
+ */
+export async function entregarRevelacao(ator, { poiUuid, chavePericia, gratis = "", teste = "", total = "" }) {
+  if (!game.user.isGM) return null;
+  const poi = await carregarPoi(poiUuid);
+  if (!poi) return null;
+
+  // Clicar duas vezes não entrega duas vezes: o que já está no personagem sai da conta.
+  const ja = idsRevelados(ator, poiUuid);
+  const novos = (ids) => ids.split(",").filter((id) => id && !ja.has(id));
+  const idsGratis = novos(gratis), idsTeste = novos(teste);
+  if (!idsGratis.length && !idsTeste.length) {
+    ui.notifications.info(game.i18n.localize("OP2.Investigacao.JaEntregue"));
+    return null;
+  }
+
+  const primeiraVez = !ator.system.estado.poisInvestigados.has(poiUuid);
+  await gravarRevelacoes(ator, poiUuid, [...idsGratis, ...idsTeste], { investigado: true });
+  const pdRecuperado = await recuperarPdAoDescobrir(ator);
+
+  await enviarCard(ator, "revelacao", {
+    ...(await contextoDaRevelacao(ator, poi, {
+      chavePericia, gratis: idsGratis, revelaveis: idsTeste, primeiraVez,
+      rolagem: total === "" ? {} : { total: Number(total) },
+    })),
     pdRecuperado,
   }, { whisper: sussurroPara(ator) });
-
-  return { roll, revelaveis: [...gratis, ...revelaveis], perdePD: false, pdRecuperado: pdRecuperado?.pd ?? 0 };
+  return { revelaveis: [...idsGratis, ...idsTeste], pdRecuperado: pdRecuperado?.pd ?? 0 };
 }
 
 /**

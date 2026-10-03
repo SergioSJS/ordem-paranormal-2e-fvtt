@@ -41,6 +41,12 @@ const SETTINGS = {
   boasVindas: {
     scope: "world", config: true, type: Boolean, default: true,
   },
+  // Examinar entrega a pista na hora, no card do jogador. Há mesa em que o mestre
+  // quer narrar antes: com isto ligado, o card vai só a ele, com o botão de entregar
+  // (achado em uso real: "não role pelo sistema, a descrição vai aparecer").
+  revelacaoPeloMestre: {
+    scope: "world", config: true, type: Boolean, default: false,
+  },
   // Clique simples rola direto; Shift abre o diálogo. Invertível por preferência.
   cliqueAbreDialogo: {
     scope: "client", config: true, type: Boolean, default: false,

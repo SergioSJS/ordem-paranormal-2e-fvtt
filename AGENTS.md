@@ -22,7 +22,7 @@ O texto do livro não entra no pacote (Licença da Comunidade): o sistema leva o
 **extrator** (`module/extrator/`) e a janela *Aventuras do playtest*
 (`module/aventura/`) lê o PDF do mestre no navegador, monta cada ato como um único
 `Adventure` e guarda no compêndio do mundo `world.op2-aventuras`. Ato I (`Ato I — O
-Porão`): cena murada, trilha, pré-gerados, handouts, 31 pontos com 87 linhas de quadro,
+Porão`): cena murada, trilha, pré-gerados, handouts, 31 pontos com 88 linhas de quadro,
 10 desafios, itens de mesa, roteiro e maldição rodada a rodada. Ato II (`Ato II — O
 Porão`, só do PDF completo): cena com as paredes transportadas, os cinco agentes,
 handouts e Compêndio em PDF, áudios EMF, as dez ferramentas, 25 pontos com 63 linhas e
@@ -39,8 +39,9 @@ dentro da aventura. O selo da licença (`assets/licenca/`) é o único arquivo d
 no pacote. Pronto para a rodada de teste manual que fecha a v1.
 **Versão:** 0.0.1 (a v1 é decisão de release).
 **Próximo:** o que o playtest ainda não publicou (NEX, progressão, traumas
-permanentes). **v13 e v14 exercitados pelo e2e** (13.351: 532 verificações; 14.363:
-570) — o bundle da cena leva os dois formatos de fundo, e o que só existe no v14 (níveis,
+permanentes). **v13 e v14 exercitados pelo e2e** (13.351 e 14.363: 645 verificações
+cada; `dois-clientes.mjs` confere a visão do jogador) — o bundle da cena leva os dois
+formatos de fundo, e o que só existe no v14 (níveis,
 `Collection#every`, `Note.author`) é tratado com guarda dos dois lados.
 
 ## Convenções

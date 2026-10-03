@@ -22,7 +22,9 @@
  */
 import {
   ident, semAcento, tituloLegivel, pasta, em, escapar, html, iconeDoPonto, eventoDaMaldicao, posicionarNaCena,
+  separarAlternativa, citacaoDeHandout,
 } from "./comum.mjs";
+import { paragrafoDoMestre } from "../cena/leitura-ferramenta.mjs";
 
 const RAIZ = "Ato II — O Porão";
 const PASTA_EXTRAS = "ato-ii";
@@ -194,27 +196,71 @@ export function montarAtoII(dados, fontes, { avisos = [] } = {}) {
     return dados.pontos.find((p) => p.numero === dono.numero);
   }
 
-  /** A leitura de uma ferramenta, como o mestre vê no ponto. */
+  /**
+   * A leitura de uma ferramenta no ponto. O livro imprime, no mesmo setor, o que o
+   * personagem lê e a instrução de mesa (a condição, "envie o handout", a solução do
+   * rádio, a nota de rodapé); a instrução vai em `<p class="op2-mestre">`, que o card
+   * do jogador não leva (`leitura-ferramenta.mjs`) — entregue inteira, ela vazava
+   * (achado em uso real).
+   */
   function leituraDaFerramenta(f, ponto) {
     const partes = [];
-    if (f.condicao) partes.push(`<p><em>(${escapar(f.condicao)})</em></p>`);
-    if (f.dados) partes.push(`<p><strong>Sequência mínima: ${f.dados} dados.</strong></p>`);
-    // O texto, com os handouts citados trocados pela imagem certa. A revisão 1 cita
-    // entre colchetes ("[HANDOUT 01 - FOTO DO ALTAR]"); a 1.1, solto no texto
-    // ("handout: HANDOUT 03 - FOTO DO ALTAR DE MADEIRA Caso não consiga…").
-    let texto = escapar(f.texto);
-    for (const titulo of f.handouts ?? []) {
-      const h = handoutPorTitulo(titulo);
-      const troca = h ? `${imagem(h.destino, h.titulo)}<p><em>${escapar(titulo)} — no arquivo, "${h.titulo}"</em></p>` : "";
-      const alvo = escapar(titulo);
-      if (texto.includes(`[${alvo}]`)) texto = texto.replace(`[${alvo}]`, `</p>${troca}<p>`);
-      else if (texto.includes(alvo)) texto = texto.replace(alvo, `${alvo}</p>${troca}<p>`);
+    if (f.condicao) partes.push(paragrafoDoMestre(`<em>(${escapar(f.condicao)})</em>`));
+    if (f.dados) partes.push(paragrafoDoMestre(`<strong>Sequência mínima: ${f.dados} dados.</strong>`));
+    // Parêntese que fala com o mestre no meio da leitura — "(leia Percepção … acima)",
+    // "(jogador precisa descrever que está medindo no interior…)" — sai da leitura e
+    // vira parágrafo do mestre; "(afinal, é um freezer)" é da leitura e fica.
+    const instrucoes = [];
+    const semInstrucoes = f.texto.replace(/\s*\((?:leia|veja|jogador\s+precisa|mostre|envie)\b[^()]*(?:\([^()]*\)[^()]*)*\)/gi, (m) => {
+      instrucoes.push(m.trim().replace(/\s*\n\s*/g, " "));
+      return "";
+    // "Caso contrário, sem reação." fecha a leitura do Termômetro no Ídolo: é o mestre
+    // decidindo se o jogador mediu por dentro, não o que o aparelho mostra.
+    }).replace(/\s*Caso contrário, sem reação\.?/gi, (m) => { instrucoes.push(m.trim()); return ""; });
+    let texto = escapar(semInstrucoes);
+    if (f.handouts?.length) {
+      // "Ao tirar uma foto, envie ao jogador o handout: X. Caso não consiga, descreva:
+      // “…”": o jogador recebe a imagem e a descrição; a instrução, com o título do
+      // handout e o nome do arquivo, é do mestre. A revisão 1 cita o handout entre
+      // colchetes; a 1.1, solto no texto — os dois casam pela busca.
+      const corrido = f.texto.replace(/\s*\n\s*/g, " ");
+      const instrucao = corrido.search(/(envie|mostre)\b[^.]*handout|\[handout/i);
+      let antes = instrucao > 0 ? corrido.slice(0, instrucao).trim() : "";
+      // Frase pela metade ("Ao tirar uma foto do freezer ,") não diz nada sozinha.
+      if (!/[.!?”]$/.test(antes)) antes = "";
+      const descreva = /descreva:\s*(.+)$/i.exec(corrido);
+      if (antes) partes.push(`<p>${escapar(antes)}</p>`);
+      for (const titulo of f.handouts) {
+        const h = handoutPorTitulo(titulo);
+        if (h) partes.push(imagem(h.destino, h.titulo));
+      }
+      if (descreva) partes.push(`<p>${escapar(descreva[1].trim())}</p>`);
+      partes.push(paragrafoDoMestre(escapar(corrido)));
+      for (const titulo of f.handouts) {
+        const h = handoutPorTitulo(titulo);
+        if (h) partes.push(paragrafoDoMestre(`<em>${escapar(titulo)} — no arquivo, "${h.titulo}"</em>`));
+      }
+      texto = "";
     }
-    if (f.audio) texto = texto.replace(/ÁUDIO EMF \d/, (m) => `${m} (${linkPlaylist})`);
-    partes.push(`<p>${texto.replace(/\n\s*\n/g, "</p><p>").replace(/\n/g, " ")}</p>`);
-    if (f.notaDeRodape) partes.push(`<p><sup>${f.notaDeRodape}</sup> ${escapar(notaDeRodape(ponto, f.notaDeRodape))}</p>`);
-    if (f.rotuloCorrigido) partes.push("<p><em>O livro imprime este rótulo como \"Laboratório\"; a leitura e a tabela da p. 75 dizem de que ferramenta se trata.</em></p>");
-    if (f.chave === "radio" && f.radio) partes.push(`<p><strong>Solução:</strong> ${escapar(f.radio.solucao)}</p>`);
+    if (!texto) {
+      // Nada além do que já foi montado acima.
+    } else if (f.audio) {
+      // O jogador ouve o medidor: um link toca o mp3 só no cliente dele, outro toca
+      // para a mesa inteira (`[data-op2-audio]`, chat.mjs) — ele escolhe se mostra
+      // aos outros o que está ouvindo. A instrução do livro — o padrão de bipes por
+      // extenso, o link da playlist — é do mestre: dita o padrão só se o áudio falhar.
+      const mp3 = caminho(`musicas/audio-emf-${f.audio}.mp3`);
+      partes.push(`<p><a data-op2-audio="${mp3}"><i class="fa-solid fa-play"></i> Ouvir o Medidor EMF (Áudio EMF ${f.audio})</a>`
+        + ` · <a data-op2-audio="${mp3}" data-op2-audio-todos="1"><i class="fa-solid fa-users"></i> tocar para a mesa</a></p>`);
+      texto = texto.replace(/ÁUDIO EMF \d/, (m) => `${m} (${linkPlaylist})`);
+      partes.push(paragrafoDoMestre(texto.replace(/\n\s*\n/g, "</p><p>").replace(/\n/g, " ")));
+    } else {
+      partes.push(`<p>${texto.replace(/\n\s*\n/g, "</p><p>").replace(/\n/g, " ")}</p>`);
+    }
+    for (const instrucao of instrucoes) partes.push(paragrafoDoMestre(`<em>${escapar(instrucao)}</em>`));
+    if (f.notaDeRodape) partes.push(paragrafoDoMestre(`<sup>${f.notaDeRodape}</sup> ${escapar(notaDeRodape(ponto, f.notaDeRodape))}`));
+    if (f.rotuloCorrigido) partes.push(paragrafoDoMestre("<em>O livro imprime este rótulo como \"Laboratório\"; a leitura e a tabela da p. 75 dizem de que ferramenta se trata.</em>"));
+    if (f.chave === "radio" && f.radio) partes.push(paragrafoDoMestre(`<strong>Solução:</strong> ${escapar(f.radio.solucao)}`));
     return partes.join("").replace(/<p>\s*<\/p>/g, "");
   }
 
@@ -290,15 +336,18 @@ export function montarAtoII(dados, fontes, { avisos = [] } = {}) {
     const informacoes = ponto.informacoes.map((info, indice) => {
       const dono = linhaRepetidaDeOutro(ponto, info);
       if (dono) repetidas.push(`"${info.texto.slice(0, 40)}…" (${tituloLegivel(dono.nome)})`);
-      const condicional = Boolean(info.condicao) && !/^ou /i.test(info.condicao);
+      // "ou Tecnologia" é perícia alternativa, não condição: vai para o campo da linha.
+      const { alternativa, condicao } = separarAlternativa(info.condicao);
       return {
         id: `i${indice + 1}`,
         pericia: info.chave,
+        periciaAlternativa: alternativa,
         dt: info.dt,
         // Texto puro: a ficha do ponto edita a linha num textarea, e HTML aparecia
         // como tag na tela (achado em uso real). A condição vai entre parênteses.
-        texto: info.condicao ? `(${info.condicao}) ${info.texto}` : info.texto,
-        oculta: condicional || Boolean(dono),
+        texto: condicao ? `(${condicao}) ${citacaoDeHandout(info.texto)}` : citacaoDeHandout(info.texto),
+        // "(Requer ter encontrado os e-mails)" no texto é condição: rascunho até o mestre liberar.
+        oculta: Boolean(condicao) || Boolean(dono) || /^\s*\(Requer\b/i.test(info.texto),
         aberta: false,
       };
     });
@@ -306,11 +355,14 @@ export function montarAtoII(dados, fontes, { avisos = [] } = {}) {
       notas.push(`<p><em>Linha(s) que o livro repete de outro ponto, deixada(s) como rascunho: ${repetidas.join("; ")}.</em></p>`);
     }
 
-    // Setor de ferramentas.
+    // Setor de ferramentas. Leitura com condição ("apenas se o Ídolo for quebrado")
+    // entra como rascunho: a ferramenta devolve leitura normal até o mestre liberar.
     const ferramentas = {};
+    const ferramentasOcultas = [];
     let laboratorioDados = 4;
     for (const f of ponto.ferramentas) {
       if (!f.chave) continue;
+      if (f.condicao && !ferramentasOcultas.includes(f.chave)) ferramentasOcultas.push(f.chave);
       if (f.chave === "radio") {
         // Com conjuntos, é o enigma (e a leitura inteira fica na nota do mestre, com a
         // solução); sem conjuntos, é uma leitura como as outras — o Ídolo só grita.
@@ -326,7 +378,7 @@ export function montarAtoII(dados, fontes, { avisos = [] } = {}) {
     if (noLaser(ponto.numero)) {
       const ambiente = dados.laser.porao.includes(ponto.numero) ? "Porão" : "Sala Secreta";
       const h = ambiente === "Porão" ? laserPorao : laserSala;
-      ferramentas.laser = `<p>Identificado pela varredura do laser (${ambiente}). ${imagem(h.destino, h.titulo)}</p>`;
+      ferramentas.laser = `<p>Identificado pela varredura do laser (${ambiente}).</p>${imagem(h.destino, h.titulo)}`;
     }
     if (ponto.leituraNormal) notas.push(`<p><em>${escapar(ponto.leituraNormal)}</em></p>`);
     else if (!ponto.ferramentas.length) notas.push("<p><em>Todas as ferramentas resultam em leitura normal ou sem reação (tabela da p. 75).</em></p>");
@@ -357,6 +409,7 @@ export function montarAtoII(dados, fontes, { avisos = [] } = {}) {
         descricaoContextual: [...notas, html(textoDeMestre), ...citados].filter(Boolean).join("\n"),
         informacoes,
         ferramentas,
+        ferramentasOcultas,
         laboratorioDados,
         reveladoPorLaser: false,
       },

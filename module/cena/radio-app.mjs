@@ -15,6 +15,7 @@
  */
 import { SYSTEM_ID } from "../config.mjs";
 import { embaralhar, moverEmLista, montarPecas, pecasResolvidas } from "./ferramentas.mjs";
+import { gravarLeitura } from "./acoes-ferramenta.mjs";
 import { renderizar } from "../dice/teste.mjs";
 import { vestirPerfil } from "../ui/perfil.mjs";
 
@@ -95,6 +96,9 @@ export class RadioApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static async #finalizar() {
     this.finalizado = true;
     this.resolvido = pecasResolvidas(this.pecas, this.conjuntos);
+    // A frase montada é a leitura do rádio neste ponto: fica com o personagem, no
+    // painel, como qualquer outra ferramenta.
+    if (this.resolvido) await gravarLeitura(this.ator, this.poi.uuid, "radio");
 
     const mantidas = this.pecas.filter((p) => !p.descartada).map((p) => p.texto);
     const descartadas = this.pecas.filter((p) => p.descartada).map((p) => p.texto);
