@@ -5,6 +5,8 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+## [0.9.7] — 2026-10-03
+
 Retorno de uma mesa que jogou o Ato I:
 
 - **Linha do quadro com perícia alternativa** ("Pesquisar ou Tecnologia", o Computador):
