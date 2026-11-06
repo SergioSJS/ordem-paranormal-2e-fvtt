@@ -43,7 +43,7 @@ export class InvestigacaoData extends foundry.abstract.TypeDataModel {
       sobrecarga: new SchemaField({
         ativa: new BooleanField({ required: true, initial: false }),
         // Tabela de referência do playtest por padrão — a mesma que cada Scene
-        // usava antes de ganhar uma própria (docs/LACUNAS.md).
+        // usava antes de ganhar uma própria (docs/regras/LACUNAS.md).
         tabela: new ArrayField(new SchemaField({
           rodada: new NumberField({ required: true, initial: 1, min: 1, integer: true, nullable: false }),
           dano: new StringField({ required: true, initial: "0", blank: false }),

@@ -107,7 +107,7 @@ export async function rolarTesteDeQueda(ator, tipo, { rapido = false } = {}) {
   return { roll, sucesso: roll.sucesso, dt, consequencia };
 }
 
-/** Zera os contadores — cura/descanso não é definido pelo playtest (docs/LACUNAS.md). */
+/** Zera os contadores — cura/descanso não é definido pelo playtest (docs/regras/LACUNAS.md). */
 export async function zerarContadoresDeQueda(ator) {
   await ator.update({
     "system.estado.testesFerimento": 0,

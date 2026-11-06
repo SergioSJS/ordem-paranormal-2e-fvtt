@@ -277,7 +277,7 @@
   border: 1px solid var(--op2-linha-forte);
   // O traço é um <button>, e o core arredonda todo botão: sem zerar aqui, uma
   // caixa de 8×12px com o raio do core vira um oval — exatamente o que o livro
-  // não faz (docs/ESTILO-VISUAL.md: "se você se pegar arredondando cantos,
+  // não faz (docs/projeto/ESTILO-VISUAL.md: "se você se pegar arredondando cantos,
   // parou de seguir o livro"). Achado em uso real.
   border-radius: 0;
   background: transparent;

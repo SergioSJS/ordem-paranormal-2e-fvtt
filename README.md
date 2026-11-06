@@ -358,7 +358,7 @@ que o livro imprime; as linhas do quadro do Molho de Chaves repetidas no Depósi
 no Armário de Roupas, e a da cadeira da Mesa de Poker repetida na Churrasqueira, entram
 como **rascunho** com a nota de onde são. Os quatro rótulos "Laboratório" do Freezer
 viram Laboratório, Lanterna UV, EMF e Termômetro pelo que a leitura diz — e a tabela do
-livro confirma. Tudo está em [docs/LACUNAS.md](docs/LACUNAS.md).
+livro confirma. Tudo está em [docs/regras/LACUNAS.md](docs/regras/LACUNAS.md).
 
 ### O Rádio Modificado, como no livro
 
@@ -504,10 +504,10 @@ Em desenvolvimento, versão 0.0.1.
 
 O playtest é explicitamente parcial: NEX, progressão por nível e traumas permanentes
 ainda não foram publicados. Onde o texto é ambíguo ou se contradiz, o sistema expõe um
-**setting** com o default recomendado — a lista está em [docs/LACUNAS.md](docs/LACUNAS.md).
+**setting** com o default recomendado — a lista está em [docs/regras/LACUNAS.md](docs/regras/LACUNAS.md).
 
-O roadmap completo está em [docs/ROADMAP.md](docs/ROADMAP.md). Como o sistema vai para a
-listagem do Foundry e como cada versão é registrada: [docs/PUBLICACAO.md](docs/PUBLICACAO.md).
+O roadmap completo está em [docs/projeto/ROADMAP.md](docs/projeto/ROADMAP.md). Como o sistema vai para a
+listagem do Foundry e como cada versão é registrada: [docs/projeto/PUBLICACAO.md](docs/projeto/PUBLICACAO.md).
 
 ## Apoie
 

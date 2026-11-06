@@ -21,8 +21,9 @@ pode deslocar alguma coisa**. Esta skill é o roteiro para conferir.
 | `module/aventura/ato-*.mjs` | Do JSON extraído ao `Adventure`. Não mexer aqui por causa de layout. |
 | `module/tests/extrator.test.mjs` | Casos sintéticos das regras que mais quebram (grade, `lerTabela`). |
 
-Os PDFs e zips da editora ficam em `jambo-arquivos/` (fora do git): `v1/` e `v2/`,
-níveis gratuito/básico/completo. O gratuito para no Ato I.
+Os PDFs e zips da editora ficam em `jambo-arquivos/` (fora do git), por playtest e
+revisão: `playtest1/{v1,v2}/` (alpha, níveis gratuito/básico/completo; o gratuito para no
+Ato I) e `playtest2/v1/` (beta). Mapa em `docs/README.md`.
 
 ## O ciclo
 
@@ -100,11 +101,11 @@ node scripts/extrator/rodar.mjs <pdf> <pasta-do-gabarito> --texto --completo
 
 ## Quando a editora publica uma revisão
 
-1. Ponha os arquivos em `jambo-arquivos/vN/…`.
+1. Ponha os arquivos em `jambo-arquivos/playtestN/vN/…`.
 2. Rode a revisão anterior e guarde: `cp -r build/js build/js-anterior`.
 3. Rode a nova contra `build/js-anterior` (`--completo --texto`), e também o PDF
    gratuito da revisão. Olhe as linhas `montagem Ato I/II`: têm que dizer `ok`, e
-   cada aviso é uma contradição do livro para registrar em `docs/LACUNAS.md`.
+   cada aviso é uma contradição do livro para registrar em `docs/regras/LACUNAS.md`.
 4. Classifique cada diferença. Texto que mudou no livro: legítimo. Estrutura que mudou
    (contagem de pontos, linhas, DTs, perícias): investigue.
 5. `npm run check` e, com o Foundry descartável, `npm run e2e` com `OP2_E2E_PDF`

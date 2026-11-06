@@ -16,9 +16,9 @@ Cheque, nesta ordem:
 5. Template novo entrou em `module/ui/handlebars.mjs`?
 6. Algo aplica efeito na ficha **sem** confirmação? Isso é bug.
 7. Usou Active Effect ou `template.json`? Isso é bug.
-8. Usou API que só existe no v14? Compare com `docs/ARQUITETURA.md`.
+8. Usou API que só existe no v14? Compare com `docs/projeto/ARQUITETURA.md`.
 9. `prepareBaseData` sem `super`? Quebra no v14.
-10. Decisão de regra ambígua sem entrada em `docs/LACUNAS.md`?
+10. Decisão de regra ambígua sem entrada em `docs/regras/LACUNAS.md`?
 11. CSS fora de `@layer system` ou cor fora de `--op2-*`?
 12. Botão sem rótulo acessível?
 

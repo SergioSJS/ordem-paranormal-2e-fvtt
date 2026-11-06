@@ -21,7 +21,7 @@ export class PontoInteresseData extends foundry.abstract.TypeDataModel {
     const ferramentas = {};
     for (const chave of FERRAMENTAS_POI) {
       // Rádio Modificado tem estrutura própria — minigame de ordenação de palavras
-      // (spec §9.2), não cabe no texto livre das outras (docs/LACUNAS.md).
+      // (spec §9.2), não cabe no texto livre das outras (docs/regras/LACUNAS.md).
       if (chave === "radio") continue;
       ferramentas[chave] = new HTMLField({ nullable: true, initial: null });
     }
@@ -29,7 +29,7 @@ export class PontoInteresseData extends foundry.abstract.TypeDataModel {
       conjuntos: new ArrayField(new SchemaField({
         verdadeiro: new BooleanField({ required: true, initial: true }),
         // As peças certas, em ordem: blocos separados por " | " (como o livro imprime)
-        // ou palavras separadas por espaço (docs/LACUNAS.md). O app mistura as peças
+        // ou palavras separadas por espaço (docs/regras/LACUNAS.md). O app mistura as peças
         // de todos os conjuntos na hora de jogar; conferir é comparar de novo.
         frase: new StringField({ required: true, initial: "", blank: true }),
       }), { initial: [] }),

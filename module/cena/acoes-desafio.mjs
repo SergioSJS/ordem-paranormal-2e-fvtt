@@ -8,7 +8,7 @@
  * é aplicado por `avancarRodada()` (module/cena/rodada.mjs). Hackear automatiza só
  * o teste e o gate de rodada — o problema matemático (técnico) e conferir as
  * respostas (social) exigem input humano, a spec é explícita sobre isso
- * (docs/LACUNAS.md).
+ * (docs/regras/LACUNAS.md).
  */
 import { SYSTEM_ID, CUSTO_PV_ARROMBAR, CUSTO_PV_SUSTENTAR, BONUS_DT_ALCANCAR_ARRISCADO } from "../config.mjs";
 import {
@@ -399,7 +399,7 @@ export async function tentarDestrancar(ator, desafioUuid, palpite) {
 
 /**
  * HACK TÉCNICO (spec §7.3): Tecnologia vs DT do objeto. Sem curva automática pro
- * problema matemático em si (docs/LACUNAS.md) — o card mostra o resultado (quanto
+ * problema matemático em si (docs/regras/LACUNAS.md) — o card mostra o resultado (quanto
  * maior, mais fácil deveria ser o problema que o mestre escolhe) e um timer visual
  * de 10s fica disponível na ficha do desafio para o mestre iniciar. Falha só libera
  * nova tentativa na rodada seguinte.

@@ -688,7 +688,7 @@ def conferir(dados):
             problemas.append(f"ponto {n}: laser na matriz {'laser' in esperado}, na lista {laser}")
         esperado.discard("laser")
         # O livro se contradiz no Ídolo: o texto dá reação à Lanterna UV, a matriz não.
-        # O texto manda (docs/LACUNAS.md).
+        # O texto manda (docs/regras/LACUNAS.md).
         lidas -= DISCREPANCIAS_DO_LIVRO.get(n, set())
         if lidas != esperado:
             problemas.append(f"ponto {n} ({p['nome']}): texto lê {sorted(lidas)}, matriz diz {sorted(esperado)}")

@@ -53,7 +53,7 @@ export function conjuntosFalsosRemovidos(total, totalConjuntosFalsos) {
  * Quais conjuntos sobram pro jogador embaralhar, depois do teste tirar
  * `quantidadeRemovida` falsos de jogo. Sem critério narrativo para escolher um
  * falso em vez de outro, remove sempre os primeiros na ordem cadastrada pelo
- * mestre — determinístico (docs/LACUNAS.md).
+ * mestre — determinístico (docs/regras/LACUNAS.md).
  * @param {Array<{verdadeiro: boolean, frase: string}>} conjuntos
  * @param {number} quantidadeRemovida
  */

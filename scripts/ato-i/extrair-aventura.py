@@ -12,7 +12,7 @@ da linha está vazia (linha que continua a perícia anterior).
 import re, subprocess, json, os, pathlib, sys
 
 # O PDF ganha revisões; OP2_PDF aponta para a que se quer extrair.
-PDF = pathlib.Path(os.environ.get("OP2_PDF", "docs/Ordem-Paranormal-RPG-2-Playtest-Alpha-agentes.pdf"))
+PDF = pathlib.Path(os.environ.get("OP2_PDF", "jambo-arquivos/playtest1/v1/2-agenteelite-completo/Ordem-Paranormal-RPG-2-Playtest-Alpha-agentes.pdf"))
 # Fora de `packs/sources/`: ali dentro todo .json é documento de compêndio.
 SAIDA = pathlib.Path("build/ato-i-pontos.json")
 SAIDA_MALDICAO = pathlib.Path("build/ato-i-maldicao.json")

@@ -514,3 +514,65 @@ lado.
   versão "para impressão" do Compêndio da Ordem — a preenchível entra como página PDF.
 - **Sobrecarga.** A tabela do porão é a padrão do sistema (spec §7.6), ligada na
   investigação; a caixa do livro se repete no roteiro como nota.
+
+---
+
+# Playtest beta
+
+Levantado na leitura integral do PDF v1.0 (`docs/regras/spec-beta.md`). **Nada implementado:** o
+default é a proposta para quando a regra entrar no código. Vale a regra da casa: texto normativo
+acima de tabela-resumo, e erro do livro entra sem apagar nada.
+
+## Beta: contradições de regra
+
+| Assunto | O livro diz | Default proposto |
+|---|---|---|
+| **Fases do combate** | Carta (p. 2) e regras (p. 18): três — geral, distância, corpo a corpo. Missões (p. 32, p. 69) e `Personagens Caídos` (p. 24): quatro — suporte, distância, corpo a corpo, final. A p. 18 ainda cita "fase tática". | **Quatro.** É a única versão em que investigar durante a luta e fugir têm lugar, e as duas missões foram escritas nela. Geral = Tática = Suporte. Setting. |
+| **Perícia do conhecimento paranormal** | Lista (p. 9): Bruxaria. Fichas e quadros (p. 63): Ocultismo. | Uma chave só, `ocultismo`; rótulo "Bruxaria" no modo Vigília. |
+| **Perícia de ofício** | Lista (p. 9): Metalurgia. Fichas: Ofício (Metalurgia) e Ofício sem especialização. Quadros: Ofício, Ofício (metalurgia). | Chave `oficio`, com especialização livre. |
+| **Compartilhar** | Texto (p. 15): Pesquisar, perícia que saiu da lista. Tabela: Intuição. | Inspecionar, que é a chave `pesquisar` com outro rótulo no modo Vigília. O setting `compartilharPericia` continua valendo. |
+| **Pesquisar em quadro** | A árvore da Missão 1 (p. 38) lista Pesquisar. | Mesma chave `pesquisar`; o extrator avisa. |
+| **Vocação ou Ocupação** | A p. 7 troca o termo e a p. 8 ainda diz "ocupação". | Vocação. |
+| **Teste de morte, ferimento grave** | Tabela (p. 21) define teste de lesão; moribundo (p. 22) e não letal (p. 23) falam em "teste de morte" e "ferimento grave". | Teste de morte = teste de lesão. Ferimento grave = lesão. |
+| **Caído** | p. 21: só corpo a corpo ganha +1 passo; à distância, DT +3. p. 24: "ataques" ganham +1 passo. | p. 21, mais detalhada. |
+| **Rodadas sem combate** | A p. 12 ainda diz que a ordem do combate sai "em um playtest futuro". | Ignorar, sobra do alpha. |
+| **Alcançar** | Regra (p. 17): Acrobacia. Plataforma (p. 64): Atletismo. | Perícia no desafio: vale o da missão. |
+| **Fôlego** | Missão 1: só em avançar. Missão 2: qualquer ação de perseguição. | Parâmetro da cena. |
+| **Sigla PA** | Pontuação alvo (p. 16, p. 65), pontos de avanço (p. 73), e os pontos de armadura. | Sem sigla na interface. |
+
+## Beta: regra que falta
+
+| Assunto | O que falta | Default proposto |
+|---|---|---|
+| **Atordoado** | Usado em chefe e armas; sem definição. | Perde a ação pelo tempo indicado. Conferir no feedback. |
+| **Sobrecarregado, imóvel** | Citados em Agarrar. | Só rótulo no estado, o mestre arbitra. |
+| **Dano de impacto, absorção, frio** | Citados, sem tipos definidos. | Dano físico; o tipo é só texto. |
+| **RD do aughisk** | A criatura "perde sua redução de dano" (p. 38, p. 43), mas a ficha não imprime valor. As armas ignoram 5. | Campo editável, default 5 por inferência, com aviso na ficha. |
+| **Patamar** | Iniciante a lenda são citados sem tabela de nível. Guardiã dá "+1 PV por patamar". | Campo manual, default iniciante para nível 3. |
+| **NEX** | "NEX 35%+ evita" no aughisk; fichas sem NEX. | Mantém o texto; ninguém evita. |
+| **Pavor com RA, RB e crítico** | Só define o valor do teste. | Dado anulado não conta para RA, RB nem crítico; o pavor não conta no limite de 4. |
+| **Cura de lesão, trauma e pavor** | "Até serem curados", sem como. | Remoção manual pelo mestre. |
+| **Destrancar o baú** | Quatro d12 com senha impressa, sem máximo de tentativas (p. 65); a regra (p. 16) diz que a missão define. | Campo editável, começa sem limite, com aviso. Senha fixa, não rolada. |
+| **Alcance curto e longo, zonas** | Sem distância; zona só citada (p. 69). | Mestre arbitra; sem medição. |
+| **Trilha sonora** | Duas faixas nos zips, sem indicação de uso. | Playlist com as duas, disparo manual. |
+
+## Beta: erros de diagramação e cópia
+
+Texto original preservado na extração. Linha claramente trocada nasce **rascunho**, com nota.
+
+| Onde | Erro | Tratamento |
+|---|---|---|
+| Altar das Vinhas, Percepção DT 4 (p. 62) | Texto do virote de ferro, copiado do Esqueleto da Missão 1 | Rascunho + nota |
+| Buraco das Raízes, Percepção DT 8 (p. 63) | Texto das mercadorias, copiado da Carroça; a linha seguinte pressupõe um "entalhe" que a original revelaria | Rascunho + nota. Sem ela o puzzle perde a pista: o mestre escreve a linha |
+| Inscrição Antiga 5.1 (p. 66) | Descrição e desafio repetem a Escadaria | Nota; desafio não duplica |
+| Tocha 4.2 (p. 41) | Dois blocos de Percepção, um provavelmente Inspecionar | Mantém; aviso |
+| Ponto 7, Nichos na Parede | Listado (p. 61) e sem quadro próprio; o enigma está na abertura da cena (p. 60) | Ponto criado sem linhas |
+| Mapa da caverna (p. 61) | Rótulo 5.1 duas vezes, sem 5.2 | Marcador usa 5.2 |
+| Escadaria (p. 61) | "Cesto de vime"; o ponto traz potes de argila | Mantém; nota |
+| Ilhota (p. 36–37) | Legenda numera Esqueleto 5 e Tocha 6; quadros, 4.1 e 4.2. Texto diz "quatro pontos" e lista seis | Vale o quadro |
+| Referência de página | Sumário: ficha 8→6, regras 12→10, caverna 51→50. Passo "p. 20"→12; afogado "p. 35"→33; pavor "p. 26"→24; aughisk "p. 46"→43; cria "p. 73"→71; caídos "p. 22"→24; arbusto "p. 39"→37 | Nunca usar número impresso em referência automática |
+| Cavan (ficha) | Rótulos e dados de atributo fora de lugar em 6 linhas, de Inspecionar a Sobrevivência: `Inspecionar d8+d10 EMOÇÃO`, `Luta d8+d6 MENTE`, `Pontaria d4+d10 FÍSICO` | Vale o dado da perícia; o atributo vem da p. 9 e o dado dele, do bloco de atributos. O impresso fica preservado em `fichas.json` |
+| Cormac (ficha) | Acrobacia `d4+d6` e Animais `d4+d8`: dados de atributo trocados. Herança cita "Diarmaid" | Mesma regra do Cavan; nota |
+| Nomes | Rhiona (fichas) × Rhionna (token); Branna (p. 51) × Brenna; Ellén × Ellen (token); aughisky (p. 34); `SORCHA: SORCHA:` em duas relações; Enxurrada de/da Morte | Grafia dominante; o importador mapeia o arquivo |
+| Texto | "chama ouro", "os os mortos", "poça grotesca que lodo", "Você uma interação", "ao à elevação" | Fica como está |
+

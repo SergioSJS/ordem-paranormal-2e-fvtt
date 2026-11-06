@@ -119,7 +119,7 @@ export const FERRAMENTAS_COM_CARGA = { lanternaUV: 3, poRevelador: 5 };
 /**
  * Sobrecarga mental de referência (spec §7.6): dano emocional ao fim de cada rodada.
  * A última linha cobre "9 ou mais" — a diagramação da tabela admite outra leitura,
- * então a tabela é editável por cena (docs/LACUNAS.md). `dano` é uma expressão de
+ * então a tabela é editável por cena (docs/regras/LACUNAS.md). `dano` é uma expressão de
  * rolagem: "0" não machuca, "1" é fixo, "1d4" rola.
  */
 export const TABELA_SOBRECARGA_PADRAO = [

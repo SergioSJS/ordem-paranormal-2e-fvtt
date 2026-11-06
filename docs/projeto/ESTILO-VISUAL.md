@@ -87,9 +87,9 @@ lado carrega a mesma informação e comunica muito menos.
 ## Extraindo mais do PDF
 
 ```bash
-pdftoppm -f 15 -l 15 -r 300 -png docs/Ordem-*.pdf saida        # página inteira
-pdftoppm -f 15 -l 15 -r 300 -x 100 -y 480 -W 620 -H 1400 -png docs/Ordem-*.pdf recorte
-pdffonts docs/Ordem-*.pdf                                       # fontes usadas
+pdftoppm -f 15 -l 15 -r 300 -png jambo-arquivos/playtest1/v1/2-agenteelite-completo/Ordem-*.pdf saida        # página inteira
+pdftoppm -f 15 -l 15 -r 300 -x 100 -y 480 -W 620 -H 1400 -png jambo-arquivos/playtest1/v1/2-agenteelite-completo/Ordem-*.pdf recorte
+pdffonts jambo-arquivos/playtest1/v1/2-agenteelite-completo/Ordem-*.pdf                                       # fontes usadas
 ```
 
 Páginas úteis: **15** (ficha diagramada com legendas), **16** (escalas de atributo e

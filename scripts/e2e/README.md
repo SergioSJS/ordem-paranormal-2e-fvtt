@@ -116,7 +116,7 @@ travamento**, não lentidão: um diálogo aberto prende o `page.evaluate` para s
 Olhe o print e a lista de janelas para achar o diálogo; se o print "trava", a página
 está presa em JS.
 
-Com `docs/Ordem-2-Playtest-Alpha-Ato-II-Extras.zip` presente, o harness também importa
+Com `jambo-arquivos/playtest1/v1/2-agenteelite-completo/Ordem-2-Playtest-Alpha-Ato-II-Extras.zip` presente, o harness também importa
 o Ato II pelo caminho de verdade: entrega o zip ao importador pelo `<input type=file>`,
 espera o upload, e confere no mundo os caminhos, os arquivos servidos, o laser e o
 rádio. Aponte `OP2_E2E_DATA` para o User Data descartável para ele zerar

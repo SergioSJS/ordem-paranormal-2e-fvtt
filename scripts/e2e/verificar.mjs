@@ -292,7 +292,7 @@ const relato = await page.evaluate(async (boasVindas) => {
     ok("traço de recurso não é inflado pelo min-height padrão de botão", parseFloat(estilo.height) < 16);
     // O traço é um <button>, e o core arredonda todo botão: numa caixa de 8×12px
     // o raio do core virava um oval, contra a gramática do livro
-    // (docs/ESTILO-VISUAL.md). Achado em uso real.
+    // (docs/projeto/ESTILO-VISUAL.md). Achado em uso real.
     ok("traço de recurso não é arredondado",
       estilo.borderTopLeftRadius === "0px" && estilo.borderBottomRightRadius === "0px");
   }
@@ -1116,7 +1116,7 @@ const relato = await page.evaluate(async (boasVindas) => {
       ok("o do computador, o diálogo em sete falas e cinco falsos",
         porNome("Computador").system.ferramentas.radio.conjuntos[0].frase.split(" | ").length === 7
         && porNome("Computador").system.ferramentas.radio.conjuntos.filter((c) => !c.verdadeiro).length === 5);
-      // Erros de diagramação do livro, tratados sem apagar texto (docs/LACUNAS.md).
+      // Erros de diagramação do livro, tratados sem apagar texto (docs/regras/LACUNAS.md).
       ok("o ponto 18 é o Duto de Ventilação, não um segundo 'Símbolo no Teto'",
         Boolean(porNome("Duto de Ventilação")) && pontos.filter((p) => p.name === "Símbolo no Teto").length === 1);
       ok("linha que o livro repete de outro ponto entra como rascunho",
@@ -2423,7 +2423,7 @@ const relato = await page.evaluate(async (boasVindas) => {
 
   /* -------------------------------------------------------------- hackear -- */
   // Spec §7.3. Só o teste (Tecnologia/Intuição vs DT) e o gate de rodada são
-  // automatizados (docs/LACUNAS.md) — o problema matemático e conferir as
+  // automatizados (docs/regras/LACUNAS.md) — o problema matemático e conferir as
   // respostas exigem input humano, a spec é explícita sobre isso.
   {
     // Abordagens: nem todo obstáculo aceita toda abordagem (achado em uso real —
@@ -2671,7 +2671,7 @@ const relato = await page.evaluate(async (boasVindas) => {
   ok("descrição contextual visível para o mestre", Boolean(poiEl?.textContent.includes("cofre")));
 
   // Editor do Rádio Modificado na ficha do POI: campo estruturado (conjuntos), não
-  // o textarea de texto livre das outras ferramentas (docs/LACUNAS.md).
+  // o textarea de texto livre das outras ferramentas (docs/regras/LACUNAS.md).
   {
     const seletorFerramenta = poiEl.querySelector("[data-seletor-ferramenta]");
     seletorFerramenta.value = "radio";
@@ -3035,7 +3035,7 @@ const relato = await page.evaluate(async (boasVindas) => {
 // texto do livro entra num mundo. O PDF é da editora e não vem no repositório: sem
 // ele, o bloco não roda. `OP2_E2E_PDF` aponta para outro (o gratuito, uma revisão nova).
 {
-  const pdfPath = process.env.OP2_E2E_PDF ?? "docs/Ordem-Paranormal-RPG-2-Playtest-Alpha-agentes.pdf";
+  const pdfPath = process.env.OP2_E2E_PDF ?? "jambo-arquivos/playtest1/v1/2-agenteelite-completo/Ordem-Paranormal-RPG-2-Playtest-Alpha-agentes.pdf";
   if (existsSync(pdfPath)) {
     // Do zero: sem o compêndio do mundo, a janela tem que criá-lo.
     await page.evaluate(async () => {
@@ -3188,8 +3188,8 @@ const relato = await page.evaluate(async (boasVindas) => {
     if (process.env.OP2_E2E_DATA) {
       rmSync(join(process.env.OP2_E2E_DATA, "Data", "worlds", mundoId, "ato-i"), { recursive: true, force: true });
     }
-    const zipAtoI = "docs/Ordem-2-Playtest-Alpha-Ato-I-Extras.zip";
-    if (!existsSync(zipAtoI)) throw new Error(`${zipAtoI} não existe: o e2e precisa do zip gratuito do Ato I em docs/.`);
+    const zipAtoI = "jambo-arquivos/playtest1/v1/2-agenteelite-completo/Ordem-2-Playtest-Alpha-Ato-I-Extras.zip";
+    if (!existsSync(zipAtoI)) throw new Error(`${zipAtoI} não existe: o e2e precisa do zip do Ato I em jambo-arquivos/.`);
     // A janela diz o que falta das artes e oferece o zip antes de importar.
     await page.evaluate(() => game.op2.aventuras());
     await page.waitForSelector('#op2-aventuras [data-action="enviarZip"][data-ato="ato-i"]', { timeout: 20000 }).catch(() => {
@@ -3360,9 +3360,9 @@ const relato = await page.evaluate(async (boasVindas) => {
 
 // Ato II com o zip da editora: o importador pede o zip, descompacta no navegador, sobe
 // os arquivos para a pasta do mundo e reescreve os caminhos. O zip é material da
-// editora e não vem no repositório: sem ele em docs/, o bloco não roda.
+// editora e não vem no repositório: sem ele em jambo-arquivos/, o bloco não roda.
 {
-  const zipPath = "docs/Ordem-2-Playtest-Alpha-Ato-II-Extras.zip";
+  const zipPath = "jambo-arquivos/playtest1/v1/2-agenteelite-completo/Ordem-2-Playtest-Alpha-Ato-II-Extras.zip";
   const worldId = await page.evaluate(() => game.world.id);
   // Com o User Data à mão (OP2_E2E_DATA), zera a pasta para exercitar o upload de verdade.
   if (process.env.OP2_E2E_DATA) {
@@ -3599,7 +3599,7 @@ const relato = await page.evaluate(async (boasVindas) => {
     relato.passos.push([!segunda.dialogo, "com os arquivos já no mundo, importar de novo não pede o zip"]);
     await limparAtoII();
   } else {
-    console.log("(sem docs/Ordem-2-Playtest-Alpha-Ato-II-Extras.zip ou sem o pack do Ato II: importação com zip não verificada)");
+    console.log("(sem jambo-arquivos/playtest1/v1/2-agenteelite-completo/Ordem-2-Playtest-Alpha-Ato-II-Extras.zip ou sem o pack do Ato II: importação com zip não verificada)");
   }
 }
 

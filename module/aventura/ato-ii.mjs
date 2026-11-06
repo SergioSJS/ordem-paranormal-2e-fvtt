@@ -18,7 +18,7 @@
  * apagado: descrição repetida recebe a do Ato I (mesmo porão, mesmo objeto) com a
  * nota do que o livro imprime; linha repetida entra como rascunho, com a nota de onde
  * ela é. O mestre decide num clique. A revisão 1.1 corrigiu tudo isso, e com ela as
- * notas simplesmente não aparecem. Tudo em docs/LACUNAS.md.
+ * notas simplesmente não aparecem. Tudo em docs/regras/LACUNAS.md.
  */
 import {
   ident, semAcento, tituloLegivel, pasta, em, escapar, html, iconeDoPonto, eventoDaMaldicao, posicionarNaCena,

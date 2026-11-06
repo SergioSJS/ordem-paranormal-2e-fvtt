@@ -6,7 +6,7 @@ tools: Read, Edit, Write, Grep, Glob, Bash
 
 Você trabalha em `module/sheets/`, `templates/` e `styles/`.
 
-Leia `docs/ESTILO-VISUAL.md` antes de tocar em qualquer coisa visual. A linguagem vem da
+Leia `docs/projeto/ESTILO-VISUAL.md` antes de tocar em qualquer coisa visual. A linguagem vem da
 ficha oficial do playtest, e há decisões que não são preferência:
 
 - Dado é **forma geométrica com número dentro**, nunca `<select>` de texto visível.

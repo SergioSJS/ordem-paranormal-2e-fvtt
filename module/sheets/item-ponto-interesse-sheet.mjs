@@ -155,7 +155,7 @@ export class PontoInteresseSheet extends OP2ItemSheet {
       ].map((c) => ({ chave: c, rotulo: rotuloDePericia(c) })),
       // Só as ferramentas com reação (ou recém-adicionadas) aparecem; as demais
       // ficam no seletor. Vazio (null ou "") = leitura normal (spec §9.3). Rádio
-      // Modificado tem editor próprio (conjuntos), não texto livre (docs/LACUNAS.md).
+      // Modificado tem editor próprio (conjuntos), não texto livre (docs/regras/LACUNAS.md).
       // A leitura é HTML (o laser e a câmera trazem a imagem do handout; o EMF, o link
       // da playlist): vai no editor rico, como as descrições. Num textarea as tags
       // apareciam cruas na ficha (achado em uso real, no Ato II).

@@ -839,7 +839,7 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  // Tag rasgada, como todo rótulo do livro (docs/ESTILO-VISUAL.md).
+  // Tag rasgada, como todo rótulo do livro (docs/projeto/ESTILO-VISUAL.md).
   clip-path: polygon(0 8%, 100% 0, 99% 90%, 1% 100%);
   white-space: nowrap;
   overflow: hidden;
@@ -868,7 +868,7 @@ details[open] > summary.op2-painel-titulo::before { transform: rotate(45deg); }
 
 
 // Botão flutuante do painel — nada de círculo: a gramática do livro é tag rasgada
-// (docs/ESTILO-VISUAL.md, "se você se pegar arredondando cantos, parou de seguir o
+// (docs/projeto/ESTILO-VISUAL.md, "se você se pegar arredondando cantos, parou de seguir o
 // livro"). Mesma família de `.op2-tag`, em tamanho de alvo de clique.
 .op2-botao-flutuante {
   position: fixed;
