@@ -4,15 +4,18 @@
 
 ## Leitura antes de trabalhar
 
-1. `docs/op2-playtest-spec-foundry.md` — **a fonte da verdade das regras.** Toda decisão
-   mecânica cita uma seção dela (`spec §4.2`).
-2. `docs/ROADMAP.md` — fase ativa e critério de pronto.
-3. `docs/ARQUITETURA.md` — antes de criar arquivo novo.
-4. `docs/LACUNAS.md` — antes de implementar regra ambígua.
-5. `docs/ESTILO-VISUAL.md` — antes de mexer em CSS ou template.
+1. `docs/regras/spec-alpha.md` (modo moderno) e `docs/regras/spec-beta.md` (modo Vigília) —
+   **a fonte da verdade das regras.** Toda decisão mecânica cita uma seção delas (`spec §4.2`, `beta §7.3`). O
+   índice é `docs/README.md`; o impacto do beta, `docs/regras/alpha-para-beta.md`.
+2. `docs/projeto/ROADMAP.md` — fase ativa e critério de pronto.
+3. `docs/projeto/ARQUITETURA.md` — antes de criar arquivo novo.
+4. `docs/regras/LACUNAS.md` — antes de implementar regra ambígua.
+5. `docs/projeto/ESTILO-VISUAL.md` — antes de mexer em CSS ou template.
 
-O PDF do playtest fica em `docs/` mas **não é commitado** (`.gitignore`). Ele é a fonte
-da spec e das amostras visuais; extraia dele em vez de adivinhar.
+Os PDFs e zips da editora ficam em `jambo-arquivos/`, **fora do git** (`.gitignore`): são
+a fonte das specs e das amostras visuais; extraia deles em vez de adivinhar. A leitura
+integral do beta, texto e catálogos, está em `jambo-arquivos/playtest2/v1/extraido/`
+(`LEIAME.md`): consulte lá antes de reabrir o PDF. `docs/` só leva texto nosso.
 
 ## Estado
 
@@ -37,8 +40,10 @@ pré-gerados, cena, handouts e trilha vão em `assets/aventura/fontes-ato-*.json
 dentro da aventura. O selo da licença (`assets/licenca/`) é o único arquivo da editora
 no pacote. Pronto para a rodada de teste manual que fecha a v1.
 **Versão:** 0.0.1 (a v1 é decisão de release).
-**Próximo:** o que o playtest ainda não publicou (NEX, progressão, traumas
-permanentes). **v13 e v14 exercitados pelo e2e** (13.351 e 14.363: 645 verificações
+**Próximo:** Fase 5, o **modo Vigília** (playtest beta: combate por fases, perseguição,
+furtividade, medo, relações; duas missões medievais), em paralelo ao **modo moderno** (alpha,
+Atos I e II), que não perde nada; o combate novo vale nos dois, opcional no moderno. Fontes prontas, nada implementado
+(`docs/regras/alpha-para-beta.md`). **v13 e v14 exercitados pelo e2e** (13.351 e 14.363: 645 verificações
 cada; `dois-clientes.mjs` confere a visão do jogador) — o bundle da cena leva os dois
 formatos de fundo, e o que só existe no v14 (níveis,
 `Collection#every`, `Note.author`) é tratado com guarda dos dois lados.
@@ -59,8 +64,8 @@ formatos de fundo, e o que só existe no v14 (níveis,
   mexer no default do setting: o core só registra `core.language` *depois* do hook
   `init` e resolve o idioma logo em seguida, sem hook no meio. A interface do próprio
   Foundry só fica em português com o módulo `pt-BR`, que o manifesto recomenda.
-- **Não existe ação "Investigar".** Investigar um ponto é Examinar ou Interagir (spec
-  §6.3). `examinar()` faz os dois passos: entrega de graça o que o tamanho do dado
+- **No alpha, não existe ação "Investigar".** Investigar um ponto é Examinar ou Interagir
+  (spec §6.3); o beta muda isso (`beta §5`). `examinar()` faz os dois passos: entrega de graça o que o tamanho do dado
   alcança e rola pelo resto; só custa 1 PD quando os dois vêm vazios.
 - **Três estados por linha do quadro:** rascunho (`oculta`), descobrível (padrão, o
   único que Examinar acha) e aberta (`aberta`, o jogador vê sem gastar ação). A pista é
@@ -238,8 +243,8 @@ módulos fora do Foundry. Não simula comportamento: lógica de regra fica em m�
 
 ## Regras em uma tela
 
-Dois dados somados (perícia + atributo), DT padrão 7. Escada d4→d12; tudo é passo, nunca
-`+N`. RA/RB = maior/menor valor rolado. Crítico = dois dados iguais ≥ 6, ignora DT. Falha
+Dois dados somados (perícia + atributo), DT padrão 7. Escada d4→d12; no alpha tudo é passo,
+nunca `+N` (o beta imprime modificador fixo: `beta §3`). RA/RB = maior/menor valor rolado. Crítico = dois dados iguais ≥ 6, ignora DT. Falha
 crítica = todos em 1, ignora DT, rola 1d8 na tabela. Até 4 dados rolados, 3 somados.
 Investigação compara o *tamanho* do dado contra a DT, sem rolar; Examinar rola e custa
 1 PD se não trouxer informação nova.
