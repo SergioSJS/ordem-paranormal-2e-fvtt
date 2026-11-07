@@ -46,7 +46,7 @@ II), que não perde nada; o combate novo vale nos dois, opcional e ligado por pa
 saem do PDF e dos zips do mestre, como os atos (`module/extrator/missoes.mjs`, `module/aventura/missoes.mjs`).
 O PDF gratuito do beta (só a Missão 1) monta igual ao completo, e o e2e lê os dois.
 **Próximo:** a rodada de mesa de verdade. **v13 e v14 exercitados pelo e2e** (13.351 e 14.363, com o PDF e
-os zips reais: 760 verificações cada; `dois-clientes.mjs`, 26, confere a visão do jogador) — o bundle da cena leva os dois formatos de
+os zips reais: 770 verificações cada; `dois-clientes.mjs`, 26, confere a visão do jogador) — o bundle da cena leva os dois formatos de
 fundo, e o que só existe no v14 (níveis, `Collection#every`, `Note.author`) é tratado com guarda dos dois lados.
 
 ## Convenções
@@ -57,6 +57,9 @@ fundo, e o que só existe no v14 (níveis, `Collection#every`, `Note.author`) é
 - **Dois modos de jogo:** `moderno` (alpha) e `vigilia` (beta), setting de mundo. Tela nunca lista
   `Object.keys(PERICIAS)` nem monta `OP2.Pericia.<chave>` à mão: `periciasDoModo()` e
   `rotuloDePericia()`. A ficha guarda as perícias dos dois, e o modo só decide o que aparece.
+- **Documento que entra em duas aventuras precisa de id por aventura.** O import é `keepId`: a Missão 2
+  com os mesmos ids dos pré-gerados da Missão 1 atualizava os atores dela e os levava para a pasta dela
+  (a Missão 1 "chegou sem pré-gerados"). Cópia por aventura, com `ident()` da missão + o id do compêndio.
 - **`adventure.import()` não espera:** com extras, o hook cancela e segue em segundo plano. Quem
   precisa do resultado (a troca de modo recarrega a página) usa `importarAventura()`.
 - **Automação nunca é o único caminho.** Efeito na ficha vem por clique, todo estado se edita, toda

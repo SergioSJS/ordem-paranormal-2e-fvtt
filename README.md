@@ -218,8 +218,25 @@ celta e os títulos em versalete. O modo moderno continua com o visual do alpha.
 **As missões saem do seu material**, como os atos: em *Aventuras do playtest*, escolha o PDF do mestre e, depois, o
 zip da editora. Cada missão vem com cena, marcadores, pontos, desafios, pré-gerados, roteiro e as cenas de ação.
 
-**Uma cena de ação** é um ator do tipo `cena-acao`: um combate, uma perseguição ou uma furtividade. O mestre a
-inicia pela ficha dela, e o painel de ação mostra quem participa, a fase e o que cada um pode fazer.
+**Uma cena de ação** é um ator do tipo `cena-acao`: um combate, uma perseguição ou uma furtividade. O painel de ação
+(o botão de espadas) escolhe a cena no topo. Parada, a cena mostra quem está nela e o botão de iniciar. No ar, mostra a
+rodada, a fase e o que cada um pode fazer. **Montar a cena** abre a ficha dela, onde o mestre escolhe quem entra:
+personagens e criaturas, pela lista, pelos tokens selecionados no mapa, pelos personagens dos jogadores ou
+arrastando da barra lateral. Ali também ficam os modelos das ondas, que o painel põe no mapa em levas. As cenas das
+missões nascem sem personagens, porque cada mesa joga com os seus. **Nova cena** cria outra (combate, perseguição ou
+furtividade), parada, com os personagens dos jogadores ou os tokens selecionados, se você quiser; arrastar um ator da
+barra lateral para o painel também o põe na cena.
+
+**O guia da fase** diz o que dá para fazer agora: no suporte, as ações gerais; à distância e corpo a corpo, os ataques
+e as manobras; no final, mover-se, fugir, investigar. Cada personagem vê primeiro as ações da fase atual, e as outras
+continuam a um clique, em "outras ações".
+
+**O palco** é a cena vista como teatro, não como grade: uma faixa no rodapé com quem está em cena, personagens de um
+lado e criaturas do outro, a fase e a rodada no meio. Quem age dá um passo à frente, com a legenda do card; quem já
+agiu recua, quem caiu apaga. Clicar no próprio personagem abre as ações da fase. Todo mundo vê o palco enquanto a
+cena está no ar, e cada um recolhe o seu.
+
+![O palco da cena de ação](docs/img/palco.png)
 
 **Dá para jogar tudo à mão.** A automação propõe e quem clica aplica: condição, derrubar, descartar dado e dano são
 botões do card, nunca efeito sozinho. No painel e na aba Condição da ficha, tudo se edita: fase, rodada, "já agiu",

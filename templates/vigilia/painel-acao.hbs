@@ -1,46 +1,135 @@
 <div class="op2-painel-acao__corpo">
+  {{!-- Qual cena: o mestre troca aqui, sem precisar achar a ficha dela. --}}
+  {{#if ehGM}}
+    <nav class="op2-painel-acao__escolha">
+      {{#if cenas.length}}
+        <label class="op2-painel-acao__cena">
+          <span>{{localize "OP2.CenaAcao.CenaRotulo"}}</span>
+          <select name="cena" data-trocar-cena>
+            {{#each cenas}}<option value="{{uuid}}" {{#if atual}}selected{{/if}}>{{nome}}{{#if ativa}} — {{localize "OP2.CenaAcao.NoAr"}}{{/if}}</option>{{/each}}
+          </select>
+        </label>
+      {{/if}}
+      {{#unless semCena}}
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="montar">
+          <i class="fa-solid fa-users-gear" aria-hidden="true"></i> {{localize "OP2.CenaAcao.Montar"}}
+        </button>
+      {{/unless}}
+      <button type="button" class="op2-botao op2-botao--pequeno op2-botao--fantasma" data-action="novaCena"
+        data-tooltip="{{localize 'OP2.CenaAcao.NovaCenaAjuda'}}">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "OP2.CenaAcao.NovaCena"}}
+      </button>
+    </nav>
+  {{/if}}
+
   {{#if semCena}}
     <p class="op2-ajuda">{{localize "OP2.CenaAcao.Nenhuma"}}</p>
-    {{#if ehGM}}
-      <button type="button" class="op2-botao" data-action="novoCombate">{{localize "OP2.CenaAcao.NovoCombate"}}</button>
-    {{/if}}
   {{else}}
     <header class="op2-painel-acao__topo">
-      <div>
+      <div class="op2-painel-acao__titulo">
         <span class="op2-tag op2-tag--secao">{{rotuloTipo}}</span>
         <strong>{{cena.name}}</strong>
       </div>
       <div class="op2-painel-acao__contagem" data-rodada="{{rodada}}">
         {{#if ativa}}
           {{#if ehGM}}<button type="button" class="op2-botao op2-botao--fantasma" data-action="ajustarRodada" data-delta="-1" data-tooltip="{{localize 'OP2.CenaAcao.RodadaMenos'}}" aria-label="-1">−</button>{{/if}}
-          {{localize "OP2.CenaAcao.RodadaCurta" n=rodada}}{{#if rodadas}} / {{rodadas}}{{/if}}
+          <span>{{localize "OP2.CenaAcao.RodadaCurta" n=rodada}}{{#if rodadas}} / {{rodadas}}{{/if}}</span>
           {{#if ehGM}}<button type="button" class="op2-botao op2-botao--fantasma" data-action="ajustarRodada" data-delta="1" data-tooltip="{{localize 'OP2.CenaAcao.RodadaMais'}}" aria-label="+1">+</button>{{/if}}
         {{else}}
-          {{localize "OP2.CenaAcao.Parada"}}
+          <span class="op2-painel-acao__parada-rotulo">{{localize "OP2.CenaAcao.Parada"}}</span>
         {{/if}}
       </div>
     </header>
 
-    {{#if fases.length}}
-      <ol class="op2-fases">
-        {{#each fases}}
-          <li class="op2-fase{{#if atual}} op2-fase--atual{{/if}}" data-fase="{{chave}}"
-            {{#if @root.ehGM}}data-action="irParaFase" role="button" tabindex="0"{{/if}}
-            {{#if atual}}aria-current="step"{{/if}}>{{rotulo}}</li>
-        {{/each}}
-      </ol>
-    {{/if}}
+    {{!-- Quem está em cena, de relance: retrato, PV, quem já agiu. Também é onde soltar atores. --}}
+    <section class="op2-elenco" aria-label="{{localize 'OP2.CenaAcao.QuemEsta'}}">
+      {{#each elenco.pcs}}
+        <button type="button" class="op2-elenco__item{{#if agiu}} op2-elenco__item--agiu{{/if}}{{#if derrotado}} op2-elenco__item--derrotado{{/if}}"
+          data-action="irPara" data-ator="{{uuid}}" data-tooltip="{{nome}}">
+          <img src="{{img}}" alt="">
+          <span class="op2-elenco__nome">{{nome}}</span>
+          {{#if veNumeros}}<span class="op2-elenco__pv"><span style="width: {{pvPct}}%"></span></span>{{/if}}
+          {{#if agiu}}<i class="fa-solid fa-check op2-elenco__agiu" aria-label="{{localize 'OP2.CenaAcao.JaAgiu'}}"></i>{{/if}}
+        </button>
+      {{/each}}
+      {{#if elenco.criaturas.length}}{{#if elenco.pcs.length}}<span class="op2-elenco__contra" aria-hidden="true">×</span>{{/if}}{{/if}}
+      {{#each elenco.criaturas}}
+        <button type="button" class="op2-elenco__item op2-elenco__item--criatura{{#if agiu}} op2-elenco__item--agiu{{/if}}{{#if derrotado}} op2-elenco__item--derrotado{{/if}}"
+          data-action="irPara" data-ator="{{uuid}}" data-tooltip="{{nome}}">
+          <img src="{{img}}" alt="">
+          <span class="op2-elenco__nome">{{nome}}</span>
+          {{#if veNumeros}}<span class="op2-elenco__pv"><span style="width: {{pvPct}}%"></span></span>{{/if}}
+          {{#if agiu}}<i class="fa-solid fa-check op2-elenco__agiu" aria-label="{{localize 'OP2.CenaAcao.JaAgiu'}}"></i>{{/if}}
+        </button>
+      {{/each}}
+      {{#if podeArrastar}}
+        <span class="op2-elenco__soltar">
+          <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i> {{localize "OP2.CenaAcao.Arraste"}}
+        </span>
+      {{/if}}
+    </section>
 
-    {{#if ehPerseguicao}}{{#if proximoCorte}}
-      <p class="op2-ajuda">{{localize "OP2.Perseguicao.ProximoCorte" rodada=proximoCorte.rodada minimo=proximoCorte.minimo}}</p>
-    {{/if}}{{/if}}
-    {{#if area}}
-      <p class="op2-ajuda">{{localize "OP2.Furtividade.Area" nome=area.nome numero=area.numero total=area.total avancos=area.avancos}}</p>
-    {{/if}}
+    {{#unless ativa}}
+      {{!-- Parada: o que falta para começar, e o botão de começar. --}}
+      <section class="op2-painel-acao__parada">
+        {{#if contagem.total}}<p>{{localize "OP2.CenaAcao.Resumo" pcs=contagem.pcs criaturas=contagem.criaturas}}</p>{{/if}}
+        {{#unless contagem.pcs}}
+          <p class="op2-ajuda">{{#if ehGM}}{{localize "OP2.CenaAcao.SemPersonagens"}}{{else}}{{localize "OP2.CenaAcao.AindaNao"}}{{/if}}</p>
+        {{/unless}}
+        {{#if ehGM}}
+          <div class="op2-painel-acao__mestre">
+            <button type="button" class="op2-botao op2-painel-acao__iniciar" data-action="iniciar" {{#unless contagem.total}}disabled{{/unless}}>
+              <i class="fa-solid fa-play" aria-hidden="true"></i> {{localize "OP2.CenaAcao.Iniciar"}}
+            </button>
+            <button type="button" class="op2-botao op2-botao--pequeno" data-action="porJogadores">
+              <i class="fa-solid fa-users" aria-hidden="true"></i> {{localize "OP2.CenaAcao.DosJogadores"}}
+            </button>
+            <button type="button" class="op2-botao op2-botao--pequeno" data-action="montar">
+              <i class="fa-solid fa-users-gear" aria-hidden="true"></i> {{localize "OP2.CenaAcao.Montar"}}
+            </button>
+          </div>
+        {{/if}}
+      </section>
+    {{/unless}}
 
-    {{#if ehGM}}
-      <div class="op2-painel-acao__mestre">
-        {{#if ativa}}
+    {{#if ativa}}
+      {{#if fases.length}}
+        <ol class="op2-fases">
+          {{#each fases}}
+            <li class="op2-fase{{#if atual}} op2-fase--atual{{/if}}" data-fase="{{chave}}"
+              {{#if @root.ehGM}}data-action="irParaFase" role="button" tabindex="0"{{/if}}
+              {{#if atual}}aria-current="step"{{/if}}>{{rotulo}}</li>
+          {{/each}}
+        </ol>
+      {{/if}}
+
+      {{#if guia}}
+        <aside class="op2-guia-fase">
+          <strong>{{guia.titulo}}</strong>
+          <p>{{guia.texto}}</p>
+          {{#if guiasDaRodada.length}}
+            <details class="op2-guia-fase__rodada">
+              <summary>{{localize "OP2.Guia.ComoFunciona"}}</summary>
+              <p>{{localize "OP2.Guia.rodada"}}</p>
+              <dl>
+                {{#each guiasDaRodada}}
+                  <dt{{#if atual}} class="op2-guia-fase__atual"{{/if}}>{{rotulo}}</dt><dd>{{texto}}</dd>
+                {{/each}}
+              </dl>
+            </details>
+          {{/if}}
+        </aside>
+      {{/if}}
+
+      {{#if ehPerseguicao}}{{#if proximoCorte}}
+        <p class="op2-ajuda">{{localize "OP2.Perseguicao.ProximoCorte" rodada=proximoCorte.rodada minimo=proximoCorte.minimo}}</p>
+      {{/if}}{{/if}}
+      {{#if area}}
+        <p class="op2-ajuda">{{localize "OP2.Furtividade.Area" nome=area.nome numero=area.numero total=area.total avancos=area.avancos}}</p>
+      {{/if}}
+
+      {{#if ehGM}}
+        <div class="op2-painel-acao__mestre">
           <button type="button" class="op2-botao" data-action="avancar">
             <i class="fa-solid fa-forward-step" aria-hidden="true"></i>
             {{#if ehPerseguicao}}{{localize "OP2.CenaAcao.ProximaRodada"}}{{else}}{{localize "OP2.CenaAcao.ProximaFase"}}{{/if}}
@@ -53,52 +142,60 @@
           {{/if}}
           {{#if linhasDaTabela.length}}
             <button type="button" class="op2-botao" data-action="criaturas">{{localize "OP2.Furtividade.RolarCriaturas"}}</button>
-            <select name="linhaCriatura" aria-label="{{localize 'OP2.Furtividade.EscolherLinha'}}">
-              {{#each linhasDaTabela}}<option value="{{valor}}">{{rotulo}}</option>{{/each}}
-            </select>
-            <button type="button" class="op2-botao op2-botao--pequeno" data-action="criaturaEscolhida">{{localize "OP2.Furtividade.UsarLinha"}}</button>
+            <span class="op2-painel-acao__grupo">
+              <select name="linhaCriatura" aria-label="{{localize 'OP2.Furtividade.EscolherLinha'}}">
+                {{#each linhasDaTabela}}<option value="{{valor}}">{{rotulo}}</option>{{/each}}
+              </select>
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="criaturaEscolhida">{{localize "OP2.Furtividade.UsarLinha"}}</button>
+            </span>
           {{/if}}
-          <button type="button" class="op2-botao op2-botao--fantasma" data-action="encerrar">{{localize "OP2.CenaAcao.Encerrar"}}</button>
-        {{else}}
-          <button type="button" class="op2-botao" data-action="iniciar">
-            <i class="fa-solid fa-play" aria-hidden="true"></i> {{localize "OP2.CenaAcao.Iniciar"}}
-          </button>
-          <button type="button" class="op2-botao op2-botao--fantasma" data-action="novoCombate">{{localize "OP2.CenaAcao.NovoCombate"}}</button>
-        {{/if}}
-        {{#if modelos.length}}
-          <label class="op2-campo op2-campo--inline">
-            <select name="modelo">{{#each modelos}}<option value="{{uuid}}">{{nome}}</option>{{/each}}</select>
-          </label>
-          <input type="number" name="quantos" value="{{quantosPadrao}}" min="1" max="12" aria-label="{{localize 'OP2.CenaAcao.Quantos'}}">
-          <button type="button" class="op2-botao op2-botao--pequeno" data-action="adicionar">{{localize "OP2.CenaAcao.Adicionar"}}</button>
-        {{/if}}
-      </div>
+          <button type="button" class="op2-botao op2-botao--fantasma op2-painel-acao__encerrar" data-action="encerrar">{{localize "OP2.CenaAcao.Encerrar"}}</button>
+        </div>
+      {{/if}}
     {{/if}}
+
+    {{!-- Ondas: N tokens de um modelo no mapa, cada um com os seus PV. --}}
+    {{#if ehGM}}{{#if modelos.length}}
+      <div class="op2-painel-acao__mestre op2-painel-acao__ondas">
+        <span class="op2-painel-acao__ondas-rotulo">{{localize "OP2.CenaAcao.PorNoMapa"}}</span>
+        <input type="number" name="quantos" value="{{quantosPadrao}}" min="1" max="12" aria-label="{{localize 'OP2.CenaAcao.Quantos'}}">
+        <span>×</span>
+        {{#if modeloUnico}}
+          <input type="hidden" name="modelo" value="{{modeloUnico.uuid}}">
+          <strong>{{modeloUnico.nome}}</strong>
+        {{else}}
+          <select name="modelo" aria-label="{{localize 'OP2.CenaAcao.Ondas'}}">{{#each modelos}}<option value="{{uuid}}">{{nome}}</option>{{/each}}</select>
+        {{/if}}
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="adicionar">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "OP2.CenaAcao.PorNoMapaBotao"}}
+        </button>
+      </div>
+    {{/if}}{{/if}}
 
     <ul class="op2-painel-acao__linhas">
       {{#each linhas}}
-        <li class="op2-linha-acao{{#if agiu}} op2-linha-acao--agiu{{/if}}" data-ator="{{uuid}}">
+        <li class="op2-linha-acao{{#if agiu}} op2-linha-acao--agiu{{/if}}{{#if derrotado}} op2-linha-acao--derrotado{{/if}}" data-ator="{{uuid}}">
           <div class="op2-linha-acao__identidade">
             <img src="{{img}}" alt="{{nome}}" data-action="abrirFicha" data-ator="{{uuid}}">
-            <div>
-              <strong>{{nome}}</strong>
+            <div class="op2-linha-acao__dados">
+              <strong class="op2-linha-acao__nome" data-action="abrirFicha" data-ator="{{uuid}}">{{nome}}</strong>
               <span class="op2-linha-acao__recursos">
                 {{#if dono}}
-                  <label>PV <input type="number" data-campo="system.recursos.pv.value" data-ator="{{uuid}}" value="{{pv.value}}"></label>/{{pv.max}}
-                  <label>PD <input type="number" data-campo="system.recursos.pd.value" data-ator="{{uuid}}" value="{{pd.value}}"></label>/{{pd.max}}
+                  <label>PV <input type="number" data-campo="system.recursos.pv.value" data-ator="{{uuid}}" value="{{pv.value}}"><span>/ {{pv.max}}</span></label>
+                  {{#if pd.max}}<label>PD <input type="number" data-campo="system.recursos.pd.value" data-ator="{{uuid}}" value="{{pd.value}}"><span>/ {{pd.max}}</span></label>{{/if}}
                 {{else}}
                   {{#if veNumeros}}PV {{pv.value}}/{{pv.max}} · PD {{pd.value}}/{{pd.max}}{{/if}}
                 {{/if}}
-                {{#if rd}} · RD {{rd}}{{/if}}{{#if veNumeros}}{{#if armadura}} · {{localize "OP2.CenaAcao.Armadura" n=armadura}}{{/if}}{{/if}}{{#if pavor}} · {{localize "OP2.Pavor.Titulo"}} {{pavor}}{{/if}}{{#if marcadores}} · {{localize "OP2.PosRolagem.Marcadores" n=marcadores}}{{/if}}
+                {{#if rd}}<span>RD {{rd}}</span>{{/if}}{{#if veNumeros}}{{#if armadura}}<span>{{localize "OP2.CenaAcao.Armadura" n=armadura}}</span>{{/if}}{{/if}}{{#if pavor}}<span>{{localize "OP2.Pavor.Titulo"}} {{pavor}}</span>{{/if}}{{#if marcadores}}<span>{{localize "OP2.PosRolagem.Marcadores" n=marcadores}}</span>{{/if}}
               </span>
-              {{#if dono}}{{#if @root.ehCombate}}
-                <button type="button" class="op2-botao op2-botao--fantasma op2-linha-acao__agiu{{#if agiu}} ativo{{/if}}" data-action="alternarAgiu" data-ator="{{uuid}}" aria-pressed="{{agiu}}">{{localize "OP2.CenaAcao.JaAgiu"}}</button>
-              {{else if agiu}}
-                <button type="button" class="op2-botao op2-botao--fantasma op2-linha-acao__agiu ativo" data-action="alternarAgiu" data-ator="{{uuid}}">{{localize "OP2.CenaAcao.JaAgiu"}}</button>
-              {{/if}}{{else if agiu}}
-                <em class="op2-linha-acao__agiu">{{localize "OP2.CenaAcao.JaAgiu"}}</em>
-              {{/if}}
             </div>
+            {{#if dono}}{{#if @root.ehCombate}}{{#if @root.ativa}}
+              <button type="button" class="op2-botao op2-botao--pequeno op2-linha-acao__agiu{{#if agiu}} ativo{{/if}}" data-action="alternarAgiu" data-ator="{{uuid}}" aria-pressed="{{agiu}}">
+                <i class="fa-solid {{#if agiu}}fa-square-check{{else}}fa-square{{/if}}" aria-hidden="true"></i> {{localize "OP2.CenaAcao.JaAgiu"}}
+              </button>
+            {{/if}}{{/if}}{{else if agiu}}
+              <em class="op2-linha-acao__agiu">{{localize "OP2.CenaAcao.JaAgiu"}}</em>
+            {{/if}}
           </div>
           {{#if dono}}
             <details class="op2-linha-acao__condicoes-chips">
@@ -115,31 +212,27 @@
           {{#if dono}}{{#if @root.ativa}}
             <div class="op2-linha-acao__botoes">
               {{#if @root.ehCombate}}
-                {{#each ataques}}
-                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="ataque"
-                    data-ator="{{../uuid}}" data-ataque="{{id}}">{{nome}}</button>
-                {{/each}}
-                <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="atrapalhar" data-ator="{{uuid}}">{{localize "OP2.Combate2.atrapalhar"}}</button>
-                <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="fintar" data-ator="{{uuid}}">{{localize "OP2.Combate2.fintar"}}</button>
-                {{#if temAnalise}}
-                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="analisar" data-ator="{{uuid}}">{{localize "OP2.Analise.Titulo"}}</button>
+                {{#if nestaFase.length}}
+                  <span class="op2-linha-acao__fase-rotulo">{{localize "OP2.Guia.NestaFase"}}</span>
+                  {{#each nestaFase}}
+                    <button type="button" class="op2-botao op2-botao--pequeno{{#if destaque}} op2-botao--destaque{{/if}}" data-action="agir" data-qual="{{qual}}" data-ator="{{../uuid}}"
+                      {{#if ataque}}data-ataque="{{ataque}}"{{/if}}{{#if geral}}data-geral="{{geral}}"{{/if}}{{#if manobra}}data-manobra="{{manobra}}"{{/if}}>{{rotulo}}</button>
+                  {{/each}}
+                {{else}}
+                  <span class="op2-linha-acao__fase-rotulo">{{localize "OP2.Guia.NadaNestaFase"}}</span>
                 {{/if}}
-                {{#if ehPc}}
-                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="investigar" data-ator="{{uuid}}">{{localize "OP2.CenaAcao.Investigar"}}</button>
+                {{#if outrasAcoes.length}}
+                  <details class="op2-linha-acao__mais">
+                    <summary>{{localize "OP2.Guia.OutrasAcoes"}}</summary>
+                    <div class="op2-linha-acao__grade">
+                      {{#each outrasAcoes}}
+                        <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="{{qual}}" data-ator="{{../uuid}}"
+                          {{#if ataque}}data-ataque="{{ataque}}"{{/if}}{{#if geral}}data-geral="{{geral}}"{{/if}}{{#if manobra}}data-manobra="{{manobra}}"{{/if}}
+                          data-tooltip="{{localize (op2Concat 'OP2.Fase.' fase)}}">{{rotulo}}</button>
+                      {{/each}}
+                    </div>
+                  </details>
                 {{/if}}
-                <details class="op2-linha-acao__mais">
-                  <summary>{{localize "OP2.CenaAcao.MaisAcoes"}}</summary>
-                  <div class="op2-linha-acao__grade">
-                    {{#each @root.gerais}}
-                      <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="geral"
-                        data-geral="{{chave}}" data-ator="{{../uuid}}">{{rotulo}}</button>
-                    {{/each}}
-                    {{#each @root.manobras}}
-                      <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="manobra"
-                        data-manobra="{{chave}}" data-ator="{{../uuid}}">{{rotulo}}</button>
-                    {{/each}}
-                  </div>
-                </details>
               {{/if}}
 
               {{#if perseguicao}}

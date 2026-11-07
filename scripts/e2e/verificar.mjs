@@ -4576,6 +4576,11 @@ const relato = await page.evaluate(async (boasVindas) => {
     ok("o painel mostra as quatro fases e uma linha por participante",
       el.querySelectorAll(".op2-fase").length === 4 && el.querySelectorAll(".op2-linha-acao").length === 3);
     ok("o martelo aparece como ataque no painel", [...el.querySelectorAll('[data-qual="ataque"]')].some((b) => b.textContent.includes("Martelo")));
+    ok("no suporte, o painel põe as ações gerais em 'nesta fase' e o ataque corpo a corpo em 'outras ações'",
+      el.querySelector(`.op2-linha-acao[data-ator="${pc.uuid}"] .op2-linha-acao__botoes > [data-qual="atrapalhar"]`)
+      && el.querySelector(`.op2-linha-acao[data-ator="${pc.uuid}"] .op2-linha-acao__mais [data-qual="ataque"]`));
+    ok("o guia da fase explica o suporte e a rodada inteira", /Ações gerais/.test(el.querySelector(".op2-guia-fase")?.textContent ?? "")
+      && el.querySelectorAll(".op2-guia-fase dt").length === 4);
     await game.op2.avancarCena(cena);
     await game.op2.avancarCena(cena);
     ok("a fase anda até o corpo a corpo", cena.system.fase === "corpo");
@@ -4870,7 +4875,21 @@ const relato = await page.evaluate(async (boasVindas) => {
       ok("o roteiro sai do PDF, dividido em cenas", roteiro.pages.size >= 6 && [...roteiro.pages].some((p) => p.name.startsWith("Cena 1") && p.text.content.length > 200));
 
       // Joga um pedaço de cada cena de ação importada.
+      // Cada missão traz a sua cópia dos pré-gerados, na pasta dela, em azul-petróleo; as
+      // cenas de ação nascem vazias e o mestre põe quem joga.
+      const pregeradosDa = (missao) => game.folders.find((f) => f.type === "Actor" && f.name === "Pré-gerados"
+        && f.folder?.name.startsWith(missao))?.contents ?? [];
+      const daM1 = pregeradosDa("Missão 1");
+      const daM2 = pregeradosDa("Missão 2");
+      ok("cada missão traz os seus pré-gerados: 6 na Missão 1, 8 na Missão 2, sem se roubarem",
+        daM1.length === 6 && daM2.length === 8 && daM1.every((a) => !daM2.includes(a)));
+      ok("as pastas do Vigília têm a cor dele, não o vermelho dos Atos",
+        game.folders.filter((f) => /^Missão [12]/.test(f.name)).every((f) => f.color?.toString().toLowerCase() === "#2f5866"));
       const combate = game.actors.getName("Cena 1: Os Afogados");
+      ok("a cena de ação nasce sem personagens: cada mesa monta a sua", combate.system.participantes.length === 0
+        && combate.system.criaturas.length === 1);
+      ok("pôr na cena não repete quem já está", await game.op2.porNaCena(combate, daM1.map((a) => a.uuid)) === 6
+        && await game.op2.porNaCena(combate, daM1.map((a) => a.uuid)) === 0);
       await game.op2.iniciarCena(combate);
       await esperar(400);
       ok("a cena tem os seis personagens", combate.system.participantes.map((u) => fromUuidSync(u)).filter(Boolean).length === 6);
@@ -4883,20 +4902,31 @@ const relato = await page.evaluate(async (boasVindas) => {
       await esperar(800);
       const tokens = combate.system.participantes.map((u) => fromUuidSync(u)).filter((a) => a?.type === "npc");
       ok("a onda vira tokens sem vínculo, cada um com os seus PV", tokens.length === 2 && tokens[0].uuid !== tokens[1].uuid);
-      const rhiona = game.actors.find((a) => a.name.startsWith("Rhiona"));
+      const rhiona = daM1.find((a) => a.name.startsWith("Rhiona"));
       const painel = game.op2.painelAcao(combate);
       await esperar(1200);
       ok("o painel mostra personagens e criaturas", painel.element.querySelectorAll(".op2-linha-acao").length === 8);
+      ok("o elenco do painel mostra os retratos de quem está em cena", painel.element.querySelectorAll(".op2-elenco__item").length === 8);
+      await esperar(300);
+      ok("o palco aparece no rodapé com todo mundo em cena",
+        document.querySelectorAll("#op2-palco .op2-palco__figura").length === 8
+        && document.querySelectorAll("#op2-palco .op2-palco__lado--criaturas .op2-palco__figura").length === 2);
       const martelo = fx.ataquesDe(rhiona).find((a) => a.nome === "Martelo de forja");
       const golpe = await fx.atacar(rhiona, martelo, { cena: combate, rapido: true, escolha: { alvo: tokens[0].uuid } });
       await esperar(400);
+      const figuraRhiona = document.querySelector(`#op2-palco .op2-palco__figura[data-ator="${rhiona.uuid}"]`);
+      ok("no palco, quem age dá um passo à frente com a legenda do card",
+        figuraRhiona?.classList.contains("op2-palco__figura--age") && /Ataque/i.test(figuraRhiona.querySelector(".op2-palco__legenda")?.textContent ?? ""));
       const pv = tokens[0].system.recursos.pv.value;
       await fx.aplicarDanoDeCombate(tokens[0], { quantidade: golpe.dano });
       await esperar(400);
       ok("dano cai só no token atingido", tokens[0].system.recursos.pv.value === Math.max(0, pv - golpe.dano) && tokens[1].system.recursos.pv.value === 10);
       await game.op2.encerrarCenaAcao(combate);
+      await esperar(300);
+      ok("encerrada a cena, o palco sai de cena", !document.getElementById("op2-palco"));
 
       const enxurrada = game.actors.getName("Fase 1: A Enxurrada");
+      await game.op2.porNaCena(enxurrada, daM1.map((a) => a.uuid));
       await game.op2.iniciarCena(enxurrada);
       await esperar(400);
       const avanco = await fx.avancar(rhiona, enxurrada, { rapido: true, escolha: { pericia: "atletismo", folego: 0, esforco: false, carregar: "" } });
@@ -4904,9 +4934,10 @@ const relato = await page.evaluate(async (boasVindas) => {
       await game.op2.encerrarCenaAcao(enxurrada);
 
       const mata = game.actors.getName("Cena 1: Nas Profundezas da Mata");
+      await game.op2.porNaCena(mata, daM2.map((a) => a.uuid));
       await game.op2.iniciarCena(mata);
       await esperar(400);
-      const sorcha = game.actors.find((a) => a.name.startsWith("Sorcha"));
+      const sorcha = daM2.find((a) => a.name.startsWith("Sorcha"));
       const dados = await fx.testeDeEsconderijo(sorcha, { rapido: true });
       ok("a Mata esconde com os dados do teste", dados.length >= 2);
       await fx.acaoDeArea(sorcha, mata, mata.system.furtividade.areas[0].acoes[1], { rapido: true });

@@ -26,9 +26,24 @@ o modo; os Atos I e II continuam como estavam.
 - **O modo Vigília tem a cara do beta.** Carvão com textura de giz, prata e osso no lugar do vermelho, rótulo em
   faixa de nó celta, moldura dupla, dado de osso, títulos em IM Fell English SC e texto em Barlow; no tema claro,
   o papel azul-acinzentado das páginas de regra. Segue o modo do mundo; o moderno não muda.
+- **Montar a cena de ação.** A ficha da cena virou a tela de montagem: quem está (personagens e criaturas, com
+  retrato), pôr pela lista, pelos tokens selecionados, pelos personagens dos jogadores ou arrastando, e os modelos
+  das ondas à parte. O painel escolhe a cena no topo, mostra a cena parada com o botão de iniciar e o atalho dos
+  jogadores, e a onda de criaturas ganhou rótulo. As cenas das missões nascem sem personagens.
+- **Nova cena e arrastar para o painel.** "Nova cena" pergunta nome, tipo e quem entra (jogadores, tokens
+  selecionados) e cria a cena parada; antes, "Novo combate" puxava o mapa inteiro e já começava. Soltar um ator
+  da barra lateral no painel o põe na cena.
+- **Guia da fase** no painel: o que dá para fazer em cada fase do combate (e na perseguição e na furtividade), com
+  as ações da fase atual primeiro e as outras em "outras ações".
+- **Palco**: a cena de ação como teatro no rodapé da tela, para todo mundo. Retratos de quem está em cena, PV,
+  condições, quem já agiu, quem caiu; quem age dá um passo à frente com a legenda do card; clicar no próprio
+  personagem abre as ações da fase.
+- **Pastas do Vigília em azul-petróleo**, para não se confundirem com as vermelhas dos Atos no mesmo mundo.
+- **Retratos cortados pelo topo** na ficha e no painel: antes o corte era no meio e sobrava o tronco.
 - **PDF gratuito do beta** conferido: monta a Missão 1 igual à do completo e diz que a 2 é só de assinantes.
 
-**Corrigido:** os botões do card de teste (Dano RA, Dano RB, Preencher Ímpeto, Rolar Falha Crítica) saíam sem o id do
+**Corrigido:** importar a segunda missão levava os pré-gerados da primeira (os mesmos ids): cada missão traz agora
+a sua cópia. Os botões do card de teste (Dano RA, Dano RB, Preencher Ímpeto, Rolar Falha Crítica) saíam sem o id do
 ator e o clique avisava "ator ausente".
 
 **Mudança no modo moderno:** o combate novo vale também lá e vem **ligado por padrão**, inclusive em mundo que já

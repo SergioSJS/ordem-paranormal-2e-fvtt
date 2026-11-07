@@ -1,20 +1,34 @@
-/** Ficha da cena de ação: quem está nela e o botão que abre o painel. */
+/**
+ * Ficha da cena de ação: onde o mestre monta a cena. Quem está nela (personagens e
+ * criaturas), os modelos das ondas de criaturas, os parâmetros e o botão do painel.
+ *
+ * Tudo entra por mais de um caminho, nenhum obrigatório: escolher na lista, os tokens
+ * selecionados no mapa, os personagens de quem joga ou arrastar da barra de atores.
+ */
 import { SYSTEM_ID } from "../config.mjs";
 import { abrirPainelAcao } from "../vigilia/painel-acao.mjs";
-import { atorDe } from "../vigilia/cena-acao.mjs";
+import { atorDe, porNaCena, tirarDaCena, personagensDosJogadores } from "../vigilia/cena-acao.mjs";
 import { TIPOS_DE_CENA } from "../data/actor-cena-acao.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 
+const ordenar = (lista) => lista.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+
 export class CenaAcaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["op2", "op2-ficha-cena-acao"],
-    position: { width: 520, height: "auto" },
+    position: { width: 560, height: "auto" },
     form: { submitOnChange: true },
     actions: {
       abrirPainel: CenaAcaoSheet.#abrirPainel,
+      abrirAtor: CenaAcaoSheet.#abrirAtor,
       tirar: CenaAcaoSheet.#tirar,
+      porEscolhido: CenaAcaoSheet.#porEscolhido,
+      porSelecionados: CenaAcaoSheet.#porSelecionados,
+      porJogadores: CenaAcaoSheet.#porJogadores,
+      porModelo: CenaAcaoSheet.#porModelo,
+      tirarModelo: CenaAcaoSheet.#tirarModelo,
     },
   };
 
@@ -22,16 +36,43 @@ export class CenaAcaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   async _prepareContext(opcoes) {
     const contexto = await super._prepareContext(opcoes);
+    const sistema = this.actor.system;
+    const linha = (uuid) => {
+      const ator = atorDe(uuid);
+      return {
+        uuid, nome: ator?.name ?? uuid, img: ator?.img ?? "icons/svg/mystery-man.svg",
+        ehPc: ator?.type === "personagem",
+        // Token sem vínculo (uma criatura da onda) diz de onde veio.
+        token: Boolean(ator?.isToken),
+        tipo: game.i18n.localize(ator?.type === "personagem" ? "OP2.CenaAcao.Personagem" : "OP2.CenaAcao.Criatura"),
+        ausente: !ator,
+      };
+    };
+    const participantes = sistema.participantes.map(linha);
+    const naCena = new Set(sistema.participantes);
+    const candidatos = (tipo) => ordenar(game.actors
+      .filter((a) => a.type === tipo && !naCena.has(a.uuid))
+      .map((a) => ({ uuid: a.uuid, nome: a.name })));
+    const modelos = new Set(sistema.criaturas);
     return {
       ...contexto,
       actor: this.actor,
-      sistema: this.actor.system,
+      sistema,
       editavel: this.isEditable,
-      tipos: TIPOS_DE_CENA.map((t) => ({ chave: t, rotulo: game.i18n.localize(`OP2.CenaAcao.Tipo.${t}`), atual: t === this.actor.system.tipo })),
-      participantes: this.actor.system.participantes.map((uuid) => ({ uuid, nome: atorDe(uuid)?.name ?? uuid })),
+      tipos: TIPOS_DE_CENA.map((t) => ({ chave: t, rotulo: game.i18n.localize(`OP2.CenaAcao.Tipo.${t}`), atual: t === sistema.tipo })),
+      temParticipantes: participantes.length > 0,
+      grupos: [
+        { titulo: game.i18n.localize("OP2.CenaAcao.Personagens"), linhas: participantes.filter((p) => p.ehPc) },
+        { titulo: game.i18n.localize("OP2.CenaAcao.Criaturas"), linhas: participantes.filter((p) => !p.ehPc) },
+      ],
+      candidatosPc: candidatos("personagem"),
+      candidatosNpc: candidatos("npc"),
+      temSelecionados: Boolean(canvas?.ready),
+      modelos: sistema.criaturas.map(linha),
+      candidatosModelo: ordenar(game.actors.filter((a) => a.type === "npc" && !modelos.has(a.uuid)).map((a) => ({ uuid: a.uuid, nome: a.name }))),
       // Todo parâmetro de missão é editável: a mesa pode jogar com outros números.
-      parametros: JSON.stringify(this.actor.system.tipo === "furtividade" ? this.actor.system.furtividade : this.actor.system.perseguicao, null, 2),
-      temParametros: this.actor.system.tipo !== "combate",
+      parametros: JSON.stringify(sistema.tipo === "furtividade" ? sistema.furtividade : sistema.perseguicao, null, 2),
+      temParametros: sistema.tipo !== "combate",
     };
   }
 
@@ -55,9 +96,7 @@ export class CenaAcaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   /** Arrastar um ator para a ficha o põe na cena. */
   async _onDropActor(_evento, ator) {
-    const lista = this.actor.system.participantes;
-    if (lista.includes(ator.uuid) || !["personagem", "npc"].includes(ator.type)) return false;
-    await this.actor.update({ "system.participantes": [...lista, ator.uuid] });
+    await porNaCena(this.actor, [ator.uuid]);
     return false;
   }
 
@@ -65,7 +104,38 @@ export class CenaAcaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     abrirPainelAcao(this.actor);
   }
 
+  static #abrirAtor(_evento, alvo) {
+    atorDe(alvo.dataset.uuid)?.sheet.render(true);
+  }
+
   static #tirar(_evento, alvo) {
-    return this.actor.update({ "system.participantes": this.actor.system.participantes.filter((u) => u !== alvo.dataset.uuid) });
+    return tirarDaCena(this.actor, alvo.dataset.uuid);
+  }
+
+  /** O ator escolhido na lista ao lado do botão. */
+  static async #porEscolhido(_evento, alvo) {
+    const select = alvo.closest("[data-escolha]")?.querySelector("select");
+    if (select?.value) await porNaCena(this.actor, [select.value]);
+  }
+
+  static async #porSelecionados() {
+    const uuids = (canvas?.tokens?.controlled ?? []).map((t) => t.actor?.uuid).filter(Boolean);
+    const entraram = await porNaCena(this.actor, uuids);
+    if (!entraram) ui.notifications.info(game.i18n.localize("OP2.CenaAcao.NenhumSelecionado"));
+  }
+
+  static async #porJogadores() {
+    const entraram = await porNaCena(this.actor, personagensDosJogadores().map((a) => a.uuid));
+    if (!entraram) ui.notifications.info(game.i18n.localize("OP2.CenaAcao.NenhumJogador"));
+  }
+
+  static async #porModelo(_evento, alvo) {
+    const uuid = alvo.closest("[data-escolha]")?.querySelector("select")?.value;
+    if (!uuid || this.actor.system.criaturas.includes(uuid)) return;
+    await this.actor.update({ "system.criaturas": [...this.actor.system.criaturas, uuid] });
+  }
+
+  static #tirarModelo(_evento, alvo) {
+    return this.actor.update({ "system.criaturas": this.actor.system.criaturas.filter((u) => u !== alvo.dataset.uuid) });
   }
 }

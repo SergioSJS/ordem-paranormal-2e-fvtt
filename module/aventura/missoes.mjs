@@ -261,6 +261,10 @@ function itemDoPonto(missao, ponto, { handout, desafios = [], erros = {} }) {
 }
 
 /** O que as duas missões têm em comum. */
+// As pastas do Vigília em azul-petróleo: num mundo que também tem os Atos (vermelhos),
+// dá para ver de longe o que é de qual playtest.
+const COR_DAS_PASTAS = "#2f5866";
+
 function montar({ missao, titulo, raiz, extraido, fontes, pregeradosNomes, escolherHandout, desafiosPorPonto, erros, extrasDePonto = [], npcs, itens, eventos, cenas, cenaPrincipal, descricao, investigacaoNome, eventoDaInvestigacao }) {
   const pastas = {
     atores: pasta("Actor", raiz), itens: pasta("Item", raiz), diarios: pasta("JournalEntry", raiz),
@@ -273,9 +277,14 @@ function montar({ missao, titulo, raiz, extraido, fontes, pregeradosNomes, escol
   pastas.desafios = pasta("Item", "Desafios de Acesso", pastas.itens._id, 200);
   pastas.eventos = pasta("Item", "Roteiros", pastas.itens._id, 300);
   pastas.itensDeMesa = pasta("Item", "Itens de Mesa", pastas.itens._id, 400);
+  for (const p of Object.values(pastas)) p.color = COR_DAS_PASTAS;
 
   const pregerados = (fontes.pregerados ?? [])
     .filter((a) => pregeradosNomes.some((n) => a.name.toLowerCase().includes(n)))
+    // Cada missão com a SUA cópia: com o id do compêndio, importar a segunda missão
+    // atualizava os atores da primeira (keepId) e os levava para a pasta dela — a
+    // Missão 1 "chegava sem pré-gerados" num mundo que já tinha a 2 (achado em uso real).
+    .map((a) => ({ ...a, _id: ident(`vigilia-${missao}-pregerado-${a._id}`) }))
     .map(em(pastas.pregerados));
   const participantes = pregerados.map((a) => `Actor.${a._id}`);
 
@@ -303,7 +312,9 @@ function montar({ missao, titulo, raiz, extraido, fontes, pregeradosNomes, escol
     },
     effects: [], folder: pastas.atores._id, sort: 0, ownership: { default: 0 }, flags: {},
   };
-  const cenasDeAcao = cenas({ participantes, criaturas, pastas });
+  // As cenas de ação nascem sem personagens: cada mesa joga com os seus, e o mestre
+  // monta a cena na ficha dela (ou pelo painel). As criaturas vêm como modelo das ondas.
+  const cenasDeAcao = cenas({ participantes: [], criaturas, pastas });
 
   const handouts = EXTRAS[missao].arquivos.filter((a) => a.destino.startsWith("handouts/"));
   const fichasPdf = EXTRAS[missao].arquivos.find((a) => a.destino.startsWith("fichas/"));

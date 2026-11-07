@@ -245,6 +245,20 @@ await fotografar("painel-acao", "#op2-painel-acao", {
   },
 });
 await page.evaluate(() => [...foundry.applications.instances.values()].forEach((a) => a.close?.()));
+// O palco: alguém age e dá um passo à frente com a legenda. Print com folga em cima, onde a legenda sobe.
+await page.evaluate(async ({ rhionaId, cenaId }) => {
+  const rhiona = game.actors.get(rhionaId);
+  const cena = game.actors.get(cenaId);
+  const alvo = cena.system.participantes.map((u) => fromUuidSync(u)).find((a) => a?.type === "npc");
+  await game.op2.vigilia.atacar(rhiona, game.op2.vigilia.ataquesDe(rhiona)[0], { cena, rapido: true, escolha: { alvo: alvo.uuid } });
+}, dados);
+await page.waitForTimeout(1500);
+const palco = await (await page.$("#op2-palco"))?.boundingBox();
+if (palco) {
+  const clip = { x: palco.x - 16, y: Math.max(0, palco.y - 90), width: palco.width + 32, height: palco.height + 100 };
+  await page.screenshot({ path: `${SAIDA}/palco.png`, clip });
+  console.log(`${SAIDA}/palco.png`);
+} else console.log("(sem elemento) palco");
 await trocarModo("moderno");
 
 await browser.close();

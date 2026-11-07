@@ -93,6 +93,8 @@
       min-height: 5rem;
       cursor: pointer;
       object-fit: cover;
+      // Retrato é gente em pé: cortar pelo meio deixava o tronco e tirava o rosto.
+      object-position: center top;
     }
 
     &--pequeno { height: 96px; }

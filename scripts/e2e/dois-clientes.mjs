@@ -221,12 +221,15 @@ for (const pagina of [gm, jog]) {
 const temMissao = await gm.evaluate(async () => {
   if (!game.actors.getName("Cena 1: Os Afogados")) return false; // o e2e deixa importada
   const user = game.users.find((u) => u.name === "Jogador E2E");
-  const rhiona = game.actors.find((a) => a.name.startsWith("Rhiona"));
+  // A cópia da Missão 1: cada missão traz a sua, e a cena de ação nasce vazia.
+  const daM1 = game.folders.find((f) => f.type === "Actor" && f.name === "Pré-gerados" && f.folder?.name.startsWith("Missão 1"))?.contents ?? [];
+  const rhiona = daM1.find((a) => a.name.startsWith("Rhiona"));
   await rhiona.update({ ownership: { ...rhiona.ownership, [user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER } });
   await user.update({ character: rhiona.id });
   const cena = game.actors.getName("Cena 1: Os Afogados");
   await game.scenes.getName("A Ilhota").view();
   await new Promise((r) => setTimeout(r, 2000));
+  await game.op2.porNaCena(cena, daM1.map((a) => a.uuid));
   await game.op2.iniciarCena(cena);
   await game.op2.adicionarCriaturas(cena, cena.system.criaturas[0], 1);
   await new Promise((r) => setTimeout(r, 1000));

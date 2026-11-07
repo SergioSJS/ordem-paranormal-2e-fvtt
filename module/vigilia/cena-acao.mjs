@@ -27,6 +27,32 @@ export function atorDe(uuid) {
 export const participantesDe = (cena) => cena.system.participantes.map(atorDe).filter(Boolean);
 export const personagensDe = (cena) => participantesDe(cena).filter((a) => a.type === "personagem");
 
+/** Quem pode entrar numa cena de ação: personagem ou NPC, inclusive token sem vínculo. */
+const PODE_ENTRAR = ["personagem", "npc"];
+
+/** Põe atores na cena, sem repetir; devolve quantos entraram. */
+export async function porNaCena(cena, uuids) {
+  const atuais = cena.system.participantes;
+  const novos = [...new Set(uuids)].filter((u) => u && !atuais.includes(u) && PODE_ENTRAR.includes(atorDe(u)?.type));
+  if (novos.length) await cena.update({ "system.participantes": [...atuais, ...novos] });
+  return novos.length;
+}
+
+/** Tira um ator da cena (e da lista de quem já agiu). */
+export function tirarDaCena(cena, uuid) {
+  return cena.update({
+    "system.participantes": cena.system.participantes.filter((u) => u !== uuid),
+    "system.agiram": cena.system.agiram.filter((a) => a.ator !== uuid),
+  });
+}
+
+/** Os personagens de quem joga: o escolhido de cada jogador e todo personagem com dono jogador. */
+export function personagensDosJogadores() {
+  const escolhidos = game.users.filter((u) => !u.isGM && u.character).map((u) => u.character);
+  const comDono = game.actors.filter((a) => a.type === "personagem" && a.hasPlayerOwner);
+  return [...new Set([...escolhidos, ...comDono])];
+}
+
 const FASE_INICIAL = { combate: "suporte", perseguicao: "", furtividade: "personagens" };
 
 /** Liga a cena na rodada 1. As outras cenas de ação desligam. */

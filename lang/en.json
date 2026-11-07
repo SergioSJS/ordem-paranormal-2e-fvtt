@@ -1137,7 +1137,8 @@
       "corpo": "Melee",
       "final": "Final",
       "personagens": "Characters",
-      "criaturas": "Creatures"
+      "criaturas": "Creatures",
+      "livre": "Free action (any phase)"
     },
     "CenaAcao": {
       "Painel": "Action scene",
@@ -1163,7 +1164,7 @@
         "perseguicao": "Chase",
         "furtividade": "Stealth"
       },
-      "ParticipantesAjuda": "Drag actors here to add them to the scene.",
+      "ParticipantesAjuda": "You can also drag actors from the sidebar onto this sheet.",
       "Tirar": "Remove from scene",
       "AbrirPainel": "Open the panel",
       "Parametros": "Scene parameters",
@@ -1171,10 +1172,42 @@
       "ParametrosInvalidos": "Invalid JSON: parameters unchanged.",
       "RecuperaUmPv": "{ator} survived: recovers 1 HP",
       "EncerrarPergunta": "End the scene? Conditions, markers, stored dice, chase and stealth of everyone in it go back to zero.",
-      "NovoCombate": "New combat",
-      "SemTokens": "No tokens on the map: drag actors onto the scene sheet.",
       "RodadaMenos": "Back one round",
-      "RodadaMais": "Forward one round"
+      "RodadaMais": "Forward one round",
+      "CenaRotulo": "Scene",
+      "NoAr": "running",
+      "Montar": "Set up the scene",
+      "Resumo": "{pcs} character(s) and {criaturas} creature(s) in the scene.",
+      "SemPersonagens": "No characters in the scene yet. Add the players' characters, or set up the scene: choose who joins, creatures included.",
+      "AindaNao": "The scene hasn't started yet.",
+      "DosJogadores": "Players' characters",
+      "PorNoMapa": "Wave:",
+      "Ondas": "Creature waves",
+      "OndasAjuda": "Templates the panel places on the map in waves, each token with its own HP. They are not in the scene until they reach the map.",
+      "TirarModelo": "Remove from templates",
+      "EscolherModelo": "Choose a creature",
+      "AdicionarModelo": "Use as template",
+      "QuemEsta": "Who is in the scene",
+      "Vazia": "Nobody in the scene yet.",
+      "Personagens": "Characters",
+      "Criaturas": "Creatures",
+      "Personagem": "Character",
+      "Criatura": "Creature",
+      "Token": "token",
+      "Escolher": "Choose an actor…",
+      "Selecionados": "Selected tokens",
+      "NenhumSelecionado": "Select tokens on the map first (or they are already in the scene).",
+      "NenhumJogador": "No player character to add: all are already in the scene, or nobody has a character.",
+      "PorNoMapaBotao": "Place on the map",
+      "NovaCena": "New scene",
+      "NovaCenaAjuda": "Create another action scene: combat, chase or stealth.",
+      "NovaCenaNome": "Name",
+      "NovaCenaPadrao": "New action scene",
+      "Criar": "Create",
+      "ComJogadores": "With the players' characters",
+      "ComSelecionados": "With the tokens selected on the map ({n})",
+      "Arraste": "Drag actors from the sidebar here",
+      "JaNaCena": "That actor is already in the scene."
     },
     "Combate2": {
       "Desarmado": "Unarmed",
@@ -1470,6 +1503,26 @@
       "PorDado": "Save a die",
       "Anotar": "Note it",
       "PorRelacao": "New relationship"
+    },
+    "Guia": {
+      "ComoFunciona": "How a round works",
+      "NestaFase": "This phase:",
+      "NadaNestaFase": "Nothing in this phase for this character.",
+      "OutrasAcoes": "Other actions (other phases or free)",
+      "rodada": "No initiative. Everyone has one standard action per round and picks the phase to use it in; acting in a phase means not acting in the later ones. Within a phase everything is simultaneous, and a phase happens before the next: dropping someone at range stops their melee.",
+      "suporte": "General actions: hinder, feint, aim, ready, defend, stand up, draw or stow. Also use an ability or item and ready a dodge.",
+      "distancia": "Ranged attack: Aim against DC 7, +3 at long range. Shooting into melee costs –2 steps, or risk 1d6 (odd hits whoever the target was fighting).",
+      "corpo": "Melee attack: Fight against DC 7. Two who attack each other make an opposed test, and on a tie both hit. Maneuvers (grapple, trip, disarm, shove, break) replace the attack.",
+      "final": "Move, flee, investigate mid-fight or do something outside the combat. Then the end of the round: script effects, expiring conditions, the dying.",
+      "perseguicao": "Each round, every character advances: Athletics DC 10, adding the HR on a success and the LR on a failure. Breath dice are bonus dice; extra effort gives +1 step and costs HP. On cut rounds, whoever is below the minimum suffers what the scene says.",
+      "personagens": "Each character advances through the area or uses a special action: hide, distract, draw attention. A noisy action discards a hiding die.",
+      "criaturas": "A player rolls 1d10 on the creatures table. On a search, anyone with a hiding die matching one of the GM's dice loses that die. With no dice, the character has been found."
+    },
+    "Palco": {
+      "Titulo": "Scene stage",
+      "Agir": "Act: this phase's actions",
+      "Caido": "down",
+      "Recolher": "Collapse or open the stage"
     }
   }
 }

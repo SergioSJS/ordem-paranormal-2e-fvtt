@@ -31,11 +31,12 @@ import { CenaAcaoData } from "./data/actor-cena-acao.mjs";
 import { CenaAcaoSheet } from "./sheets/actor-cena-acao-sheet.mjs";
 import { registrarAcaoDeMestre } from "./ui/socket.mjs";
 import {
-  registrarCenaAcao, cenaAcaoAtiva, iniciarCena, avancarCena, encerrarCenaAcao, adicionarCriaturas,
+  registrarCenaAcao, cenaAcaoAtiva, iniciarCena, avancarCena, encerrarCenaAcao, adicionarCriaturas, porNaCena, tirarDaCena,
 } from "./vigilia/cena-acao.mjs";
 import { registrarPerseguicao, avancar, recuperarFolego, sacrificio } from "./vigilia/acoes-perseguicao.mjs";
 import { registrarAcoesDeChatDaVigilia } from "./vigilia/acoes-chat.mjs";
 import { registrarPainelAcao, abrirPainelAcao } from "./vigilia/painel-acao.mjs";
+import { registrarPalco } from "./vigilia/palco.mjs";
 import {
   atacar as atacarVigilia, revidar, defender as defenderVigilia, aplicarDanoDeCombate, acaoOposta, acaoGeral, manobra, ataquesDe,
 } from "./vigilia/acoes-combate.mjs";
@@ -129,6 +130,7 @@ Hooks.once("init", () => {
   registrarPerseguicao(registrarAcaoDeMestre);
   registrarAcoesDeChatDaVigilia();
   registrarPainelAcao();
+  registrarPalco();
   registrarMarcadores();
   registrarAventuras();
   registrarExtrasDeAventura();
@@ -158,7 +160,7 @@ Hooks.once("init", () => {
     alternarJaAgiu, alternarOculto, moverParticipante,
     marcarNoMapa, desmarcarDoMapa, abrirMarcador,
     aventuras: abrirAventurasApp, boasVindas: abrirBoasVindas, trocarModo,
-    painelAcao: abrirPainelAcao, cenaAcaoAtiva, iniciarCena, avancarCena, encerrarCenaAcao, adicionarCriaturas,
+    painelAcao: abrirPainelAcao, cenaAcaoAtiva, iniciarCena, avancarCena, encerrarCenaAcao, adicionarCriaturas, porNaCena, tirarDaCena,
     vigilia: {
       atacar: atacarVigilia, revidar, defender: defenderVigilia, aplicarDanoDeCombate, acaoOposta, acaoGeral, manobra,
       ataquesDe, avancar, recuperarFolego, sacrificio, testeDeEsconderijo, esconderSe, distrair, chamarAtencaoPara,

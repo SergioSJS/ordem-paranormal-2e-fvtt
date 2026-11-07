@@ -1,0 +1,61 @@
+{{#*inline "figura"}}
+  <figure class="op2-palco__figura{{#if agiu}} op2-palco__figura--agiu{{/if}}{{#if derrotado}} op2-palco__figura--derrotado{{/if}}{{#if dono}} op2-palco__figura--minha{{/if}}{{#unless ehPc}} op2-palco__figura--criatura{{/unless}}"
+    data-ator="{{uuid}}">
+    <div class="op2-palco__retrato" {{#if dono}}data-palco="figura" role="button" tabindex="0" data-tooltip="{{localize 'OP2.Palco.Agir'}}"{{/if}}>
+      <img src="{{img}}" alt="">
+      {{#if agiu}}<i class="fa-solid fa-check op2-palco__visto" aria-label="{{localize 'OP2.CenaAcao.JaAgiu'}}"></i>{{/if}}
+    </div>
+    <figcaption>
+      <span class="op2-palco__nome">{{nome}}</span>
+      {{#if veNumeros}}
+        <span class="op2-palco__pv" data-tooltip="PV {{pv.value}}/{{pv.max}}"><span style="width: {{pvPct}}%"></span></span>
+      {{else if derrotado}}
+        <span class="op2-palco__caido">{{localize "OP2.Palco.Caido"}}</span>
+      {{/if}}
+      {{#if condicoesAtivas.length}}
+        <span class="op2-palco__condicoes">{{#each condicoesAtivas}}<span>{{this}}</span>{{/each}}</span>
+      {{/if}}
+    </figcaption>
+    {{#if temMenu}}
+      <div class="op2-palco__menu" role="menu">
+        <strong>{{localize "OP2.Guia.NestaFase"}}</strong>
+        {{#each nestaFase}}
+          <button type="button" class="op2-botao op2-botao--pequeno{{#if destaque}} op2-botao--destaque{{/if}}" data-palco="agir" data-qual="{{qual}}"
+            {{#if ataque}}data-ataque="{{ataque}}"{{/if}}{{#if geral}}data-geral="{{geral}}"{{/if}}{{#if manobra}}data-manobra="{{manobra}}"{{/if}}>{{rotulo}}</button>
+        {{else}}
+          <em>{{localize "OP2.Guia.NadaNestaFase"}}</em>
+        {{/each}}
+        {{#if outrasAcoes.length}}
+          <details>
+            <summary>{{localize "OP2.Guia.OutrasAcoes"}}</summary>
+            {{#each outrasAcoes}}
+              <button type="button" class="op2-botao op2-botao--pequeno" data-palco="agir" data-qual="{{qual}}"
+                {{#if ataque}}data-ataque="{{ataque}}"{{/if}}{{#if geral}}data-geral="{{geral}}"{{/if}}{{#if manobra}}data-manobra="{{manobra}}"{{/if}}>{{rotulo}}</button>
+            {{/each}}
+          </details>
+        {{/if}}
+      </div>
+    {{/if}}
+  </figure>
+{{/inline}}
+
+<div class="op2-palco__elenco">
+  <div class="op2-palco__lado op2-palco__lado--pcs">{{#each pcs}}{{> figura}}{{/each}}</div>
+  {{#if criaturas.length}}{{#if pcs.length}}<span class="op2-palco__contra" aria-hidden="true">×</span>{{/if}}{{/if}}
+  <div class="op2-palco__lado op2-palco__lado--criaturas">{{#each criaturas}}{{> figura}}{{/each}}</div>
+</div>
+<header class="op2-palco__barra">
+  <span class="op2-tag op2-tag--pequena">{{rotuloTipo}}</span>
+  {{#if faseRotulo}}<strong class="op2-palco__fase">{{faseRotulo}}</strong>{{/if}}
+  <span class="op2-palco__rodada">{{localize "OP2.CenaAcao.RodadaCurta" n=rodada}}</span>
+  {{#if guia}}
+    <span class="op2-palco__guia" data-tooltip="{{guia.texto}}" data-tooltip-direction="UP" tabindex="0"
+      aria-label="{{guia.texto}}"><i class="fa-solid fa-circle-question" aria-hidden="true"></i></span>
+  {{/if}}
+  <button type="button" class="op2-palco__botao" data-palco="painel" data-tooltip="{{localize 'OP2.CenaAcao.Painel'}}" aria-label="{{localize 'OP2.CenaAcao.Painel'}}">
+    <i class="fa-solid fa-swords" aria-hidden="true"></i>
+  </button>
+  <button type="button" class="op2-palco__botao" data-palco="recolher" data-tooltip="{{localize 'OP2.Palco.Recolher'}}" aria-label="{{localize 'OP2.Palco.Recolher'}}">
+    <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+  </button>
+</header>

@@ -1137,7 +1137,8 @@
       "corpo": "Corpo a corpo",
       "final": "Final",
       "personagens": "Personagens",
-      "criaturas": "Criaturas"
+      "criaturas": "Criaturas",
+      "livre": "Ação livre (qualquer fase)"
     },
     "CenaAcao": {
       "Painel": "Cena de ação",
@@ -1163,7 +1164,7 @@
         "perseguicao": "Perseguição",
         "furtividade": "Furtividade"
       },
-      "ParticipantesAjuda": "Arraste atores para cá para pô-los na cena.",
+      "ParticipantesAjuda": "Também dá para arrastar atores da barra lateral para esta ficha.",
       "Tirar": "Tirar da cena",
       "AbrirPainel": "Abrir o painel",
       "Parametros": "Parâmetros da cena",
@@ -1171,10 +1172,42 @@
       "ParametrosInvalidos": "JSON inválido: os parâmetros não mudaram.",
       "RecuperaUmPv": "{ator} sobreviveu: recupera 1 PV",
       "EncerrarPergunta": "Encerrar a cena? Condições, marcadores, dados guardados, perseguição e furtividade de quem participa voltam a zero.",
-      "NovoCombate": "Novo combate",
-      "SemTokens": "Nenhum token no mapa: arraste os atores para a ficha da cena.",
       "RodadaMenos": "Voltar uma rodada",
-      "RodadaMais": "Avançar uma rodada"
+      "RodadaMais": "Avançar uma rodada",
+      "CenaRotulo": "Cena",
+      "NoAr": "no ar",
+      "Montar": "Montar a cena",
+      "Resumo": "{pcs} personagem(ns) e {criaturas} criatura(s) na cena.",
+      "SemPersonagens": "Nenhum personagem na cena ainda. Ponha os de quem joga, ou monte a cena: escolha quem entra, inclusive criaturas.",
+      "AindaNao": "A cena ainda não começou.",
+      "DosJogadores": "Personagens dos jogadores",
+      "PorNoMapa": "Onda:",
+      "Ondas": "Ondas de criaturas",
+      "OndasAjuda": "Modelos que o painel põe no mapa em levas, cada token com os seus PV. Não estão na cena até entrarem no mapa.",
+      "TirarModelo": "Tirar dos modelos",
+      "EscolherModelo": "Escolher uma criatura",
+      "AdicionarModelo": "Usar como modelo",
+      "QuemEsta": "Quem está na cena",
+      "Vazia": "Ninguém na cena ainda.",
+      "Personagens": "Personagens",
+      "Criaturas": "Criaturas",
+      "Personagem": "Personagem",
+      "Criatura": "Criatura",
+      "Token": "token",
+      "Escolher": "Escolher um ator…",
+      "Selecionados": "Tokens selecionados",
+      "NenhumSelecionado": "Selecione tokens no mapa primeiro (ou eles já estão na cena).",
+      "NenhumJogador": "Nenhum personagem de jogador para pôr: todos já estão na cena, ou ninguém tem personagem.",
+      "PorNoMapaBotao": "Pôr no mapa",
+      "NovaCena": "Nova cena",
+      "NovaCenaAjuda": "Criar outra cena de ação: combate, perseguição ou furtividade.",
+      "NovaCenaNome": "Nome",
+      "NovaCenaPadrao": "Nova cena de ação",
+      "Criar": "Criar",
+      "ComJogadores": "Com os personagens dos jogadores",
+      "ComSelecionados": "Com os tokens selecionados no mapa ({n})",
+      "Arraste": "Arraste atores da barra lateral para cá",
+      "JaNaCena": "Esse ator já está na cena."
     },
     "Combate2": {
       "Desarmado": "Desarmado",
@@ -1470,6 +1503,26 @@
       "PorDado": "Guardar dado",
       "Anotar": "Anotar",
       "PorRelacao": "Nova relação"
+    },
+    "Guia": {
+      "ComoFunciona": "Como funciona a rodada",
+      "NestaFase": "Nesta fase:",
+      "NadaNestaFase": "Nada desta fase para este personagem.",
+      "OutrasAcoes": "Outras ações (de outras fases ou livres)",
+      "rodada": "Sem iniciativa. Cada um tem uma ação padrão na rodada e escolhe em que fase usá-la; quem age numa fase não age nas seguintes. Dentro da fase tudo é simultâneo, e uma fase acontece antes das próximas: derrubar alguém à distância impede o corpo a corpo dele.",
+      "suporte": "Ações gerais: atrapalhar, fintar, mirar, preparar, defender-se, erguer-se, sacar ou guardar. Também usar habilidade ou item e preparar esquiva.",
+      "distancia": "Agredir à distância: Pontaria contra DT 7, com +3 em alcance longo. Atirar em quem está no corpo a corpo custa –2 passos, ou arrisque 1d6 (ímpar, acerta quem ele enfrentava).",
+      "corpo": "Agredir corpo a corpo: Luta contra DT 7. Dois que se atacam viram teste oposto, e no empate os dois acertam. Manobras (agarrar, derrubar, desarmar, empurrar, quebrar) entram no lugar do ataque.",
+      "final": "Mover-se, fugir, investigar no meio da luta ou fazer algo fora do combate. Depois vem o fim da rodada: efeitos do roteiro, condições que vencem, quem está morrendo.",
+      "perseguicao": "Toda rodada, cada personagem avança: Atletismo DT 10, somando o RA se passar e o RB se falhar. Fôlego são dados bônus; esforço extra dá +1 passo e custa PV. Nas rodadas de corte, quem está abaixo do mínimo sofre o que a cena manda.",
+      "personagens": "Cada personagem avança pela área ou usa uma ação especial: esconder-se, distrair, chamar atenção. Ação barulhenta descarta um dado de esconderijo.",
+      "criaturas": "Um jogador rola 1d10 na tabela das criaturas. Na procura, quem tem dado de esconderijo com o mesmo valor de um dado do mestre perde esse dado. Sem dados, o personagem foi encontrado."
+    },
+    "Palco": {
+      "Titulo": "Palco da cena",
+      "Agir": "Agir: as ações desta fase",
+      "Caido": "caído",
+      "Recolher": "Recolher ou abrir o palco"
     }
   }
 }
