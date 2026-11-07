@@ -40,13 +40,14 @@ pré-gerados, cena, handouts e trilha vão em `assets/aventura/fontes-ato-*.json
 dentro da aventura. O selo da licença (`assets/licenca/`) é o único arquivo da editora
 no pacote. Pronto para a rodada de teste manual que fecha a v1.
 **Versão:** 0.0.1 (a v1 é decisão de release).
-**Próximo:** Fase 5, o **modo Vigília** (playtest beta: combate por fases, perseguição,
-furtividade, medo, relações; duas missões medievais), em paralelo ao **modo moderno** (alpha,
-Atos I e II), que não perde nada; o combate novo vale nos dois, opcional no moderno. Fontes prontas e setting de modo no lugar (M1); as regras do Vigília ainda não
-(`docs/regras/alpha-para-beta.md`). **v13 e v14 exercitados pelo e2e** (13.351 e 14.363: 660 verificações
-cada; `dois-clientes.mjs` confere a visão do jogador) — o bundle da cena leva os dois
-formatos de fundo, e o que só existe no v14 (níveis,
-`Collection#every`, `Note.author`) é tratado com guarda dos dois lados.
+**Fase 5 (modo Vigília):** M1 a M7 feitos. O playtest beta (combate por fases, perseguição,
+furtividade, medo, relações, duas missões medievais) corre em paralelo ao **modo moderno** (alpha, Atos I e
+II), que não perde nada; o combate novo vale nos dois, opcional e ligado por padrão no moderno. As missões
+saem do PDF e dos zips do mestre, como os atos (`module/extrator/missoes.mjs`, `module/aventura/missoes.mjs`).
+O PDF gratuito do beta não estava disponível: o extrator foi exercitado só no completo.
+**Próximo:** a rodada de mesa de verdade. **v13 e v14 exercitados pelo e2e** (13.351 e 14.363, com o PDF e
+os zips reais: 752 verificações cada; `dois-clientes.mjs`, 26, confere a visão do jogador) — o bundle da cena leva os dois formatos de
+fundo, e o que só existe no v14 (níveis, `Collection#every`, `Note.author`) é tratado com guarda dos dois lados.
 
 ## Convenções
 
@@ -58,6 +59,9 @@ formatos de fundo, e o que só existe no v14 (níveis,
   `rotuloDePericia()`. A ficha guarda as perícias dos dois, e o modo só decide o que aparece.
 - **`adventure.import()` não espera:** com extras, o hook cancela e segue em segundo plano. Quem
   precisa do resultado (a troca de modo recarrega a página) usa `importarAventura()`.
+- **Automação nunca é o único caminho.** Efeito na ficha vem por clique, todo estado se edita, toda
+  rolagem aceita ajuste, e nenhuma janela abre ou cena encerra sozinha (`docs/projeto/ARQUITETURA.md`). Vale
+  para tudo que entrar daqui em diante.
 - **Sem Active Effects** — a escada de dados não é aditiva. Passos vão para `stepMod` e
   são resolvidos em `prepareDerivedData()`. É também o que mantém v13 e v14 compatíveis.
 - **ApplicationV2 / DocumentSheetV2** em tudo. Nada de AppV1.
@@ -208,6 +212,10 @@ O servidor do Foundry v14 exige **Node 24**. O `npm test` do projeto roda em Nod
 - `npc.test.mjs` — a perícia do NPC a partir do diálogo: chave do sistema, Aptidão sem
   ponto na chave, "Outra" em slug.
 - `acoes-app.test.mjs` — a janela de ações fecha depois da ação e fica quando cancelada.
+- `modo.test.mjs` — perícias, Aptidões e rótulos por modo.
+- `motor-vigilia.test.mjs` — modificador fixo, pavor, crítico, dano, RD, armadura, relações, condições.
+- `cenas-acao.test.mjs` — perseguição (cortes, fôlego), furtividade (esconderijo, procura), equilíbrio, escalar.
+- `missoes.test.mjs` — extrator por geometria e `montarMissao1`/`montarMissao2` com páginas sintéticas.
 - `filtros-painel.test.mjs` — os chips do painel (visibilidade, progresso, mapa, perícia,
   abordagem), a ordem e o progresso do ponto.
 

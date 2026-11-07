@@ -160,26 +160,29 @@ do zip da editora, que o mestre entrega na hora de importar.
 ## Fase 5 — Modo Vigília (playtest beta, *Contos da Vigília*)
 
 Regras: `docs/regras/spec-beta.md`. Impacto: `docs/regras/alpha-para-beta.md`.
-Entra em paralelo: o modo moderno (Atos I e II) não perde nada. Feitos: fontes, decisão e M1.
+Entra em paralelo: o modo moderno (Atos I e II) não perde nada. **Requisito que atravessa tudo:** automação é
+bem-vinda, nunca o único caminho. Todo estado se edita à mão e efeito na ficha vem por clique (`docs/projeto/ARQUITETURA.md`).
 
 - [x] **Fontes.** PDF e fichas extraídos e conferidos, spec, lacunas, catálogo das missões
 - [x] **Decisão:** dois modos em paralelo, moderno e Vigília, com importação de PDF e zip dos dois
 - [x] **M1 — Modos:** setting `modo`; perícias em união, Aptidões e rótulos por modo; janela de aventuras agrupada por modo, com a pergunta ao importar aventura de outro modo
-- [ ] **M2 — Motor:** modificador fixo, crítico no dano, dado de pavor, marcadores de Análise
-- [ ] **M3 — Ficha e itens:** relações, armadura, equipamento com mecânica, NPC com RD e ações
-- [ ] **M4 — Combate:** tracker por fases, ações, manobras, condições, lesão e trauma; no modo moderno, opção de mundo ligada por padrão (desligada, volta o combate simplificado)
-- [ ] **M5 — Cenas de ação:** perseguição, furtividade, equilíbrio, escalar; Investigar com Observar
-- [ ] **M6 — Missão 1:** extrator, montagem, extras, e2e. **Dá para jogar aqui:** gratuita, usa tudo menos furtividade
-- [ ] **M7 — Missão 2:** extrator, montagem, extras, e2e nas duas versões
+- [x] **M2 — Motor:** modificador fixo, crítico no dano, dado de pavor, marcadores de Análise
+- [x] **M3 — Ficha e itens:** relações, armadura, equipamento com mecânica, NPC com RD e ações
+- [x] **M4 — Combate:** tracker por fases, ações, manobras, condições, lesão e trauma; no modo moderno, opção de mundo ligada por padrão (desligada, volta o combate simplificado)
+- [x] **M5 — Cenas de ação:** perseguição, furtividade, equilíbrio, escalar; Investigar com Observar
+- [x] **M6 — Missão 1:** extrator, montagem, extras, e2e. **Dá para jogar aqui:** gratuita, usa tudo menos furtividade
+- [x] **M7 — Missão 2:** extrator, montagem, extras, e2e nas duas versões
 
-**Apontado na revisão do M1, para os marcos seguintes:**
+**Falta, para fechar:** a rodada de mesa de verdade, do início ao epílogo das duas missões. O e2e importa as duas e
+joga um trecho de cada cena; o roteiro de dois clientes joga combate e furtividade do lado do jogador, não a
+perseguição nem a Missão 2 inteira. Nenhum teste vê se o ritmo do combate por fases funciona na mesa. Falta também
+conferir o PDF gratuito do beta (só a Missão 1), que não estava disponível: o extrator foi exercitado no completo.
 
-- **M3:** "Ocupação" ainda fixa em `Habilidade.Origem.ocupacao` e em `OP2.Ocupacao.*`; `oficio` sem campo para a
+**Apontado na revisão do M1 e ainda aberto:**
+
+- "Ocupação" ainda fixa em `Habilidade.Origem.ocupacao` e em `OP2.Ocupacao.*`; `oficio` sem campo para a
   especialização (`Ofício (metalurgia)`); NPC grava o rótulo traduzido, então não acompanha o modo.
-- **M5:** Hackear e ferramentas rolam `tecnologia`, oculta no Vigília: esconder as abordagens lá.
-- **M6:** a janela só lê um PDF por vez e no primeiro grupo. Com dois grupos, ligar botão, input, progresso e
-  estado por modo, e passar o modo à montagem.
-- **Geral:** `game.ready` chega antes dos partials (`precarregarTemplates` sai no `init`, sem quem aguarde), e
+- `game.ready` chega antes dos partials (`precarregarTemplates` sai no `init`, sem quem aguarde), e
   uma janela aberta nesse intervalo falha. Preexistente, janela de cerca de 1 s.
 
 **Pronto quando:** as duas missões jogam do início ao epílogo com dois clientes, em v13 e v14, a

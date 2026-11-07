@@ -5,6 +5,28 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+**Modo Vigília**, o playtest beta *Contos da Vigília*, em paralelo ao modo moderno. Um setting de mundo escolhe
+o modo; os Atos I e II continuam como estavam.
+
+- **As duas missões, do seu PDF e dos seus zips.** A janela de aventuras tem um grupo por modo. O texto sai do
+  PDF do mestre e as artes do zip da editora, reduzidas ao importar (o mapa cabe em 4096 px, o token em 1024).
+- **Motor do beta:** modificador fixo no teste, dado de pavor (controlar, abraçar ou ignorar), crítico que soma
+  o segundo maior, marcadores de Análise, dados guardados para depois da rolagem.
+- **Combate por fases** (suporte, distância, corpo a corpo, final) com painel de ação, ataque, defesa, manobras,
+  condições, armadura, redução de dano, lesões e traumas.
+- **Perseguição e furtividade** como cenas de ação, com cortes, fôlego, dados de esconderijo e rolagem de procura;
+  equilíbrio, escalar e carregar nos desafios; Observar na investigação.
+- **Ficha:** aba Condição, relações por grau, patamar, armas e armaduras com mecânica, NPC com RD e ataques.
+- **Tudo se faz à mão.** A automação propõe, e quem clica aplica. Fase, rodada, "já agiu", PV, PD, pavor,
+  condições, avanço, fôlego, esconderijo, lesões e relações se editam; ataque aceita ajuste de DT e de passos;
+  dano aceita "Outro valor…".
+
+**Corrigido:** os botões do card de teste (Dano RA, Dano RB, Preencher Ímpeto, Rolar Falha Crítica) saíam sem o id do
+ator e o clique avisava "ator ausente".
+
+**Mudança no modo moderno:** o combate novo vale também lá e vem **ligado por padrão**, inclusive em mundo que já
+existe. Para voltar ao combate simplificado do alpha, desligue *Combate novo no modo moderno* nos settings do mundo.
+
 ## [0.9.7] — 2026-10-03
 
 Retorno de uma mesa que jogou o Ato I:

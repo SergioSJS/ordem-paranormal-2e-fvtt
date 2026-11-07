@@ -31,6 +31,7 @@ sheets/ · dialogs · chat   apresentação
 | `module/sheets/` | Fichas de ator e item. |
 | `module/ui/` | Ícones de dado, helpers de Handlebars, listeners de chat, socket, atalhos de teclado (`atalhos.mjs`: I abre o painel, Shift+I as ações). `zip.mjs` (leitor de zip puro) e `extras-aventura.mjs` (o importador que pede o zip da editora, sobe para a pasta do mundo e reescreve os caminhos). |
 | `module/cena/` | Cena: investigação ativa, painel, rodadas (sobrecarga e roteiro por rodada), ações de investigação/desafio/ferramenta/combate/ajuda, os três apps de minigame (Destrancar, Laboratório, Rádio), Ímpeto, ferimentos e queda. Regras puras em `investigacao.mjs`, `desafios.mjs`, `combate.mjs`, `ajuda.mjs`, `ferimentos.mjs`, `leitura-ferramenta.mjs` (a parte do mestre numa leitura); os filtros do painel em `filtros-painel.mjs`; o setor de ferramentas como painel e ficha o mostram em `setor-ferramentas.mjs`. |
+| `module/vigilia/` | O beta. Regra pura: `combate.mjs`, `dano.mjs`, `relacoes.mjs`, `perseguicao.mjs`, `furtividade.mjs`. Foundry: `cena-acao.mjs` (estado da cena de ação), `acoes-combate.mjs`, `acoes-perseguicao.mjs`, `acoes-furtividade.mjs`, `acoes-desafio.mjs`, `npc.mjs`, `queda.mjs` (lesão, trauma, morte), `painel-acao.mjs`, `acoes-chat.mjs` e `acoes-ficha.mjs` (os botões), `card.mjs`. |
 | `module/settings/` | Registro dos settings. Um por lacuna do playtest. |
 | `module/tests/` | `node --test`, sem runner externo. |
 | `templates/partials/` | Peças reutilizadas: controle de dado, linha de perícia, trilha de recurso. |
@@ -46,6 +47,14 @@ sheets/ · dialogs · chat   apresentação
 | `assets/aventura/` | Os `fontes-ato-*.json` que a janela de aventuras busca com `fetch`. Gerados no `pack:build`, fora do git. |
 
 ## Decisões que valem repetir
+
+### Automação nunca é o único caminho
+
+O sistema não garante que a automação cobre todo caso, então a mesa sempre tem a saída manual. Três regras
+do modo Vigília: **efeito na ficha vem por clique** (o card propõe condição, derrubar, descartar dado, e
+quem clica aplica); **todo estado se edita** (fase, rodada, "já agiu", PV, PD, pavor, marcadores, condições,
+avanço, fôlego, esforço, dados de esconderijo, relações, lesões, traumas); **toda rolagem aceita ajuste** (DT
+e passos no diálogo, "Outro valor…" no dano). Nenhuma janela abre sozinha e nenhuma cena se encerra sozinha.
 
 **A aventura nasce no navegador, do PDF do mestre.** O texto do livro não pode viajar no
 pacote (Licença da Comunidade), e cifrar o conteúdo com uma chave tirada do PDF não

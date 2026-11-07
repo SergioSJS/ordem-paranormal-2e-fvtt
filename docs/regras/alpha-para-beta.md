@@ -1,6 +1,6 @@
 # Do alpha para o beta: o que muda no sistema
 
-Análise de impacto, sem nada implementado ainda. Regras em `docs/regras/spec-beta.md`;
+Análise de impacto feita antes da Fase 5, que a implementou (`docs/projeto/ROADMAP.md`). Regras em `docs/regras/spec-beta.md`;
 contradições e defaults em `docs/regras/LACUNAS.md`, seção "Playtest beta".
 
 ## Decisão: dois modos de jogo, em paralelo

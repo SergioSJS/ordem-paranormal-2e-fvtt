@@ -519,9 +519,9 @@ lado.
 
 # Playtest beta
 
-Levantado na leitura integral do PDF v1.0 (`docs/regras/spec-beta.md`). **Nada implementado:** o
-default é a proposta para quando a regra entrar no código. Vale a regra da casa: texto normativo
-acima de tabela-resumo, e erro do livro entra sem apagar nada.
+Levantado na leitura integral do PDF v1.0 (`docs/regras/spec-beta.md`). Os defaults abaixo estão
+implementados (Fase 5). Vale a regra da casa: texto normativo acima de tabela-resumo, e erro do livro
+entra sem apagar nada.
 
 ## Beta: contradições de regra
 
@@ -555,6 +555,14 @@ acima de tabela-resumo, e erro do livro entra sem apagar nada.
 | **Destrancar o baú** | Quatro d12 com senha impressa, sem máximo de tentativas (p. 65); a regra (p. 16) diz que a missão define. | Campo editável, começa sem limite, com aviso. Senha fixa, não rolada. |
 | **Alcance curto e longo, zonas** | Sem distância; zona só citada (p. 69). | Mestre arbitra; sem medição. |
 | **Trilha sonora** | Duas faixas nos zips, sem indicação de uso. | Playlist com as duas, disparo manual. |
+| **Prontidão em teste alheio** | A habilidade vale para o teste de outro ser, e nada diz como se anuncia na mesa. | Sem automação: o jogador avisa, e o mestre rola com o ajuste do diálogo. |
+| **Dano não letal** | A p. 23 define, sem dizer como acumula com o letal. | Sem contador próprio: o card avisa, e o mestre decide. Os PV se editam à mão. |
+| **Abraçar o pavor** | A p. 24 troca o dado por bônus e não diz se o medo acaba de vez ou só naquele teste. | Acaba de vez, como controlar baixa de vez. O dado abraçado conta para o teto de dados. Conferir no feedback. |
+| **Marcador e Prontidão em dado anulado** | Nada exclui. | Podem: mudar o valor pode tirar o dado de baixo do pavor. |
+| **Prontidão, 1× por rodada** | Sem como guardar a rodada fora do combate. | O sistema conta por teste; a mesa cuida da rodada. |
+| **Fôlego na vala (Missão 2)** | "Qualquer ação de perseguição" inclui o teste da vala. | O teste da vala não oferece Fôlego; ajuste de passos no diálogo cobre. |
+| **Esquiva (pré-gerado)** | Ação livre oposta ao ataque, uma vez por rodada. | Só o texto na habilidade: a mesa usa Defender-se no card, sem custo de ação. |
+| **Fintar e Mirar, contra quem** | Valem contra um alvo. | A condição não guarda o alvo: o diálogo do ataque traz a caixa marcada, e quem joga desmarca se for outro. |
 
 ## Beta: erros de diagramação e cópia
 

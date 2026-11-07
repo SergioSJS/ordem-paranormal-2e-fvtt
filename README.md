@@ -7,7 +7,8 @@
 > Feito por fã, sem afiliação com os detentores dos direitos; o conteúdo do livro
 > pertence a eles — e por isso nem o texto nem as artes do livro vêm no pacote.
 
-Sistema para **Foundry VTT** do playtest alpha de *Ordem Paranormal RPG 2*.
+Sistema para **Foundry VTT** dos playtests de *Ordem Paranormal RPG 2*: o alpha, no **modo moderno** (Atos I e II), e
+o beta, *Contos da Vigília*, no **[modo Vigília](#modo-vigília)** (Missões 1 e 2).
 
 > Projeto não-oficial, feito por fã. Sem afiliação, patrocínio ou endosso dos detentores
 > de direitos de Ordem Paranormal RPG. Não distribui textos, artes nem conteúdo protegido
@@ -188,8 +189,8 @@ no braço.
 
 ## Combate e ferimentos
 
-Versão simplificada e explicitamente temporária do playtest (§8), isolada para ser
-trocada inteira quando sair a definitiva.
+Esta é a versão simplificada do alpha (§8). O combate novo, por fases ([modo Vigília](#modo-vigília)), vem ligado
+por padrão também no modo moderno; esta aqui volta quando se desliga *Combate novo no modo moderno*.
 
 ![Card de ataque](docs/img/card-ataque.png)
 
@@ -200,6 +201,30 @@ playtest: vencendo, ninguém sofre nem causa dano.
 Zerar PV pede teste de **Vigor**; zerar PD pede **Disciplina**. A DT escala 7 → 10 → 13
 → 16 por teste já feito, e a consequência da falha no trauma é configurável, porque o
 próprio texto avisa que vai mudar.
+
+## Modo Vigília
+
+O playtest beta, *Contos da Vigília*, é outro jogo no mesmo sistema: passa-se no passado, com perícias, regras e
+missões próprias. O setting de mundo **Modo de jogo** escolhe entre **moderno** (Atos I e II) e **Vigília**
+(Missões 1 e 2). A ficha guarda as perícias dos dois, e o modo decide o que aparece.
+
+![Painel de ação](docs/img/painel-acao.png)
+
+**As missões saem do seu material**, como os atos: em *Aventuras do playtest*, escolha o PDF do mestre e, depois, o
+zip da editora. Cada missão vem com cena, marcadores, pontos, desafios, pré-gerados, roteiro e as cenas de ação.
+
+**Uma cena de ação** é um ator do tipo `cena-acao`: um combate, uma perseguição ou uma furtividade. O mestre a
+inicia pela ficha dela, e o painel de ação mostra quem participa, a fase e o que cada um pode fazer.
+
+**Dá para jogar tudo à mão.** A automação propõe e quem clica aplica: condição, derrubar, descartar dado e dano são
+botões do card, nunca efeito sozinho. No painel e na aba Condição da ficha, tudo se edita: fase, rodada, "já agiu",
+PV, PD, pavor, marcadores, condições, avanço, fôlego, dados de esconderijo, lesões, traumas e relações. O ataque
+aceita ajuste de DT e de passos, e o dano aceita "Outro valor…".
+
+**O combate novo também vale no modo moderno**, ligado por padrão. Desligue *Combate novo no modo moderno* nos
+settings do mundo para voltar ao combate simplificado.
+
+Onde o beta se contradiz ou deixa regra de fora, a decisão está em [docs/regras/LACUNAS.md](docs/regras/LACUNAS.md).
 
 ## Compêndios do Ato I
 
@@ -501,6 +526,7 @@ Em desenvolvimento, versão 0.0.1.
 | 3 | Desafios (Arrombar, Destrancar, Hackear, genérico), Alcançar, Sustentar, ferramentas da Ordo Realitas | pronta |
 | 4 | Testes opostos, Ajuda, usar habilidades e itens, combate simplificado, ferimentos e traumas | pronta |
 | Compêndios | Ato I e Ato II montados do PDF do mestre, dentro do Foundry; as artes dos dois atos pelos zips da editora | prontos |
+| 5 | Modo Vigília (playtest beta): combate por fases, perseguição, furtividade, relações, as duas missões | pronta para teste de mesa |
 
 O playtest é explicitamente parcial: NEX, progressão por nível e traumas permanentes
 ainda não foram publicados. Onde o texto é ambíguo ou se contradiz, o sistema expõe um
