@@ -20,6 +20,10 @@ o modo; os Atos I e II continuam como estavam.
 - **Tudo se faz à mão.** A automação propõe, e quem clica aplica. Fase, rodada, "já agiu", PV, PD, pavor,
   condições, avanço, fôlego, esconderijo, lesões e relações se editam; ataque aceita ajuste de DT e de passos;
   dano aceita "Outro valor…".
+- **Luz e escuridão nas cenas das missões.** A ilhota nasce escura e na névoa, só com a tocha paranormal acesa
+  no topo da pilha; a gruta tem as tochas, a fogueira, os cristais e a água do mapa acesos, e a chama do ritual
+  no altar, apagada até o mestre acender. Tudo se ajusta na camada de iluminação.
+- **PDF gratuito do beta** conferido: monta a Missão 1 igual à do completo e diz que a 2 é só de assinantes.
 
 **Corrigido:** os botões do card de teste (Dano RA, Dano RB, Preencher Ímpeto, Rolar Falha Crítica) saíam sem o id do
 ator e o clique avisava "ator ausente".

@@ -452,7 +452,8 @@ export function montarMissao1(extraido, fontes) {
     ],
     descricao: "<p>Missão gratuita do playtest beta: o combate contra os afogados, a fuga da enxurrada, a ilhota e o confronto com o aughisk.</p>"
       + "<p>O texto sai do seu PDF. Mapas, tokens, handouts e trilha estão no zip da editora, que o sistema pede ao importar.</p>"
-      + "<p><strong>Por onde começar:</strong> abra o diário de roteiro e ligue as cenas no painel de ação, na ordem. A RD do aughisk é 5 por inferência: o livro não imprime o valor.</p>",
+      + "<p><strong>Por onde começar:</strong> abra o diário de roteiro e ligue as cenas no painel de ação, na ordem. A RD do aughisk é 5 por inferência: o livro não imprime o valor.</p>"
+      + "<p><strong>Luz:</strong> a ilhota nasce escura e na névoa, só com a tocha paranormal acesa no topo da pilha. Quando o grupo destruir a tocha, apague a luz dela na camada de iluminação. A escuridão e a névoa se ajustam na configuração da cena.</p>",
   });
 }
 
@@ -558,7 +559,8 @@ export function montarMissao2(lido, fontes) {
     ],
     descricao: "<p>Missão de assinantes do playtest beta: furtividade na mata, os enigmas da gruta, o combate em ondas e a fuga do Ellén Trechend.</p>"
       + "<p>O texto sai do seu PDF. Mapas, tokens, handouts e trilha estão no zip da editora, que o sistema pede ao importar.</p>"
-      + "<p><strong>Atenção:</strong> duas linhas do quadro vêm trocadas no livro e nascem em rascunho, com nota no ponto.</p>",
+      + "<p><strong>Atenção:</strong> duas linhas do quadro vêm trocadas no livro e nascem em rascunho, com nota no ponto.</p>"
+      + "<p><strong>Luz:</strong> a gruta é escura, iluminada só pelas tochas, pela fogueira, pelos cristais e pela água pintados no mapa. A chama do ritual já está no altar, apagada: acenda-a na camada de iluminação quando o grupo acender o crânio. A versão em penumbra é a mesma gruta, mais escura.</p>",
   });
 }
 

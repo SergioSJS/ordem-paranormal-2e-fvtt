@@ -175,8 +175,8 @@ bem-vinda, nunca o único caminho. Todo estado se edita à mão e efeito na fich
 
 **Falta, para fechar:** a rodada de mesa de verdade, do início ao epílogo das duas missões. O e2e importa as duas e
 joga um trecho de cada cena; o roteiro de dois clientes joga combate e furtividade do lado do jogador, não a
-perseguição nem a Missão 2 inteira. Nenhum teste vê se o ritmo do combate por fases funciona na mesa. Falta também
-conferir o PDF gratuito do beta (só a Missão 1), que não estava disponível: o extrator foi exercitado no completo.
+perseguição nem a Missão 2 inteira. Nenhum teste vê se o ritmo do combate por fases funciona na mesa. O PDF gratuito do beta (só a Missão 1) está
+conferido: o e2e lê pela janela, a Missão 1 sai igual à do completo e a 2 é dada como ausente; o zip é o mesmo.
 
 **Apontado na revisão do M1 e ainda aberto:**
 

@@ -43,5 +43,577 @@
   "fog": {
     "exploration": false
   },
+  "environment": {
+    "globalLight": {
+      "enabled": false,
+      "luminosity": 0,
+      "alpha": 0.5,
+      "bright": false,
+      "color": null,
+      "coloration": 1,
+      "saturation": 0,
+      "contrast": 0,
+      "shadows": 0,
+      "darkness": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    "darknessLevel": 0.85,
+    "darknessLock": false,
+    "cycle": true,
+    "base": {
+      "hue": 0,
+      "intensity": 0,
+      "luminosity": 0,
+      "saturation": 0,
+      "shadows": 0
+    },
+    "dark": {
+      "hue": 0.53,
+      "intensity": 0.4,
+      "luminosity": -0.25,
+      "saturation": 0,
+      "shadows": 0
+    }
+  },
+  "lights": [
+    {
+      "_id": "e8183da83f66389c",
+      "name": "Tocha 1",
+      "x": 965,
+      "y": 1024,
+      "elevation": 0,
+      "rotation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "locked": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.45,
+        "angle": 360,
+        "color": "#ff8a3d",
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": "torch",
+          "speed": 4,
+          "intensity": 4,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 1.5,
+        "dim": 6
+      },
+      "flags": {}
+    },
+    {
+      "_id": "e81840a83f663db5",
+      "name": "Tocha 2",
+      "x": 702,
+      "y": 1287,
+      "elevation": 0,
+      "rotation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "locked": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.45,
+        "angle": 360,
+        "color": "#ff8a3d",
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": "torch",
+          "speed": 4,
+          "intensity": 4,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 1.5,
+        "dim": 6
+      },
+      "flags": {}
+    },
+    {
+      "_id": "e8183fa83f663c02",
+      "name": "Tocha 3",
+      "x": 1551,
+      "y": 1375,
+      "elevation": 0,
+      "rotation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "locked": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.45,
+        "angle": 360,
+        "color": "#ff8a3d",
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": "torch",
+          "speed": 4,
+          "intensity": 4,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 1.5,
+        "dim": 6
+      },
+      "flags": {}
+    },
+    {
+      "_id": "e8183aa83f663383",
+      "name": "Tocha 4",
+      "x": 2297,
+      "y": 1331,
+      "elevation": 0,
+      "rotation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "locked": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.45,
+        "angle": 360,
+        "color": "#ff8a3d",
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": "torch",
+          "speed": 4,
+          "intensity": 4,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 1.5,
+        "dim": 6
+      },
+      "flags": {}
+    },
+    {
+      "_id": "e81839a83f6631d0",
+      "name": "Tocha 5",
+      "x": 2452,
+      "y": 1595,
+      "elevation": 0,
+      "rotation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "locked": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.45,
+        "angle": 360,
+        "color": "#ff8a3d",
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": "torch",
+          "speed": 4,
+          "intensity": 4,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 1.5,
+        "dim": 6
+      },
+      "flags": {}
+    },
+    {
+      "_id": "e8183ca83f6636e9",
+      "name": "Tocha 6",
+      "x": 2999,
+      "y": 1536,
+      "elevation": 0,
+      "rotation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "locked": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.45,
+        "angle": 360,
+        "color": "#ff8a3d",
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": "torch",
+          "speed": 4,
+          "intensity": 4,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 1.5,
+        "dim": 6
+      },
+      "flags": {}
+    },
+    {
+      "_id": "e8183ba83f663536",
+      "name": "Tocha 7",
+      "x": 1214,
+      "y": 2194,
+      "elevation": 0,
+      "rotation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "locked": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.45,
+        "angle": 360,
+        "color": "#ff8a3d",
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": "torch",
+          "speed": 4,
+          "intensity": 4,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 1.5,
+        "dim": 6
+      },
+      "flags": {}
+    },
+    {
+      "_id": "e81846a83f6647e7",
+      "name": "Tocha 8",
+      "x": 2077,
+      "y": 410,
+      "elevation": 0,
+      "rotation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "locked": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.45,
+        "angle": 360,
+        "color": "#ff8a3d",
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": "torch",
+          "speed": 4,
+          "intensity": 4,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 1.5,
+        "dim": 6
+      },
+      "flags": {}
+    },
+    {
+      "_id": "ee6bf908ebd5f696",
+      "name": "Fogueira",
+      "x": 2648,
+      "y": 2311,
+      "elevation": 0,
+      "rotation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "locked": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.5,
+        "angle": 360,
+        "color": "#ff7a2e",
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": "flame",
+          "speed": 4,
+          "intensity": 5,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 3,
+        "dim": 9
+      },
+      "flags": {}
+    },
+    {
+      "_id": "4536d42c063ca90a",
+      "name": "Cristais do nicho",
+      "x": 3189,
+      "y": 1009,
+      "elevation": 0,
+      "rotation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "locked": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.4,
+        "angle": 360,
+        "color": "#5fd4ff",
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.5,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": "ghost",
+          "speed": 2,
+          "intensity": 3,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 2,
+        "dim": 7.5
+      },
+      "flags": {}
+    },
+    {
+      "_id": "d10e09245173af76",
+      "name": "Água do riacho",
+      "x": 1712,
+      "y": 2926,
+      "elevation": 0,
+      "rotation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "locked": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.3,
+        "angle": 360,
+        "color": "#3fe0c0",
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.4,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": "fog",
+          "speed": 2,
+          "intensity": 3,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 0,
+        "dim": 7.5
+      },
+      "flags": {}
+    },
+    {
+      "_id": "7f5ef1b4ff3ad311",
+      "name": "Poça do altar",
+      "x": 2575,
+      "y": 1843,
+      "elevation": 0,
+      "rotation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "locked": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.3,
+        "angle": 360,
+        "color": "#3fe0c0",
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.4,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": "fog",
+          "speed": 2,
+          "intensity": 3,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 0,
+        "dim": 4.5
+      },
+      "flags": {}
+    },
+    {
+      "_id": "a8bbead313770373",
+      "name": "Entrada da gruta",
+      "x": 1989,
+      "y": 219,
+      "elevation": 0,
+      "rotation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "locked": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.3,
+        "angle": 360,
+        "color": "#d8e6ff",
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.4,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": null,
+          "speed": 3,
+          "intensity": 4,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 1.5,
+        "dim": 9
+      },
+      "flags": {}
+    },
+    {
+      "_id": "9188442bac19c4ca",
+      "name": "Chama do ritual (acenda quando o crânio acender)",
+      "x": 1989,
+      "y": 1682,
+      "elevation": 0,
+      "rotation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": true,
+      "locked": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.6,
+        "angle": 360,
+        "color": "#ffd34d",
+        "coloration": 1,
+        "attenuation": 0.5,
+        "luminosity": 0.6,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": "flame",
+          "speed": 3,
+          "intensity": 6,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 4.5,
+        "dim": 15
+      },
+      "flags": {
+        "ordem-paranormal-2e": {
+          "luz": "chama-do-ritual"
+        }
+      }
+    }
+  ],
   "_key": "!scenes!a22d0a0000000002"
 }

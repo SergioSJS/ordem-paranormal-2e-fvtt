@@ -4750,6 +4750,23 @@ const relato = await page.evaluate(async (boasVindas) => {
   } else {
     await page.evaluate(() => game.op2.aventuras());
     await page.waitForSelector('#op2-aventuras [data-modo="vigilia"] [data-pdf]', { state: "attached", timeout: 20000 });
+    // O gratuito primeiro: só a Missão 1, e a janela diz que a 2 é do PDF de assinantes. O zip
+    // dele é o mesmo da Missão 1 do completo (mesmo sha), então o envio abaixo cobre os dois.
+    const pdfGratuito = "jambo-arquivos/playtest2/v1/0-sobrevivente-gratuito/Ordem-2-Playtest-Beta-MISSAO-1.pdf";
+    if (existsSync(pdfGratuito)) {
+      await page.setInputFiles('#op2-aventuras [data-modo="vigilia"] [data-pdf]', pdfGratuito);
+      await page.waitForSelector('#op2-aventuras [data-ato="missao-2"] .op2-aventuras__erro', { timeout: 180000 });
+      const gratuito = await page.evaluate(() => ({
+        m1: document.querySelector('#op2-aventuras [data-ato="missao-1"] .op2-aventuras__resumo')?.textContent ?? "",
+        m1Avisos: document.querySelector('#op2-aventuras [data-ato="missao-1"] .op2-aventuras__problemas')?.textContent ?? "",
+        m2: document.querySelector('#op2-aventuras [data-ato="missao-2"] .op2-aventuras__erro')?.textContent ?? "",
+        importa: Boolean(document.querySelector('#op2-aventuras [data-action="importar"][data-ato="missao-1"]')),
+      }));
+      relato.passos.push([gratuito.importa && /6 pontos/.test(gratuito.m1) && /16 linhas/.test(gratuito.m1), `o PDF gratuito monta a Missão 1 (${gratuito.m1})`]);
+      relato.passos.push([/assinantes/.test(gratuito.m2), `sem a Missão 2, o gratuito diz por quê em vez de falhar (${gratuito.m2.trim()})`]);
+    } else {
+      relato.passos.push([true, `sem o PDF gratuito do beta em ${pdfGratuito}: só o completo é lido`]);
+    }
     await page.setInputFiles('#op2-aventuras [data-modo="vigilia"] [data-pdf]', pdfBeta);
     await page.waitForSelector('#op2-aventuras [data-action="importar"][data-ato="missao-2"]', { timeout: 180000 });
     const lido = await page.evaluate(() => ({
@@ -4801,6 +4818,13 @@ const relato = await page.evaluate(async (boasVindas) => {
       ok("as cenas das missões vêm com o mapa na pasta do mundo", fundo(ilhota).startsWith(`worlds/${mundo}/missao-1/`) && fundo(caverna).startsWith(`worlds/${mundo}/missao-2/`));
       ok("o mapa encolheu para 4096 ao subir", await lado(fundo(ilhota)) === 4096);
       ok("os marcadores dos pontos estão no mapa", ilhota.notes.size === 6 && caverna.notes.size === 11);
+      const escuridao = (cena) => cena?.environment?.darknessLevel ?? cena?.darkness ?? 0;
+      ok("a ilhota nasce escura e na névoa, com a tocha paranormal acesa",
+        escuridao(ilhota) > 0.4 && ilhota.weather === "fog" && ilhota.lights.some((l) => l.flags?.["ordem-paranormal-2e"]?.luz === "tocha-paranormal" && !l.hidden));
+      // O papel vem na flag: `AmbientLight#name` só existe no v14.
+      const chama = caverna.lights.find((l) => l.flags?.["ordem-paranormal-2e"]?.luz === "chama-do-ritual");
+      ok("a gruta é escura, com as luzes do mapa acesas e a chama do ritual apagada até o mestre acender",
+        escuridao(caverna) > 0.5 && caverna.lights.filter((l) => !l.hidden).length >= 10 && chama?.hidden === true);
 
       const malik = game.actors.find((a) => a.name.startsWith("Malik"));
       ok("o pré-gerado vem com a imagem na pasta do mundo, encolhida", malik.img.startsWith(`worlds/${mundo}/`) && await lado(malik.img) === 1024);

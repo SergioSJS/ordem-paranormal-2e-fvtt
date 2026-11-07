@@ -45,9 +45,9 @@ no pacote. Pronto para a rodada de teste manual que fecha a v1.
 furtividade, medo, relações, duas missões medievais) corre em paralelo ao **modo moderno** (alpha, Atos I e
 II), que não perde nada; o combate novo vale nos dois, opcional e ligado por padrão no moderno. As missões
 saem do PDF e dos zips do mestre, como os atos (`module/extrator/missoes.mjs`, `module/aventura/missoes.mjs`).
-O PDF gratuito do beta não estava disponível: o extrator foi exercitado só no completo.
+O PDF gratuito do beta (só a Missão 1) monta igual ao completo, e o e2e lê os dois.
 **Próximo:** a rodada de mesa de verdade. **v13 e v14 exercitados pelo e2e** (13.351 e 14.363, com o PDF e
-os zips reais: 752 verificações cada; `dois-clientes.mjs`, 26, confere a visão do jogador) — o bundle da cena leva os dois formatos de
+os zips reais: 756 verificações cada; `dois-clientes.mjs`, 26, confere a visão do jogador) — o bundle da cena leva os dois formatos de
 fundo, e o que só existe no v14 (níveis, `Collection#every`, `Note.author`) é tratado com guarda dos dois lados.
 
 ## Convenções
@@ -184,7 +184,8 @@ precisa passar nas duas.
   no mesmo `packs/` disputam o LevelDB.
 - O que quebrou no v13 e agora tem teste: `Playlist.fade` precisa ser positivo, a cena
   lê o fundo por `background` (não `levels`), `Collection` não tem `every`, `Note` não
-  tem `author`, packs compilados por um v14 não abrem ("core version newer").
+  tem `author`, `AmbientLight` não tem `name` (o papel da luz vai numa flag), packs
+  compilados por um v14 não abrem ("core version newer").
 
 **Nunca abra o mesmo mundo nas duas versões.** A migração do v14 é irreversível: um mundo
 aberto no v14 não volta para o v13. Mantenha mundos de teste separados.
