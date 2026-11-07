@@ -13,9 +13,9 @@
     <input type="file" accept="application/pdf,.pdf" data-pdf hidden>
     <button type="button" class="op2-botao" data-action="escolherPdf" {{#if @root.lendo}}disabled{{/if}}>
       <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
-      {{#if @root.lendo}}{{localize "OP2.Aventuras.Lendo"}}{{else}}{{localize "OP2.Aventuras.Escolher"}}{{/if}}
+      {{#if lendo}}{{localize "OP2.Aventuras.Lendo"}}{{else}}{{localize "OP2.Aventuras.Escolher"}}{{/if}}
     </button>
-    <span class="op2-aventuras__progresso" data-progresso>{{@root.progresso}}</span>
+    <span class="op2-aventuras__progresso" data-progresso>{{progresso}}</span>
   </div>
 
   <ol class="op2-aventuras__atos">

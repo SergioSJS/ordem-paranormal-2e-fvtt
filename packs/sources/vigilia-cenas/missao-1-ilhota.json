@@ -1,0 +1,47 @@
+{
+  "_id": "a11d0a0000000001",
+  "name": "A Ilhota",
+  "width": 4096,
+  "height": 3415,
+  "padding": 0,
+  "grid": {
+    "type": 0,
+    "size": 100,
+    "distance": 1.5,
+    "units": "m",
+    "alpha": 0.15,
+    "style": "solidLines",
+    "thickness": 1,
+    "color": "#000000"
+  },
+  "tokenVision": false,
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "shiftX": 0,
+  "shiftY": 0,
+  "initial": {
+    "x": null,
+    "y": null,
+    "scale": null
+  },
+  "transition": {
+    "type": null,
+    "duration": 1500,
+    "activeOnly": false
+  },
+  "weather": "",
+  "sort": 0,
+  "folder": null,
+  "background": {
+    "src": "systems/ordem-paranormal-2e/assets/vigilia/mapas/mapa-1-ilhota-2.webp",
+    "color": "#000000",
+    "tint": "#ffffff",
+    "alphaThreshold": 0.75
+  },
+  "fog": {
+    "exploration": false
+  },
+  "_key": "!scenes!a11d0a0000000001"
+}

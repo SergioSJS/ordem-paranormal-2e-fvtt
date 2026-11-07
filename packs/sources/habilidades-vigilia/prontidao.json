@@ -1,0 +1,35 @@
+{
+  "_id": "a486ce12214ecc14",
+  "name": "Prontidão",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+  "system": {
+    "origem": "perfil",
+    "perfil": "vigilante",
+    "custo": "",
+    "custoPD": 0,
+    "descricao": "<p>Uma vez por rodada, por 2 PD: rola de novo um dado que não tenha dado 1, num teste seu ou de outro ser em alcance curto. Em combate, pode agir na fase da ação ou em fases posteriores, depois de qualquer ação daquela fase já rolada.</p>",
+    "mecanica": "prontidao",
+    "efeito": {
+      "tipo": "nenhum",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [],
+      "permitirD20": false,
+      "pdAoDescobrir": 0
+    },
+    "impeto": {
+      "espacos": 0,
+      "preenchidos": 0
+    },
+    "usoEmInvestigacao": ""
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!items!a486ce12214ecc14"
+}

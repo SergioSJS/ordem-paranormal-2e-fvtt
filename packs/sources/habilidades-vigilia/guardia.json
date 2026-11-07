@@ -1,0 +1,35 @@
+{
+  "_id": "280643d6a6b39df1",
+  "name": "Guardiã",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+  "system": {
+    "origem": "ocupacao",
+    "perfil": "",
+    "custo": "",
+    "custoPD": 0,
+    "descricao": "<p>+1 PV por patamar (já na ficha). Uma vez por rodada, por 2 PD: toma para si o ataque contra um aliado em alcance curto.</p>",
+    "mecanica": "",
+    "efeito": {
+      "tipo": "nenhum",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [],
+      "permitirD20": false,
+      "pdAoDescobrir": 0
+    },
+    "impeto": {
+      "espacos": 0,
+      "preenchidos": 0
+    },
+    "usoEmInvestigacao": ""
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!items!280643d6a6b39df1"
+}

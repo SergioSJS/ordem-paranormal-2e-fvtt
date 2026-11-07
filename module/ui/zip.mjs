@@ -176,14 +176,15 @@ export function casarEntradas(entradas, esperados) {
   const encontrados = [];
   const semExato = [];
   for (const esperado of esperados) {
-    const slug = esperado.destino.split("/").pop();
+    // Imagem que encolhe ao subir muda de extensão: casa pelo nome que a editora dá.
+    const slug = esperado.maxLado ? slugDeArquivo(esperado.nome) : esperado.destino.split("/").pop();
     const exato = slugs.find((s) => s.slug === slug && !usados.has(s.entrada));
     if (exato) { encontrados.push({ esperado, entrada: exato.entrada, aproximado: false }); usados.add(exato.entrada); }
     else semExato.push(esperado);
   }
   const faltando = [];
   for (const esperado of semExato) {
-    const slug = esperado.destino.split("/").pop();
+    const slug = esperado.maxLado ? slugDeArquivo(esperado.nome) : esperado.destino.split("/").pop();
     const palavras = palavrasDoSlug(slug);
     const candidatos = slugs
       .filter((s) => !usados.has(s.entrada) && familiaDe(s.slug) === familiaDe(slug))

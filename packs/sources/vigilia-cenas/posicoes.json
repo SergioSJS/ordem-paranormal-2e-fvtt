@@ -1,0 +1,97 @@
+{
+  "missao-1": {
+    "marcadores": [
+      {
+        "nome": "Arbusto",
+        "x": 696,
+        "y": 2417
+      },
+      {
+        "nome": "Árvore",
+        "x": 696,
+        "y": 778
+      },
+      {
+        "nome": "Carroça",
+        "x": 3318,
+        "y": 1843
+      },
+      {
+        "nome": "Pilha de Pedras",
+        "x": 1925,
+        "y": 1352
+      },
+      {
+        "nome": "Esqueleto",
+        "x": 1987,
+        "y": 1638
+      },
+      {
+        "nome": "Tocha",
+        "x": 2109,
+        "y": 840
+      }
+    ],
+    "tokens": []
+  },
+  "missao-2": {
+    "marcadores": [
+      {
+        "nome": "Altar das Vinhas",
+        "x": 2007,
+        "y": 1741
+      },
+      {
+        "nome": "Buraco das Raízes",
+        "x": 1704,
+        "y": 2118
+      },
+      {
+        "nome": "Pilha de Cinzas",
+        "x": 2560,
+        "y": 2335
+      },
+      {
+        "nome": "Plataforma Elevada",
+        "x": 2785,
+        "y": 1167
+      },
+      {
+        "nome": "Baú Romano",
+        "x": 3092,
+        "y": 1098
+      },
+      {
+        "nome": "Nicho da Névoa",
+        "x": 3318,
+        "y": 942
+      },
+      {
+        "nome": "Escadaria Natural",
+        "x": 983,
+        "y": 1741
+      },
+      {
+        "nome": "Inscrição Antiga",
+        "x": 799,
+        "y": 1167
+      },
+      {
+        "nome": "Potes de Argila",
+        "x": 1044,
+        "y": 1311
+      },
+      {
+        "nome": "Monólito Pesado",
+        "x": 983,
+        "y": 2150
+      },
+      {
+        "nome": "Nichos na Parede",
+        "x": 1925,
+        "y": 922
+      }
+    ],
+    "tokens": []
+  }
+}

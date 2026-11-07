@@ -1,0 +1,35 @@
+{
+  "_id": "703516cf0a6658eb",
+  "name": "Leitura de Combate",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+  "system": {
+    "origem": "ocupacao",
+    "perfil": "",
+    "custo": "",
+    "custoPD": 0,
+    "descricao": "<p>Em combate, gastar uma ação para se defender dá 1 marcador de análise.</p>",
+    "mecanica": "leitura-combate",
+    "efeito": {
+      "tipo": "nenhum",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [],
+      "permitirD20": false,
+      "pdAoDescobrir": 0
+    },
+    "impeto": {
+      "espacos": 0,
+      "preenchidos": 0
+    },
+    "usoEmInvestigacao": ""
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!items!703516cf0a6658eb"
+}

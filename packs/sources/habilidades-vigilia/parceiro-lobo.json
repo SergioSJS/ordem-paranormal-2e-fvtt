@@ -1,0 +1,37 @@
+{
+  "_id": "dac88ddd2ac5209d",
+  "name": "Parceiro lobo",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+  "system": {
+    "origem": "ocupacao",
+    "perfil": "",
+    "custo": "",
+    "custoPD": 0,
+    "descricao": "<p>Um lobo companheiro dá +d6 nos ataques corpo a corpo. Se esse dado der 1, o lobo se machuca e não ajuda mais até o fim da cena.</p>",
+    "mecanica": "",
+    "efeito": {
+      "tipo": "dado-extra",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [
+        "luta"
+      ],
+      "permitirD20": false,
+      "pdAoDescobrir": 0
+    },
+    "impeto": {
+      "espacos": 0,
+      "preenchidos": 0
+    },
+    "usoEmInvestigacao": ""
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!items!dac88ddd2ac5209d"
+}

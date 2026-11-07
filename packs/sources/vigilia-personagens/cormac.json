@@ -1,0 +1,412 @@
+{
+  "_id": "88afda71f1646904",
+  "name": "Cormac Coluim",
+  "type": "personagem",
+  "img": "systems/ordem-paranormal-2e/assets/vigilia/tokens/personagem-cormac.webp",
+  "system": {
+    "tipo": "sobrevivente",
+    "perfil": "executor",
+    "ocupacao": "Aristocrata",
+    "nivel": 3,
+    "nex": 0,
+    "atributos": {
+      "fisico": {
+        "die": "d8"
+      },
+      "mente": {
+        "die": "d8"
+      },
+      "emocao": {
+        "die": "d6"
+      }
+    },
+    "pericias": {
+      "acrobacia": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "animais": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "aptidao": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "atletismo": {
+        "die": "d6",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "crime": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "disciplina": {
+        "die": "d8",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "enganacao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "furtividade": {
+        "die": "d6",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "intimidar": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "intuicao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "luta": {
+        "die": "d8",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "maquinas": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "medicina": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "ocultismo": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "oficio": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "percepcao": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "persuasao": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "pesquisar": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "pontaria": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "sobrevivencia": {
+        "die": "d8",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "tecnologia": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "vigor": {
+        "die": "d8",
+        "atributo": "fisico",
+        "stepMod": 0
+      }
+    },
+    "aptidoes": {
+      "artes": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "erudicao": {
+        "rotulo": "",
+        "die": "d6"
+      },
+      "folclore": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "guerra": {
+        "rotulo": "",
+        "die": "d6"
+      },
+      "nobreza": {
+        "rotulo": "",
+        "die": "d6"
+      },
+      "religiao": {
+        "rotulo": "",
+        "die": "d4"
+      }
+    },
+    "recursos": {
+      "pv": {
+        "value": 17,
+        "max": 17
+      },
+      "pd": {
+        "value": 15,
+        "max": 15
+      }
+    },
+    "patamar": "iniciante",
+    "relacoes": [
+      {
+        "com": "Rhiona",
+        "grau": 1,
+        "rotulo": "ADMIRAÇÃO",
+        "invocada": false
+      },
+      {
+        "com": "Rowan",
+        "grau": 0,
+        "rotulo": "NEUTRO",
+        "invocada": false
+      },
+      {
+        "com": "Muirenn",
+        "grau": 0,
+        "rotulo": "NEUTRO",
+        "invocada": false
+      },
+      {
+        "com": "Cavan",
+        "grau": 2,
+        "rotulo": "VÍNCULO",
+        "invocada": false
+      },
+      {
+        "com": "Malik",
+        "grau": 1,
+        "rotulo": "AFINIDADE",
+        "invocada": false
+      },
+      {
+        "com": "Sira",
+        "grau": 0,
+        "rotulo": "NEUTRO",
+        "invocada": false
+      },
+      {
+        "com": "Sorcha",
+        "grau": 1,
+        "rotulo": "CONFIANÇA",
+        "invocada": false
+      }
+    ],
+    "biografia": ""
+  },
+  "items": [
+    {
+      "_id": "2e74b60387ddce7c",
+      "name": "Ímpeto",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+      "system": {
+        "origem": "perfil",
+        "perfil": "executor",
+        "custo": "",
+        "custoPD": 0,
+        "descricao": "<p>Uma barra de cinco espaços, que enche um a cada teste falho. Ação livre: 1 espaço dá +d4 num teste; 3 espaços sobem um atributo em um passo até o fim da cena; 3 espaços dão uma ação extra em cena de conflito. A barra esvazia no fim da cena.</p>",
+        "mecanica": "",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false,
+          "pdAoDescobrir": 0
+        },
+        "impeto": {
+          "espacos": 5,
+          "preenchidos": 0
+        },
+        "usoEmInvestigacao": ""
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "21d243e3de4a04e2",
+      "name": "Herança",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+      "system": {
+        "origem": "ocupacao",
+        "perfil": "",
+        "custo": "",
+        "custoPD": 0,
+        "descricao": "<p>Categoria de riqueza +1. A compra de itens ainda não saiu; por ora, o equipamento da ficha já conta com isso.</p>",
+        "mecanica": "",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false,
+          "pdAoDescobrir": 0
+        },
+        "impeto": {
+          "espacos": 0,
+          "preenchidos": 0
+        },
+        "usoEmInvestigacao": ""
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "cf8eee42b7ef432e",
+      "name": "Plano Estratégico",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+      "system": {
+        "origem": "ocupacao",
+        "perfil": "",
+        "custo": "",
+        "custoPD": 0,
+        "descricao": "<p>Ação e 3 PD: teste de Aptidão (Guerra) DT 7. Passando, o grupo ganha d6, mais d6 a cada 3 de excedente, para gastar em qualquer teste até o fim da cena.</p>",
+        "mecanica": "",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false,
+          "pdAoDescobrir": 0
+        },
+        "impeto": {
+          "espacos": 0,
+          "preenchidos": 0
+        },
+        "usoEmInvestigacao": ""
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "b63b1785aad4ee3e",
+      "name": "Espada forjada em castelo",
+      "type": "equipamento",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/equipamento.svg",
+      "system": {
+        "quantidade": 1,
+        "equipado": true,
+        "arma": true,
+        "descricao": "",
+        "ataque": {
+          "tipo": "corpo",
+          "bonusDano": 3,
+          "bonusTeste": 0,
+          "minimoCritico": 5,
+          "ignoraRd": 0,
+          "pequena": false
+        },
+        "marcial": false,
+        "armadura": 0,
+        "passos": "",
+        "cargas": {
+          "usa": false,
+          "value": 0,
+          "max": 0
+        }
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "ce0713b5ba76b541",
+      "name": "Cota de malha",
+      "type": "equipamento",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/equipamento.svg",
+      "system": {
+        "quantidade": 1,
+        "equipado": true,
+        "arma": false,
+        "descricao": "",
+        "ataque": {
+          "tipo": "",
+          "bonusDano": 0,
+          "bonusTeste": 0,
+          "minimoCritico": 0,
+          "ignoraRd": 0,
+          "pequena": false
+        },
+        "marcial": false,
+        "armadura": 2,
+        "passos": "furtividade -1",
+        "cargas": {
+          "usa": false,
+          "value": 0,
+          "max": 0
+        }
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    }
+  ],
+  "prototypeToken": {
+    "name": "Cormac Coluim",
+    "texture": {
+      "src": "systems/ordem-paranormal-2e/assets/vigilia/tokens/personagem-cormac.webp"
+    },
+    "depth": 1,
+    "actorLink": true,
+    "disposition": 1,
+    "sight": {
+      "enabled": false
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!actors!88afda71f1646904"
+}

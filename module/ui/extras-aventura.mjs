@@ -105,6 +105,25 @@ async function garantirPasta(caminho) {
 }
 
 /**
+ * Reduz a imagem ao subir: o zip do beta traz mapa de 9930 px e token de 35 MB, que pesam na
+ * mesa toda. O original fica no zip do mestre, e `destino` já diz `.webp`.
+ */
+async function imagemReduzida(bytes, nomeNoZip, destino, maxLado) {
+  const origem = new Blob([bytes], { type: nomeNoZip.toLowerCase().endsWith(".png") ? "image/png" : "image/jpeg" });
+  const medida = await createImageBitmap(origem);
+  const escala = Math.min(1, maxLado / Math.max(medida.width, medida.height));
+  const largura = Math.round(medida.width * escala);
+  const altura = Math.round(medida.height * escala);
+  medida.close();
+  const bitmap = await createImageBitmap(origem, { resizeWidth: largura, resizeHeight: altura, resizeQuality: "high" });
+  const tela = new OffscreenCanvas(largura, altura);
+  tela.getContext("2d").drawImage(bitmap, 0, 0);
+  bitmap.close();
+  const reduzida = await tela.convertToBlob({ type: "image/webp", quality: 0.88 });
+  return new File([reduzida], destino, { type: "image/webp" });
+}
+
+/**
  * Sobe para a pasta do mundo os arquivos do zip que a aventura espera.
  * @param {ArrayBuffer} zip
  * @param {object} extras
@@ -128,7 +147,9 @@ export async function enviarDoZip(zip, extras, esperados, progresso = () => {}) 
     try {
       const bytes = await extrairEntrada(zip, entrada);
       const ext = nome.slice(nome.lastIndexOf(".")).toLowerCase();
-      const arquivo = new File([bytes], nome, { type: MIME[ext] ?? "application/octet-stream" });
+      const arquivo = esperado.maxLado
+        ? await imagemReduzida(bytes, entrada.nome, nome, esperado.maxLado)
+        : new File([bytes], nome, { type: MIME[ext] ?? "application/octet-stream" });
       await garantirPasta(destino);
       const resposta = await filePicker().upload("data", destino, arquivo, {}, { notify: false });
       if (!resposta?.path) throw new Error(game.i18n.localize("OP2.Extras.RecusadoPeloServidor"));

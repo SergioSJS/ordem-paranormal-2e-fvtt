@@ -1,0 +1,35 @@
+{
+  "_id": "afc9091046b320ab",
+  "name": "Análise",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+  "system": {
+    "origem": "perfil",
+    "perfil": "analista",
+    "custo": "",
+    "custoPD": 0,
+    "descricao": "<p>Gaste uma ação para ganhar <strong>2 marcadores</strong> (máximo 4; somem no fim da cena). Depois de rolar um teste, cada marcador gasto muda um dado em +1 ou –1, até o máximo dele.</p>",
+    "mecanica": "analise",
+    "efeito": {
+      "tipo": "nenhum",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [],
+      "permitirD20": false,
+      "pdAoDescobrir": 0
+    },
+    "impeto": {
+      "espacos": 0,
+      "preenchidos": 0
+    },
+    "usoEmInvestigacao": ""
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!items!afc9091046b320ab"
+}

@@ -17,8 +17,9 @@ import { montarAtoI } from "../../module/aventura/ato-i.mjs";
 import { montarAtoII } from "../../module/aventura/ato-ii.mjs";
 import { fontesDoAtoI, fontesDoAtoII } from "../aventura/fontes.mjs";
 
-const PDFJS = process.env.OP2_PDFJS
-  ?? "/Applications/Foundry Virtual Tabletop.app/Contents/Resources/app/node_modules/@foundryvtt/pdfjs/build/pdf.mjs";
+const PDFJS = process.env.OP2_PDFJS ?? [
+  "Foundry Virtual Tabletop.app", "Foundry Virtual Tabletop-14.app", "Foundry Virtual Tabletop-13.app",
+].map((app) => `/Applications/${app}/Contents/Resources/app/node_modules/@foundryvtt/pdfjs/build/pdf.mjs`).find(existsSync);
 const SAIDA = "build/js";
 
 const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
