@@ -4,6 +4,9 @@
  * Rola 1d8 e mostra o efeito, mas nunca aplica sozinho: o texto é explícito em deixar a
  * decisão com o mestre, que pode trocar o efeito se não fizer sentido na situação.
  */
+import { usaCombateNovo } from "../modo.mjs";
+import { extraDeDanoEmocional } from "../vigilia/dano.mjs";
+import { pedirTesteBeta } from "../vigilia/queda.mjs";
 import { SYSTEM_ID, TABELA_FALHA_CRITICA } from "../config.mjs";
 import { renderizar } from "./teste.mjs";
 import { devidoTesteDeQueda } from "../cena/queda.mjs";
@@ -73,11 +76,25 @@ export async function aplicarFalhaCritica(ator, face) {
  * @param {Actor} ator
  * @param {number} quantidade
  * @param {"pv"|"pd"} recurso
+ * @param {object} [opcoes]
+ * @param {boolean} [opcoes.custo] pagamento de ação, não dano: "perde 1 PD" de Examinar (beta §5)
+ *   não é efeito externo, então não dói a mais nem pede teste de trauma (beta §8.3).
  */
-export async function aplicarDano(ator, quantidade, recurso = "pv") {
+export async function aplicarDano(ator, quantidade, recurso = "pv", { custo = false } = {}) {
+  const novoCombate = usaCombateNovo();
+  // Estresse pós-traumático: todo dano emocional dói +1 (beta §8.3).
+  if (novoCombate && !custo && recurso === "pd" && quantidade > 0) quantidade += extraDeDanoEmocional(ator.system.estado ?? {});
   const atual = ator.system.recursos[recurso].value;
   const novo = Math.max(0, atual - quantidade);
   await ator.update({ [`system.recursos.${recurso}.value`]: novo });
+
+  // Com o combate do beta, zerar pede o teste de lesão ou de trauma (beta §8).
+  if (novoCombate) {
+    if (!custo && ator.type === "personagem" && devidoTesteDeQueda(novo, quantidade)) {
+      await pedirTesteBeta(ator, recurso === "pd" ? "trauma" : "lesao");
+    }
+    return;
+  }
 
   // Chegar a 0 — ou tomar dano já em 0 — pede teste de Vigor (PV) ou Disciplina
   // (PD), com DT que escala (spec §8.2/§8.3). O card só PEDE: quem rola é a mesa,

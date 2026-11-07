@@ -19,6 +19,11 @@ const SETTINGS = {
     scope: "world", config: true, type: String, default: MODO_PADRAO, requiresReload: true,
     choices: Object.fromEntries(MODOS.map((modo) => [modo, `OP2.Modo.${modo}`])),
   },
+  // O combate do beta no modo moderno: as regras não são presas à época. No Vigília é o
+  // único que existe, e este setting não faz nada lá.
+  combateNovoModerno: {
+    scope: "world", config: true, type: Boolean, default: true, requiresReload: true,
+  },
   // O playtest não diz se dados descartados alimentam a detecção de crítico (spec §4.5).
   escopoCritico: {
     scope: "world", config: true, type: String, default: "todos",

@@ -1,0 +1,197 @@
+<div class="op2-painel-acao__corpo">
+  {{#if semCena}}
+    <p class="op2-ajuda">{{localize "OP2.CenaAcao.Nenhuma"}}</p>
+    {{#if ehGM}}
+      <button type="button" class="op2-botao" data-action="novoCombate">{{localize "OP2.CenaAcao.NovoCombate"}}</button>
+    {{/if}}
+  {{else}}
+    <header class="op2-painel-acao__topo">
+      <div>
+        <span class="op2-tag op2-tag--secao">{{rotuloTipo}}</span>
+        <strong>{{cena.name}}</strong>
+      </div>
+      <div class="op2-painel-acao__contagem" data-rodada="{{rodada}}">
+        {{#if ativa}}
+          {{#if ehGM}}<button type="button" class="op2-botao op2-botao--fantasma" data-action="ajustarRodada" data-delta="-1" data-tooltip="{{localize 'OP2.CenaAcao.RodadaMenos'}}" aria-label="-1">−</button>{{/if}}
+          {{localize "OP2.CenaAcao.RodadaCurta" n=rodada}}{{#if rodadas}} / {{rodadas}}{{/if}}
+          {{#if ehGM}}<button type="button" class="op2-botao op2-botao--fantasma" data-action="ajustarRodada" data-delta="1" data-tooltip="{{localize 'OP2.CenaAcao.RodadaMais'}}" aria-label="+1">+</button>{{/if}}
+        {{else}}
+          {{localize "OP2.CenaAcao.Parada"}}
+        {{/if}}
+      </div>
+    </header>
+
+    {{#if fases.length}}
+      <ol class="op2-fases">
+        {{#each fases}}
+          <li class="op2-fase{{#if atual}} op2-fase--atual{{/if}}" data-fase="{{chave}}"
+            {{#if @root.ehGM}}data-action="irParaFase" role="button" tabindex="0"{{/if}}
+            {{#if atual}}aria-current="step"{{/if}}>{{rotulo}}</li>
+        {{/each}}
+      </ol>
+    {{/if}}
+
+    {{#if ehPerseguicao}}{{#if proximoCorte}}
+      <p class="op2-ajuda">{{localize "OP2.Perseguicao.ProximoCorte" rodada=proximoCorte.rodada minimo=proximoCorte.minimo}}</p>
+    {{/if}}{{/if}}
+    {{#if area}}
+      <p class="op2-ajuda">{{localize "OP2.Furtividade.Area" nome=area.nome numero=area.numero total=area.total avancos=area.avancos}}</p>
+    {{/if}}
+
+    {{#if ehGM}}
+      <div class="op2-painel-acao__mestre">
+        {{#if ativa}}
+          <button type="button" class="op2-botao" data-action="avancar">
+            <i class="fa-solid fa-forward-step" aria-hidden="true"></i>
+            {{#if ehPerseguicao}}{{localize "OP2.CenaAcao.ProximaRodada"}}{{else}}{{localize "OP2.CenaAcao.ProximaFase"}}{{/if}}
+          </button>
+          {{#if temProximaArea}}
+            <button type="button" class="op2-botao" data-action="proximaArea">{{localize "OP2.Furtividade.ProximaArea"}}</button>
+          {{/if}}
+          {{#if temCabecas}}
+            <button type="button" class="op2-botao" data-action="cabecas">{{localize "OP2.Perseguicao.Cabecas"}}</button>
+          {{/if}}
+          {{#if linhasDaTabela.length}}
+            <button type="button" class="op2-botao" data-action="criaturas">{{localize "OP2.Furtividade.RolarCriaturas"}}</button>
+            <select name="linhaCriatura" aria-label="{{localize 'OP2.Furtividade.EscolherLinha'}}">
+              {{#each linhasDaTabela}}<option value="{{valor}}">{{rotulo}}</option>{{/each}}
+            </select>
+            <button type="button" class="op2-botao op2-botao--pequeno" data-action="criaturaEscolhida">{{localize "OP2.Furtividade.UsarLinha"}}</button>
+          {{/if}}
+          <button type="button" class="op2-botao op2-botao--fantasma" data-action="encerrar">{{localize "OP2.CenaAcao.Encerrar"}}</button>
+        {{else}}
+          <button type="button" class="op2-botao" data-action="iniciar">
+            <i class="fa-solid fa-play" aria-hidden="true"></i> {{localize "OP2.CenaAcao.Iniciar"}}
+          </button>
+          <button type="button" class="op2-botao op2-botao--fantasma" data-action="novoCombate">{{localize "OP2.CenaAcao.NovoCombate"}}</button>
+        {{/if}}
+        {{#if modelos.length}}
+          <label class="op2-campo op2-campo--inline">
+            <select name="modelo">{{#each modelos}}<option value="{{uuid}}">{{nome}}</option>{{/each}}</select>
+          </label>
+          <input type="number" name="quantos" value="{{quantosPadrao}}" min="1" max="12" aria-label="{{localize 'OP2.CenaAcao.Quantos'}}">
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="adicionar">{{localize "OP2.CenaAcao.Adicionar"}}</button>
+        {{/if}}
+      </div>
+    {{/if}}
+
+    <ul class="op2-painel-acao__linhas">
+      {{#each linhas}}
+        <li class="op2-linha-acao{{#if agiu}} op2-linha-acao--agiu{{/if}}" data-ator="{{uuid}}">
+          <div class="op2-linha-acao__identidade">
+            <img src="{{img}}" alt="{{nome}}" data-action="abrirFicha" data-ator="{{uuid}}">
+            <div>
+              <strong>{{nome}}</strong>
+              <span class="op2-linha-acao__recursos">
+                {{#if dono}}
+                  <label>PV <input type="number" data-campo="system.recursos.pv.value" data-ator="{{uuid}}" value="{{pv.value}}"></label>/{{pv.max}}
+                  <label>PD <input type="number" data-campo="system.recursos.pd.value" data-ator="{{uuid}}" value="{{pd.value}}"></label>/{{pd.max}}
+                {{else}}
+                  {{#if veNumeros}}PV {{pv.value}}/{{pv.max}} · PD {{pd.value}}/{{pd.max}}{{/if}}
+                {{/if}}
+                {{#if rd}} · RD {{rd}}{{/if}}{{#if veNumeros}}{{#if armadura}} · {{localize "OP2.CenaAcao.Armadura" n=armadura}}{{/if}}{{/if}}{{#if pavor}} · {{localize "OP2.Pavor.Titulo"}} {{pavor}}{{/if}}{{#if marcadores}} · {{localize "OP2.PosRolagem.Marcadores" n=marcadores}}{{/if}}
+              </span>
+              {{#if dono}}{{#if @root.ehCombate}}
+                <button type="button" class="op2-botao op2-botao--fantasma op2-linha-acao__agiu{{#if agiu}} ativo{{/if}}" data-action="alternarAgiu" data-ator="{{uuid}}" aria-pressed="{{agiu}}">{{localize "OP2.CenaAcao.JaAgiu"}}</button>
+              {{else if agiu}}
+                <button type="button" class="op2-botao op2-botao--fantasma op2-linha-acao__agiu ativo" data-action="alternarAgiu" data-ator="{{uuid}}">{{localize "OP2.CenaAcao.JaAgiu"}}</button>
+              {{/if}}{{else if agiu}}
+                <em class="op2-linha-acao__agiu">{{localize "OP2.CenaAcao.JaAgiu"}}</em>
+              {{/if}}
+            </div>
+          </div>
+          {{#if dono}}
+            <details class="op2-linha-acao__condicoes-chips">
+              <summary>{{localize "OP2.Secao.Condicoes"}}{{#each condicoes}}{{#if ativa}} · <em>{{rotulo}}</em>{{/if}}{{/each}}</summary>
+              <div class="op2-linha-acao__grade">
+                {{#each condicoes}}
+                  <button type="button" class="op2-botao op2-botao--pequeno{{#if ativa}} ativo{{/if}}" data-action="alternarCondicao"
+                    data-condicao="{{chave}}" data-ator="{{../uuid}}" aria-pressed="{{ativa}}">{{rotulo}}</button>
+                {{/each}}
+              </div>
+            </details>
+          {{/if}}
+
+          {{#if dono}}{{#if @root.ativa}}
+            <div class="op2-linha-acao__botoes">
+              {{#if @root.ehCombate}}
+                {{#each ataques}}
+                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="ataque"
+                    data-ator="{{../uuid}}" data-ataque="{{id}}">{{nome}}</button>
+                {{/each}}
+                <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="atrapalhar" data-ator="{{uuid}}">{{localize "OP2.Combate2.atrapalhar"}}</button>
+                <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="fintar" data-ator="{{uuid}}">{{localize "OP2.Combate2.fintar"}}</button>
+                {{#if temAnalise}}
+                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="analisar" data-ator="{{uuid}}">{{localize "OP2.Analise.Titulo"}}</button>
+                {{/if}}
+                {{#if ehPc}}
+                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="investigar" data-ator="{{uuid}}">{{localize "OP2.CenaAcao.Investigar"}}</button>
+                {{/if}}
+                <details class="op2-linha-acao__mais">
+                  <summary>{{localize "OP2.CenaAcao.MaisAcoes"}}</summary>
+                  <div class="op2-linha-acao__grade">
+                    {{#each @root.gerais}}
+                      <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="geral"
+                        data-geral="{{chave}}" data-ator="{{../uuid}}">{{rotulo}}</button>
+                    {{/each}}
+                    {{#each @root.manobras}}
+                      <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="manobra"
+                        data-manobra="{{chave}}" data-ator="{{../uuid}}">{{rotulo}}</button>
+                    {{/each}}
+                  </div>
+                </details>
+              {{/if}}
+
+              {{#if perseguicao}}
+                <span class="op2-linha-acao__placar" data-avanco="{{perseguicao.avanco}}">
+                  <label>{{localize "OP2.Perseguicao.AvancoCampo"}} <input type="number" data-campo="system.estado.perseguicao.avanco" data-ator="{{uuid}}" value="{{perseguicao.avanco}}" min="0"></label>
+                  <label>{{localize "OP2.Perseguicao.FolegoDado"}} <input type="number" data-campo="system.estado.perseguicao.folego" data-ator="{{uuid}}" value="{{perseguicao.folego}}" min="0"></label>
+                  <label>{{localize "OP2.Perseguicao.EsforcoTitulo"}} <input type="number" data-campo="system.estado.perseguicao.esforcos" data-ator="{{uuid}}" value="{{perseguicao.esforcos}}" min="0"></label>
+                  <label><input type="checkbox" data-campo="system.estado.perseguicao.derrubado" data-ator="{{uuid}}" {{#if perseguicao.derrubado}}checked{{/if}}> {{localize "OP2.Perseguicao.Derrubado"}}</label>
+                </span>
+                {{#unless perseguicao.derrubado}}
+                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="avancar" data-ator="{{uuid}}">{{localize "OP2.Perseguicao.Avancar"}}</button>
+                  {{#if perseguicao.podeRecuperar}}<button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="recuperar" data-ator="{{uuid}}">{{localize "OP2.Perseguicao.Recuperar"}}</button>{{/if}}
+                  {{#if perseguicao.podeSacrificar}}<button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="sacrificio" data-ator="{{uuid}}">{{localize "OP2.Perseguicao.Sacrificio"}}</button>{{/if}}
+                  {{#if perseguicao.podeAvisar}}<button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="avisar" data-ator="{{uuid}}">{{localize "OP2.Perseguicao.Avisar"}}</button>{{/if}}
+                {{/unless}}
+              {{/if}}
+
+              {{#if furtividade}}
+                <div class="op2-linha-acao__placar" data-esconderijo="{{furtividade.dados}}">
+                  {{#each furtividade.lista}}
+                    <button type="button" class="op2-botao op2-botao--pequeno" data-action="tirarDado" data-ator="{{../uuid}}" data-indice="{{i}}"
+                      data-tooltip="{{localize 'OP2.Furtividade.TirarDado'}}">{{dado}} [{{valor}}] ×</button>
+                  {{/each}}
+                  {{#if furtividade.encontrado}}<em>{{localize "OP2.Furtividade.EncontradoCurto"}}</em>{{/if}}
+                  <span data-novo-dado>
+                    <select name="novoDado" aria-label="{{localize 'OP2.Furtividade.NovoDado'}}">
+                      <option>d4</option><option selected>d6</option><option>d8</option><option>d10</option><option>d12</option>
+                    </select>
+                    <input type="number" name="novoValor" value="1" min="1" aria-label="{{localize 'OP2.Furtividade.NovoDado'}}">
+                    <button type="button" class="op2-botao op2-botao--fantasma" data-action="porDado" data-ator="{{uuid}}">{{localize "OP2.Furtividade.PorDado"}}</button>
+                  </span>
+                  <label>{{localize "OP2.Furtividade.AvancosCampo"}} <input type="number" data-campo="system.estado.furtividade.avancos" data-ator="{{uuid}}" value="{{furtividade.avancos}}" min="0"></label>
+                  <label data-tooltip="{{localize 'OP2.Furtividade.EsperandoAjuda'}}"><input type="checkbox" data-campo="system.estado.furtividade.esperando" data-ator="{{uuid}}" {{#if furtividade.esperando}}checked{{/if}}> {{localize "OP2.Furtividade.Esperando"}}</label>
+                </div>
+                {{#unless furtividade.testou}}
+                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="esconderijo" data-ator="{{uuid}}">{{localize "OP2.Furtividade.Teste"}}</button>
+                {{else}}
+                  {{#each furtividade.acoesDaArea}}
+                    <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="area"
+                      data-indice="{{i}}" data-ator="{{../uuid}}" data-tooltip="{{dica}}">{{nome}}</button>
+                  {{/each}}
+                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="esconder" data-ator="{{uuid}}">{{localize "OP2.Furtividade.Esconder"}}</button>
+                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="distrair" data-ator="{{uuid}}">{{localize "OP2.Furtividade.Distrair"}}</button>
+                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="chamar" data-ator="{{uuid}}">{{localize "OP2.Furtividade.Chamar"}}</button>
+                  <button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="chamativa" data-ator="{{uuid}}">{{localize "OP2.Furtividade.Chamativa"}}</button>
+                  {{#if furtividade.runaDisponivel}}<button type="button" class="op2-botao op2-botao--pequeno" data-action="agir" data-qual="runa" data-ator="{{uuid}}">{{localize "OP2.Furtividade.Runa"}}</button>{{/if}}
+                {{/unless}}
+              {{/if}}
+            </div>
+          {{/if}}{{/if}}
+        </li>
+      {{/each}}
+    </ul>
+  {{/if}}
+</div>

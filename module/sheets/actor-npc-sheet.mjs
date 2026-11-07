@@ -1,6 +1,6 @@
 /** Ficha reduzida de NPC: só os atributos e as perícias que o mestre declarou. */
 import { ATRIBUTOS, SYSTEM_ID, ESCADA, periciasDoModo, chaveDoRotuloDePericia, aptidoesDoModo } from "../config.mjs";
-import { modoAtual } from "../modo.mjs";
+import { modoAtual, usaCombateNovo } from "../modo.mjs";
 import { stepDie } from "../dice/escada.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
 import { ligarRodaDoMouse } from "../ui/controle-dado.mjs";
@@ -18,6 +18,8 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     window: { resizable: true, icon: "fa-solid fa-ghost" },
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
+      adicionarAtaque: NpcSheet.#adicionarAtaque,
+      removerAtaque: NpcSheet.#removerAtaque,
       rolar: NpcSheet.#rolar,
       escolherDado: NpcSheet.#escolherDado,
       abrirSeletor: NpcSheet.#abrirSeletor,
@@ -29,6 +31,14 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static PARTS = {
     corpo: { template: "systems/ordem-paranormal-2e/templates/actor/npc.hbs" },
   };
+
+  static #adicionarAtaque() {
+    return this.actor.update({ "system.ataques": [...this.actor.system.ataques, { nome: "", tipo: "corpo", dados: "d6+d6", bonusDano: 0 }] });
+  }
+
+  static #removerAtaque(_evento, alvo) {
+    return this.actor.update({ "system.ataques": this.actor.system.ataques.filter((_a, i) => i !== Number(alvo.dataset.indice)) });
+  }
 
   async _prepareContext(opcoes) {
     const contexto = await super._prepareContext(opcoes);
@@ -44,6 +54,8 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       // `enriched`, o texto salvava e a ficha aparecia vazia (achado em uso real).
       notasEnriquecidas: await enriquecerHtml(sistema.notas, this.actor),
       editavel: this.isEditable,
+      combateNovo: usaCombateNovo(),
+      ataques: sistema.ataques,
       recursos: {
         pv: this.#recurso(sistema.recursos.pv),
         pd: this.#recurso(sistema.recursos.pd),

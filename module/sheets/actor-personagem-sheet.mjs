@@ -6,7 +6,13 @@
  * seletor de texto. É a leitura que o livro usa e a que torna a ficha escaneável.
  */
 import { ESCADA, ATRIBUTOS, PERICIAS, PERFIS, periciasDoModo, chaveDoRotuloDePericia, chaveDoRotuloDeOcupacao, aptidoesDoModo, aptidaoVisivel } from "../config.mjs";
-import { modoAtual } from "../modo.mjs";
+import { modoAtual, usaCombateNovo } from "../modo.mjs";
+import { MAX_MARCADORES } from "../config.mjs";
+import { CONDICOES } from "../vigilia/combate.mjs";
+import { PATAMARES, LESOES, TRAUMAS } from "../vigilia/dano.mjs";
+import { rolarTesteBeta, rolarTabelaBeta, dadosDosMaximos } from "../vigilia/queda.mjs";
+import { podeInvocar } from "../vigilia/relacoes.mjs";
+import { analisar as analisarAcao, receberPavor, invocarRelacao } from "../vigilia/acoes-ficha.mjs";
 import { stepDie } from "../dice/escada.mjs";
 import { rolarTeste } from "../dice/teste.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
@@ -27,6 +33,18 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     window: { resizable: true, icon: "fa-solid fa-user-secret" },
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
+      receberPavor: PersonagemSheet.#receberPavor,
+      testeQueda: PersonagemSheet.#testeQueda,
+      tabelaQueda: PersonagemSheet.#tabelaQueda,
+      porBonus: PersonagemSheet.#porBonus,
+      anotar: PersonagemSheet.#anotar,
+      porRelacao: PersonagemSheet.#porRelacao,
+      tirarRelacao: PersonagemSheet.#tirarRelacao,
+      analisar: PersonagemSheet.#analisar,
+      invocarRelacao: PersonagemSheet.#invocarRelacao,
+      alternarCondicao: PersonagemSheet.#alternarCondicao,
+      tirarBonus: PersonagemSheet.#tirarBonus,
+      curar: PersonagemSheet.#curar,
       rolar: PersonagemSheet.#rolar,
       abrirAcoesInvestigacao: PersonagemSheet.#abrirAcoesInvestigacao,
       abrirDialogoTeste: PersonagemSheet.#abrirDialogoTeste,
@@ -53,16 +71,24 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     habilidades: { template: "systems/ordem-paranormal-2e/templates/actor/personagem-habilidades.hbs" },
     inventario: { template: "systems/ordem-paranormal-2e/templates/actor/personagem-inventario.hbs" },
     notas: { template: "systems/ordem-paranormal-2e/templates/actor/personagem-notas.hbs" },
+    condicao: { template: "systems/ordem-paranormal-2e/templates/actor/personagem-condicao.hbs" },
     pericias: { template: "systems/ordem-paranormal-2e/templates/actor/personagem-pericias.hbs" },
   };
 
   static TABS = {
     principal: {
-      tabs: [{ id: "habilidades" }, { id: "inventario" }, { id: "notas" }],
+      tabs: [{ id: "habilidades" }, { id: "inventario" }, { id: "condicao" }, { id: "notas" }],
       initial: "habilidades",
       labelPrefix: "OP2.Aba",
     },
   };
+
+  /** A aba "Condição" é do beta: com o combate antigo, ela não existe. */
+  _getTabsConfig(grupo) {
+    const config = foundry.utils.deepClone(super._getTabsConfig(grupo));
+    if (grupo === "principal" && !usaCombateNovo()) config.tabs = config.tabs.filter((t) => t.id !== "condicao");
+    return config;
+  }
 
   async _prepareContext(opcoes) {
     const contexto = await super._prepareContext(opcoes);
@@ -79,6 +105,7 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       atributos: this.#atributos(sistema),
       pericias: this.#pericias(sistema),
       aptidoes: this.#aptidoes(sistema),
+      ...this.#contextoDaCondicao(sistema),
       rotuloOcupacao: game.i18n.localize(chaveDoRotuloDeOcupacao(modoAtual())),
       rotuloOcupacaoMinusculo: game.i18n.localize(chaveDoRotuloDeOcupacao(modoAtual())).toLowerCase(),
       recursos: {
@@ -120,6 +147,89 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       // clique, preenchidos primeiro.
       biografia: await enriquecer(sistema.biografia, this.actor),
     };
+  }
+
+  /** A aba "Condição" (beta §7–§9, §12). */
+  #contextoDaCondicao(sistema) {
+    const nomeDe = (i18n, chave) => ({
+      nome: game.i18n.localize(`${i18n}.${chave}.nome`),
+      efeito: game.i18n.localize(`${i18n}.${chave}.efeito`),
+    });
+    return {
+      ehGM: game.user.isGM,
+      temAnalise: this.actor.items.some((i) => i.type === "habilidade" && i.system.mecanica === "analise"),
+      maxMarcadores: MAX_MARCADORES,
+      patamares: PATAMARES.map((chave) => ({ chave, rotulo: game.i18n.localize(`OP2.Patamar.${chave}`), atual: chave === sistema.patamar })),
+      condicoes: CONDICOES.map((chave) => ({ chave, rotulo: game.i18n.localize(`OP2.Condicao.${chave}`), ativa: sistema.estado.condicoes.has(chave) })),
+      bonus: sistema.estado.bonus,
+      dadosDePavor: ["", "d4", "d6", "d8", "d10", "d12"].map((valor) => ({
+        valor, rotulo: valor || "—", atual: valor === sistema.estado.pavor,
+      })),
+      opcoesLesao: LESOES.filter((l) => l.perm).map((l) => ({ chave: l.chave, rotulo: game.i18n.localize(`OP2.Lesao.${l.chave}.nome`) })),
+      opcoesTrauma: TRAUMAS.filter((l) => l.perm).map((l) => ({ chave: l.chave, rotulo: game.i18n.localize(`OP2.TraumaBeta.${l.chave}.nome`) })),
+      lesoes: sistema.estado.lesoes.map((c) => nomeDe("OP2.Lesao", c)),
+      traumas: sistema.estado.traumas.map((c) => nomeDe("OP2.TraumaBeta", c)),
+      relacoes: sistema.relacoes.map((r) => ({
+        ...r, podeInvocar: podeInvocar(r), pips: [r.grau >= 1, r.grau >= 2, r.grau >= 3],
+      })),
+    };
+  }
+
+  static #receberPavor() { return receberPavor(this.actor); }
+  static #testeQueda(_evento, alvo) { return rolarTesteBeta(this.actor, alvo.dataset.tipo); }
+  static #tabelaQueda(_evento, alvo) { return rolarTabelaBeta(this.actor, alvo.dataset.tipo); }
+
+  /** Dado guardado à mão: crucifixo, plano, o que a mesa decidir. */
+  static async #porBonus() {
+    const novo = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("OP2.Condicao2.PorDado") },
+      content: `<div class="form-group"><select name="dado">${["d4", "d6", "d8", "d10", "d12"].map((d) => `<option>${d}</option>`).join("")}</select>
+        <input type="text" name="rotulo" placeholder="${game.i18n.localize("OP2.Relacao.Rotulo")}"></div>`,
+      ok: { callback: (_e, b) => ({ dado: b.form.elements.dado.value, rotulo: b.form.elements.rotulo.value.trim() }) },
+      rejectClose: false,
+    });
+    if (!novo) return null;
+    return this.actor.update({ "system.estado.bonus": [...this.actor.system.estado.bonus, novo] });
+  }
+
+  /** Anotar lesão ou trauma sem rolar: só o registro, que é o que pesa nos testes. */
+  static #anotar(_evento, alvo) {
+    const { lista } = alvo.dataset;
+    const chave = alvo.closest("[data-nova]").querySelector("[name=novaLista]").value;
+    return this.actor.update({
+      [`system.estado.${lista}`]: [...this.actor.system.estado[lista], chave],
+      ...dadosDosMaximos(this.actor, lista, chave, -1),
+    });
+  }
+
+  static #porRelacao() {
+    return this.actor.update({ "system.relacoes": [...this.actor.system.relacoes, { com: "", grau: 0, rotulo: "", invocada: false }] });
+  }
+  static #tirarRelacao(_evento, alvo) {
+    return this.actor.update({ "system.relacoes": this.actor.system.relacoes.filter((_r, i) => i !== Number(alvo.dataset.indice)) });
+  }
+  static #analisar() { return analisarAcao(this.actor); }
+  static #invocarRelacao(_evento, alvo) { return invocarRelacao(this.actor, Number(alvo.dataset.indice)); }
+
+  static #alternarCondicao(_evento, alvo) {
+    const atuais = new Set(this.actor.system.estado.condicoes);
+    if (atuais.has(alvo.dataset.condicao)) atuais.delete(alvo.dataset.condicao);
+    else atuais.add(alvo.dataset.condicao);
+    return this.actor.update({ "system.estado.condicoes": [...atuais] });
+  }
+
+  static #tirarBonus(_evento, alvo) {
+    return this.actor.update({ "system.estado.bonus": this.actor.system.estado.bonus.filter((_b, i) => i !== Number(alvo.dataset.indice)) });
+  }
+
+  /** Curar é decisão de mestre: o playtest não diz como (docs/regras/LACUNAS.md). */
+  static #curar(_evento, alvo) {
+    const { lista, indice } = alvo.dataset;
+    const atual = this.actor.system.estado[lista];
+    return this.actor.update({
+      [`system.estado.${lista}`]: atual.filter((_c, i) => i !== Number(indice)),
+      ...dadosDosMaximos(this.actor, lista, atual[Number(indice)], 1),
+    });
   }
 
   #atributos(sistema) {

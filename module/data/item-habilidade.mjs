@@ -28,6 +28,11 @@ export class HabilidadeData extends foundry.abstract.TypeDataModel {
        */
       custoPD: new NumberField({ required: true, initial: 0, min: 0, integer: true, nullable: false }),
       descricao: new HTMLField({ required: true, initial: "", blank: true }),
+      /** O que o motor sabe fazer com esta habilidade do beta (beta §12). Vazio = só texto. */
+      mecanica: new StringField({
+        required: true, initial: "", blank: true,
+        choices: ["", "analise", "leitura-combate", "prontidao", "segredo-aco"],
+      }),
 
       efeito: new SchemaField({
         tipo: new StringField({ required: true, initial: "nenhum", choices: EFEITOS_HABILIDADE, blank: false }),

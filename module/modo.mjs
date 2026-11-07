@@ -17,6 +17,19 @@ export async function trocarModo(modo) {
   foundry.utils.debouncedReload();
 }
 
+/**
+ * As regras de combate e de dano do beta valem aqui? Sempre no Vigília; no moderno, por
+ * opção do mundo, ligada por padrão (docs/regras/alpha-para-beta.md).
+ */
+export function usaCombateNovo() {
+  if (modoAtual() === "vigilia") return true;
+  try {
+    return game.settings.get(SYSTEM_ID, "combateNovoModerno") === true;
+  } catch {
+    return false;
+  }
+}
+
 /** O modo deste mundo. Antes de o setting existir (carga, testes), vale o padrão. */
 export function modoAtual() {
   try {

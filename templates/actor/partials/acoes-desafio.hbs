@@ -11,6 +11,22 @@
 </div>
 {{!-- Só as abordagens que o mestre marcou neste obstáculo. --}}
 <div class="op2-acoes__grupo">
+  {{#if abordagens.escalar}}
+    <button type="button" class="op2-botao op2-botao--pequeno" data-action="escalar" data-modo="rapido" data-desafio-uuid="{{uuid}}">
+      <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.EscalarRapido"}}</span></button>
+    <button type="button" class="op2-botao op2-botao--pequeno" data-action="escalar" data-modo="cauteloso" data-desafio-uuid="{{uuid}}">
+      <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.EscalarCauteloso"}}</span></button>
+  {{/if}}
+  {{#if abordagens.equilibrar}}
+    <button type="button" class="op2-botao op2-botao--pequeno" data-action="equilibrar" data-desafio-uuid="{{uuid}}">
+      <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.Equilibrar"}}</span></button>
+  {{/if}}
+  {{#if abordagens.alcancar}}
+    <button type="button" class="op2-botao op2-botao--pequeno" data-action="alcancarDesafio" data-modo="seguro" data-desafio-uuid="{{uuid}}">
+      <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.Alcancar"}} ({{localize "OP2.Desafio.Modo.seguro"}})</span></button>
+    <button type="button" class="op2-botao op2-botao--pequeno" data-action="alcancarDesafio" data-modo="arriscado" data-desafio-uuid="{{uuid}}">
+      <span class="op2-acoes__rotulo">{{localize "OP2.Desafio.Alcancar"}} ({{localize "OP2.Desafio.Modo.arriscado"}})</span></button>
+  {{/if}}
   {{#if abordagens.arrombar}}
     <button type="button" class="op2-botao op2-botao--pequeno" data-action="arrombar"
       data-desafio-uuid="{{uuid}}" {{#if quebrado}}disabled{{/if}} {{#if destrancado}}disabled{{/if}}

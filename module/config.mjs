@@ -122,12 +122,30 @@ export const TABELA_FALHA_CRITICA = {
   8: { chave: "nenhum", efeito: "nenhum" },
 };
 
+/** Dado de pavor: gastar antes do teste (beta §9.1). */
+export const CUSTO_CONTROLAR_PAVOR = 1;
+export const CUSTO_ABRACAR_PAVOR = 5;
+/** Prontidão: rolar um dado de novo (beta §12). */
+export const CUSTO_PD_PRONTIDAO = 2;
+/** Análise: quanto a ação dá e quanto se acumula (beta §12). */
+export const MARCADORES_POR_ACAO = 2;
+export const MAX_MARCADORES = 4;
+
 /** Ajuda: quanto o dado do ajudante concede ao aliado (spec §4.7). */
 export const PASSOS_DE_AJUDA = { d4: 0, d6: 1, d8: 1, d10: 2, d12: 2 };
 
 /** Escalada de DT dos testes de ferimento e trauma: 7, 10, 13, 16… (spec §8.2/§8.3). */
 export const DT_FERIMENTO_BASE = 7;
 export const DT_FERIMENTO_INCREMENTO = 3;
+
+/* Combate e cenas de ação do beta (beta §7, §8, §11). */
+export const DT_ATAQUE = 7;
+/** O que longe, cobertura leve e caído à distância somam à DT. */
+export const BONUS_DT_SITUACAO = 3;
+export const PASSOS_FINTA = 2;
+export const REDUCAO_POR_PONTO_DE_ARMADURA = 10;
+export const DT_ESCONDER = 7;
+export const DT_ESCONDER_INCREMENTO = 3;
 
 /** Ações de investigação travadas para o grupo após um sucesso (spec §6.4/§6.5). */
 export const DT_RECAPITULAR = 10;
@@ -210,6 +228,7 @@ export const OP2 = {
   PERFIS, TIPOS_PERSONAGEM, DT_PADRAO, MAX_DADOS_ROLADOS, MAX_DADOS_CONTADOS,
   VALOR_MINIMO_CRITICO, TABELA_FALHA_CRITICA, PASSOS_DE_AJUDA,
   DT_FERIMENTO_BASE, DT_FERIMENTO_INCREMENTO,
+  DT_ATAQUE, BONUS_DT_SITUACAO, PASSOS_FINTA, REDUCAO_POR_PONTO_DE_ARMADURA, DT_ESCONDER, DT_ESCONDER_INCREMENTO,
   DT_RECAPITULAR, DT_COMPARTILHAR, CUSTO_PD_EXAMINAR, FERRAMENTAS_POI,
   FERRAMENTAS_ORDO, FERRAMENTAS_COM_CARGA,
   TABELA_SOBRECARGA_PADRAO, ICONES, ICONES_PADRAO,

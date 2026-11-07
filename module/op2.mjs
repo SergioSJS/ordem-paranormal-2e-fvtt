@@ -27,6 +27,25 @@ import { registrarSettings, lerConfig } from "./settings/register.mjs";
 import { registrarHelpersDeDado } from "./ui/dice-icons.mjs";
 import { registrarHelpers, precarregarTemplates } from "./ui/handlebars.mjs";
 import { trocarModo } from "./modo.mjs";
+import { CenaAcaoData } from "./data/actor-cena-acao.mjs";
+import { CenaAcaoSheet } from "./sheets/actor-cena-acao-sheet.mjs";
+import { registrarAcaoDeMestre } from "./ui/socket.mjs";
+import {
+  registrarCenaAcao, cenaAcaoAtiva, iniciarCena, avancarCena, encerrarCenaAcao, adicionarCriaturas,
+} from "./vigilia/cena-acao.mjs";
+import { registrarPerseguicao, avancar, recuperarFolego, sacrificio } from "./vigilia/acoes-perseguicao.mjs";
+import { registrarAcoesDeChatDaVigilia } from "./vigilia/acoes-chat.mjs";
+import { registrarPainelAcao, abrirPainelAcao } from "./vigilia/painel-acao.mjs";
+import {
+  atacar as atacarVigilia, revidar, defender as defenderVigilia, aplicarDanoDeCombate, acaoOposta, acaoGeral, manobra, ataquesDe,
+} from "./vigilia/acoes-combate.mjs";
+import {
+  testeDeEsconderijo, esconderSe, distrair, chamarAtencaoPara, acaoDeArea, faseDasCriaturas, testeDeEquilibrio,
+  usarRuna, descartarIguais,
+} from "./vigilia/acoes-furtividade.mjs";
+import { rolarTesteBeta, rolarTabelaBeta, aplicarLinha } from "./vigilia/queda.mjs";
+import { invocarRelacao, analisar as analisarVigilia, receberPavor } from "./vigilia/acoes-ficha.mjs";
+import { escalar, equilibrar } from "./vigilia/acoes-desafio.mjs";
 import { registrarChat } from "./ui/chat.mjs";
 import { registrarSocket } from "./ui/socket.mjs";
 import { registrarExtrasDeAventura } from "./ui/extras-aventura.mjs";
@@ -40,7 +59,7 @@ import {
   vincularEvento, removerEvento, eventosDaInvestigacao, dispararEvento, reiniciarEvento,
 } from "./cena/investigacao-ativa.mjs";
 import {
-  examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo, entregarRevelacao,
+  examinar, interagir, observar, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo, entregarRevelacao,
   limparRevelacao, contarAoGrupo,
 } from "./cena/acoes-investigacao.mjs";
 import {
@@ -71,6 +90,7 @@ Hooks.once("init", () => {
   CONFIG.Actor.dataModels.personagem = PersonagemData;
   CONFIG.Actor.dataModels.npc = NpcData;
   CONFIG.Actor.dataModels.investigacao = InvestigacaoData;
+  CONFIG.Actor.dataModels["cena-acao"] = CenaAcaoData;
   CONFIG.Item.dataModels.habilidade = HabilidadeData;
   CONFIG.Item.dataModels.equipamento = EquipamentoData;
   CONFIG.Item.dataModels.ferramenta = FerramentaData;
@@ -104,6 +124,10 @@ Hooks.once("init", () => {
   registrarChat();
   registrarSocket();
   registrarPainelInvestigacao();
+  registrarCenaAcao();
+  registrarPerseguicao(registrarAcaoDeMestre);
+  registrarAcoesDeChatDaVigilia();
+  registrarPainelAcao();
   registrarMarcadores();
   registrarAventuras();
   registrarExtrasDeAventura();
@@ -116,7 +140,7 @@ Hooks.once("init", () => {
   game.op2 = {
     migrarLinhasDoQuadro,
     rolarTeste, encerrarCena, stepDie, faces, OP2Roll,
-    examinar, interagir, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo, entregarRevelacao,
+    examinar, interagir, observar, recapitular, compartilhar, dialogoExaminar, cicloVisibilidadeInfo, entregarRevelacao,
     limparRevelacao, contarAoGrupo,
     painelInvestigacao: abrirPainelInvestigacao, acoesInvestigacao: abrirAcoesInvestigacao, avancarRodada,
     arrombar, alcancar, sustentar, pararDeSustentar,
@@ -133,6 +157,13 @@ Hooks.once("init", () => {
     alternarJaAgiu, alternarOculto, moverParticipante,
     marcarNoMapa, desmarcarDoMapa, abrirMarcador,
     aventuras: abrirAventurasApp, boasVindas: abrirBoasVindas, trocarModo,
+    painelAcao: abrirPainelAcao, cenaAcaoAtiva, iniciarCena, avancarCena, encerrarCenaAcao, adicionarCriaturas,
+    vigilia: {
+      atacar: atacarVigilia, revidar, defender: defenderVigilia, aplicarDanoDeCombate, acaoOposta, acaoGeral, manobra,
+      ataquesDe, avancar, recuperarFolego, sacrificio, testeDeEsconderijo, esconderSe, distrair, chamarAtencaoPara,
+      acaoDeArea, faseDasCriaturas, testeDeEquilibrio, rolarTesteBeta, rolarTabelaBeta, aplicarLinha,
+      invocarRelacao, analisar: analisarVigilia, receberPavor, escalar, equilibrar, usarRuna, descartarIguais,
+    },
   };
 });
 
@@ -258,6 +289,9 @@ function registrarSheets() {
   });
   Actors.registerSheet(SYSTEM_ID, InvestigacaoSheet, {
     types: ["investigacao"], makeDefault: true, label: "OP2.Ficha.Investigacao",
+  });
+  Actors.registerSheet(SYSTEM_ID, CenaAcaoSheet, {
+    types: ["cena-acao"], makeDefault: true, label: "OP2.Ficha.CenaAcao",
   });
 
   Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);

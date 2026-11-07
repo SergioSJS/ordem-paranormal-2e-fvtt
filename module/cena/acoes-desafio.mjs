@@ -20,6 +20,8 @@ import { rolarTeste, renderizar, enviarParaChat, rotuloDePericia } from "../dice
 import { enviarCardAoMestre } from "../ui/card-mestre.mjs";
 import { aplicarDano } from "../dice/falha-critica.mjs";
 import { stepDie } from "../dice/escada.mjs";
+import { pontosDoEstendido } from "../dice/analise.mjs";
+import { modoAtual } from "../modo.mjs";
 import { OP2Roll } from "../dice/op2-roll.mjs";
 import { lerConfig } from "../settings/register.mjs";
 import { rodadaAtual } from "./rodada.mjs";
@@ -100,7 +102,7 @@ export async function arrombar(ator, desafioUuid, { rapido = false } = {}) {
 
   const tentativasUsadas = desafio.system.tentativasUsadas + 1;
   const pontuacaoAtual = roll.sucesso
-    ? acumularArrombar(desafio.system, roll.ra)
+    ? acumularArrombar(desafio.system, pontosDoEstendido(roll.resultado, { somaCritico: modoAtual() === "vigilia" }))
     : desafio.system.pontuacaoAtual;
   const estadoAtualizado = { ...desafio.system, pontuacaoAtual, tentativasUsadas };
 
@@ -146,7 +148,7 @@ export async function arrombar(ator, desafioUuid, { rapido = false } = {}) {
  * @param {"seguro"|"arriscado"} modo
  * @returns {Promise<{modo: string, sucesso: boolean, dano: number|null}|null>}
  */
-export async function alcancar(ator, { modo, dt, rapido = false } = {}) {
+export async function alcancar(ator, { modo, dt, rapido = false, pericia = "acrobacia" } = {}) {
   if (dt === undefined || dt === null) {
     dt = await pedirDtAmbiente();
     if (dt === null) return null;
@@ -155,17 +157,17 @@ export async function alcancar(ator, { modo, dt, rapido = false } = {}) {
   const contexto = `${game.i18n.localize("OP2.Desafio.Alcancar")} — ${game.i18n.localize(`OP2.Desafio.Modo.${modo}`)}`;
 
   if (modo === "arriscado") {
-    const roll = await rolarTeste(ator, { chavePericia: "acrobacia", dt: dt + BONUS_DT_ALCANCAR_ARRISCADO, rapido, contexto });
+    const roll = await rolarTeste(ator, { chavePericia: pericia, dt: dt + BONUS_DT_ALCANCAR_ARRISCADO, rapido, contexto });
     if (!roll) return null;
     return publicarAlcancar(ator, modo, roll.sucesso ? [roll] : [roll], roll.sucesso);
   }
 
   // Seguro: duas ações em sequência imediata; a segunda só roda se a primeira passar.
-  const primeira = await rolarTeste(ator, { chavePericia: "acrobacia", dt, rapido, contexto: `${contexto} (1/2)` });
+  const primeira = await rolarTeste(ator, { chavePericia: pericia, dt, rapido, contexto: `${contexto} (1/2)` });
   if (!primeira) return null;
   if (!primeira.sucesso) return publicarAlcancar(ator, modo, [primeira], false);
 
-  const segunda = await rolarTeste(ator, { chavePericia: "acrobacia", dt, rapido, contexto: `${contexto} (2/2)` });
+  const segunda = await rolarTeste(ator, { chavePericia: pericia, dt, rapido, contexto: `${contexto} (2/2)` });
   if (!segunda) return null;
   return publicarAlcancar(ator, modo, [primeira, segunda], segunda.sucesso);
 }

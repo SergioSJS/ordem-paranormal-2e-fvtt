@@ -9,9 +9,15 @@
       <span class="op2-card__dado{{#unless contado}} descartado{{/unless}}"
         data-tooltip="{{componente.rotulo}}">{{op2DadoResultado this}}</span>
     {{/each}}
+    {{#if modificador}}<span class="op2-card__modificador">{{op2Sinal modificador}}</span>{{/if}}
     <span class="op2-card__igual" aria-hidden="true">=</span>
     <span class="op2-card__total">{{total}}</span>
   </div>
+
+  {{#if pavorVencido}}
+    <p class="op2-card__desfecho"><i class="fa-solid fa-sun" aria-hidden="true"></i> {{localize "OP2.Pavor.Vencido"}}</p>
+    <button type="button" class="op2-botao op2-botao--pequeno" data-op2-acao="vigilia-fim-pavor" data-ator-uuid="{{atorUuid}}">{{localize "OP2.Pavor.Encerrar"}}</button>
+  {{/if}}
 
   {{#if critico}}
     <p class="op2-card__desfecho op2-card__desfecho--critico">
@@ -44,23 +50,23 @@
           têm cards próprios, que já sabem o alvo. --}}
     <button type="button" class="op2-botao op2-botao--pequeno" data-op2-gm
       data-op2-acao="aplicar-dano-selecionado" data-quantidade="{{ra}}" data-recurso="pv"
-      data-ator-id="{{atorId}}" data-tooltip="{{localize 'OP2.Chat.DanoNosSelecionados'}}">
+      data-ator-id="{{atorId}}" data-ator-uuid="{{atorUuid}}" data-tooltip="{{localize 'OP2.Chat.DanoNosSelecionados'}}">
       {{localize "OP2.Chat.DanoRA"}} ({{ra}})
     </button>
     <button type="button" class="op2-botao op2-botao--pequeno" data-op2-gm
       data-op2-acao="aplicar-dano-selecionado" data-quantidade="{{rb}}" data-recurso="pv"
-      data-ator-id="{{atorId}}" data-tooltip="{{localize 'OP2.Chat.DanoNosSelecionados'}}">
+      data-ator-id="{{atorId}}" data-ator-uuid="{{atorUuid}}" data-tooltip="{{localize 'OP2.Chat.DanoNosSelecionados'}}">
       {{localize "OP2.Chat.DanoRB"}} ({{rb}})
     </button>
     {{#if podePreencherImpeto}}
       <button type="button" class="op2-botao op2-botao--pequeno"
-        data-op2-acao="preencher-impeto" data-ator-id="{{atorId}}">
+        data-op2-acao="preencher-impeto" data-ator-id="{{atorId}}" data-ator-uuid="{{atorUuid}}">
         {{localize "OP2.Impeto.Preencher"}}
       </button>
     {{/if}}
     {{#if falhaCritica}}
       <button type="button" class="op2-botao op2-botao--pequeno op2-botao--perigo" data-op2-gm
-        data-op2-acao="rolar-falha-critica" data-ator-id="{{atorId}}">
+        data-op2-acao="rolar-falha-critica" data-ator-id="{{atorId}}" data-ator-uuid="{{atorUuid}}">
         {{localize "OP2.Chat.RolarFalhaCritica"}}
       </button>
     {{/if}}

@@ -16,7 +16,7 @@ import {
 import { temFerramenta } from "./ferramentas.mjs";
 import { alvosDaCenaAtiva, alvosMarcados } from "./encerrar-investigacao.mjs";
 import {
-  dialogoExaminar, examinar, interagir, recapitular, compartilhar,
+  dialogoExaminar, examinar, interagir, recapitular, compartilhar, observar,
 } from "./acoes-investigacao.mjs";
 import {
   arrombar, alcancar, sustentar, pararDeSustentar, hackTecnico, hackSocial, desafioGenerico,
@@ -24,6 +24,10 @@ import {
 import { usarFerramenta, usarLaser, usarRadio } from "./acoes-ferramenta.mjs";
 import { ajudar } from "./acoes-ajuda.mjs";
 import { atacar } from "./acoes-combate.mjs";
+import { usaCombateNovo, modoAtual } from "../modo.mjs";
+import { abrirPainelAcao } from "../vigilia/painel-acao.mjs";
+import { cenaAcaoAtiva } from "../vigilia/cena-acao.mjs";
+import { escalar, equilibrar } from "../vigilia/acoes-desafio.mjs";
 import { usarHabilidadeOuItem } from "./acoes-recurso.mjs";
 import { abrirDestrancar } from "./destrancar-app.mjs";
 import { guardarRolagem, restaurarRolagem, esquecerRolagem } from "../ui/rolagem.mjs";
@@ -79,6 +83,9 @@ function contextoDoDesafio(desafio, investigacao, indice) {
   };
 }
 
+/** Observar é do modo Vigília (beta §5): no moderno, só Examinar e Interagir. */
+export const temObservar = () => modoAtual() === "vigilia";
+
 const CHAVE_ABA = "op2.acoes.aba";
 
 /** A última aba escolhida; sem registro, os pontos de interesse. */
@@ -124,6 +131,10 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       usarLaser: fechaDepois(AcoesInvestigacaoApp.#usarLaser),
       examinar: fechaDepois(AcoesInvestigacaoApp.#examinar),
       interagir: fechaDepois(AcoesInvestigacaoApp.#interagir),
+      observar: fechaDepois(AcoesInvestigacaoApp.#observar),
+      escalar: fechaDepois(AcoesInvestigacaoApp.#escalar),
+      equilibrar: fechaDepois(AcoesInvestigacaoApp.#equilibrar),
+      alcancarDesafio: fechaDepois(AcoesInvestigacaoApp.#alcancarDesafio),
       irParaDesafios: AcoesInvestigacaoApp.#irParaDesafios,
       alternarChip: AcoesInvestigacaoApp.#alternarChip,
       limparFiltros: AcoesInvestigacaoApp.#limparFiltrosAcao,
@@ -336,6 +347,7 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
 
 
     return {
+      temObservar: temObservar(),
       atorNome: ator.name,
       temInvestigacao: Boolean(investigacao),
       nomeInvestigacao: investigacao?.name ?? "",
@@ -369,7 +381,20 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
   /* -- ações ---------------------------------------------------------------- */
 
   static async #ajudar() { return ajudar(this.ator); }
-  static async #atacar() { return atacar(this.ator); }
+  // Com o combate do beta, atacar é coisa do painel de fases. No moderno, sem cena de ação no
+  // ar, o ataque simplificado segue disponível: ninguém é obrigado a montar um combate.
+  static async #atacar() {
+    if (usaCombateNovo() && (cenaAcaoAtiva() || modoAtual() === "vigilia")) { abrirPainelAcao(); return false; }
+    return atacar(this.ator);
+  }
+  static async #observar(_evento, alvo) { return observar(this.ator, alvo.dataset.poiUuid); }
+  static async #escalar(_evento, alvo) { return escalar(this.ator, await fromUuid(alvo.dataset.desafioUuid), alvo.dataset.modo); }
+  static async #equilibrar(_evento, alvo) { return equilibrar(this.ator, await fromUuid(alvo.dataset.desafioUuid)); }
+  static async #alcancarDesafio(_evento, alvo) {
+    const desafio = await fromUuid(alvo.dataset.desafioUuid);
+    const { pericia, dt } = desafio.system.alcancar;
+    return alcancar(this.ator, { modo: alvo.dataset.modo, dt, pericia });
+  }
   static async #usarRecurso() { return usarHabilidadeOuItem(this.ator); }
   static async #recapitular() { return recapitular(this.ator); }
   static async #compartilhar() { return compartilhar(this.ator); }

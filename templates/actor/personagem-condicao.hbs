@@ -1,0 +1,93 @@
+<section class="op2-painel op2-painel--condicao tab {{tabs.condicao.cssClass}}" data-group="principal" data-tab="condicao">
+  <label class="op2-campo">
+    <span>{{localize "OP2.Campo.Patamar"}}</span>
+    <select name="system.patamar" {{#unless editavel}}disabled{{/unless}}>
+      {{#each patamares}}<option value="{{chave}}" {{#if atual}}selected{{/if}}>{{rotulo}}</option>{{/each}}
+    </select>
+  </label>
+
+  <div class="op2-condicao__linha">
+    <span class="op2-tag op2-tag--secao">{{localize "OP2.Pavor.Titulo"}}</span>
+    <select name="system.estado.pavor" data-pavor="{{sistema.estado.pavor}}" {{#unless editavel}}disabled{{/unless}}>
+      {{#each dadosDePavor}}<option value="{{valor}}" {{#if atual}}selected{{/if}}>{{rotulo}}</option>{{/each}}
+    </select>
+    {{#if editavel}}<button type="button" class="op2-botao op2-botao--pequeno" data-action="receberPavor">{{localize "OP2.Pavor.Receber"}}</button>{{/if}}
+  </div>
+
+  {{#if temAnalise}}
+    <div class="op2-condicao__linha">
+      <span class="op2-tag op2-tag--secao">{{localize "OP2.Analise.Titulo"}}</span>
+      <input type="number" name="system.estado.marcadores" data-marcadores="{{sistema.estado.marcadores}}" value="{{sistema.estado.marcadores}}" min="0" {{#unless editavel}}disabled{{/unless}}> / {{maxMarcadores}}
+      {{#if editavel}}<button type="button" class="op2-botao op2-botao--pequeno" data-action="analisar">{{localize "OP2.Analise.Acao"}}</button>{{/if}}
+    </div>
+  {{/if}}
+
+  <div class="op2-condicao__linha">
+    <span class="op2-tag op2-tag--secao">{{localize "OP2.Campo.Armadura"}}</span>
+    <strong>{{sistema.armadura.disponivel}} / {{sistema.armadura.total}}</strong>
+    <label>{{localize "OP2.Campo.ArmaduraGasta"}} <input type="number" name="system.estado.armaduraGasta" value="{{sistema.estado.armaduraGasta}}" min="0" {{#unless editavel}}disabled{{/unless}}></label>
+    <span class="op2-ajuda">{{localize "OP2.Campo.ArmaduraAjuda"}}</span>
+  </div>
+
+  <div class="op2-condicao__linha">
+    <span class="op2-tag op2-tag--secao">{{localize "OP2.Secao.Testes"}}</span>
+    <label>{{localize "OP2.Lesao.TesteTitulo"}} <input type="number" name="system.estado.testesFerimento" value="{{sistema.estado.testesFerimento}}" min="0" {{#unless editavel}}disabled{{/unless}}></label>
+    <label>{{localize "OP2.TraumaBeta.TesteTitulo"}} <input type="number" name="system.estado.testesTrauma" value="{{sistema.estado.testesTrauma}}" min="0" {{#unless editavel}}disabled{{/unless}}></label>
+    {{#if editavel}}
+      <button type="button" class="op2-botao op2-botao--pequeno" data-action="testeQueda" data-tipo="lesao">{{localize "OP2.Lesao.TesteTitulo"}}</button>
+      <button type="button" class="op2-botao op2-botao--pequeno" data-action="testeQueda" data-tipo="trauma">{{localize "OP2.TraumaBeta.TesteTitulo"}}</button>
+      <button type="button" class="op2-botao op2-botao--pequeno" data-action="tabelaQueda" data-tipo="lesao">{{localize "OP2.Lesao.RolarTabela"}}</button>
+      <button type="button" class="op2-botao op2-botao--pequeno" data-action="tabelaQueda" data-tipo="trauma">{{localize "OP2.TraumaBeta.RolarTabela"}}</button>
+    {{/if}}
+  </div>
+
+  <span class="op2-tag op2-tag--secao">{{localize "OP2.Secao.Condicoes"}}</span>
+  <div class="op2-condicao__chips">
+    {{#each condicoes}}
+      <button type="button" class="op2-botao op2-botao--pequeno{{#if ativa}} ativo{{/if}}" data-action="alternarCondicao"
+        data-condicao="{{chave}}" aria-pressed="{{ativa}}" {{#unless ../editavel}}disabled{{/unless}}>{{rotulo}}</button>
+    {{/each}}
+  </div>
+
+  <span class="op2-tag op2-tag--secao">{{localize "OP2.Dialog.Teste.Guardados"}}</span>
+  <ul class="op2-condicao__lista">
+    {{#each bonus}}<li>+{{dado}} — {{rotulo}} {{#if ../editavel}}<button type="button" class="op2-botao op2-botao--fantasma" data-action="tirarBonus" data-indice="{{@index}}" aria-label="{{localize 'OP2.Pavor.Limpar'}}"><i class="fa-solid fa-xmark"></i></button>{{/if}}</li>{{/each}}
+  </ul>
+  {{#if editavel}}<button type="button" class="op2-botao op2-botao--fantasma" data-action="porBonus"><i class="fa-solid fa-plus"></i> {{localize "OP2.Condicao2.PorDado"}}</button>{{/if}}
+
+  <span class="op2-tag op2-tag--secao">{{localize "OP2.Secao.Lesoes"}}</span>
+  <ul class="op2-condicao__lista">
+    {{#each lesoes}}<li data-tooltip="{{efeito}}">{{nome}} {{#if ../editavel}}<button type="button" class="op2-botao op2-botao--fantasma" data-action="curar" data-lista="lesoes" data-indice="{{@index}}" aria-label="{{localize 'OP2.Campo.Curar'}}"><i class="fa-solid fa-xmark"></i></button>{{/if}}</li>{{/each}}
+  </ul>
+  {{#if editavel}}<div class="op2-condicao__linha" data-nova="lesoes">
+    <select name="novaLista">{{#each opcoesLesao}}<option value="{{chave}}">{{rotulo}}</option>{{/each}}</select>
+    <button type="button" class="op2-botao op2-botao--fantasma" data-action="anotar" data-lista="lesoes"><i class="fa-solid fa-plus"></i> {{localize "OP2.Condicao2.Anotar"}}</button>
+  </div>{{/if}}
+
+  <span class="op2-tag op2-tag--secao">{{localize "OP2.Secao.Traumas"}}</span>
+  <ul class="op2-condicao__lista">
+    {{#each traumas}}<li data-tooltip="{{efeito}}">{{nome}} {{#if ../editavel}}<button type="button" class="op2-botao op2-botao--fantasma" data-action="curar" data-lista="traumas" data-indice="{{@index}}" aria-label="{{localize 'OP2.Campo.Curar'}}"><i class="fa-solid fa-xmark"></i></button>{{/if}}</li>{{/each}}
+  </ul>
+  {{#if editavel}}<div class="op2-condicao__linha" data-nova="traumas">
+    <select name="novaLista">{{#each opcoesTrauma}}<option value="{{chave}}">{{rotulo}}</option>{{/each}}</select>
+    <button type="button" class="op2-botao op2-botao--fantasma" data-action="anotar" data-lista="traumas"><i class="fa-solid fa-plus"></i> {{localize "OP2.Condicao2.Anotar"}}</button>
+  </div>{{/if}}
+
+  <span class="op2-tag op2-tag--secao">{{localize "OP2.Secao.Relacoes"}}</span>
+  <ul class="op2-condicao__relacoes">
+    {{#each relacoes}}
+      <li class="op2-relacao" data-grau="{{grau}}">
+        <input type="text" name="system.relacoes.{{@index}}.com" value="{{com}}" aria-label="{{localize 'OP2.Relacao.Com'}}" {{#unless ../editavel}}disabled{{/unless}}>
+        <select name="system.relacoes.{{@index}}.grau" data-dtype="Number" aria-label="{{localize 'OP2.Relacao.Grau' n=grau}}" {{#unless ../editavel}}disabled{{/unless}}>
+          <option value="0" {{#if (op2Eq grau 0)}}selected{{/if}}>0</option><option value="1" {{#if (op2Eq grau 1)}}selected{{/if}}>1</option>
+          <option value="2" {{#if (op2Eq grau 2)}}selected{{/if}}>2</option><option value="3" {{#if (op2Eq grau 3)}}selected{{/if}}>3</option>
+        </select>
+        <input type="text" name="system.relacoes.{{@index}}.rotulo" value="{{rotulo}}" aria-label="{{localize 'OP2.Relacao.Rotulo'}}" {{#unless ../editavel}}disabled{{/unless}}>
+        <label><input type="checkbox" name="system.relacoes.{{@index}}.invocada" {{#if invocada}}checked{{/if}} {{#unless ../editavel}}disabled{{/unless}}> {{localize "OP2.Relacao.Invocada"}}</label>
+        {{#if podeInvocar}}{{#if ../editavel}}<button type="button" class="op2-botao op2-botao--pequeno" data-action="invocarRelacao" data-indice="{{@index}}">{{localize "OP2.Relacao.BotaoInvocar"}}</button>{{/if}}{{/if}}
+        {{#if ../editavel}}<button type="button" class="op2-botao op2-botao--fantasma" data-action="tirarRelacao" data-indice="{{@index}}" aria-label="{{localize 'OP2.Pavor.Limpar'}}"><i class="fa-solid fa-xmark"></i></button>{{/if}}
+      </li>
+    {{/each}}
+  </ul>
+  {{#if editavel}}<button type="button" class="op2-botao op2-botao--fantasma" data-action="porRelacao"><i class="fa-solid fa-plus"></i> {{localize "OP2.Condicao2.PorRelacao"}}</button>{{/if}}
+</section>

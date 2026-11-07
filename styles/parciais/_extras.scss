@@ -322,3 +322,65 @@
     }
   }
 }
+
+// O painel da cena de ação e a aba Condição (beta §7–§11).
+@layer system {
+  .op2-painel-acao {
+    .op2-painel-acao__corpo { display: flex; flex-direction: column; gap: var(--op2-e2); }
+    .op2-painel-acao__topo { display: flex; align-items: center; justify-content: space-between; gap: var(--op2-e2); }
+    .op2-painel-acao__mestre { display: flex; flex-wrap: wrap; align-items: center; gap: var(--op2-e2); }
+    .op2-painel-acao__mestre input[type="number"] { width: 3.5em; }
+    .op2-painel-acao__linhas { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; gap: var(--op2-e2); }
+    .op2-fases { display: flex; margin: 0; padding: 0; list-style: none; gap: var(--op2-e1); }
+    .op2-fase { flex: 1; padding: var(--op2-e1) var(--op2-e2); border: 1px solid var(--op2-texto-fraco); color: var(--op2-texto-fraco); text-align: center; }
+    .op2-fase--atual { border-color: var(--op2-acento, currentColor); color: inherit; font-weight: bold; }
+    .op2-linha-acao { display: flex; flex-direction: column; padding: var(--op2-e2); border: 1px solid var(--op2-texto-fraco); gap: var(--op2-e1); }
+    .op2-linha-acao--agiu { opacity: 0.75; }
+    .op2-linha-acao__identidade { display: flex; align-items: center; gap: var(--op2-e2); }
+    .op2-linha-acao__identidade img { width: 40px; height: 40px; object-fit: cover; border: 0; cursor: pointer; }
+    .op2-linha-acao__recursos, .op2-linha-acao__condicoes, .op2-linha-acao__agiu { display: block; color: var(--op2-texto-fraco); }
+    .op2-linha-acao__botoes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--op2-e1); }
+    .op2-linha-acao__mais { flex-basis: 100%; }
+    .op2-linha-acao__mais > summary { cursor: pointer; color: var(--op2-texto-fraco); }
+    // `<details>` não vira flex no Chrome: a grade é um filho.
+    .op2-linha-acao__grade { display: flex; flex-wrap: wrap; margin-block-start: var(--op2-e1); gap: var(--op2-e1); }
+    .op2-painel-acao__contagem { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--op2-e1); white-space: nowrap; }
+    .op2-painel-acao__contagem button { width: auto; min-width: 1.75em; }
+    .op2-painel-acao__mestre select, .op2-linha-acao select { width: auto; max-width: 22em; }
+    .op2-linha-acao label { margin-inline-end: var(--op2-e1); white-space: nowrap; }
+    [data-novo-dado] { display: inline-flex; align-items: center; gap: var(--op2-e1); }
+    .op2-linha-acao__agiu { width: auto; }
+    .op2-linha-acao__placar { display: flex; flex-basis: 100%; flex-wrap: wrap; align-items: center; gap: var(--op2-e2); }
+    .op2-linha-acao input[type="number"] { width: 3.25em; }
+    .op2-linha-acao__condicoes-chips > summary { cursor: pointer; color: var(--op2-texto-fraco); }
+    .op2-linha-acao__condicoes-chips .ativo, .op2-linha-acao__agiu.ativo { border-color: var(--op2-acento, currentColor); font-weight: bold; }
+    .op2-fase[data-action] { cursor: pointer; }
+  }
+
+  .op2-painel--condicao {
+    .op2-condicao__linha { display: flex; flex-wrap: wrap; align-items: center; margin-block: var(--op2-e2); gap: var(--op2-e2); }
+    .op2-condicao__chips { display: flex; flex-wrap: wrap; margin-block: var(--op2-e2); gap: var(--op2-e1); }
+    .op2-condicao__chips .ativo { border-color: var(--op2-acento, currentColor); font-weight: bold; }
+    .op2-condicao__lista, .op2-condicao__relacoes { margin: var(--op2-e1) 0 var(--op2-e2); padding: 0; list-style: none; }
+    .op2-condicao__linha input[type="number"] { width: 3.25em; }
+    .op2-condicao__linha select { width: auto; }
+    .op2-relacao input[type="text"] { width: 7em; }
+    .op2-relacao select { width: 3.5em; }
+    .op2-relacao { display: flex; flex-wrap: wrap; align-items: center; padding-block: 2px; gap: var(--op2-e2); }
+    .op2-relacao__grau { display: inline-flex; font-size: 0.7em; gap: 2px; }
+  }
+
+  // Logo abaixo do botão do painel de investigação.
+  .op2-botao-flutuante--acao { margin-top: 3.25rem; }
+  .op2-teste__pavor, .op2-teste__modificador { display: flex; flex-wrap: wrap; align-items: center; gap: var(--op2-e2); }
+  .op2-npc-ataque { display: flex; align-items: center; margin-block: var(--op2-e1); gap: var(--op2-e1); }
+  .op2-npc-ataque input[type="number"] { width: 3.5em; }
+  .op2-card__lista { margin: var(--op2-e1) 0; padding-inline-start: 1.1em; }
+  .op2-card__modificador { font-weight: bold; }
+  .op2-ficha-cena { display: flex; flex-direction: column; gap: var(--op2-e2); }
+  .op2-ficha-cena__lista { margin: 0; padding: 0; list-style: none; }
+  .op2-pos-rolagem__corpo { display: flex; flex-direction: column; gap: var(--op2-e2); }
+
+  /* Botão de card que já fez o que tinha de fazer: ainda clica, mas pergunta antes. */
+  .op2-botao--usado { opacity: 0.55; }
+}

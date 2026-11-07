@@ -8,11 +8,13 @@
 import { PERFIS, TIPOS_PERSONAGEM, PERICIAS, DT_FERIMENTO_BASE, DT_FERIMENTO_INCREMENTO, aptidoesDoModo } from "../config.mjs";
 import { modoAtual } from "../modo.mjs";
 import { stepDie, faces } from "../dice/escada.mjs";
+import { PATAMARES } from "../vigilia/dano.mjs";
+import { lerPassos } from "../vigilia/combate.mjs";
 import { campoAtributos, campoPericias, campoAptidoes, campoRecurso, campoContador } from "./campos.mjs";
 
 export class PersonagemData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
-    const { SchemaField, StringField, NumberField, BooleanField, HTMLField } = foundry.data.fields;
+    const { ArrayField, SchemaField, StringField, NumberField, BooleanField, HTMLField } = foundry.data.fields;
 
     return {
       tipo: new StringField({ required: true, initial: "agente", choices: TIPOS_PERSONAGEM, blank: false }),
@@ -68,6 +70,50 @@ export class PersonagemData extends foundry.abstract.TypeDataModel {
         // chat e sumia da tela do jogador (achado em uso real, Ato II).
         ferramentasReveladas: new foundry.data.fields.SetField(new StringField(), { initial: [] }),
 
+        // Dado de pavor (beta §9.1): "" = sem pavor.
+        pavor: new StringField({ required: true, initial: "", blank: true }),
+        // Marcadores da Análise (beta §12): 4 no máximo, somem no fim da cena.
+        marcadores: campoContador(),
+        // Caído, agarrado, atordoado… (beta §7.5). Sem Active Effects: quem lê é o motor.
+        condicoes: new foundry.data.fields.SetField(new StringField(), { initial: [] }),
+        // Permanentes até o mestre curar (beta §8). Lista, não Set: Laceração acumula.
+        lesoes: new ArrayField(new StringField({ required: true, blank: false }), { initial: [] }),
+        traumas: new ArrayField(new StringField({ required: true, blank: false }), { initial: [] }),
+        armaduraGasta: campoContador(),
+        // Dados guardados para um teste à escolha: relação invocada, plano, crucifixo.
+        bonus: new ArrayField(new SchemaField({
+          dado: new StringField({ required: true, initial: "d6", blank: false }),
+          rotulo: new StringField({ required: true, initial: "", blank: true }),
+        }), { initial: [] }),
+        // Perseguição e furtividade (beta §10/§11): é o jogador quem grava o próprio.
+        perseguicao: new SchemaField({
+          avanco: campoContador(),
+          folego: campoContador(),
+          esforcos: campoContador(),
+          periciasUsadas: new ArrayField(new StringField(), { initial: [] }),
+          derrubado: new BooleanField({ required: true, initial: false }),
+          obstaculo: new BooleanField({ required: true, initial: false }),
+          avisado: new BooleanField({ required: true, initial: false }),
+        }),
+        furtividade: new SchemaField({
+          esconderijo: new ArrayField(new SchemaField({
+            dado: new StringField({ required: true, initial: "d6", blank: false }),
+            valor: new NumberField({ required: true, initial: 1, min: 1, integer: true, nullable: false }),
+          }), { initial: [] }),
+          testou: new BooleanField({ required: true, initial: false }),
+          avancos: campoContador(),
+          usosEsconder: campoContador(),
+          trilha: new BooleanField({ required: true, initial: false }),
+          // Completou a área e está parado: a procura não o alcança (beta §11, p. 57).
+          esperando: new BooleanField({ required: true, initial: false }),
+        }),
+        // Quanto falta em cada desafio que se vence por partes (Escalar, Equilibrar-se): é
+        // de quem sobe, não do obstáculo. Chave: id do Item.
+        progressoDesafios: new foundry.data.fields.ObjectField({ required: true, initial: () => ({}) }),
+        runaUsada: new BooleanField({ required: true, initial: false }),
+        // Equilíbrio (beta §6): dados de d4 gastos até o fim da travessia.
+        equilibrio: campoContador(),
+
         // Sustentar (spec §7.5): fadiga cumulativa própria, distinta de
         // `reducoesTemporarias` (aquela é o efeito "até o fim da cena" da falha
         // crítica; esta é o desgaste de segurar algo, rodada a rodada).
@@ -76,6 +122,16 @@ export class PersonagemData extends foundry.abstract.TypeDataModel {
           fadiga: new NumberField({ required: true, initial: 0, min: 0, integer: true, nullable: false }),
         }),
       }),
+
+      // Patamar (beta §8.2): citado sem tabela de nível; o mestre escolhe.
+      patamar: new StringField({ required: true, initial: "iniciante", choices: PATAMARES, blank: false }),
+      // Relações (beta §9.2): grau de 0 a 3 e uma invocação por missão.
+      relacoes: new ArrayField(new SchemaField({
+        com: new StringField({ required: true, initial: "", blank: true }),
+        grau: new NumberField({ required: true, initial: 0, min: 0, max: 3, integer: true, nullable: false }),
+        rotulo: new StringField({ required: true, initial: "", blank: true }),
+        invocada: new BooleanField({ required: true, initial: false }),
+      }), { initial: [] }),
 
       biografia: new HTMLField({ required: true, initial: "", blank: true }),
     };
@@ -97,8 +153,27 @@ export class PersonagemData extends foundry.abstract.TypeDataModel {
       atributo.aumentado = passos > 0;
     }
 
+    // O que está vestido pesa: cota de malha –1 em Atletismo (beta §12). Vai como passo,
+    // igual ao resto da escada.
+    const itens = [...(this.parent?.items ?? [])].filter((i) => i.type === "equipamento" && i.system.equipado);
+    const passosDeItens = {};
+    for (const item of itens) {
+      for (const { chave, passos } of lerPassos(item.system.passos)) {
+        passosDeItens[chave] = (passosDeItens[chave] ?? 0) + passos;
+      }
+    }
+    // Segredo do Aço: +1 ponto com qualquer item que já dê armadura (beta §12).
+    const comArmadura = itens.filter((i) => i.system.armadura > 0);
+    const extraPorItem = [...(this.parent?.items ?? [])]
+      .some((i) => i.type === "habilidade" && i.system.mecanica === "segredo-aco") ? 1 : 0;
+    const armaduraTotal = comArmadura.reduce((t, i) => t + i.system.armadura + extraPorItem, 0);
+    this.armadura = {
+      total: armaduraTotal,
+      disponivel: Math.max(0, armaduraTotal - this.estado.armaduraGasta),
+    };
+
     for (const [chave, pericia] of Object.entries(this.pericias)) {
-      pericia.dadoEfetivo = stepDie(pericia.die, pericia.stepMod ?? 0);
+      pericia.dadoEfetivo = stepDie(pericia.die, (pericia.stepMod ?? 0) + (passosDeItens[chave] ?? 0));
       // O tamanho do dado é comparado direto contra a DT ao Investigar, sem rolagem (spec §6.3).
       pericia.valor = faces(pericia.dadoEfetivo);
       pericia.especializada = PERICIAS[chave]?.especializada ?? false;

@@ -5,6 +5,7 @@
  * playtest é aplicado automaticamente.
  */
 import { SYSTEM_ID, CUSTO_PD_EXAMINAR } from "../config.mjs";
+import { comoMestre, registrarAcaoDeMestre } from "./socket.mjs";
 import { rolarFalhaCritica, aplicarFalhaCritica, aplicarDano } from "../dice/falha-critica.mjs";
 import { testarCompartilhamento, registrarTravaDeCena, contarAoGrupo, entregarRevelacao } from "../cena/acoes-investigacao.mjs";
 import { rolarSobrecarga } from "../cena/rodada.mjs";
@@ -58,7 +59,7 @@ const ACOES = {
   },
   // Examinar é uma aposta (spec §6.3.1): não revelou nada novo, paga 1 PD.
   async "pagar-custo-examinar"(ator) {
-    await aplicarDano(ator, CUSTO_PD_EXAMINAR, "pd");
+    await aplicarDano(ator, CUSTO_PD_EXAMINAR, "pd", { custo: true });
     ui.notifications.info(game.i18n.format("OP2.Investigacao.PDPago", {
       ator: ator.name, custo: CUSTO_PD_EXAMINAR,
     }));
@@ -163,6 +164,11 @@ function atoresSelecionados(padrao) {
   return selecionados.length ? selecionados : [padrao];
 }
 
+/** Quem tem botão de card fora daqui (o beta) registra assim. */
+export function registrarAcaoDeChat(nome, acao) {
+  ACOES[nome] = acao;
+}
+
 /**
  * O áudio do Medidor EMF: por padrão toca só na tela de quem clica (`AudioHelper.play`
  * sem difundir) — o jogador ouve o medidor "na própria mão", como o livro descreve.
@@ -174,6 +180,16 @@ export function tocarAudio(src, { todos = false } = {}) {
   return AudioHelper.play({ src, volume: 0.8, loop: false }, todos);
 }
 
+/** O que dobra o efeito se clicado de novo. */
+const ACOES_UNICAS = new Set([
+  "vigilia-teste-queda", "vigilia-tabela-queda", "vigilia-aplicar-linha", "vigilia-dano", "vigilia-dano-dono",
+  "vigilia-rolar-dano", "vigilia-revidar", "vigilia-defender", "vigilia-descartar", "vigilia-recupera-pv",
+  "vigilia-perder-dado",
+]);
+
+/** Identifica o botão na mensagem. Não pelo índice: o jogador não recebe os botões do mestre. */
+const chaveDoBotao = (botao) => `${botao.dataset.op2Acao}|${botao.textContent.trim()}`;
+
 /** @param {HTMLElement} elemento */
 function ligar(elemento) {
   for (const botao of elemento.querySelectorAll("[data-op2-acao]")) {
@@ -181,16 +197,36 @@ function ligar(elemento) {
       evento.preventDefault();
       // currentTarget zera ao fim do dispatch: guardamos o botão antes do primeiro await.
       const clicado = evento.currentTarget;
-      const { op2Acao, atorId } = clicado.dataset;
+      const { op2Acao, atorId, atorUuid } = clicado.dataset;
       const acao = ACOES[op2Acao];
       if (!acao) return;
 
-      const ator = game.actors.get(atorId);
+      // Token sem vínculo (a onda de afogados) não está em `game.actors`: vai por uuid.
+      const porUuid = atorUuid ? fromUuidSync(atorUuid) : null;
+      const ator = porUuid?.actor ?? porUuid ?? game.actors.get(atorId);
       if (!ator) return void ui.notifications.warn(game.i18n.localize("OP2.Aviso.AtorAusente"));
+
+      // Ação que não dá para repetir sem dobrar o efeito: marca o botão, e o segundo clique
+      // pergunta. Só pergunta, porque a mesa pode mesmo querer aplicar de novo.
+      const unica = ACOES_UNICAS.has(op2Acao);
+      if (unica && clicado.classList.contains("op2-botao--usado")) {
+        const denovo = await foundry.applications.api.DialogV2.confirm({
+          window: { title: clicado.textContent.trim() },
+          content: `<p>${game.i18n.localize("OP2.Chat.JaUsado")}</p>`,
+          rejectClose: false,
+        });
+        if (!denovo) return;
+      }
 
       clicado.disabled = true;
       try {
-        await acao(ator, clicado.dataset);
+        const resultado = await acao(ator, clicado.dataset);
+        // `false`: recusou ou cancelou, nada aconteceu.
+        if (unica && resultado !== false) {
+          clicado.classList.add("op2-botao--usado");
+          const li = clicado.closest("[data-message-id]");
+          if (li) comoMestre("marcar-botao-usado", { mensagemId: li.dataset.messageId, chave: chaveDoBotao(clicado) });
+        }
       } finally {
         clicado.disabled = false;
       }
@@ -211,6 +247,13 @@ function teatralizarEnvelope(html) {
 }
 
 export function registrarChat() {
+  registrarAcaoDeMestre("marcar-botao-usado", async ({ mensagemId, chave }) => {
+    const mensagem = game.messages.get(mensagemId);
+    if (!mensagem) return;
+    const usados = new Set(mensagem.getFlag(SYSTEM_ID, "botoesUsados") ?? []);
+    usados.add(chave);
+    await mensagem.setFlag(SYSTEM_ID, "botoesUsados", [...usados]);
+  });
   // O link do áudio aparece em texto enriquecido de card, painel e ficha: um ouvinte
   // delegado no documento cobre todos, sem cada tela ter que religar.
   document.addEventListener("click", (evento) => {
@@ -227,6 +270,11 @@ export function registrarChat() {
       for (const botao of html.querySelectorAll("[data-op2-gm]")) botao.remove();
     }
     teatralizarEnvelope(html);
+    // Marcado por quem clicou, em qualquer cliente: fica na mensagem, para todos.
+    const usados = msg.getFlag(SYSTEM_ID, "botoesUsados") ?? [];
+    for (const botao of html.querySelectorAll("[data-op2-acao]")) {
+      if (usados.includes(chaveDoBotao(botao))) botao.classList.add("op2-botao--usado");
+    }
     ligar(html);
   });
 }

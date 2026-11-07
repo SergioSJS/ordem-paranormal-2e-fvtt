@@ -30,6 +30,25 @@ export class DesafioAcessoData extends foundry.abstract.TypeDataModel {
         // (Atletismo), um portão enferrujado (Máquinas), uma janela alta
         // (Acrobacia). O mestre diz qual perícia e como se chama.
         generico: new BooleanField({ required: true, initial: false }),
+        // Os do beta (beta §6).
+        escalar: new BooleanField({ required: true, initial: false }),
+        equilibrar: new BooleanField({ required: true, initial: false }),
+        alcancar: new BooleanField({ required: true, initial: false }),
+      }),
+
+      escalar: new SchemaField({
+        pericia: new StringField({ required: true, initial: "atletismo", blank: false }),
+        alvo: new NumberField({ required: true, initial: 10, min: 1, integer: true, nullable: false }),
+        dtRapido: new NumberField({ required: true, initial: 8, min: 0, integer: true, nullable: false }),
+        dtCauteloso: new NumberField({ required: true, initial: 6, min: 0, integer: true, nullable: false }),
+      }),
+      equilibrar: new SchemaField({
+        sucessos: new NumberField({ required: true, initial: 3, min: 1, integer: true, nullable: false }),
+        danoFalha: new StringField({ required: true, initial: "1d4", blank: false }),
+      }),
+      alcancar: new SchemaField({
+        pericia: new StringField({ required: true, initial: "acrobacia", blank: false }),
+        dt: new NumberField({ required: true, initial: 7, min: 0, integer: true, nullable: false }),
       }),
 
       /** Abordagem genérica: a perícia testada e o rótulo que aparece no botão. */

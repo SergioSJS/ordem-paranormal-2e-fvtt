@@ -3,7 +3,8 @@
     "Actor": {
       "personagem": "Character",
       "npc": "NPC",
-      "investigacao": "Investigation"
+      "investigacao": "Investigation",
+      "cena-acao": "Action scene"
     },
     "Item": {
       "habilidade": "Ability",
@@ -25,7 +26,8 @@
       "DesafioAcesso": "Challenge",
       "Ferramenta": "Ordo Realitas Tool",
       "Investigacao": "Investigation",
-      "Evento": "Event sheet"
+      "Evento": "Event sheet",
+      "CenaAcao": "Action scene"
     },
     "Atributo": {
       "fisico": "Physical",
@@ -100,7 +102,12 @@
       "Vocacao": "Vocation",
       "Nivel": "Level",
       "Nex": "NEX",
-      "NexAjuda": "NEX is the paranormal progression track. No published mechanic yet in the playtest; the field is here for when it ships."
+      "NexAjuda": "NEX is the paranormal progression track. No published mechanic yet in the playtest; the field is here for when it ships.",
+      "Patamar": "Tier",
+      "Armadura": "Armor points",
+      "ArmaduraAjuda": "When taking damage, spend 1 to reduce it by 10.",
+      "Curar": "Heal",
+      "ArmaduraGasta": "spent"
     },
     "Recurso": {
       "pv": "HP",
@@ -122,12 +129,18 @@
       "Inventario": "Inventory",
       "Notas": "Notes",
       "Conteudo": "Sheet content",
-      "Ferramentas": "Ordo Realitas Tools"
+      "Ferramentas": "Ordo Realitas Tools",
+      "Condicoes": "Conditions",
+      "Lesoes": "Injuries",
+      "Traumas": "Traumas",
+      "Relacoes": "Relationships",
+      "Testes": "Tests"
     },
     "Aba": {
       "habilidades": "Abilities",
       "inventario": "Inventory",
-      "notas": "Notes"
+      "notas": "Notes",
+      "condicao": "Condition"
     },
     "Dado": {
       "Alterar": "Change the die"
@@ -181,7 +194,16 @@
       "NaoEquipado": "Not equipped",
       "AlternarEquipado": "Equip or unequip",
       "AumentarCarga": "Add one charge (increase)",
-      "DiminuirCarga": "Spend one charge (decrease)"
+      "DiminuirCarga": "Spend one charge (decrease)",
+      "Combate": "Combat",
+      "TipoAtaque": "Attack type",
+      "NaoArma": "Not a weapon",
+      "BonusDano": "Damage (HR +)",
+      "BonusTeste": "Test bonus",
+      "MinimoCritico": "Crit from",
+      "IgnoraRd": "Ignores DR",
+      "Marcial": "Martial equipment",
+      "Passos": "Steps while worn"
     },
     "Item": {
       "Novo": "New {tipo}",
@@ -199,7 +221,11 @@
       "NomeDaPericia": "Skill name",
       "DadoDaPericia": "Die",
       "PericiaRepetida": "This NPC already has {pericia}.",
-      "Confirmar": "Add"
+      "Confirmar": "Add",
+      "Ataques": "Attacks",
+      "AdicionarAtaque": "New attack",
+      "AtaqueNome": "Attack name",
+      "RemoverAtaque": "Remove attack"
     },
     "POI": {
       "Aba": {
@@ -346,7 +372,13 @@
       "AguardaMestre": "The GM received what you found — they narrate and deliver.",
       "RevelacaoSoMestre": "Only you see this. The player gets the clue when you deliver it.",
       "EntregarAoJogador": "Deliver to player",
-      "JaEntregue": "This revelation was already delivered."
+      "JaEntregue": "This revelation was already delivered.",
+      "Observar": "Observe",
+      "ObservarDica": "Pick another skill from the board and get what its die reaches. No test, no cost.",
+      "ObservarTitulo": "Observe",
+      "ObservarAjuda": "Pick another skill from the board: you get the lines the die size reaches.",
+      "ObservarNada": "{ator} observes {poi} with {pericia} and notices nothing new.",
+      "ObservarAchou": "{ator} observes {poi} with {pericia}."
     },
     "Dialog": {
       "Teste": {
@@ -359,7 +391,9 @@
         "Oposto": "Opposed check (no DT)",
         "AvisoSelecao": "You'll roll more dice than you can add — you'll pick which 3 count.",
         "NoTeto": "Cap of 4 rolled dice reached.",
-        "CustoPD": "Costs {custo} DP, charged when you roll."
+        "CustoPD": "Costs {custo} DP, charged when you roll.",
+        "Modificador": "Flat modifier",
+        "Guardados": "Saved dice"
       },
       "Selecao": {
         "Titulo": "Pick your dice",
@@ -431,7 +465,8 @@
       "AplicarDano": "Apply damage",
       "DanoNosSelecionados": "Applies to the tokens selected on the scene; with no selection, to whoever rolled.",
       "FalhaCriticaExplica": "All dice on 1: roll 1d8 on the critical failure table (spec §4.4). The GM decides the effect.",
-      "SoMestre": "Only you can see this."
+      "SoMestre": "Only you can see this.",
+      "JaUsado": "This button was already used. Apply again?"
     },
     "Cena": {
       "Encerrar": "End scene",
@@ -549,7 +584,8 @@
       "SemMestreOnline": "No GM online to record the result. Call the GM and try again.",
       "DesafioAusente": "Access challenge not found.",
       "SemFerramenta": "You don't have {ferramenta}.",
-      "SemPD": "Not enough DP for {nome} (costs {custo})."
+      "SemPD": "Not enough DP for {nome} (costs {custo}).",
+      "SoDono": "This is for whoever plays {ator}, or the GM."
     },
     "Config": {
       "dtPadrao": {
@@ -597,6 +633,10 @@
       "boasVindas": {
         "name": "Welcome on entering",
         "hint": "Shows the welcome screen (what the system brings, playtest adventures, license) to the GM when entering the world. \"About and license\" opens the same screen anytime."
+      },
+      "combateNovoModerno": {
+        "name": "New combat in Modern mode",
+        "hint": "Uses the beta playtest's phased combat, injuries and traumas in Modern mode too. Off, the alpha's simplified combat returns. In Vigil mode this is the only combat."
       }
     },
     "Desafio": {
@@ -717,7 +757,27 @@
       "HackErrou": "Wrong",
       "HackAcertouTexto": "{ator} solved the problem — the panel opened.",
       "HackErrouTexto": "{ator} got it wrong — try again next round.",
-      "HackTempoEsgotado": "Time's up"
+      "HackTempoEsgotado": "Time's up",
+      "Escalar": "Climb",
+      "EscalarRapido": "Climb fast",
+      "EscalarCauteloso": "Climb carefully",
+      "EscalarAlvo": "Points to reach",
+      "EscalarDtRapido": "Fast DC",
+      "EscalarDtCauteloso": "Careful DC",
+      "EscalarSubiu": "{ator} climbs: {pontos} of {alvo}.",
+      "EscalarChegou": "{ator} reaches the top.",
+      "EscalarCaiu": "{ator} falls and takes {dano} damage.",
+      "Equilibrar": "Balance",
+      "EquilibrarSucessos": "Successes needed",
+      "EquilibrarAvancou": "{ator}: {n} of {total} successes.",
+      "EquilibrarChegou": "{ator} reaches the other side.",
+      "EquilibrarCaiu": "{ator} falls and must start over.",
+      "AlcancarPericia": "Reach skill",
+      "Abordagem": {
+        "escalar": "Climb",
+        "equilibrar": "Balance",
+        "alcancar": "Reach"
+      }
     },
     "Ferramenta": {
       "Rotulo": "Tool",
@@ -938,13 +998,18 @@
       "AtoII": "Act II — The Basement",
       "Resumo": {
         "ato-i": "{pontos} points of interest, {linhas} clue rows, {desafios} challenges, curse over {rodadas} rounds, {itens} table items",
-        "ato-ii": "{pontos} points of interest, {linhas} clue rows, {desafios} challenges, {leituras} tool readings"
+        "ato-ii": "{pontos} points of interest, {linhas} clue rows, {desafios} challenges, {leituras} tool readings",
+        "missao-1": "{pontos} points of interest, {linhas} board lines, {cenas} action scenes and {personagens} pregens.",
+        "missao-2": "{pontos} points of interest, {linhas} board lines, {cenas} action scenes and {personagens} pregens."
       },
       "Problemas": "Check: {n} warning(s) — the text and what the book prints don't fully agree; check the book",
       "Motivo": {
         "trecho": "Could not find Act I in this PDF. Is it the Ordem Paranormal 2 playtest book?",
         "ausente": "This PDF does not include Act II — it only exists in the full playtest PDF.",
-        "falha": "Building failed."
+        "falha": "Building failed.",
+        "ausenteMissao": "This PDF does not have this mission. The second one is only in the subscribers' PDF.",
+        "naoEhBeta": "I could not find the missions in this PDF. Is it the beta playtest, Contos da Vigília? The alpha one goes in the modern mode group.",
+        "ehBeta": "This is the beta playtest PDF: pick it in the Vigil mode group."
       },
       "Importado": "{nome}: imported into the world.",
       "MenuNome": "Playtest adventures",
@@ -954,7 +1019,9 @@
       "ArtesFaltam": "Art: {faltam} of {total} files missing from the world folder — it's the publisher's {zip}",
       "ArtesOk": "Art: all {total} files are in {pasta}",
       "EnviarZip": "Upload the art zip",
-      "ReenviarZip": "Resend the art zip"
+      "ReenviarZip": "Resend the art zip",
+      "Missao1": "Mission 1 — The Swamp of the Drowned",
+      "Missao2": "Mission 2 — The Cave of Cruachan"
     },
     "Licenca": {
       "Aviso": "This is unofficial content, published under the Ordem Paranormal Community License. Contains AI-generated material: the code is written with AI assistance; the texts are the author's.",
@@ -962,7 +1029,7 @@
     },
     "BoasVindas": {
       "Titulo": "Ordem Paranormal 2 — Playtest (Unofficial)",
-      "Versao": "Unofficial Foundry VTT system for the Ordem Paranormal RPG 2 alpha playtest — version {versao}.",
+      "Versao": "Unofficial Foundry VTT system for the Ordem Paranormal RPG 2 playtests — version {versao}.",
       "SeloAlt": "Ordem Paranormal Community License seal",
       "TrazTitulo": "What the system brings",
       "Traz": {
@@ -996,6 +1063,413 @@
       "Acoes": "Actions window",
       "AcoesDica": "Opens and closes the character's actions window: the selected token's, else yours.",
       "SemPersonagem": "Choose a character, or select their token, to open the actions."
+    },
+    "Patamar": {
+      "iniciante": "Novice",
+      "veterano": "Veteran",
+      "elite": "Elite",
+      "lenda": "Legend"
+    },
+    "Pavor": {
+      "Titulo": "Dread die",
+      "Abracado": "Embraced dread",
+      "Controlar": "Control (1 PD)",
+      "ControlarDica": "Spend 1 PD to step the dread die down.",
+      "Abracar": "Embrace (5 PD)",
+      "AbracarDica": "Spend 5 PD to turn the dread die into a bonus die.",
+      "Vencido": "The dread die rolled 1: the fear is gone.",
+      "Receber": "Gain dread",
+      "Limpar": "Remove",
+      "Ignorar": "Don't roll now",
+      "Encerrar": "End the dread die"
+    },
+    "PosRolagem": {
+      "Titulo": "After rolling",
+      "Ajuda": "Analysis tokens change a die by 1. Readiness rerolls a die.",
+      "Prontidao": "Readiness",
+      "ProntidaoDica": "Spend {custo} PD to reroll this die.",
+      "Total": "Result:",
+      "Marcadores": "{n} token(s)",
+      "Concluir": "Done"
+    },
+    "Analise": {
+      "Titulo": "Analysis",
+      "Acao": "Analyze (+2)",
+      "Texto": "{ator} analyzes the situation: {n} analysis token(s)."
+    },
+    "Relacao": {
+      "Invocar": "Invoke relationship: {com}",
+      "InvocarAjuda": "Describe what your character feels for this person and choose the benefit. Each relationship can be invoked once per mission.",
+      "BotaoInvocar": "Invoke",
+      "Invocada": "invoked",
+      "Grau": "Grade {n}",
+      "Motivou": "{com} recovers {n} PD.",
+      "Beneficio": {
+        "teste": "+{dado} on a test related to {com}",
+        "ajudar": "+{dado} when helping {com}",
+        "motivar": "Motivate {com}: recovers {formula} PD",
+        "acaoExtra": "An extra action to help {com}"
+      },
+      "Com": "With whom",
+      "Rotulo": "Label",
+      "MotivouSemAlvo": "{com} recovers {n} PD. That name is not in the world: apply it by hand."
+    },
+    "Condicao": {
+      "caido": "Prone",
+      "agarrado": "Grappled",
+      "atordoado": "Stunned",
+      "inconsciente": "Unconscious",
+      "moribundo": "Dying",
+      "coberturaLeve": "Light cover",
+      "coberturaTotal": "Full cover",
+      "ocultacaoLeve": "Light concealment",
+      "ocultacaoTotal": "Full concealment",
+      "atrapalhado": "Hindered",
+      "apressado": "Rushed",
+      "defendendo": "Defending",
+      "fintando": "Feinting",
+      "mirando": "Aiming",
+      "empurrado": "Shoved"
+    },
+    "Fase": {
+      "suporte": "Support",
+      "distancia": "Ranged",
+      "corpo": "Melee",
+      "final": "Final",
+      "personagens": "Characters",
+      "criaturas": "Creatures"
+    },
+    "CenaAcao": {
+      "Painel": "Action scene",
+      "Nenhuma": "No action scene. Create an Action scene actor, or import a Vigil mode mission.",
+      "Rodada": "Round {n}",
+      "RodadaCurta": "Round {n}",
+      "Parada": "Stopped",
+      "Encerrada": "Action scene ended",
+      "Iniciar": "Start",
+      "Encerrar": "End the scene",
+      "ProximaFase": "Next phase",
+      "ProximaRodada": "Next round",
+      "Adicionar": "Add to scene",
+      "Quantos": "How many",
+      "SemCena": "Open a map scene to add creatures to it.",
+      "Armadura": "armor {n}",
+      "JaAgiu": "has acted",
+      "Investigar": "Investigate",
+      "MaisAcoes": "More actions",
+      "TipoRotulo": "Type",
+      "Tipo": {
+        "combate": "Combat",
+        "perseguicao": "Chase",
+        "furtividade": "Stealth"
+      },
+      "ParticipantesAjuda": "Drag actors here to add them to the scene.",
+      "Tirar": "Remove from scene",
+      "AbrirPainel": "Open the panel",
+      "Parametros": "Scene parameters",
+      "ParametrosAjuda": "In JSON. Change freely: the panel uses this.",
+      "ParametrosInvalidos": "Invalid JSON: parameters unchanged.",
+      "RecuperaUmPv": "{ator} survived: recovers 1 HP",
+      "EncerrarPergunta": "End the scene? Conditions, markers, stored dice, chase and stealth of everyone in it go back to zero.",
+      "NovoCombate": "New combat",
+      "SemTokens": "No tokens on the map: drag actors onto the scene sheet.",
+      "RodadaMenos": "Back one round",
+      "RodadaMais": "Forward one round"
+    },
+    "Combate2": {
+      "Desarmado": "Unarmed",
+      "Longe": "Target at long range (DC +3)",
+      "AlvoLutando": "Target engaged in melee",
+      "Arriscar": "Ignore the penalty and risk it (1d6)",
+      "Vantagem": "Tactical advantage (+1 step)",
+      "NaoLetal": "Nonlethal blow (-2 steps)",
+      "Protegido": "{alvo} has full cover and can't be attacked.",
+      "DesviouTiro": "1d6 rolled {valor}: the attack goes to whoever the target was fighting!",
+      "AcertouAlvo": "1d6 rolled {valor}: the attack stays on target.",
+      "GolpeNaoLetal": "Nonlethal blow.",
+      "AplicarDano": "Apply {dano} damage",
+      "Defender": "{alvo} defends",
+      "Revidar": "{alvo} strikes back",
+      "AtaqueTitulo": "Attack: {ataque}",
+      "Acertou": "{atacante} hits {alvo}: {total} on the test, {dano} damage.",
+      "Errou": "{atacante} misses {alvo}: {total} on the test.",
+      "DanoEm": "{dano} damage to {alvo}",
+      "CruzadoTitulo": "Crossed attacks",
+      "Cruzado": "{a} rolled {ta}, {b} rolled {tb}.",
+      "NinguemAcertou": "Nobody reached 7: both miss.",
+      "DoisAcertaram": "Tie: both hit.",
+      "UmAcertou": "The higher roll hits.",
+      "DefesaDado": "Defense",
+      "DefesaTitulo": "Defend",
+      "DefesaVenceu": "{alvo} avoids the blow: {defesa} against {ataque}. Takes no damage, deals none.",
+      "DefesaPerdeu": "{alvo} fails to avoid the blow: {defesa} against {ataque}.",
+      "ArmaduraTitulo": "Armor points",
+      "ArmaduraPergunta": "{dano} damage. Spend 1 armor point to reduce it by 10? ({n} left)",
+      "OpostoPerdeu": "{ator} fails: {a} against {b} from {alvo}.",
+      "atrapalhar": "Hinder",
+      "atrapalharVenceu": "{ator} hinders {alvo} ({a} against {b}): one step down on all their tests until the end of the round.",
+      "fintar": "Feint",
+      "fintarVenceu": "{ator} fools {alvo} ({a} against {b}): two steps up on the next attack against them, until the end of next round.",
+      "defender": "Defend",
+      "defenderTexto": "{ator} gets ready to avoid the next attack.",
+      "mirar": "Aim",
+      "mirarTexto": "{ator} aims: +1d6 on next round's ranged attack.",
+      "preparar": "Ready",
+      "prepararTexto": "{ator} readies an action for when the declared event happens.",
+      "usar": "Use ability or item",
+      "usarTexto": "{ator} uses an ability or item.",
+      "erguer": "Stand up",
+      "erguerTexto": "{ator} stands up.",
+      "erguerLivre": "Stand up (free action)",
+      "erguerLivreTexto": "{ator} stands up in a rush: one step down on all tests this round.",
+      "sacar": "Draw or stow",
+      "sacarTexto": "{ator} draws or stows an item.",
+      "sacarLivre": "Draw (free action)",
+      "sacarLivreTexto": "{ator} draws or stows in a rush: one step down on all tests this round.",
+      "jogarSe": "Drop prone",
+      "jogarSeTexto": "{ator} drops prone (free action).",
+      "AjusteDt": "DC adjustment",
+      "AjustePassos": "Step adjustment",
+      "AplicarCondicao": "{alvo}: {condicao}",
+      "DanoManual": "Other value…",
+      "DanoManualTitulo": "Damage to {alvo}",
+      "Quanto": "How much",
+      "SemProtecao": "Direct, no DR or armor",
+      "Mirou": "I aimed at this target last round (+1d6)",
+      "Fintou": "I feinted this target (+2 steps)"
+    },
+    "Manobra": {
+      "agarrar": {
+        "nome": "Grapple",
+        "efeito": "The target is grappled: immobile, one step down on attacks and small weapons only. The grappler is encumbered.",
+        "porCinco": ""
+      },
+      "derrubar": {
+        "nome": "Trip",
+        "efeito": "The target is prone.",
+        "porCinco": "Won by 5 or more: deals impact damage equal to your low roll."
+      },
+      "desarmar": {
+        "nome": "Disarm",
+        "efeito": "The target drops a held item.",
+        "porCinco": "Won by 5 or more: take the item, or throw it."
+      },
+      "empurrar": {
+        "nome": "Shove",
+        "efeito": "The target goes a few meters back.",
+        "porCinco": "Won by 5 or more: the target is off-balance, one step down on the next test."
+      },
+      "quebrar": {
+        "nome": "Break",
+        "efeito": "Deals the attack's damage to an item the target holds or wears.",
+        "porCinco": ""
+      }
+    },
+    "Lesao": {
+      "TesteTitulo": "Injury test",
+      "TesteTexto": "{ator} reached 0 HP. Physical + Fortitude, DC {dt}.",
+      "Rolar": "Roll injury test (DC {dt})",
+      "TabelaTitulo": "Injury",
+      "TabelaTexto": "{ator} failed the injury test.",
+      "RolarTabela": "Roll injury (1d20)",
+      "RolarNaoLetal": "Nonlethal damage (2d20, best)",
+      "Desfecho": {
+        "critico": "{ator} recovers 1 HP and is no longer unconscious or dying.",
+        "sucesso": "{ator} is unconscious and dying.",
+        "falha-critica": "{ator} dies."
+      },
+      "morteSubita": {
+        "nome": "Sudden death",
+        "efeito": "The character dies."
+      },
+      "morteLenta": {
+        "nome": "Slow death",
+        "efeito": "Fatal wound: recovers 1 HP, wakes and acts next round. At its end, dies; nothing prevents it."
+      },
+      "laceracao": {
+        "nome": "Deep laceration",
+        "efeito": "Loses 2 max HP. Stacks."
+      },
+      "semOlho": {
+        "nome": "Lost eye",
+        "efeito": "-1 to Perception and Aim."
+      },
+      "semMao": {
+        "nome": "Lost hand",
+        "efeito": "Holds one item only; two-handed tasks are one step down or fail."
+      },
+      "semPe": {
+        "nome": "Lost foot",
+        "efeito": "Two steps down on moving and on foot chases."
+      },
+      "tendao": {
+        "nome": "Damaged tendon",
+        "efeito": "-2 to Acrobatics."
+      },
+      "musculo": {
+        "nome": "Damaged muscle",
+        "efeito": "-2 to Athletics."
+      },
+      "orgaoInterno": {
+        "nome": "Damaged internal organ",
+        "efeito": "-2 to Fortitude."
+      },
+      "orgaoSensorial": {
+        "nome": "Damaged sense organ",
+        "efeito": "-2 to Perception."
+      },
+      "cicatriz": {
+        "nome": "Frightening scar",
+        "efeito": "-2 to Persuasion, +1 to Intimidate."
+      },
+      "contusao": {
+        "nome": "Bruise",
+        "efeito": "Physical one step down until the end of the scene."
+      },
+      "surto": {
+        "nome": "Adrenaline rush",
+        "efeito": "No sequels: recovers 1 HP."
+      },
+      "AplicarLinha": "Apply to sheet"
+    },
+    "TraumaBeta": {
+      "TesteTitulo": "Trauma test",
+      "TesteTexto": "{ator} reached 0 PD. Emotion + Discipline, DC {dt}.",
+      "Rolar": "Roll trauma test (DC {dt})",
+      "Passou": "{ator} holds on: no effect.",
+      "TabelaTitulo": "Trauma",
+      "TabelaTexto": "{ator} failed the trauma test.",
+      "RolarTabela": "Roll trauma (1d20)",
+      "colapso": {
+        "nome": "Total collapse",
+        "efeito": "The mind gives in: the character is lost."
+      },
+      "estresse": {
+        "nome": "Post-traumatic stress",
+        "efeito": "+1 to all emotional damage taken."
+      },
+      "cognitiva": {
+        "nome": "Cognitive decay",
+        "efeito": "-1 to Mind."
+      },
+      "macula": {
+        "nome": "Psychic stain",
+        "efeito": "-1 to Emotion."
+      },
+      "chaga": {
+        "nome": "Soul wound",
+        "efeito": "Loses 2 max PD."
+      },
+      "retracao": {
+        "nome": "Defensive withdrawal",
+        "efeito": "-2 to Persuasion and Intuition."
+      },
+      "panico": {
+        "nome": "Panic",
+        "efeito": "Gains a dread die."
+      },
+      "estupor": {
+        "nome": "Catatonic stupor",
+        "efeito": "Loses the action next round."
+      },
+      "animo": {
+        "nome": "Burst of spirit",
+        "efeito": "No sequels: recovers 1 PD."
+      }
+    },
+    "Perseguicao": {
+      "Avancar": "Advance",
+      "AvancarTitulo": "Advance: {ator}",
+      "Pericia": "Skill",
+      "Folego": "Breath dice to use (has {n})",
+      "FolegoDado": "Breath",
+      "SacrificioDado": "Sacrifice",
+      "Esforco": "Extra effort: +1 step, lose {formula} HP",
+      "EsforcoTitulo": "Extra effort",
+      "Carregar": "Carry someone",
+      "Avancou": "{ator} gains {pontos} advance point(s): {total} total.",
+      "Recuperar": "Catch your breath",
+      "Recuperou": "{ator} catches their breath: {n} die/dice.",
+      "Sacrificio": "Sacrifice",
+      "Sacrificou": "{ator} stays behind and hampers the creature: +1d6 on allies' advance this round.",
+      "Avisar": "Warn about the ditch",
+      "Avisou": "{ator} warns the others: one step up to notice the ditch.",
+      "Vala": "The ditch",
+      "Derrubado": "knocked down",
+      "DanoFisico": "{ator}: {dano} damage",
+      "DanoEmocional": "{ator}: {dano} emotional damage",
+      "Cabecas": "The heads attack",
+      "CabecasTexto": "Two random characters take this round's attacks.",
+      "Corte": "Anyone without {minimo} advance points is caught.",
+      "Atingidos": "Caught: {nomes}.",
+      "Morreu": "{nomes} is caught and devoured.",
+      "Empate": "Tied for last: {nomes}. Opposed test between them; the loser dies.",
+      "FimDaRodada": "End of round {n}",
+      "ProximoCorte": "Next cut: end of round {rodada}, {minimo} advance points.",
+      "AvancoCampo": "Advance",
+      "MarcarDerrubado": "Knock down {ator}",
+      "UltimaRodada": "That was the last round: end the scene when the table is ready.",
+      "TirarDaCorrida": "Take {ator} out of the race"
+    },
+    "Furtividade": {
+      "Teste": "Hiding test",
+      "Escondeu": "{ator} hides: {dados}.",
+      "EscolherDado": "Which die becomes a hiding die?",
+      "Esconder": "Hide",
+      "Distrair": "Distract",
+      "Chamar": "Draw attention",
+      "Chamou": "{ator} draws attention to protect {aliado}.",
+      "Chamativa": "Loud action",
+      "PerdeuDado": "{ator} makes noise and loses a hiding die.",
+      "SemDados": "No hiding dice.",
+      "Encontrado": "{ator} loses {n} die/dice and is found!",
+      "Perdeu": "{ator} loses {n} die/dice.",
+      "EncontradoCurto": "found",
+      "NinguemAchado": "Nobody was found.",
+      "CriaturasTitulo": "The creatures act ({n})",
+      "DizerNumeros": "Name two numbers",
+      "FicarParado": "Stay still (2d6 PD)",
+      "SairDePerto": "Move away (lose a die)",
+      "EncontradosTitulo": "The creatures attack whoever was found",
+      "ProximaArea": "Next area",
+      "Area": "{nome} (area {numero} of {total}): {avancos} advances.",
+      "Linha": {
+        "numeros": "The GM names two numbers; anyone with those dice discards them.",
+        "sopro": "A creature gets very close to someone: stay still or move away?",
+        "procura": "The creatures search everyone.",
+        "alvo": "A creature searches someone.",
+        "nada": "The creatures stop for a moment."
+      },
+      "RolarCriaturas": "Roll the creatures (1d10)",
+      "EscolherLinha": "Pick the table line",
+      "UsarLinha": "Use this line",
+      "DescartarIguais": "Discard dice equal to {valores}",
+      "Procura": "Search",
+      "TirarDado": "Remove this die",
+      "NovoDado": "New die: type and value",
+      "PorDado": "Add die",
+      "AvancosCampo": "Advances",
+      "Runa": "Brenna's rune",
+      "RunaAjuda": "Wipe the rune off the forehead: single use. Choose the effect.",
+      "RunaOpcao": {
+        "pv": "Recover 1d10 HP",
+        "pd": "Recover 1d10 PD",
+        "esconderijo": "A 1d10 hiding die"
+      },
+      "Esperando": "Waiting",
+      "EsperandoAjuda": "Finished the area and is not acting: the search does not reach them. Acting clears this.",
+      "NinguemExposto": "Everyone finished the area and is waiting: the search reaches no one."
+    },
+    "Equilibrio": {
+      "Titulo": "Balance test",
+      "Caindo": "{a} and {b}: falling. Spend a balance die ({n} left)?",
+      "Firme": "Balanced.",
+      "Caiu": "Fell."
+    },
+    "Condicao2": {
+      "PorDado": "Save a die",
+      "Anotar": "Note it",
+      "PorRelacao": "New relationship"
     }
   }
 }

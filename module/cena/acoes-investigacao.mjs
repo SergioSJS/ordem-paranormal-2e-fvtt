@@ -14,6 +14,7 @@ import { resolverInvestigacao, resolverExaminar, chaveInfo, motivoSemRevelacao, 
 import { alvosDaCenaAtiva, alvosMarcados } from "./encerrar-investigacao.mjs";
 import { investigacaoAtiva } from "./investigacao-ativa.mjs";
 import { rolarTeste, rotuloDePericia, renderizar } from "../dice/teste.mjs";
+import { periciasDoQuadro } from "./investigacao.mjs";
 import { enviarCardAoMestre } from "../ui/card-mestre.mjs";
 import { escolherPericia } from "../dice/pericia-dialog.mjs";
 import { comoMestre, registrarAcaoDeMestre } from "../ui/socket.mjs";
@@ -578,6 +579,35 @@ export async function registrarTravaDeCena(trava, ator) {
     acao: game.i18n.localize(trava === "recapitularUsado"
       ? "OP2.Investigacao.Recapitular" : "OP2.Investigacao.Compartilhar"),
   }));
+}
+
+/**
+ * OBSERVAR (beta §5): outra perícia do quadro, pelo tamanho do dado. Sem teste, sem custo.
+ * É o que `examinar()` faz no primeiro passo, sem o segundo.
+ */
+export async function observar(ator, poiUuid, chavePericia) {
+  const poi = await carregarPoi(poiUuid);
+  if (!poi) return null;
+  const chave = chavePericia ?? await escolherPericia(ator, {
+    titulo: `${game.i18n.localize("OP2.Investigacao.ObservarTitulo")} — ${poi.name}`,
+    ajuda: game.i18n.localize("OP2.Investigacao.ObservarAjuda"),
+    mostrarAtributo: false,
+    chaves: periciasDoQuadro(poi.system.informacoes),
+  });
+  if (!chave) return null;
+  const resolvido = ator.system.resolverChave(chave);
+  if (!resolvido) return null;
+  const novos = resolverInvestigacao(poi.system.informacoes, chave, resolvido.valor, idsRevelados(ator, poiUuid));
+  await gravarRevelacoes(ator, poiUuid, novos, { investigado: true });
+  const dados = { ator: ator.name, poi: poi.name, pericia: rotuloDePericia(chave) };
+  await ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({ actor: ator }),
+    content: `<div class="op2 op2-card op2-card--investigacao"><p class="op2-card__texto">${foundry.utils.escapeHTML(
+      game.i18n.format(novos.length ? "OP2.Investigacao.ObservarAchou" : "OP2.Investigacao.ObservarNada", dados),
+    )}</p></div>`,
+    flags: { [SYSTEM_ID]: { tipo: "observar", atorId: ator.id } },
+  });
+  return novos;
 }
 
 /**

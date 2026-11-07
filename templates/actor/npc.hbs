@@ -34,6 +34,26 @@
     </div>
   </section>
 
+  {{#if combateNovo}}
+    <section class="op2-npc-secao op2-moldura" data-npc-combate>
+      <div class="op2-painel__topo">
+        <span class="op2-tag op2-tag--secao">{{localize "OP2.Npc.Ataques"}}</span>
+        <label class="op2-campo op2-campo--inline"><span>RD</span>
+          <input type="number" name="system.rd" value="{{sistema.rd}}" min="0" {{#unless editavel}}disabled{{/unless}}></label>
+        {{#if editavel}}<button type="button" class="op2-botao op2-botao--fantasma" data-action="adicionarAtaque"><i class="fa-solid fa-plus"></i> {{localize "OP2.Npc.AdicionarAtaque"}}</button>{{/if}}
+      </div>
+      {{#each ataques}}
+        <div class="op2-npc-ataque">
+          <input type="text" name="system.ataques.{{@index}}.nome" value="{{nome}}" placeholder="{{localize 'OP2.Npc.AtaqueNome'}}" {{#unless ../editavel}}disabled{{/unless}}>
+          <input type="text" name="system.ataques.{{@index}}.dados" value="{{dados}}" placeholder="d8+d6" {{#unless ../editavel}}disabled{{/unless}}>
+          <span>RA+</span>
+          <input type="number" name="system.ataques.{{@index}}.bonusDano" value="{{bonusDano}}" {{#unless ../editavel}}disabled{{/unless}}>
+          {{#if ../editavel}}<button type="button" class="op2-botao op2-botao--fantasma" data-action="removerAtaque" data-indice="{{@index}}" aria-label="{{localize 'OP2.Npc.RemoverAtaque'}}"><i class="fa-solid fa-xmark"></i></button>{{/if}}
+        </div>
+      {{/each}}
+    </section>
+  {{/if}}
+
   <section class="op2-npc-secao op2-moldura">
     <div class="op2-painel__topo">
       <span class="op2-tag op2-tag--secao">{{localize "OP2.Secao.Pericias"}}</span>

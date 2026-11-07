@@ -1,0 +1,28 @@
+<div class="op2-ficha-cena">
+  <header class="op2-item-ficha__topo">
+    <img src="{{actor.img}}" alt="" data-action="editImage" data-edit="img">
+    <input type="text" class="op2-nome" name="name" value="{{actor.name}}" {{#unless editavel}}disabled{{/unless}}>
+  </header>
+  <label class="op2-campo">
+    <span>{{localize "OP2.CenaAcao.TipoRotulo"}}</span>
+    <select name="system.tipo" {{#unless editavel}}disabled{{/unless}}>
+      {{#each tipos}}<option value="{{chave}}" {{#if atual}}selected{{/if}}>{{rotulo}}</option>{{/each}}
+    </select>
+  </label>
+  <p class="op2-ajuda">{{localize "OP2.CenaAcao.ParticipantesAjuda"}}</p>
+  <ul class="op2-ficha-cena__lista">
+    {{#each participantes}}
+      <li>{{nome}}
+        {{#if ../editavel}}<button type="button" class="op2-botao op2-botao--fantasma" data-action="tirar" data-uuid="{{uuid}}" aria-label="{{localize 'OP2.CenaAcao.Tirar'}}"><i class="fa-solid fa-xmark"></i></button>{{/if}}
+      </li>
+    {{/each}}
+  </ul>
+  {{#if temParametros}}
+    <label class="op2-campo">
+      <span>{{localize "OP2.CenaAcao.Parametros"}}</span>
+      <textarea data-parametros rows="10" {{#unless editavel}}disabled{{/unless}}>{{parametros}}</textarea>
+      <span class="op2-ajuda">{{localize "OP2.CenaAcao.ParametrosAjuda"}}</span>
+    </label>
+  {{/if}}
+  <button type="button" class="op2-botao" data-action="abrirPainel">{{localize "OP2.CenaAcao.AbrirPainel"}}</button>
+</div>

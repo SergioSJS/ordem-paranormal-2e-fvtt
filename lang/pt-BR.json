@@ -3,7 +3,8 @@
     "Actor": {
       "personagem": "Personagem",
       "npc": "NPC",
-      "investigacao": "Investigação"
+      "investigacao": "Investigação",
+      "cena-acao": "Cena de ação"
     },
     "Item": {
       "habilidade": "Habilidade",
@@ -25,7 +26,8 @@
       "DesafioAcesso": "Desafio",
       "Ferramenta": "Ferramenta da Ordo Realitas",
       "Investigacao": "Investigação",
-      "Evento": "Ficha de evento"
+      "Evento": "Ficha de evento",
+      "CenaAcao": "Cena de ação"
     },
     "Atributo": {
       "fisico": "Físico",
@@ -100,7 +102,12 @@
       "Vocacao": "Vocação",
       "Nivel": "Nível",
       "Nex": "NEX",
-      "NexAjuda": "NEX é a progressão paranormal. Sem mecânica publicada no playtest ainda; o campo já existe para quando sair."
+      "NexAjuda": "NEX é a progressão paranormal. Sem mecânica publicada no playtest ainda; o campo já existe para quando sair.",
+      "Patamar": "Patamar",
+      "Armadura": "Pontos de armadura",
+      "ArmaduraAjuda": "Ao sofrer dano, gaste 1 para reduzir 10.",
+      "Curar": "Curar",
+      "ArmaduraGasta": "gastos"
     },
     "Recurso": {
       "pv": "PV",
@@ -122,12 +129,18 @@
       "Inventario": "Inventário",
       "Notas": "Notas",
       "Conteudo": "Conteúdo da ficha",
-      "Ferramentas": "Ferramentas da Ordo Realitas"
+      "Ferramentas": "Ferramentas da Ordo Realitas",
+      "Condicoes": "Condições",
+      "Lesoes": "Lesões",
+      "Traumas": "Traumas",
+      "Relacoes": "Relações",
+      "Testes": "Testes"
     },
     "Aba": {
       "habilidades": "Habilidades",
       "inventario": "Inventário",
-      "notas": "Notas"
+      "notas": "Notas",
+      "condicao": "Condição"
     },
     "Dado": {
       "Alterar": "Alterar o dado"
@@ -181,7 +194,16 @@
       "NaoEquipado": "Não equipado",
       "AlternarEquipado": "Equipar ou desequipar",
       "AumentarCarga": "Usar uma carga a mais (aumentar)",
-      "DiminuirCarga": "Gastar uma carga (diminuir)"
+      "DiminuirCarga": "Gastar uma carga (diminuir)",
+      "Combate": "Combate",
+      "TipoAtaque": "Tipo de ataque",
+      "NaoArma": "Não é arma",
+      "BonusDano": "Dano (RA +)",
+      "BonusTeste": "Bônus no teste",
+      "MinimoCritico": "Crítico a partir de",
+      "IgnoraRd": "Ignora RD",
+      "Marcial": "Equipamento marcial",
+      "Passos": "Passos enquanto vestido"
     },
     "Item": {
       "Novo": "Novo {tipo}",
@@ -199,7 +221,11 @@
       "NomeDaPericia": "Nome da perícia",
       "DadoDaPericia": "Dado",
       "PericiaRepetida": "Este NPC já tem {pericia}.",
-      "Confirmar": "Adicionar"
+      "Confirmar": "Adicionar",
+      "Ataques": "Ataques",
+      "AdicionarAtaque": "Novo ataque",
+      "AtaqueNome": "Nome do ataque",
+      "RemoverAtaque": "Remover ataque"
     },
     "POI": {
       "Aba": {
@@ -346,7 +372,13 @@
       "AguardaMestre": "O mestre recebeu o que você achou — ele narra e entrega.",
       "RevelacaoSoMestre": "Só você vê isto. O jogador recebe a pista quando você entregar.",
       "EntregarAoJogador": "Entregar ao jogador",
-      "JaEntregue": "Esta revelação já foi entregue."
+      "JaEntregue": "Esta revelação já foi entregue.",
+      "Observar": "Observar",
+      "ObservarDica": "Escolhe outra perícia do quadro e recebe o que o dado dela alcança. Sem teste, sem custo.",
+      "ObservarTitulo": "Observar",
+      "ObservarAjuda": "Escolha outra perícia do quadro: você recebe as linhas que o tamanho do dado alcança.",
+      "ObservarNada": "{ator} observa {poi} com {pericia} e não nota nada novo.",
+      "ObservarAchou": "{ator} observa {poi} com {pericia}."
     },
     "Dialog": {
       "Teste": {
@@ -359,7 +391,9 @@
         "Oposto": "Teste oposto (sem DT)",
         "AvisoSelecao": "Você vai rolar mais dados do que pode somar — escolherá quais 3 contam.",
         "NoTeto": "Teto de 4 dados rolados atingido.",
-        "CustoPD": "Custa {custo} PD, cobrados ao rolar."
+        "CustoPD": "Custa {custo} PD, cobrados ao rolar.",
+        "Modificador": "Modificador fixo",
+        "Guardados": "Dados guardados"
       },
       "Selecao": {
         "Titulo": "Escolha os dados",
@@ -431,7 +465,8 @@
       "AplicarDano": "Aplicar dano",
       "DanoNosSelecionados": "Aplica nos tokens selecionados na cena; sem seleção, em quem rolou.",
       "FalhaCriticaExplica": "Todos os dados em 1: rola 1d8 na tabela de falha crítica (spec §4.4). O mestre decide o efeito.",
-      "SoMestre": "Só você vê isto."
+      "SoMestre": "Só você vê isto.",
+      "JaUsado": "Este botão já foi usado. Aplicar de novo?"
     },
     "Cena": {
       "Encerrar": "Encerrar cena",
@@ -549,7 +584,8 @@
       "SemMestreOnline": "Nenhum mestre online para registrar o resultado. Chame o mestre e tente de novo.",
       "DesafioAusente": "Desafio de acesso não encontrado.",
       "SemFerramenta": "Você não tem {ferramenta}.",
-      "SemPD": "PD insuficiente para {nome} (custa {custo})."
+      "SemPD": "PD insuficiente para {nome} (custa {custo}).",
+      "SoDono": "Quem decide é quem joga com {ator}, ou o mestre."
     },
     "Config": {
       "dtPadrao": {
@@ -597,6 +633,10 @@
       "boasVindas": {
         "name": "Boas-vindas ao entrar",
         "hint": "Mostra a tela de boas-vindas (o que o sistema traz, aventuras do playtest, licença) ao mestre ao entrar no mundo. \"Sobre e licença\" abre a mesma tela a qualquer hora."
+      },
+      "combateNovoModerno": {
+        "name": "Combate novo no modo moderno",
+        "hint": "Usa o combate por fases, as lesões e os traumas do playtest beta também no modo moderno. Desligado, volta o combate simplificado do alpha. No modo Vigília este é o único combate."
       }
     },
     "Desafio": {
@@ -717,7 +757,27 @@
       "HackErrou": "Errou",
       "HackAcertouTexto": "{ator} resolveu o problema — o painel abriu.",
       "HackErrouTexto": "{ator} errou — pode tentar de novo na próxima rodada.",
-      "HackTempoEsgotado": "Tempo esgotado"
+      "HackTempoEsgotado": "Tempo esgotado",
+      "Escalar": "Escalar",
+      "EscalarRapido": "Escalar rápido",
+      "EscalarCauteloso": "Escalar com cuidado",
+      "EscalarAlvo": "Pontos para chegar",
+      "EscalarDtRapido": "DT rápido",
+      "EscalarDtCauteloso": "DT cauteloso",
+      "EscalarSubiu": "{ator} sobe: {pontos} de {alvo}.",
+      "EscalarChegou": "{ator} chega ao topo.",
+      "EscalarCaiu": "{ator} cai e sofre {dano} de dano.",
+      "Equilibrar": "Equilibrar-se",
+      "EquilibrarSucessos": "Sucessos necessários",
+      "EquilibrarAvancou": "{ator}: {n} de {total} sucessos.",
+      "EquilibrarChegou": "{ator} chega ao outro lado.",
+      "EquilibrarCaiu": "{ator} cai e precisa começar de novo.",
+      "AlcancarPericia": "Perícia de Alcançar",
+      "Abordagem": {
+        "escalar": "Escalar",
+        "equilibrar": "Equilibrar-se",
+        "alcancar": "Alcançar"
+      }
     },
     "Ferramenta": {
       "Rotulo": "Ferramenta",
@@ -938,13 +998,18 @@
       "AtoII": "Ato II — O Porão",
       "Resumo": {
         "ato-i": "{pontos} pontos de interesse, {linhas} linhas de quadro, {desafios} desafios, maldição em {rodadas} rodadas, {itens} itens de mesa",
-        "ato-ii": "{pontos} pontos de interesse, {linhas} linhas de quadro, {desafios} desafios, {leituras} leituras de ferramenta"
+        "ato-ii": "{pontos} pontos de interesse, {linhas} linhas de quadro, {desafios} desafios, {leituras} leituras de ferramenta",
+        "missao-1": "{pontos} pontos de interesse, {linhas} linhas de quadro, {cenas} cenas de ação e {personagens} pré-gerados.",
+        "missao-2": "{pontos} pontos de interesse, {linhas} linhas de quadro, {cenas} cenas de ação e {personagens} pré-gerados."
       },
       "Problemas": "Conferência: {n} aviso(s) — o que o texto diz e o que o livro imprime não batem em tudo; confira no livro",
       "Motivo": {
         "trecho": "Não achei o Ato I dentro deste PDF. É o livro do playtest de Ordem Paranormal 2?",
         "ausente": "Este PDF não traz o Ato II — ele só existe no PDF completo do playtest.",
-        "falha": "A montagem falhou."
+        "falha": "A montagem falhou.",
+        "ausenteMissao": "Este PDF não traz esta missão. A segunda só existe no PDF de assinantes.",
+        "naoEhBeta": "Não achei as missões neste PDF. É o do playtest beta, Contos da Vigília? O do alpha vai no grupo do modo moderno.",
+        "ehBeta": "Este é o PDF do playtest beta: escolha-o no grupo do modo Vigília."
       },
       "Importado": "{nome}: importado para o mundo.",
       "MenuNome": "Aventuras do playtest",
@@ -954,7 +1019,9 @@
       "ArtesFaltam": "Artes: faltam {faltam} de {total} arquivos na pasta do mundo — é o {zip} da editora",
       "ArtesOk": "Artes: os {total} arquivos estão em {pasta}",
       "EnviarZip": "Enviar zip das artes",
-      "ReenviarZip": "Reenviar zip das artes"
+      "ReenviarZip": "Reenviar zip das artes",
+      "Missao1": "Missão 1 — O Pântano dos Afogados",
+      "Missao2": "Missão 2 — A Caverna de Cruachan"
     },
     "Licenca": {
       "Aviso": "Este é um conteúdo não oficial, publicado sob a Licença da Comunidade de Ordem Paranormal. Contém material gerado por inteligência artificial: o código é escrito com auxílio de IA; os textos são do autor.",
@@ -962,7 +1029,7 @@
     },
     "BoasVindas": {
       "Titulo": "Ordem Paranormal 2 — Playtest (Não-Oficial)",
-      "Versao": "Sistema não-oficial para Foundry VTT do playtest alpha de Ordem Paranormal RPG 2 — versão {versao}.",
+      "Versao": "Sistema não-oficial para Foundry VTT dos playtests de Ordem Paranormal RPG 2 — versão {versao}.",
       "SeloAlt": "Selo da Licença da Comunidade de Ordem Paranormal",
       "TrazTitulo": "O que vem no sistema",
       "Traz": {
@@ -996,6 +1063,413 @@
       "Acoes": "Janela de ações",
       "AcoesDica": "Abre e fecha a janela de ações do personagem: o do token selecionado, senão o seu.",
       "SemPersonagem": "Escolha um personagem, ou selecione o token dele, para abrir as ações."
+    },
+    "Patamar": {
+      "iniciante": "Iniciante",
+      "veterano": "Veterano",
+      "elite": "Elite",
+      "lenda": "Lenda"
+    },
+    "Pavor": {
+      "Titulo": "Dado de pavor",
+      "Abracado": "Pavor abraçado",
+      "Controlar": "Controlar (1 PD)",
+      "ControlarDica": "Gaste 1 PD para reduzir o dado de pavor em um passo.",
+      "Abracar": "Abraçar (5 PD)",
+      "AbracarDica": "Gaste 5 PD para converter o dado de pavor em dado bônus.",
+      "Vencido": "O dado de pavor saiu 1: o medo passou.",
+      "Receber": "Receber pavor",
+      "Limpar": "Tirar",
+      "Ignorar": "Não rolar agora",
+      "Encerrar": "Encerrar o dado de pavor"
+    },
+    "PosRolagem": {
+      "Titulo": "Depois de rolar",
+      "Ajuda": "Marcadores de análise mudam um dado em 1. Prontidão rola um dado de novo.",
+      "Prontidao": "Prontidão",
+      "ProntidaoDica": "Gaste {custo} PD para rolar este dado de novo.",
+      "Total": "Resultado:",
+      "Marcadores": "{n} marcador(es)",
+      "Concluir": "Pronto"
+    },
+    "Analise": {
+      "Titulo": "Análise",
+      "Acao": "Analisar (+2)",
+      "Texto": "{ator} analisa a situação: {n} marcador(es) de análise."
+    },
+    "Relacao": {
+      "Invocar": "Invocar relação: {com}",
+      "InvocarAjuda": "Descreva o que seu personagem sente por essa pessoa, e escolha o benefício. Cada relação só pode ser invocada uma vez por missão.",
+      "BotaoInvocar": "Invocar",
+      "Invocada": "invocada",
+      "Grau": "Grau {n}",
+      "Motivou": "{com} recupera {n} PD.",
+      "Beneficio": {
+        "teste": "+{dado} em um teste ligado a {com}",
+        "ajudar": "+{dado} ao ajudar {com}",
+        "motivar": "Motivar {com}: recupera {formula} PD",
+        "acaoExtra": "Uma ação extra para ajudar {com}"
+      },
+      "Com": "Com quem",
+      "Rotulo": "Rótulo",
+      "MotivouSemAlvo": "{com} recupera {n} PD. Não achei esse nome no mundo: aplique à mão."
+    },
+    "Condicao": {
+      "caido": "Caído",
+      "agarrado": "Agarrado",
+      "atordoado": "Atordoado",
+      "inconsciente": "Inconsciente",
+      "moribundo": "Moribundo",
+      "coberturaLeve": "Cobertura leve",
+      "coberturaTotal": "Cobertura total",
+      "ocultacaoLeve": "Ocultação leve",
+      "ocultacaoTotal": "Ocultação total",
+      "atrapalhado": "Atrapalhado",
+      "apressado": "Apressado",
+      "defendendo": "Defendendo",
+      "fintando": "Fintando",
+      "mirando": "Mirando",
+      "empurrado": "Empurrado"
+    },
+    "Fase": {
+      "suporte": "Suporte",
+      "distancia": "À distância",
+      "corpo": "Corpo a corpo",
+      "final": "Final",
+      "personagens": "Personagens",
+      "criaturas": "Criaturas"
+    },
+    "CenaAcao": {
+      "Painel": "Cena de ação",
+      "Nenhuma": "Nenhuma cena de ação. Crie um ator do tipo Cena de ação, ou importe uma missão do modo Vigília.",
+      "Rodada": "Rodada {n}",
+      "RodadaCurta": "Rodada {n}",
+      "Parada": "Parada",
+      "Encerrada": "Cena de ação encerrada",
+      "Iniciar": "Iniciar",
+      "Encerrar": "Encerrar a cena",
+      "ProximaFase": "Próxima fase",
+      "ProximaRodada": "Próxima rodada",
+      "Adicionar": "Pôr na cena",
+      "Quantos": "Quantos",
+      "SemCena": "Abra uma cena no mapa para pôr criaturas nela.",
+      "Armadura": "armadura {n}",
+      "JaAgiu": "já agiu",
+      "Investigar": "Investigar",
+      "MaisAcoes": "Mais ações",
+      "TipoRotulo": "Tipo",
+      "Tipo": {
+        "combate": "Combate",
+        "perseguicao": "Perseguição",
+        "furtividade": "Furtividade"
+      },
+      "ParticipantesAjuda": "Arraste atores para cá para pô-los na cena.",
+      "Tirar": "Tirar da cena",
+      "AbrirPainel": "Abrir o painel",
+      "Parametros": "Parâmetros da cena",
+      "ParametrosAjuda": "Em JSON. Mude à vontade: é o que o painel usa.",
+      "ParametrosInvalidos": "JSON inválido: os parâmetros não mudaram.",
+      "RecuperaUmPv": "{ator} sobreviveu: recupera 1 PV",
+      "EncerrarPergunta": "Encerrar a cena? Condições, marcadores, dados guardados, perseguição e furtividade de quem participa voltam a zero.",
+      "NovoCombate": "Novo combate",
+      "SemTokens": "Nenhum token no mapa: arraste os atores para a ficha da cena.",
+      "RodadaMenos": "Voltar uma rodada",
+      "RodadaMais": "Avançar uma rodada"
+    },
+    "Combate2": {
+      "Desarmado": "Desarmado",
+      "Longe": "Alvo em alcance longo (DT +3)",
+      "AlvoLutando": "Alvo envolvido em corpo a corpo",
+      "Arriscar": "Ignorar a penalidade e arriscar (1d6)",
+      "Vantagem": "Vantagem tática (+1 passo)",
+      "NaoLetal": "Golpe não letal (-2 passos)",
+      "Protegido": "{alvo} está em cobertura total: não pode ser atacado.",
+      "DesviouTiro": "1d6 deu {valor}: o ataque vai em quem o alvo enfrentava!",
+      "AcertouAlvo": "1d6 deu {valor}: o ataque segue no alvo.",
+      "GolpeNaoLetal": "Golpe não letal.",
+      "AplicarDano": "Aplicar {dano} de dano",
+      "Defender": "{alvo} se defende",
+      "Revidar": "{alvo} revida",
+      "AtaqueTitulo": "Ataque: {ataque}",
+      "Acertou": "{atacante} acerta {alvo}: {total} no teste, {dano} de dano.",
+      "Errou": "{atacante} erra {alvo}: {total} no teste.",
+      "DanoEm": "{dano} de dano em {alvo}",
+      "CruzadoTitulo": "Ataques cruzados",
+      "Cruzado": "{a} tirou {ta}, {b} tirou {tb}.",
+      "NinguemAcertou": "Ninguém chegou a 7: os dois erram.",
+      "DoisAcertaram": "Empate: os dois acertam.",
+      "UmAcertou": "Quem tirou mais acerta.",
+      "DefesaDado": "Defesa",
+      "DefesaTitulo": "Defender-se",
+      "DefesaVenceu": "{alvo} evita o golpe: {defesa} contra {ataque}. Não sofre dano, e também não causa.",
+      "DefesaPerdeu": "{alvo} não evita o golpe: {defesa} contra {ataque}.",
+      "ArmaduraTitulo": "Pontos de armadura",
+      "ArmaduraPergunta": "{dano} de dano. Gastar 1 ponto de armadura para reduzir 10? (restam {n})",
+      "OpostoPerdeu": "{ator} não consegue: {a} contra {b} de {alvo}.",
+      "atrapalhar": "Atrapalhar",
+      "atrapalharVenceu": "{ator} atrapalha {alvo} ({a} contra {b}): um passo a menos em todos os testes dele até o fim da rodada.",
+      "fintar": "Fintar",
+      "fintarVenceu": "{ator} engana {alvo} ({a} contra {b}): dois passos a mais no próximo ataque contra ele, até o fim da próxima rodada.",
+      "defender": "Defender-se",
+      "defenderTexto": "{ator} se prepara para evitar o próximo ataque.",
+      "mirar": "Mirar",
+      "mirarTexto": "{ator} mira: +1d6 no ataque à distância da próxima rodada.",
+      "preparar": "Preparar",
+      "prepararTexto": "{ator} prepara uma ação para quando o evento declarado acontecer.",
+      "usar": "Usar habilidade ou item",
+      "usarTexto": "{ator} usa uma habilidade ou item.",
+      "erguer": "Erguer-se",
+      "erguerTexto": "{ator} se levanta.",
+      "erguerLivre": "Erguer-se (ação livre)",
+      "erguerLivreTexto": "{ator} se levanta depressa: um passo a menos em todos os testes da rodada.",
+      "sacar": "Sacar ou guardar",
+      "sacarTexto": "{ator} saca ou guarda um item.",
+      "sacarLivre": "Sacar (ação livre)",
+      "sacarLivreTexto": "{ator} saca ou guarda depressa: um passo a menos em todos os testes da rodada.",
+      "jogarSe": "Jogar-se no chão",
+      "jogarSeTexto": "{ator} se joga no chão (ação livre).",
+      "AjusteDt": "Ajuste na DT",
+      "AjustePassos": "Ajuste em passos",
+      "AplicarCondicao": "{alvo}: {condicao}",
+      "DanoManual": "Outro valor…",
+      "DanoManualTitulo": "Dano em {alvo}",
+      "Quanto": "Quanto",
+      "SemProtecao": "Direto, sem RD nem armadura",
+      "Mirou": "Mirei neste alvo na rodada passada (+1d6)",
+      "Fintou": "Fintei este alvo (+2 passos)"
+    },
+    "Manobra": {
+      "agarrar": {
+        "nome": "Agarrar",
+        "efeito": "O alvo fica agarrado: imóvel, um passo a menos em ataques e só com armas pequenas. Quem agarra fica sobrecarregado.",
+        "porCinco": ""
+      },
+      "derrubar": {
+        "nome": "Derrubar",
+        "efeito": "O alvo fica caído.",
+        "porCinco": "Venceu por 5 ou mais: causa dano de impacto igual à sua rolagem baixa."
+      },
+      "desarmar": {
+        "nome": "Desarmar",
+        "efeito": "O alvo larga um item que empunha.",
+        "porCinco": "Venceu por 5 ou mais: pega o item para si, ou o arremessa."
+      },
+      "empurrar": {
+        "nome": "Empurrar",
+        "efeito": "O alvo vai alguns metros para trás.",
+        "porCinco": "Venceu por 5 ou mais: o alvo fica desequilibrado, com um passo a menos no próximo teste."
+      },
+      "quebrar": {
+        "nome": "Quebrar",
+        "efeito": "Causa o dano do ataque em um item que o alvo empunha ou veste.",
+        "porCinco": ""
+      }
+    },
+    "Lesao": {
+      "TesteTitulo": "Teste de lesão",
+      "TesteTexto": "{ator} chegou a 0 PV. Físico + Vigor, DT {dt}.",
+      "Rolar": "Rolar teste de lesão (DT {dt})",
+      "TabelaTitulo": "Lesão",
+      "TabelaTexto": "{ator} falhou no teste de lesão.",
+      "RolarTabela": "Rolar lesão (1d20)",
+      "RolarNaoLetal": "Dano não letal (2d20, o melhor)",
+      "Desfecho": {
+        "critico": "{ator} recupera 1 PV e sai de inconsciente e moribundo.",
+        "sucesso": "{ator} fica inconsciente e moribundo.",
+        "falha-critica": "{ator} morre."
+      },
+      "morteSubita": {
+        "nome": "Morte súbita",
+        "efeito": "O personagem morre."
+      },
+      "morteLenta": {
+        "nome": "Morte lenta",
+        "efeito": "Ferimento fatal: recupera 1 PV, acorda e age na próxima rodada. No fim dela, morre, e nada impede."
+      },
+      "laceracao": {
+        "nome": "Laceração profunda",
+        "efeito": "Perde 2 PV máximos. Acumula."
+      },
+      "semOlho": {
+        "nome": "Sem olho",
+        "efeito": "-1 em Percepção e Pontaria."
+      },
+      "semMao": {
+        "nome": "Sem mão",
+        "efeito": "Só empunha um item; em tarefas de duas mãos, um passo a menos ou falha automática."
+      },
+      "semPe": {
+        "nome": "Sem pé",
+        "efeito": "Dois passos a menos em movimentar-se e em perseguição a pé."
+      },
+      "tendao": {
+        "nome": "Tendão comprometido",
+        "efeito": "-2 em Acrobacia."
+      },
+      "musculo": {
+        "nome": "Músculo comprometido",
+        "efeito": "-2 em Atletismo."
+      },
+      "orgaoInterno": {
+        "nome": "Órgão interno comprometido",
+        "efeito": "-2 em Vigor."
+      },
+      "orgaoSensorial": {
+        "nome": "Órgão sensorial comprometido",
+        "efeito": "-2 em Percepção."
+      },
+      "cicatriz": {
+        "nome": "Cicatriz assustadora",
+        "efeito": "-2 em Persuasão, +1 em Intimidar."
+      },
+      "contusao": {
+        "nome": "Contusão",
+        "efeito": "Físico um passo abaixo até o fim da cena."
+      },
+      "surto": {
+        "nome": "Surto de adrenalina",
+        "efeito": "Sem sequelas: recupera 1 PV."
+      },
+      "AplicarLinha": "Aplicar na ficha"
+    },
+    "TraumaBeta": {
+      "TesteTitulo": "Teste de trauma",
+      "TesteTexto": "{ator} chegou a 0 PD. Emoção + Disciplina, DT {dt}.",
+      "Rolar": "Rolar teste de trauma (DT {dt})",
+      "Passou": "{ator} aguenta: nenhum efeito.",
+      "TabelaTitulo": "Trauma",
+      "TabelaTexto": "{ator} falhou no teste de trauma.",
+      "RolarTabela": "Rolar trauma (1d20)",
+      "colapso": {
+        "nome": "Colapso total",
+        "efeito": "A mente sucumbe: o personagem está perdido."
+      },
+      "estresse": {
+        "nome": "Estresse pós-traumático",
+        "efeito": "+1 em todo dano emocional sofrido."
+      },
+      "cognitiva": {
+        "nome": "Degradação cognitiva",
+        "efeito": "-1 em Mente."
+      },
+      "macula": {
+        "nome": "Mácula psíquica",
+        "efeito": "-1 em Emoção."
+      },
+      "chaga": {
+        "nome": "Chaga da alma",
+        "efeito": "Perde 2 PD máximos."
+      },
+      "retracao": {
+        "nome": "Retração defensiva",
+        "efeito": "-2 em Persuasão e Intuição."
+      },
+      "panico": {
+        "nome": "Pânico",
+        "efeito": "Recebe um dado de pavor."
+      },
+      "estupor": {
+        "nome": "Estupor catatônico",
+        "efeito": "Perde a ação na próxima rodada."
+      },
+      "animo": {
+        "nome": "Injeção de ânimo",
+        "efeito": "Sem sequelas: recupera 1 PD."
+      }
+    },
+    "Perseguicao": {
+      "Avancar": "Avançar",
+      "AvancarTitulo": "Avançar: {ator}",
+      "Pericia": "Perícia",
+      "Folego": "Dados de fôlego a usar (tem {n})",
+      "FolegoDado": "Fôlego",
+      "SacrificioDado": "Sacrifício",
+      "Esforco": "Esforço extra: +1 passo, perde {formula} PV",
+      "EsforcoTitulo": "Esforço extra",
+      "Carregar": "Carregar alguém",
+      "Avancou": "{ator} ganha {pontos} ponto(s) de avanço: {total} no total.",
+      "Recuperar": "Recuperar fôlego",
+      "Recuperou": "{ator} recupera o fôlego: {n} dado(s).",
+      "Sacrificio": "Sacrifício",
+      "Sacrificou": "{ator} fica para trás e atrapalha a criatura: +1d6 no avanço dos aliados nesta rodada.",
+      "Avisar": "Avisar da vala",
+      "Avisou": "{ator} avisa os outros: um passo a mais para perceber a vala.",
+      "Vala": "A vala",
+      "Derrubado": "derrubado",
+      "DanoFisico": "{ator}: {dano} de dano",
+      "DanoEmocional": "{ator}: {dano} de dano emocional",
+      "Cabecas": "As cabeças atacam",
+      "CabecasTexto": "Dois personagens sorteados sofrem os ataques desta rodada.",
+      "Corte": "Quem não tiver {minimo} pontos de avanço é alcançado.",
+      "Atingidos": "Alcançados: {nomes}.",
+      "Morreu": "{nomes} é alcançado e devorado.",
+      "Empate": "Empatados no último lugar: {nomes}. Teste oposto entre eles; quem perder morre.",
+      "FimDaRodada": "Fim da rodada {n}",
+      "ProximoCorte": "Próximo corte: fim da rodada {rodada}, {minimo} pontos de avanço.",
+      "AvancoCampo": "Avanço",
+      "MarcarDerrubado": "Derrubar {ator}",
+      "UltimaRodada": "Era a última rodada: encerre a cena quando a mesa estiver pronta.",
+      "TirarDaCorrida": "Tirar {ator} da corrida"
+    },
+    "Furtividade": {
+      "Teste": "Teste de esconderijo",
+      "Escondeu": "{ator} se esconde: {dados}.",
+      "EscolherDado": "Qual dado vira esconderijo?",
+      "Esconder": "Esconder-se",
+      "Distrair": "Distrair",
+      "Chamar": "Chamar atenção",
+      "Chamou": "{ator} chama atenção para proteger {aliado}.",
+      "Chamativa": "Ação chamativa",
+      "PerdeuDado": "{ator} faz barulho e perde um dado de esconderijo.",
+      "SemDados": "Sem dados de esconderijo.",
+      "Encontrado": "{ator} perde {n} dado(s) e é encontrado!",
+      "Perdeu": "{ator} perde {n} dado(s).",
+      "EncontradoCurto": "encontrado",
+      "NinguemAchado": "Ninguém foi descoberto.",
+      "CriaturasTitulo": "As criaturas agem ({n})",
+      "DizerNumeros": "Dizer dois números",
+      "FicarParado": "Ficar parado (2d6 PD)",
+      "SairDePerto": "Sair de perto (perde um dado)",
+      "EncontradosTitulo": "As criaturas atacam quem foi encontrado",
+      "ProximaArea": "Próxima área",
+      "Area": "{nome} (área {numero} de {total}): {avancos} avanços.",
+      "Linha": {
+        "numeros": "O mestre fala dois números, e quem tiver dados com eles os descarta.",
+        "sopro": "Uma criatura chega muito perto de alguém: ficar parado ou sair de perto?",
+        "procura": "As criaturas procuram todos.",
+        "alvo": "Uma criatura procura alguém.",
+        "nada": "As criaturas param por um momento."
+      },
+      "RolarCriaturas": "Rolar as criaturas (1d10)",
+      "EscolherLinha": "Escolher a linha da tabela",
+      "UsarLinha": "Usar esta linha",
+      "DescartarIguais": "Descartar dados iguais a {valores}",
+      "Procura": "Procura",
+      "TirarDado": "Tirar este dado",
+      "NovoDado": "Dado novo: tipo e valor",
+      "PorDado": "Pôr dado",
+      "AvancosCampo": "Avanços",
+      "Runa": "Runa de Brenna",
+      "RunaAjuda": "Apagar a runa da testa: uso único. Escolha o efeito.",
+      "RunaOpcao": {
+        "pv": "Recuperar 1d10 PV",
+        "pd": "Recuperar 1d10 PD",
+        "esconderijo": "Um dado de esconderijo de 1d10"
+      },
+      "Esperando": "Esperando",
+      "EsperandoAjuda": "Completou a área e não age: a procura não o alcança. Agir tira daqui.",
+      "NinguemExposto": "Todo mundo completou a área e está esperando: a procura não alcança ninguém."
+    },
+    "Equilibrio": {
+      "Titulo": "Teste de equilíbrio",
+      "Caindo": "{a} e {b}: está caindo. Gastar um dado de equilíbrio (restam {n})?",
+      "Firme": "Equilibrou-se.",
+      "Caiu": "Caiu."
+    },
+    "Condicao2": {
+      "PorDado": "Guardar dado",
+      "Anotar": "Anotar",
+      "PorRelacao": "Nova relação"
     }
   }
 }

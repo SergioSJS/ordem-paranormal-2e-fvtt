@@ -1,0 +1,18 @@
+<div class="op2 op2-card op2-card--{{#if estilo}}{{estilo}}{{else}}investigacao{{/if}}">
+  <header class="op2-card__topo">
+    <span class="op2-tag op2-tag--pequena">{{titulo}}</span>
+    {{#if selo}}<span class="op2-card__dt">{{selo}}</span>{{/if}}
+  </header>
+  {{#if texto}}<p class="op2-card__texto">{{{texto}}}</p>{{/if}}
+  {{#if linhas.length}}
+    <ul class="op2-card__lista">{{#each linhas}}<li>{{{this}}}</li>{{/each}}</ul>
+  {{/if}}
+  {{#if botoes.length}}
+    <div class="op2-card__acoes">
+      {{#each botoes}}
+        <button type="button" class="op2-botao op2-botao--pequeno{{#if perigo}} op2-botao--perigo{{/if}}"
+          {{#if soMestre}}data-op2-gm{{/if}} data-op2-acao="{{acao}}" {{{atributos}}}>{{rotulo}}</button>
+      {{/each}}
+    </div>
+  {{/if}}
+</div>

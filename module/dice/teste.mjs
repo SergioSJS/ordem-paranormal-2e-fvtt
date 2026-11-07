@@ -9,8 +9,13 @@ import { TesteDialog } from "./teste-dialog.mjs";
 import { SelecaoDados } from "./selecao-dados.mjs";
 import { lerConfig } from "../settings/register.mjs";
 import { stepDie } from "./escada.mjs";
+import { comoMestre } from "../ui/socket.mjs";
+import { cardVigilia } from "../vigilia/card.mjs";
 import { consumirAjuda } from "../cena/acoes-ajuda.mjs";
 import { gastarImpeto, podePreencherImpeto } from "../cena/impeto.mjs";
+import { modificadorPermanente } from "../vigilia/dano.mjs";
+import { passosDeCondicoes } from "../vigilia/combate.mjs";
+import { PosRolagem, temReacaoPosRolagem } from "./pos-rolagem.mjs";
 
 /**
  * @param {Actor} ator
@@ -27,10 +32,11 @@ import { gastarImpeto, podePreencherImpeto } from "../cena/impeto.mjs";
  */
 export async function rolarTeste(ator, {
   chavePericia, chaveAtributo, dt, oposto = false, semDT = false, contexto, rapido = false,
-  semCard = false, dadosExtras = [],
+  semCard = false, dadosExtras = [], modificador = 0, minimoCritico = 0, passos = 0, componentes = null,
 } = {}) {
   const sistema = ator.system;
-  const pericia = sistema.resolverChave(chavePericia);
+  // `componentes`: quem já sabe os dados (o ataque do NPC, "d8+d6") passa direto.
+  const pericia = componentes ? { dado: "d6", tipo: "atributo" } : sistema.resolverChave(chavePericia);
   if (!pericia) {
     ui.notifications.error(game.i18n.format("OP2.Aviso.PericiaDesconhecida", { chave: chavePericia }));
     return null;
@@ -44,7 +50,7 @@ export async function rolarTeste(ator, {
 
   const base = {
     chavePericia,
-    rotuloPericia: rotuloDePericia(chavePericia),
+    rotuloPericia: componentes ? (contexto ?? "") : rotuloDePericia(chavePericia),
     pericia: { ...pericia, dadoEfetivo: pericia.dado },
     chaveAtributo: somenteAtributo ? null : (chaveAtributo ?? sistema.atributoDe(chavePericia) ?? "fisico"),
     somenteAtributo,
@@ -60,8 +66,21 @@ export async function rolarTeste(ator, {
       ? { ...ator.system.estado.ajuda, alvo: lerConfig("ajudaAlvo") }
       : null,
   };
+  // O que a ficha e a situação já decidem: lesão e trauma somam fixo; caído e companhia
+  // andam na escada (beta §7.5/§8). Só no diálogo dá para mexer.
+  // Rolagem de NPC vem com os dados prontos: quem chama diz o atributo, e a condição pesa igual.
+  const chaveAtributoBase = componentes ? (chaveAtributo ?? null) : base.chaveAtributo;
+  base.modificador = modificador + modificadorPermanente(sistema.estado ?? {}, chavePericia, chaveAtributoBase);
+  base.passos = passos + passosDeCondicoes([...(sistema.estado?.condicoes ?? [])], chaveAtributoBase);
+  base.pavor = sistema.estado?.pavor || "";
 
-  const config = rapido ? configuracaoRapida(ator, base) : await TesteDialog.abrir({ ator, base });
+  const config = componentes
+    ? {
+      // Passo de condição anda no primeiro dado da ficha, como o de situação (`rolarDadosDeNpc`).
+      componentes: componentes.map((c, i) => (i === 0 && base.passos ? { ...c, dado: stepDie(c.dado, base.passos) } : c)),
+      dt: (oposto || semDT) ? null : (dt ?? lerConfig("dtPadrao")), oposto, modificador: base.modificador,
+    }
+    : (rapido ? configuracaoRapida(ator, base) : await TesteDialog.abrir({ ator, base }));
   if (!config) return null;
 
   // Habilidade com custo em PD ("gaste 2 PD para receber +d4"): cobra ao confirmar,
@@ -75,11 +94,28 @@ export async function rolarTeste(ator, {
   // O espaço de ímpeto só some depois de a rolagem ser confirmada.
   if (config.gastarImpeto) await gastarImpeto(ator, 1);
 
-  const roll = OP2Roll.paraComponentes(config.componentes, {
+  // Controlar baixa o dado de vez; abraçar o troca por dado bônus e encerra o efeito
+  // (beta §9.1). O dado de pavor vai por último e nunca conta para o teto de dados.
+  const dadoDePavor = config.semPavor ? "" : (config.pavor?.dado ?? base.pavor);
+  const pavorMudou = config.pavor && (config.pavor.abracar || config.pavor.dado !== base.pavor);
+  if (pavorMudou) await ator.update({ "system.estado.pavor": config.pavor.abracar ? "" : config.pavor.dado });
+  // O dado abraçado já vem em `config.componentes`: é dado bônus e respeita o teto (beta §3).
+  const dados = [...config.componentes];
+  if (dadoDePavor && !config.pavor?.abracar) {
+    dados.push({ chave: "pavor", rotulo: game.i18n.localize("OP2.Pavor.Titulo"), tipo: "pavor", dado: dadoDePavor });
+  }
+  if (config.bonusUsados?.length) {
+    const resta = (sistema.estado.bonus ?? []).filter((_b, i) => !config.bonusUsados.includes(i));
+    await ator.update({ "system.estado.bonus": resta });
+  }
+
+  const roll = OP2Roll.paraComponentes(dados, {
     dt: config.dt,
     escopoCritico: lerConfig("escopoCritico"),
     rotulo: contexto ?? base.rotuloPericia,
     atorId: ator.id,
+    modificador: config.modificador ?? 0,
+    minimoCritico,
   });
 
   await roll.evaluate();
@@ -90,14 +126,36 @@ export async function rolarTeste(ator, {
   // de Examinar — o card genérico não tinha o que dizer (rola sem DT, então nem
   // sucesso nem falha) e ainda oferecia "Dano RA/RB", que não existe ali. A
   // animação dos dados continua acontecendo, só o card não sai.
-  if (roll.precisaSelecao) {
+  // Análise e Prontidão mexem nos dados depois de rolar (beta §12): a janela vem antes
+  // do card, que já sai com o valor certo.
+  const reage = !rapido && !componentes && ator.isOwner && temReacaoPosRolagem(ator);
+  if (roll.precisaSelecao || reage) {
     await mostrarDados3D(roll);
-    roll.aplicarSelecao(await SelecaoDados.abrir(roll, ator));
+    if (roll.precisaSelecao) roll.aplicarSelecao(await SelecaoDados.abrir(roll, ator));
+    if (reage) {
+      await PosRolagem.abrir(roll, ator);
+      // Dado anulado que saiu de baixo do pavor volta a contar: pode passar do limite de somados.
+      if (roll.precisaSelecao) roll.aplicarSelecao(await SelecaoDados.abrir(roll, ator));
+    }
     if (!semCard) await enviarParaChat(roll, ator, { pularDados3D: true });
   } else if (semCard) {
     await mostrarDados3D(roll);
   } else {
     await enviarParaChat(roll, ator);
+  }
+
+  // Quem publica o próprio card não traz o aviso do pavor: um card curto, com o mesmo botão.
+  if (semCard && roll.pavorVencido && sistema.estado?.pavor) {
+    await cardVigilia(ator, {
+      titulo: game.i18n.localize("OP2.Pavor.Titulo"),
+      texto: game.i18n.localize("OP2.Pavor.Vencido"),
+      botoes: [{ rotulo: game.i18n.localize("OP2.Pavor.Encerrar"), acao: "vigilia-fim-pavor", dados: { atorUuid: ator.uuid } }],
+    });
+  }
+
+  // "Empurrado" vale só para o próximo teste (beta §7.4).
+  if (sistema.estado?.condicoes?.has?.("empurrado")) {
+    await comoMestre("vigilia-condicao", { atorUuid: ator.uuid, condicao: "empurrado", ligar: false });
   }
 
   // Ajuda é para UMA rolagem: usada, acabou (spec §4.7 — custa a ação do aliado
@@ -111,7 +169,8 @@ export async function rolarTeste(ator, {
 function configuracaoRapida(ator, base) {
   // Sem diálogo, a ajuda pendente precisa entrar aqui — senão o modo rápido
   // (macros, cards, testes) ignoraria silenciosamente o passo do aliado.
-  const passosDaAjuda = (tipo) => (base.ajuda && base.ajuda.alvo === tipo ? base.ajuda.passos : 0);
+  const passosDaAjuda = (tipo) => (base.ajuda && base.ajuda.alvo === tipo ? base.ajuda.passos : 0)
+    + (tipo === "pericia" ? (base.passos ?? 0) : 0);
 
   const componentes = [
     {
@@ -138,6 +197,7 @@ function configuracaoRapida(ator, base) {
     dt: (base.oposto || base.semDT) ? null : base.dt,
     oposto: base.oposto,
     componentes,
+    modificador: base.modificador ?? 0,
   };
 }
 
@@ -173,6 +233,10 @@ export async function enviarParaChat(roll, ator, { pularDados3D = false } = {}) 
     // É botão, não automático: a mesa às vezes reinterpreta o que foi uma falha, e
     // nenhum outro efeito do sistema se aplica sozinho.
     podePreencherImpeto: !dados.resultado.sucesso && podePreencherImpeto(ator),
+    pavorVencido: roll.pavorVencido && Boolean(ator.system.estado?.pavor),
+    atorUuid: ator.uuid,
+    atorId: ator.id,
+    temPavor: roll.dados.some((d) => d.pavor),
   });
 
   return roll.toMessage(

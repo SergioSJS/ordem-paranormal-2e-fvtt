@@ -8,6 +8,35 @@
     </p>
   {{/if}}
 
+  {{#if temPavor}}
+    <div class="op2-teste__pavor">
+      <span class="op2-teste__rotulo">{{localize "OP2.Pavor.Titulo"}}</span>
+      <span class="op2-teste__dado">{{{pavorIcone}}}</span>
+      {{#if podeControlar}}
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="controlarPavor"
+          data-tooltip="{{localize 'OP2.Pavor.ControlarDica'}}">{{localize "OP2.Pavor.Controlar"}}</button>
+      {{/if}}
+      <button type="button" class="op2-botao op2-botao--pequeno{{#if estado.pavorAbracado}} ativo{{/if}}"
+        data-action="abracarPavor" aria-pressed="{{estado.pavorAbracado}}"
+        data-tooltip="{{localize 'OP2.Pavor.AbracarDica'}}">{{localize "OP2.Pavor.Abracar"}}</button>
+      <button type="button" class="op2-botao op2-botao--pequeno{{#if estado.pavorIgnorado}} ativo{{/if}}"
+        data-action="ignorarPavor" aria-pressed="{{estado.pavorIgnorado}}">{{localize "OP2.Pavor.Ignorar"}}</button>
+    </div>
+  {{/if}}
+
+  {{#if bonus.length}}
+    <fieldset class="op2-extras">
+      <legend>{{localize "OP2.Dialog.Teste.Guardados"}}</legend>
+      {{#each bonus}}
+        <button type="button" class="op2-extra{{#if ativo}} ativo{{/if}}" data-action="alternarBonus"
+          data-indice="{{indice}}" aria-pressed="{{ativo}}">
+          <span class="op2-extra__nome">{{rotulo}}</span>
+          <span class="op2-extra__efeito">+{{dado}}</span>
+        </button>
+      {{/each}}
+    </fieldset>
+  {{/if}}
+
   {{#if estado.impetoDisponivel}}
     <label class="op2-campo op2-campo--inline">
       <input type="checkbox" data-action="alternarImpeto" {{#if estado.gastarImpeto}}checked{{/if}}>
@@ -62,6 +91,17 @@
         </button>
       {{/each}}
     </fieldset>
+  {{/if}}
+
+  {{#if mostraModificador}}
+    <div class="op2-teste__modificador">
+      <span>{{localize "OP2.Dialog.Teste.Modificador"}}</span>
+      <strong data-modificador>{{estado.modificador}}</strong>
+      <div class="op2-passo" role="group" aria-label="{{localize 'OP2.Dialog.Teste.Modificador'}}">
+        <button type="button" data-action="modificador" data-delta="-1" aria-label="−1">−</button>
+        <button type="button" data-action="modificador" data-delta="1" aria-label="+1">+</button>
+      </div>
+    </div>
   {{/if}}
 
   {{#unless estado.semDT}}
