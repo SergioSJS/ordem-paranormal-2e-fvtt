@@ -1,0 +1,201 @@
+// Tema do modo Vigília (playtest beta, *Contos da Vigília*).
+//
+// A gramática vem das fichas e das páginas de regra do beta: carvão esverdeado com
+// textura de giz, prata e osso no lugar do vermelho, rótulo numa faixa de nó celta com
+// as pontas gastas, moldura dupla prateada, dado de osso com o número escuro. Nada da
+// arte do livro entra: o nó, a moldura e o giz são desenhados aqui (SVG e CSS), como a
+// tag rasgada do alpha. Ver docs/projeto/ESTILO-VISUAL.md, "Modo Vigília".
+//
+// O tema segue o modo do mundo: `marcarModoNaTela()` (module/modo.mjs) põe
+// `op2-vigilia` no <body>, e a troca de modo recarrega a página. O moderno não muda.
+//
+// Especificidade, porque são três camadas de token disputando o mesmo `.op2`:
+//   `.op2[data-perfil]`                      (0,2,0) — a cor do perfil, no moderno
+//   `:root[data-theme="light"] .op2`         (0,3,0) — o tema claro do moderno
+//   `body.op2-vigilia .op2`                  (0,2,1) — aqui, escuro: ganha do perfil
+//   `:root[data-theme="light"] body.op2-vigilia .op2` (0,4,1) — aqui, claro: ganha de tudo
+// O bloco claro daqui redefine TUDO o que o claro do moderno redefine; senão o que
+// faltasse vazava o vermelho do alpha para a página clara do beta.
+
+// O nó celta da faixa: duas fitas que se cruzam, por cima numa volta e por baixo na
+// outra. Geometria simples, desenhada para o sistema.
+$no-celta: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 14' width='28' height='14'%3E%3Cdefs%3E%3CclipPath id='c'%3E%3Crect x='17' y='0' width='8' height='14'/%3E%3C/clipPath%3E%3Cg id='b' fill='none' stroke-linecap='round'%3E%3Cpath d='M0 10C7 10 7 4 14 4S21 10 28 10' stroke='%231a1c1b' stroke-width='3.4'/%3E%3Cpath d='M0 10C7 10 7 4 14 4S21 10 28 10' stroke='%23aaa699' stroke-width='1.6'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23b'/%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M0 4C7 4 7 10 14 10S21 4 28 4' stroke='%231a1c1b' stroke-width='3.4'/%3E%3Cpath d='M0 4C7 4 7 10 14 10S21 4 28 4' stroke='%23aaa699' stroke-width='1.6'/%3E%3C/g%3E%3Cuse href='%23b' clip-path='url(%23c)'/%3E%3C/svg%3E";
+
+// Giz: ruído fino em ladrilho, quase transparente. As manchas largas são gradientes (um
+// ruído de frequência baixa em ladrilho mostra a emenda).
+$giz: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.85 0 0 0 0 0.92 0 0 0 0 0.92 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E";
+
+@layer system {
+
+// ── Tokens, tema escuro: a ficha do beta ────────────────────────────────────────────
+body.op2-vigilia .op2 {
+  --op2-preto: #0e1315;
+  --op2-painel: #141b1d;
+  --op2-painel-alto: #1c2427;
+  // "Vermelho" é o nome do acento no sistema inteiro; aqui ele é osso.
+  --op2-vermelho: #a6a395;
+  --op2-vermelho-claro: #d4d0c3;
+  --op2-vermelho-escuro: #6c6b62;
+  --op2-tinta: #eef0ec;
+  --op2-tinta-fraca: #8b9594;
+  --op2-linha: #{rgba(#d4d0c3, 0.14)};
+  --op2-linha-forte: #{rgba(#d4d0c3, 0.28)};
+  --op2-sobre-acento: #0e1315;
+  // O beta não pinta a ficha pelo perfil: tudo é prata.
+  --op2-perfil-executor: #a6a395;
+  --op2-perfil-analista: #a6a395;
+  --op2-perfil-vigilante: #a6a395;
+  --op2-perfil-executor-claro: #d4d0c3;
+  --op2-perfil-analista-claro: #d4d0c3;
+  --op2-perfil-vigilante-claro: #d4d0c3;
+  --op2-acento: var(--op2-vermelho);
+  --op2-acento-claro: var(--op2-vermelho-claro);
+
+  // A faixa do rótulo e o que vai nela.
+  --op2-faixa: #5f5e57;
+  --op2-faixa-texto: #fff;
+  --op2-textura:
+    url("#{$giz}"),
+    radial-gradient(ellipse 60% 40% at 20% 15%, rgba(140, 175, 175, 0.07), transparent 70%),
+    radial-gradient(ellipse 50% 45% at 85% 70%, rgba(140, 175, 175, 0.06), transparent 70%);
+
+  --op2-fonte-display: "OP2 Vigilia Titulo", "IM Fell English SC", Georgia, serif;
+  --op2-fonte-rotulo: "OP2 Vigilia Corpo", "Barlow", "Arial Narrow", sans-serif;
+  --op2-fonte-mono: "OP2 Vigilia Corpo", "Barlow", "Arial Narrow", sans-serif;
+  --op2-fonte-corpo: "OP2 Vigilia Corpo", "Barlow", "Helvetica Neue", sans-serif;
+
+  --op2-fundo: var(--op2-preto);
+  --op2-superficie: var(--op2-painel);
+  --op2-superficie-alta: var(--op2-painel-alto);
+  --op2-texto: var(--op2-tinta);
+  --op2-texto-fraco: var(--op2-tinta-fraca);
+}
+
+// ── Tokens, tema claro: as páginas de regra do beta ─────────────────────────────────
+:root[data-theme="light"] body.op2-vigilia .op2,
+body.op2-vigilia.theme-light .op2,
+body.op2-vigilia .theme-light .op2 {
+  --op2-fundo: #dde4e8;
+  --op2-superficie: #e7ecef;
+  --op2-superficie-alta: #f2f5f7;
+  --op2-texto: #1b2328;
+  --op2-texto-fraco: #56636b;
+  --op2-tinta-fraca: #56636b;
+  --op2-linha: #{rgba(#1b2328, 0.14)};
+  --op2-linha-forte: #{rgba(#1b2328, 0.28)};
+  // O destaque das páginas de regra é o azul-petróleo das palavras-chave.
+  --op2-vermelho: #2f5866;
+  --op2-vermelho-claro: #2f5866;
+  --op2-vermelho-escuro: #1f3d47;
+  --op2-sobre-acento: #fff;
+  --op2-perfil-executor: #2f5866;
+  --op2-perfil-analista: #2f5866;
+  --op2-perfil-vigilante: #2f5866;
+  --op2-perfil-executor-claro: #2f5866;
+  --op2-perfil-analista-claro: #2f5866;
+  --op2-perfil-vigilante-claro: #2f5866;
+  --op2-sucesso: #4f7a30;
+  --op2-critico: #8f6b12;
+  --op2-faixa: #4c6874;
+  --op2-faixa-texto: #fff;
+  --op2-textura: none;
+}
+
+// ── Fundo de giz ────────────────────────────────────────────────────────────────────
+body.op2-vigilia .op2 {
+  &.application .window-content,
+  &.chat-message .message-content,
+  .op2-card {
+    background-image: var(--op2-textura);
+  }
+}
+
+// ── Rótulo: faixa de nó celta com as pontas gastas ──────────────────────────────────
+body.op2-vigilia .op2-tag {
+  // Espaço para as pontas trançadas dos dois lados do texto.
+  padding-inline: 1.5em;
+  // O nó corre a faixa toda, mas some atrás do texto: só as pontas mostram o trançado,
+  // e um rótulo comprido (o nome de uma cena, em duas linhas) continua legível.
+  background:
+    linear-gradient(to right, transparent 0 0.9em, var(--op2-faixa) 1.6em calc(100% - 1.6em), transparent calc(100% - 0.9em)),
+    url("#{$no-celta}") repeat-x center / auto 78%,
+    var(--op2-faixa);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.45);
+  color: var(--op2-faixa-texto) !important;
+  font-family: var(--op2-fonte-rotulo);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  // O texto passa por cima do nó: o contorno escuro mantém a leitura.
+  text-shadow: 0 0 2px #000, 0 0 3px #000, 0 1px 0 #000;
+  // Pontas desfiadas, não rasgadas: o recorte morde as duas extremidades.
+  clip-path: polygon(0 12%, 3% 0, 50% 4%, 97% 0, 100% 18%, 98.5% 50%, 100% 84%, 96% 100%, 50% 95%, 4% 100%, 0 86%, 1.5% 50%);
+
+  &--secao,
+  &--pequena { clip-path: polygon(0 12%, 3% 0, 50% 4%, 97% 0, 100% 18%, 98.5% 50%, 100% 84%, 96% 100%, 50% 95%, 4% 100%, 0 86%, 1.5% 50%); }
+
+  &--perfil select {
+    color: var(--op2-faixa-texto) !important;
+    font-family: var(--op2-fonte-rotulo);
+    font-weight: 800;
+    text-shadow: 0 0 2px #000, 0 0 3px #000;
+  }
+}
+
+// ── Moldura dupla, inteira, como a da ficha do beta ─────────────────────────────────
+body.op2-vigilia .op2-moldura {
+  border-color: color-mix(in srgb, var(--op2-vermelho-claro) 30%, transparent);
+
+  &::before {
+    border-color: color-mix(in srgb, var(--op2-vermelho-claro) 45%, transparent);
+    // O alpha só mostra os cantos; o beta corre a linha pela borda toda.
+    mask-image: none;
+  }
+}
+
+// ── Títulos na fonte do beta ────────────────────────────────────────────────────────
+// `.op2 input`/`button` herdam a fonte do corpo com mais especificidade que `.op2-nome`,
+// então o título precisa vir daqui. Sem caixa alta: a IM Fell é versalete, e "Físico"
+// sai com o F grande e o resto em versalete, como na ficha do beta.
+body.op2-vigilia .op2 {
+  .op2-nome,
+  .op2-atributo__nome {
+    font-family: var(--op2-fonte-display);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    text-transform: none;
+  }
+
+  .op2-atributo__nome { font-size: 1.15rem; }
+
+  // Os ícones do sistema são desenhos vermelhos: aqui viram prata, como o resto.
+  // Só os nossos (`assets/icons`): retrato e arte de quem joga ficam como estão.
+  img[src*="ordem-paranormal-2e/assets/icons"] { filter: grayscale(1) brightness(1.5); }
+
+  // O brilho da aba ativa é o laranja do core: aqui destoa do prata.
+  .op2-aba.active { text-shadow: none; }
+}
+
+// No claro o ícone fica só sem cor: clarear o desenho escuro apagava o traço.
+:root[data-theme="light"] body.op2-vigilia .op2,
+body.op2-vigilia.theme-light .op2,
+body.op2-vigilia .theme-light .op2 {
+  img[src*="ordem-paranormal-2e/assets/icons"] { filter: grayscale(1); }
+}
+
+// ── Dado de osso, número escuro ─────────────────────────────────────────────────────
+body.op2-vigilia .op2-dado {
+  font-family: var(--op2-fonte-rotulo);
+  font-weight: 800;
+}
+
+}
+
+// O título (IM Fell English SC) só tem o subconjunto latino: cobre o português inteiro.
+@font-face {
+  font-family: "OP2 Vigilia Titulo";
+  src: url("../assets/fonts/im-fell-sc-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}

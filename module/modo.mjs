@@ -39,3 +39,14 @@ export function modoAtual() {
     return MODO_PADRAO;
   }
 }
+
+/**
+ * Põe o modo no <body> (`op2-vigilia`): o tema do beta (styles/parciais/_vigilia.scss)
+ * segue o modo do mundo, e a troca de modo recarrega a página, então basta marcar uma vez.
+ */
+export function marcarModoNaTela(modo = modoAtual()) {
+  const corpo = globalThis.document?.body;
+  if (!corpo) return;
+  corpo.classList.toggle("op2-vigilia", modo === "vigilia");
+  corpo.dataset.op2Modo = modo;
+}

@@ -154,18 +154,6 @@ await fotografar("ficha-desafio", ".op2-ficha--desafio", {
 });
 await page.evaluate(() => [...foundry.applications.instances.values()].forEach((a) => a.close?.()));
 
-await fotografar("painel-acao", "#op2-painel-acao", {
-  antes: async () => {
-    const pcs = game.actors.filter((a) => a.type === "personagem").slice(0, 3);
-    const npc = await Actor.create({ name: "Afogado", type: "npc", system: {
-      recursos: { pv: { value: 10, max: 10 }, pd: { value: 0, max: 0 } }, ataques: [{ nome: "Garras", tipo: "corpo", dados: "d8+d6", bonusDano: 1 }],
-    } });
-    const cena = await Actor.create({ name: "Os Afogados", type: "cena-acao", system: { tipo: "combate", participantes: [...pcs.map((a) => a.uuid), npc.uuid] } });
-    await game.op2.iniciarCena(cena);
-    game.op2.painelAcao(cena);
-  },
-});
-
 await fotografar("dialogo-teste", "#op2-pericia-dialog", {
   antes: async ({ alanId }) => {
     const { escolherPericia } = await import("/systems/ordem-paranormal-2e/module/dice/pericia-dialog.mjs");
@@ -207,5 +195,56 @@ for (const [nome, html] of Object.entries(cardsHtml)) {
   await el.screenshot({ path: `${SAIDA}/card-${nome}.png` });
   console.log(`${SAIDA}/card-${nome}.png`);
 }
+
+// O modo Vigília veste o tema do beta (styles/parciais/_vigilia.scss): a ficha e o
+// painel de ação, que o README mostra na seção do modo, saem nele. Troca, fotografa e
+// volta ao moderno, que é o padrão do mundo de teste.
+const trocarModo = async (modo) => {
+  await Promise.all([
+    page.waitForEvent("load", { timeout: 60000 }),
+    page.evaluate((m) => game.op2.trocarModo(m), modo),
+  ]);
+  await page.waitForFunction((m) => globalThis.game?.ready === true
+    && game.settings.get("ordem-paranormal-2e", "modo") === m, modo, { timeout: 60000 });
+  await page.waitForTimeout(2000);
+  await page.evaluate(() => { for (const n of document.querySelectorAll("#notifications .notification")) n.remove(); });
+};
+await trocarModo("vigilia");
+const vigilia = await page.evaluate(async () => {
+  for (const a of foundry.applications.instances.values()) await a.close?.();
+  // Mesma regra dos pré-gerados do Ato I: sem a arte da editora no print.
+  const fontes = await (await fetch("systems/ordem-paranormal-2e/assets/aventura/fontes-vigilia.json")).json();
+  const ICONE = "icons/svg/mystery-man.svg";
+  const importar = (inicio) => {
+    const doc = foundry.utils.deepClone(fontes.pregerados.find((a) => a.name.startsWith(inicio)));
+    delete doc._id;
+    doc.img = ICONE;
+    foundry.utils.setProperty(doc, "prototypeToken.texture.src", ICONE);
+    foundry.utils.setProperty(doc, "system.biografia", "");
+    return Actor.create(doc);
+  };
+  const rhiona = await importar("Rhiona");
+  const rowan = await importar("Rowan");
+  const npc = await Actor.create({ name: "Afogado", type: "npc", system: {
+    recursos: { pv: { value: 10, max: 10 }, pd: { value: 0, max: 0 } }, ataques: [{ nome: "Garras", tipo: "corpo", dados: "d8+d6", bonusDano: 1 }],
+  } });
+  const cena = await Actor.create({ name: "Os Afogados", type: "cena-acao", system: { tipo: "combate", participantes: [rhiona.uuid, rowan.uuid, npc.uuid] } });
+  return { rhionaId: rhiona.id, cenaId: cena.id };
+});
+
+Object.assign(dados, vigilia);
+await fotografar("ficha-vigilia", ".op2-ficha--personagem", {
+  antes: ({ rhionaId }) => game.actors.get(rhionaId).sheet.render(true),
+});
+await page.evaluate(() => [...foundry.applications.instances.values()].forEach((a) => a.close?.()));
+await fotografar("painel-acao", "#op2-painel-acao", {
+  antes: async ({ cenaId }) => {
+    const cena = game.actors.get(cenaId);
+    await game.op2.iniciarCena(cena);
+    game.op2.painelAcao(cena);
+  },
+});
+await page.evaluate(() => [...foundry.applications.instances.values()].forEach((a) => a.close?.()));
+await trocarModo("moderno");
 
 await browser.close();

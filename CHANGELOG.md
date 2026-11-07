@@ -23,6 +23,9 @@ o modo; os Atos I e II continuam como estavam.
 - **Luz e escuridão nas cenas das missões.** A ilhota nasce escura e na névoa, só com a tocha paranormal acesa
   no topo da pilha; a gruta tem as tochas, a fogueira, os cristais e a água do mapa acesos, e a chama do ritual
   no altar, apagada até o mestre acender. Tudo se ajusta na camada de iluminação.
+- **O modo Vigília tem a cara do beta.** Carvão com textura de giz, prata e osso no lugar do vermelho, rótulo em
+  faixa de nó celta, moldura dupla, dado de osso, títulos em IM Fell English SC e texto em Barlow; no tema claro,
+  o papel azul-acinzentado das páginas de regra. Segue o modo do mundo; o moderno não muda.
 - **PDF gratuito do beta** conferido: monta a Missão 1 igual à do completo e diz que a 2 é só de assinantes.
 
 **Corrigido:** os botões do card de teste (Dano RA, Dano RB, Preencher Ímpeto, Rolar Falha Crítica) saíam sem o id do

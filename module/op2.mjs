@@ -26,7 +26,7 @@ import { stepDie, faces } from "./dice/escada.mjs";
 import { registrarSettings, lerConfig } from "./settings/register.mjs";
 import { registrarHelpersDeDado } from "./ui/dice-icons.mjs";
 import { registrarHelpers, precarregarTemplates } from "./ui/handlebars.mjs";
-import { trocarModo } from "./modo.mjs";
+import { trocarModo, marcarModoNaTela } from "./modo.mjs";
 import { CenaAcaoData } from "./data/actor-cena-acao.mjs";
 import { CenaAcaoSheet } from "./sheets/actor-cena-acao-sheet.mjs";
 import { registrarAcaoDeMestre } from "./ui/socket.mjs";
@@ -117,6 +117,7 @@ Hooks.once("init", () => {
   }
 
   registrarSettings();
+  marcarModoNaTela();
   aplicarIdiomaPadrao();
   registrarHelpersDeDado();
   registrarHelpers();

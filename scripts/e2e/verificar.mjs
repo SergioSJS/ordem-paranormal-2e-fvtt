@@ -4388,6 +4388,23 @@ const relato = await page.evaluate(async (boasVindas) => {
     return dados;
   }, nome);
   const passo = (ok, titulo) => relato.passos.push([Boolean(ok), titulo]);
+  // O tema segue o modo: a classe no <body>, o acento e a fonte do nome na ficha aberta.
+  const temaDe = (nome) => page.evaluate(async (n) => {
+    const ator = game.actors.getName(n);
+    await ator.sheet.render({ force: true });
+    await new Promise((r) => setTimeout(r, 800));
+    const el = ator.sheet.element;
+    const titulo = await document.fonts.load('400 1rem "OP2 Vigilia Titulo"', "Físico");
+    const dados = {
+      corpo: document.body.classList.contains("op2-vigilia"),
+      acento: getComputedStyle(el).getPropertyValue("--op2-vermelho").trim().toLowerCase(),
+      nome: getComputedStyle(el.querySelector(".op2-cabecalho__nome")).fontFamily,
+      tag: getComputedStyle(el.querySelector(".op2-tag")).backgroundImage,
+      tituloCarregou: titulo.length > 0,
+    };
+    await ator.sheet.close();
+    return dados;
+  }, nome);
 
   await page.evaluate(async () => {
     const ator = await Actor.create({ name: "E2E Modos", type: "personagem" });
@@ -4403,6 +4420,9 @@ const relato = await page.evaluate(async (boasVindas) => {
   // Campo da mesa com o nome de um campo de fábrica do Vigília: no moderno, ele aparece.
   await page.evaluate(() => game.actors.getName("E2E Modos").update({ "system.aptidoes.nobreza": { rotulo: "Nobreza", die: "d6" } }));
   passo(/Nobreza/.test((await fichaDe("E2E Modos")).texto), "campo da mesa com chave de fábrica de outro modo não some da ficha");
+  const temaModerno = await temaDe("E2E Modos");
+  passo(!temaModerno.corpo && temaModerno.acento !== "#a6a395" && !/Vigilia/.test(temaModerno.nome) && temaModerno.tag === "none",
+    `modo moderno: o tema é o do alpha, vermelho e sem faixa de nó (${temaModerno.acento})`);
 
   await trocarModo("vigilia");
   const vigilia = await fichaDe("E2E Modos");
@@ -4411,6 +4431,10 @@ const relato = await page.evaluate(async (boasVindas) => {
     && !/Tecnologia|Máquinas|Pesquisar|Ocultismo|Tática/.test(vigilia.texto),
   `modo Vigília: 25 linhas, com as perícias e Aptidões dele (${vigilia.linhas})`);
   passo(/Vocação/.test(vigilia.ocupacao), "modo Vigília: o campo chama Vocação");
+  const temaVigilia = await temaDe("E2E Modos");
+  passo(temaVigilia.corpo && temaVigilia.acento === "#a6a395" && /^"?OP2 Vigilia Titulo/.test(temaVigilia.nome) && /svg/.test(temaVigilia.tag),
+    `modo Vigília: o tema do beta, osso, nó celta e o título na fonte dele (${temaVigilia.acento}, ${temaVigilia.nome.slice(0, 30)})`);
+  passo(temaVigilia.tituloCarregou, "modo Vigília: a fonte de título é servida pelo sistema");
   passo(vigilia.tecnologia === "d8" && vigilia.tatica === "d10", "trocar de modo não perde o que a ficha já tinha");
   passo(vigilia.erudicao === "d4", "o campo de Aptidão do novo modo aparece em d4, sem migração");
 
@@ -4480,6 +4504,7 @@ const relato = await page.evaluate(async (boasVindas) => {
   }
 
   const volta = await fichaDe("E2E Modos");
+  passo(!(await temaDe("E2E Modos")).corpo, "de volta ao moderno: o tema do beta sai junto");
   passo(volta.linhas === 26 && /Nobreza/.test(volta.texto) && /Tecnologia/.test(volta.texto) && /Tática/.test(volta.texto) && !/Erudição/.test(volta.texto)
     && volta.tecnologia === "d8" && volta.tatica === "d10" && volta.erudicao === "d8",
   "de volta ao moderno: a ficha é a de antes, e a Erudição segue guardada");

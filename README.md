@@ -208,6 +208,11 @@ O playtest beta, *Contos da Vigília*, é outro jogo no mesmo sistema: passa-se 
 missões próprias. O setting de mundo **Modo de jogo** escolhe entre **moderno** (Atos I e II) e **Vigília**
 (Missões 1 e 2). A ficha guarda as perícias dos dois, e o modo decide o que aparece.
 
+**O Vigília tem a cara do beta**: carvão com textura de giz, prata e osso no lugar do vermelho, rótulos em faixa de nó
+celta e os títulos em versalete. O modo moderno continua com o visual do alpha.
+
+![Ficha no modo Vigília](docs/img/ficha-vigilia.png)
+
 ![Painel de ação](docs/img/painel-acao.png)
 
 **As missões saem do seu material**, como os atos: em *Aventuras do playtest*, escolha o PDF do mestre e, depois, o

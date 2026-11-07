@@ -31,6 +31,9 @@
   // tema inteiro pelo perfil dela.
   --op2-acento: var(--op2-vermelho);
   --op2-acento-claro: var(--op2-vermelho-claro);
+  // O que se escreve SOBRE o acento (dado, botão cheio). Branco no vermelho; o modo
+  // Vigília pinta o dado de osso e escreve escuro em cima (_vigilia.scss).
+  --op2-sobre-acento: #fff;
 
   // Vermelho de PERIGO: não é tema, é sinal. Numa ficha de Analista (azul) ou de
   // Vigilante (verde), apagar continua sendo vermelho — senão o botão destrutivo
