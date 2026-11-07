@@ -115,6 +115,13 @@ if (await page.evaluate(() => game.settings.get("ordem-paranormal-2e", "modo")) 
   await page.waitForFunction(() => globalThis.game?.ready === true, null, { timeout: 60000 });
 }
 
+// A suíte foi escrita para o combate simplificado do alpha, que é o que a opção desligada
+// devolve; o combate do beta tem bloco próprio no fim. A opção é por mundo, e recarrega.
+await page.evaluate(() => game.settings.set("ordem-paranormal-2e", "combateNovoModerno", false));
+await page.reload();
+await page.waitForFunction(() => globalThis.game?.ready === true
+  && game.settings.get("ordem-paranormal-2e", "combateNovoModerno") === false, null, { timeout: 60000 });
+
 // A tela de boas-vindas abre para o mestre ao entrar (enquanto o setting estiver ligado):
 // confere o que ela diz e fecha, para não ficar na frente do resto da suíte.
 const boasVindas = await page.evaluate(async () => {
@@ -187,8 +194,8 @@ const relato = await page.evaluate(async (boasVindas) => {
   /* ---------------------------------------------------------- carregamento -- */
 
   ok("system carregado", game.system.id === "ordem-paranormal-2e");
-  ok("a tela de boas-vindas abre com versão, aviso da licença, os dois atos e o botão das aventuras",
-    boasVindas.abriu && boasVindas.versao && boasVindas.aviso && boasVindas.atos === 2 && boasVindas.botaoAventuras);
+  ok("a tela de boas-vindas abre com versão, aviso da licença, as aventuras dos dois modos e o botão delas",
+    boasVindas.abriu && boasVindas.versao && boasVindas.aviso && boasVindas.atos === 4 && boasVindas.botaoAventuras);
   ok("com os links da licença, do site e da loja da editora, do changelog e do repositório",
     ["ordemparanormal.com.br/licenca", "loja.ordemparanormal.com.br", "CHANGELOG.md", "github.com", "ko-fi.com/meioorc"].every((t) => boasVindas.links.some((l) => l.includes(t))));
   ok("e \"mostrar ao entrar\" desmarcado grava o setting", boasVindas.desligou);
@@ -3060,7 +3067,7 @@ const relato = await page.evaluate(async (boasVindas) => {
       importar: document.querySelectorAll('#op2-aventuras [data-action="importar"]').length,
       licenca: document.querySelector("#op2-aventuras .op2-aventuras__licenca a")?.href ?? "",
     }));
-    relato.passos.push([antes.importar === 0 && antes.estados.length === 2 && antes.estados.every((t) => /Falta o PDF/.test(t)),
+    relato.passos.push([antes.importar === 0 && antes.estados.length === 4 && antes.estados.every((t) => /Falta o PDF/.test(t)),
       "sem PDF, a janela de aventuras só pede o PDF"]);
     relato.passos.push([antes.licenca === "https://ordemparanormal.com.br/licenca", "e leva o aviso e o link da Licença da Comunidade"]);
     // A tela de boas-vindas fica aberta atrás, como no mundo do mestre: tem que se
@@ -3116,8 +3123,8 @@ const relato = await page.evaluate(async (boasVindas) => {
       for (const app of foundry.applications.instances.values()) if (app.id === "op2-boas-vindas") await app.close();
       return estados;
     });
-    relato.passos.push([boasVindasAntes.length === 2 && boasVindasAntes.every((t) => /ainda não montado/i.test(t))
-      && boasVindasDepois.length === (completo ? 2 : 2) && boasVindasDepois.filter((t) => /guardado neste mundo/i.test(t)).length === (completo ? 2 : 1),
+    relato.passos.push([boasVindasAntes.length === 4 && boasVindasAntes.every((t) => /ainda não montado/i.test(t))
+      && boasVindasDepois.length === 4 && boasVindasDepois.filter((t) => /guardado neste mundo/i.test(t)).length === (completo ? 2 : 1),
     `a tela de boas-vindas aberta atrás se refaz com os atos montados (${boasVindasAntes.join(" / ")} → ${boasVindasDepois.join(" / ")})`]);
 
     const noPack = await page.evaluate(async (completo) => {
@@ -3985,6 +3992,13 @@ const relato = await page.evaluate(async (boasVindas) => {
     await medir("ficha de item", await hab.sheet.render({ force: true }));
     await medir("boas-vindas", game.op2.boasVindas(), false);
     await medir("aventuras do playtest", game.op2.aventuras(), false);
+    const cenaCheia = await Actor.create({ name: "Painel Cheio", type: "cena-acao", system: { tipo: "combate" } });
+    await medir("ficha da cena de ação", await cenaCheia.sheet.render({ force: true }), false);
+    const lotacao = await Promise.all(Array.from({ length: 8 }, (_v, i) => Actor.create({ name: `Lotação ${i}`, type: "personagem" })));
+    await cenaCheia.update({ "system.participantes": lotacao.map((a) => a.uuid), "system.ativa": true, "system.rodada": 1, "system.fase": "suporte" });
+    await medir("painel de ação", game.op2.painelAcao(cenaCheia));
+    await cenaCheia.update({ "system.ativa": false });
+    for (const d of [...lotacao, cenaCheia]) await d.delete();
     for (const d of [poi, ev, des, hab]) await d.delete();
     await npc.delete();
     return resultados;
@@ -4428,8 +4442,8 @@ const relato = await page.evaluate(async (boasVindas) => {
     atos: document.querySelectorAll('#op2-aventuras [data-modo="moderno"] .op2-aventuras__ato').length,
     importar: Boolean(document.querySelector('#op2-aventuras [data-action="importar"][data-ato="ato-i"]')),
   }));
-  passo(janela.grupos === "moderno" && janela.atos === 2 && !janela.deste,
-    `a janela agrupa por modo: atos no moderno, sem dizer que é o deste mundo (${janela.grupos})`);
+  passo(janela.grupos === "moderno,vigilia" && janela.atos === 2,
+    `a janela agrupa por modo, cada um com o seu PDF (${janela.grupos})`);
   if (janela.importar) {
     // Tira do mundo um pré-gerado do ato: reaparecer depois da recarga é a prova de que a
     // importação terminou, e não foi cortada pela troca de modo.
@@ -4470,6 +4484,438 @@ const relato = await page.evaluate(async (boasVindas) => {
     && volta.tecnologia === "d8" && volta.tatica === "d10" && volta.erudicao === "d8",
   "de volta ao moderno: a ficha é a de antes, e a Erudição segue guardada");
   await page.evaluate(() => game.actors.getName("E2E Modos").delete());
+}
+
+// Combate, medo, perseguição e furtividade do beta (beta §7–§11), no modo Vigília. Tudo
+// com dados de verdade: o que se confere é o efeito na ficha, não o número que saiu.
+{
+  await Promise.all([
+    page.waitForEvent("load", { timeout: 60000 }),
+    page.evaluate(() => game.op2.trocarModo("vigilia")),
+  ]);
+  await page.waitForFunction(() => globalThis.game?.ready === true
+    && game.settings.get("ordem-paranormal-2e", "modo") === "vigilia"
+    && Handlebars.partials["systems/ordem-paranormal-2e/templates/partials/controle-dado.hbs"], null, { timeout: 60000 });
+
+  const vigilia = await page.evaluate(async () => {
+    const passos = [];
+    const ok = (titulo, condicao) => passos.push([Boolean(condicao), titulo]);
+    const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+    const SIS = "ordem-paranormal-2e";
+    const fx = game.op2.vigilia;
+    const ultimoCard = () => game.messages.contents.at(-1)?.content ?? "";
+
+    const pc = await Actor.create({ name: "E2E Rhiona", type: "personagem", system: {
+      perfil: "analista", atributos: { fisico: { die: "d10" } }, recursos: { pv: { value: 22, max: 22 }, pd: { value: 12, max: 12 } },
+      pericias: { luta: { die: "d10" }, vigor: { die: "d8" }, atletismo: { die: "d8" } },
+    } });
+    const outro = await Actor.create({ name: "E2E Cavan", type: "personagem", system: { recursos: { pv: { value: 15, max: 15 }, pd: { value: 15, max: 15 } } } });
+    await pc.createEmbeddedDocuments("Item", [
+      { name: "Martelo", type: "equipamento", system: { equipado: true, ataque: { tipo: "corpo", bonusDano: 3 } } },
+      { name: "Cota", type: "equipamento", system: { equipado: true, armadura: 2, passos: "atletismo -1" } },
+      { name: "Análise", type: "habilidade", system: { mecanica: "analise" } },
+      { name: "Segredo do Aço", type: "habilidade", system: { mecanica: "segredo-aco" } },
+    ]);
+    const npc = await Actor.create({ name: "E2E Afogado", type: "npc", system: {
+      atributos: { fisico: { die: "d8" }, mente: { die: "d4" }, emocao: { die: "d4" } }, recursos: { pv: { value: 10, max: 10 } }, rd: 2,
+      pericias: { luta: { rotulo: "Luta", die: "d6" } }, ataques: [{ nome: "Garras", tipo: "corpo", dados: "d8+d6", bonusDano: 1 }],
+    } });
+
+    // Ficha: equipamento, armadura, aba.
+    ok("cota de malha pesa: Atletismo um passo abaixo enquanto vestida", pc.system.pericias.atletismo.dadoEfetivo === "d6");
+    ok("Segredo do Aço soma 1 ponto de armadura ao item", pc.system.armadura.total === 3 && pc.system.armadura.disponivel === 3);
+    await pc.sheet.render({ force: true });
+    await esperar(800);
+    pc.sheet.element.querySelector('[data-action="tab"][data-tab="condicao"]')?.click();
+    await esperar(300);
+    ok("a ficha tem a aba Condição, com pavor, condições e armadura",
+      pc.sheet.element.querySelector(".op2-painel--condicao.active") && pc.sheet.element.querySelectorAll('[data-action="alternarCondicao"]').length >= 9);
+    await pc.sheet.close();
+
+    // Motor: pavor e modificador de ferida.
+    await pc.update({ "system.estado.pavor": "d6", "system.estado.lesoes": ["tendao"] });
+    const comPavor = await game.op2.rolarTeste(pc, { chavePericia: "acrobacia", dt: 7, rapido: true });
+    ok("o dado de pavor rola junto, sem somar", comPavor.dados.some((d) => d.pavor) && comPavor.total <= comPavor.dados.filter((d) => !d.pavor).reduce((t, d) => t + d.resultado, 0) - 2 + 0.01 + 2);
+    ok("lesão põe modificador fixo no teste da perícia", comPavor.options.modificador === -2);
+    ok("total não conta o dado de pavor", comPavor.total === comPavor.resultado.total);
+    await pc.update({ "system.estado.pavor": "", "system.estado.lesoes": [] });
+
+    // Cena de combate.
+    const cena = await Actor.create({ name: "E2E Combate", type: "cena-acao", system: { tipo: "combate", participantes: [pc.uuid, outro.uuid, npc.uuid] } });
+    await game.op2.iniciarCena(cena);
+    await esperar(600);
+    ok("a cena começa na rodada 1, fase de suporte", cena.system.ativa && cena.system.rodada === 1 && cena.system.fase === "suporte");
+    const painel = game.op2.painelAcao(cena);
+    await esperar(900);
+    const el = painel.element;
+    ok("o painel mostra as quatro fases e uma linha por participante",
+      el.querySelectorAll(".op2-fase").length === 4 && el.querySelectorAll(".op2-linha-acao").length === 3);
+    ok("o martelo aparece como ataque no painel", [...el.querySelectorAll('[data-qual="ataque"]')].some((b) => b.textContent.includes("Martelo")));
+    await game.op2.avancarCena(cena);
+    await game.op2.avancarCena(cena);
+    ok("a fase anda até o corpo a corpo", cena.system.fase === "corpo");
+
+    // Ataque que não pode errar: Luta contra DT alta só importa no card; o que se confere é a escolha.
+    const martelo = fx.ataquesDe(pc).find((a) => a.nome === "Martelo");
+    ok("arma traz o bônus de dano", martelo.bonusDano === 3);
+    const ataque = await fx.atacar(pc, martelo, { cena, rapido: true, escolha: { alvo: npc.uuid } });
+    await esperar(500);
+    ok("o ataque publica card e registra que o personagem agiu", /Ataque/.test(ultimoCard()) && cena.system.agiram.some((a) => a.ator === pc.uuid));
+    ok("o card do ataque sempre deixa pôr outro valor de dano", /vigilia-dano-manual/.test(ultimoCard()));
+    ok("dano é RA + arma", ataque.dano >= ataque.roll.ra + 3);
+
+    // NPC ataca com os dados da ficha.
+    const garras = fx.ataquesDe(npc)[0];
+    const ataqueNpc = await fx.atacar(npc, garras, { cena, escolha: { alvo: pc.uuid } });
+    ok("NPC rola os dados impressos na ficha, d8 + d6", ataqueNpc.roll.dados.map((d) => d.dado).join("+") === "d8+d6");
+
+    // RD do alvo e ponto de armadura.
+    const pvNpc = npc.system.recursos.pv.value;
+    await fx.aplicarDanoDeCombate(npc, { quantidade: 5 });
+    ok("RD desconta do dano", npc.system.recursos.pv.value === pvNpc - 3);
+    const pvPc = pc.system.recursos.pv.value;
+    await fx.aplicarDanoDeCombate(pc, { quantidade: 12 }, { gastar: true });
+    ok("ponto de armadura reduz 10 e fica gasto", pc.system.recursos.pv.value === pvPc - 2 && pc.system.armadura.disponivel === 2);
+
+    // Condição e rodada.
+    await fx.acaoOposta(pc, "atrapalhar", { cena, alvoUuid: outro.uuid, rapido: true });
+    ok("vencer ou perder, a condição não entra sozinha: é botão do card", !outro.system.estado.condicoes.has("atrapalhado") && /vigilia-condicao/.test(ultimoCard()));
+    await fx.manobra(pc, "derrubar", { cena, alvoUuid: outro.uuid, rapido: true });
+    await esperar(300);
+    ok("manobra também não aplica sozinha", !outro.system.estado.condicoes.has("caido") && /vigilia-condicao/.test(ultimoCard()));
+    await outro.update({ "system.estado.condicoes": ["atrapalhado", "caido"] });
+    // À mão, pelo painel: rodada, fase, "já agiu" e os campos da linha.
+    await esperar(300);
+    const elPainel = painel.element;
+    elPainel.querySelector(`.op2-fase[data-fase="final"]`).click();
+    await esperar(400);
+    ok("o mestre vai para qualquer fase clicando nela", cena.system.fase === "final");
+    elPainel.querySelector('[data-action="ajustarRodada"][data-delta="1"]').click();
+    await esperar(400);
+    ok("o mestre ajusta a rodada à mão", cena.system.rodada === 2);
+    painel.element.querySelector('[data-action="ajustarRodada"][data-delta="-1"]').click();
+    await esperar(400);
+    const campoPv = painel.element.querySelector(`input[data-campo="system.recursos.pv.value"][data-ator="${npc.uuid}"]`);
+    campoPv.value = "9";
+    campoPv.dispatchEvent(new Event("change", { bubbles: true }));
+    await esperar(400);
+    ok("PV se edita direto na linha do painel", npc.system.recursos.pv.value === 9);
+    painel.element.querySelector(`[data-action="alternarAgiu"][data-ator="${pc.uuid}"]`).click();
+    await esperar(400);
+    ok("já agiu é editável", !cena.system.agiram.some((a) => a.ator === pc.uuid));
+    painel.element.querySelector(`[data-action="alternarCondicao"][data-condicao="ocultacaoLeve"][data-ator="${npc.uuid}"]`).click();
+    await esperar(400);
+    ok("condição se liga na linha do painel, também em NPC", npc.system.estado.condicoes.has("ocultacaoLeve"));
+    await cena.update({ "system.fase": "corpo" });
+    const caido = await game.op2.rolarTeste(outro, { chavePericia: "acrobacia", dt: 7, rapido: true });
+    ok("caído e atrapalhado baixam dois passos no teste físico", caido.dados.find((d) => d.componente.tipo === "pericia").dado === "d4");
+    await game.op2.avancarCena(cena);
+    await game.op2.avancarCena(cena);
+    await esperar(600);
+    ok("rodada nova: fase de suporte, ninguém agiu, e o que dura a rodada saiu",
+      cena.system.rodada === 2 && cena.system.fase === "suporte" && !cena.system.agiram.length
+      && !outro.system.estado.condicoes.has("atrapalhado") && outro.system.estado.condicoes.has("caido"));
+
+    // Lesão e trauma.
+    await outro.update({ "system.recursos.pv.value": 1 });
+    await game.op2.vigilia.aplicarDanoDeCombate(outro, { quantidade: 5 }, { gastar: false });
+    await esperar(300);
+    ok("zerar PV pede teste de lesão, não o de ferimento do alpha", /lesão/i.test(ultimoCard()));
+    const teste = await fx.rolarTesteBeta(outro, "lesao", { rapido: true });
+    ok("o teste usa Físico + Vigor e a contagem sobe", teste.roll.dados.length >= 2 && outro.system.estado.testesFerimento === 1);
+    const pvMax = outro.system.recursos.pv.max;
+    await fx.aplicarLinha(outro, "lesao", { chave: "laceracao", perm: true, pvMax: -2, acumula: true });
+    ok("Laceração baixa o máximo e fica na ficha", outro.system.recursos.pv.max === pvMax - 2 && outro.system.estado.lesoes.includes("laceracao"));
+    await fx.aplicarLinha(outro, "trauma", { chave: "panico", pavor: true });
+    ok("Pânico dá dado de pavor", outro.system.estado.pavor === "d6");
+    await fx.aplicarLinha(outro, "trauma", { chave: "panico", pavor: true });
+    ok("Pânico de novo sobe um passo", outro.system.estado.pavor === "d8");
+    await outro.update({ "system.estado.pavor": "" });
+    const tabela = await fx.rolarTabelaBeta(outro, "trauma", { formula: "1d1 + 6" });
+    ok("rolar na tabela só propõe: a linha não cai na ficha sem clique", tabela.linha.chave === "cognitiva" && !outro.system.estado.traumas.includes("cognitiva"));
+    await fx.aplicarLinha(outro, "trauma", tabela.linha);
+    ok("o botão aplica a linha: Degradação cognitiva", outro.system.estado.traumas.includes("cognitiva"));
+    const comMente = await game.op2.rolarTeste(outro, { chavePericia: "percepcao", chaveAtributo: "mente", dt: 7, rapido: true });
+    ok("o trauma pesa no teste de Mente", comMente.options.modificador === -1);
+
+    // Relação.
+    await pc.update({ "system.relacoes": [{ com: "Cavan", grau: 2, rotulo: "AMIZADE", invocada: false }, { com: "Sira", grau: 0, rotulo: "NEUTRO", invocada: false }] });
+    await fx.invocarRelacao(pc, 0, { escolha: "teste" });
+    ok("invocar relação guarda o dado do grau e marca a relação", pc.system.relacoes[0].invocada && pc.system.estado.bonus.some((b) => b.dado === "d8"));
+    ok("uma segunda invocação não acontece", await fx.invocarRelacao(pc, 0, { escolha: "teste" }) === null);
+    ok("relação neutra não se invoca", await fx.invocarRelacao(pc, 1, { escolha: "teste" }) === null);
+
+    // Análise.
+    await fx.analisar(pc);
+    ok("analisar dá 2 marcadores", pc.system.estado.marcadores === 2);
+
+    await game.op2.encerrarCenaAcao(cena);
+    await esperar(500);
+    ok("sair com 0 PV vira botão do mestre, não PV de graça", /vigilia-recupera-pv/.test(ultimoCard()) || outro.system.recursos.pv.value > 0);
+    ok("encerrar a cena tira marcadores e condições, e deixa lesão e armadura gasta",
+      !cena.system.ativa && pc.system.estado.marcadores === 0 && !outro.system.estado.condicoes.has("caido")
+      && outro.system.estado.lesoes.includes("laceracao") && pc.system.estado.armaduraGasta === 1);
+    await painel.close();
+
+    // Perseguição.
+    const corrida = await Actor.create({ name: "E2E Corrida", type: "cena-acao", system: {
+      tipo: "perseguicao", participantes: [pc.uuid, outro.uuid],
+      perseguicao: { rodadas: 2, cortes: [{ rodada: 1, minimo: 999 }], dt: 10, consequencia: "derrubado", danoPorRodada: "1d6", carregar: true, recuperar: true, sacrificio: true },
+    } });
+    await game.op2.iniciarCena(corrida);
+    await esperar(500);
+    ok("iniciar a cena não abre janela sozinha", !painel.rendered);
+    ok("perseguição dá fôlego pela metade do Vigor", pc.system.estado.perseguicao.folego === 4);
+    const avanco = await fx.avancar(pc, corrida, { rapido: true, escolha: { pericia: "atletismo", folego: 1, esforco: true, carregar: "" } });
+    ok("avançar soma pontos e gasta fôlego e esforço", avanco.avanco === avanco.pontos && pc.system.estado.perseguicao.folego === 3 && pc.system.estado.perseguicao.esforcos === 1);
+    await fx.recuperarFolego(pc, corrida);
+    ok("recuperar fôlego dá 2 dados", pc.system.estado.perseguicao.folego === 5);
+    await game.op2.avancarCena(corrida);
+    await esperar(500);
+    ok("o corte só propõe: ninguém cai sem o mestre clicar", !pc.system.estado.perseguicao.derrubado
+      && game.messages.contents.slice(-4).some((m) => /vigilia-derrubado/.test(m.content)));
+    await game.op2.avancarCena(corrida);
+    await esperar(500);
+    ok("na última rodada o card avisa, e quem encerra é o mestre", corrida.system.ativa && corrida.system.rodada === 3);
+    await corrida.sheet.render({ force: true });
+    await esperar(500);
+    const parametros = corrida.sheet.element.querySelector("[data-parametros]");
+    ok("os parâmetros da cena aparecem na ficha", /"rodadas": 2/.test(parametros.value));
+    parametros.value = JSON.stringify({ rodadas: 9, cortes: [], dt: 7, consequencia: "derrubado" });
+    parametros.dispatchEvent(new Event("change", { bubbles: true }));
+    await esperar(500);
+    ok("e o mestre muda os números da perseguição à mão", corrida.system.perseguicao.rodadas === 9 && !corrida.system.perseguicao.carregar);
+    await corrida.sheet.close();
+    await game.op2.encerrarCenaAcao(corrida);
+    await esperar(300);
+
+    // Furtividade.
+    const mata = await Actor.create({ name: "E2E Mata", type: "cena-acao", system: {
+      tipo: "furtividade", participantes: [pc.uuid, outro.uuid],
+      furtividade: {
+        areas: [{ nome: "Bosque", avancos: 2, acoes: [{ nome: "Passar", pericia: "acrobacia", dt: 1, avanca: 2, antes: true, danoFalha: "1d4" }] }],
+        tabela: [{ valor: 3, tipo: "procura", formula: "1d1" }, { valor: 10, tipo: "nada" }],
+      },
+    } });
+    await game.op2.iniciarCena(mata);
+    await esperar(400);
+    ok("furtividade começa na fase dos personagens", mata.system.fase === "personagens");
+    const dados = await fx.testeDeEsconderijo(pc, { rapido: true });
+    ok("teste de esconderijo guarda os dois dados com o valor rolado", dados.length >= 2 && pc.system.estado.furtividade.esconderijo.length === dados.length && pc.system.estado.furtividade.testou);
+    await pc.update({ "system.estado.furtividade.esconderijo": [{ dado: "d6", valor: 1 }, { dado: "d8", valor: 5 }] });
+    await game.op2.avancarCena(mata);
+    await esperar(300);
+    ok("virar para a fase das criaturas não rola nada sozinho", mata.system.fase === "criaturas" && pc.system.estado.furtividade.esconderijo.length === 2);
+    await fx.faseDasCriaturas(mata, { forcar: 3 });
+    await esperar(400);
+    ok("a procura mostra os números e não descarta sozinha", pc.system.estado.furtividade.esconderijo.length === 2 && /vigilia-descartar/.test(ultimoCard()));
+    await fx.descartarIguais(pc, { alvos: pc.uuid, valores: "1" });
+    await esperar(400);
+    ok("o botão descarta o dado de valor igual", pc.system.estado.furtividade.esconderijo.length === 1 && pc.system.estado.furtividade.esconderijo[0].valor === 5);
+    await fx.faseDasCriaturas(mata, { forcar: 10 });
+    await fx.acaoDeArea(pc, mata, mata.system.furtividade.areas[0].acoes[0], { rapido: true });
+    ok("ação de área soma os avanços", pc.system.estado.furtividade.avancos === 2);
+    const firme = await fx.testeDeEquilibrio(pc, { rapido: true });
+    ok("o teste de equilíbrio devolve se firmou, e gasta os d4 da Acrobacia no máximo", typeof firme === "boolean" && pc.system.estado.equilibrio <= 2);
+    await game.op2.encerrarCenaAcao(mata);
+    await esperar(300);
+
+    // Observar.
+    const poi = await Item.create({ name: "E2E Ponto", type: "ponto-interesse", system: { informacoes: [
+      { id: "a1", pericia: "percepcao", dt: 4, texto: "achou" }, { id: "b2", pericia: "intuicao", dt: 12, texto: "não acha" },
+    ] } });
+    const achou = await game.op2.observar(outro, poi.uuid, "percepcao");
+    ok("Observar revela pelo tamanho do dado, sem teste", achou.length === 1 && outro.system.estado.infosReveladas.size >= 1);
+    const pdAntes = outro.system.recursos.pd.value;
+    const nada = await game.op2.observar(outro, poi.uuid, "intuicao");
+    ok("Observar sem nada novo não custa PD", nada.length === 0 && outro.system.recursos.pd.value === pdAntes);
+
+    // Desafios novos.
+    const pedra = await Item.create({ name: "E2E Pilha", type: "desafio-acesso", system: { abordagens: { arrombar: false, destrancar: false, escalar: true }, escalar: { alvo: 2, dtRapido: 1, dtCauteloso: 1, pericia: "atletismo" } } });
+    const subida = await game.op2.vigilia.escalar(outro, pedra, "rapido", { rapido: true });
+    ok("escalar acumula até chegar", subida.chegou || subida.pontos > 0 || subida.dano === 0);
+
+    for (const d of [poi, pedra]) await d.delete();
+    for (const d of [cena, corrida, mata, npc, pc, outro]) await d.delete();
+    return passos;
+  });
+  relato.passos.push(...vigilia);
+
+  // As missões, pelo caminho de verdade: o PDF do mestre, os zips da editora, importar, jogar.
+  const BETA = "jambo-arquivos/playtest2/v1/2-agenteelite-completo";
+  const pdfBeta = process.env.OP2_E2E_PDF_BETA ?? `${BETA}/Ordem-2-Playtest-Beta-MISSAO-1-E-2.pdf`;
+  const zips = { "missao-1": `${BETA}/Ordem-2-Playtest-Beta-Missao-1-Extras.zip`, "missao-2": `${BETA}/Ordem-2-Playtest-Beta-Missao-2-Extras-Elite.zip` };
+  if (!existsSync(pdfBeta)) {
+    relato.passos.push([false, `sem o PDF do beta em ${pdfBeta}: as missões não foram exercitadas`]);
+  } else {
+    await page.evaluate(() => game.op2.aventuras());
+    await page.waitForSelector('#op2-aventuras [data-modo="vigilia"] [data-pdf]', { state: "attached", timeout: 20000 });
+    await page.setInputFiles('#op2-aventuras [data-modo="vigilia"] [data-pdf]', pdfBeta);
+    await page.waitForSelector('#op2-aventuras [data-action="importar"][data-ato="missao-2"]', { timeout: 180000 });
+    const lido = await page.evaluate(() => ({
+      m1: document.querySelector('#op2-aventuras [data-ato="missao-1"] .op2-aventuras__resumo')?.textContent ?? "",
+      m2: document.querySelector('#op2-aventuras [data-ato="missao-2"] .op2-aventuras__resumo')?.textContent ?? "",
+      problemas: document.querySelector('#op2-aventuras [data-ato="missao-2"] .op2-aventuras__problemas')?.textContent ?? "",
+    }));
+    relato.passos.push([/6 pontos/.test(lido.m1) && /16 linhas/.test(lido.m1) && /3 cenas/.test(lido.m1) && /6 pré-gerados/.test(lido.m1), `Missão 1 montada do PDF (${lido.m1})`]);
+    relato.passos.push([/11 pontos|10 pontos/.test(lido.m2) && /24 linhas/.test(lido.m2) && /8 pré-gerados/.test(lido.m2), `Missão 2 montada do PDF (${lido.m2})`]);
+    relato.passos.push([/virote|carroça/i.test(lido.problemas), "a janela avisa dos quadros trocados no livro, sem travar a montagem"]);
+
+    for (const missao of ["missao-1", "missao-2"]) {
+      await page.click(`#op2-aventuras [data-action="enviarZip"][data-ato="${missao}"]`);
+      await page.waitForSelector(".op2-extras input[type=file]", { timeout: 20000 });
+      await page.setInputFiles(".op2-extras input[type=file]", zips[missao]);
+      await page.waitForSelector('.op2-extras [data-action="concluir"]', { timeout: 590000 });
+      const envio = await page.evaluate(() => ({
+        ok: Boolean(document.querySelector(".op2-extras__ok")),
+        listas: document.querySelectorAll(".op2-extras__lista li").length,
+        texto: document.querySelector(".op2-extras")?.textContent?.replace(/\s+/g, " ").slice(0, 300) ?? "",
+      }));
+      relato.passos.push([envio.ok && envio.listas === 0, `o zip de ${missao} traz o que a aventura espera, sem aproximação (${envio.texto.slice(0, 120)})`]);
+      await page.click('.op2-extras [data-action="concluir"]');
+      await page.waitForFunction((m) => document.querySelector(`#op2-aventuras [data-action="importar"][data-ato="${m}"]`), missao, { timeout: 20000 });
+      await page.click(`#op2-aventuras [data-action="importar"][data-ato="${missao}"]`);
+      // O core cria tipo por tipo: espera todos, não só o primeiro que aparece.
+      await page.waitForFunction((m) => {
+        const titulo = m === "missao-1" ? "Pântano" : "Cruachan";
+        return game.actors.find((a) => a.type === "cena-acao" && a.name === (m === "missao-1" ? "Fase 1: A Enxurrada" : "Cena 4: As Três Cabeças da Morte"))
+          && game.scenes.getName(m === "missao-1" ? "A Ilhota" : "A Caverna")
+          && game.journal.find((j) => j.name.startsWith("Roteiro") && j.name.includes(titulo))
+          && game.playlists.find((l) => l.name.includes(titulo))
+          && game.items.getName(m === "missao-1" ? "Árvore" : "Baú romano");
+      }, missao, { timeout: 180000 });
+    }
+
+    const missoes = await page.evaluate(async () => {
+      const passos = [];
+      const ok = (titulo, condicao) => passos.push([Boolean(condicao), titulo]);
+      const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+      const fx = game.op2.vigilia;
+      const mundo = game.world.id;
+      const servido = async (caminho) => (await fetch(caminho, { method: "HEAD" })).ok;
+      const lado = (src) => new Promise((resolver) => { const i = new Image(); i.onload = () => resolver(Math.max(i.width, i.height)); i.onerror = () => resolver(-1); i.src = src; });
+
+      const ilhota = game.scenes.getName("A Ilhota");
+      const caverna = game.scenes.getName("A Caverna");
+      const fundo = (cena) => cena?.background?.src ?? cena?.levels?.contents?.[0]?.background?.src ?? "";
+      ok("as cenas das missões vêm com o mapa na pasta do mundo", fundo(ilhota).startsWith(`worlds/${mundo}/missao-1/`) && fundo(caverna).startsWith(`worlds/${mundo}/missao-2/`));
+      ok("o mapa encolheu para 4096 ao subir", await lado(fundo(ilhota)) === 4096);
+      ok("os marcadores dos pontos estão no mapa", ilhota.notes.size === 6 && caverna.notes.size === 11);
+
+      const malik = game.actors.find((a) => a.name.startsWith("Malik"));
+      ok("o pré-gerado vem com a imagem na pasta do mundo, encolhida", malik.img.startsWith(`worlds/${mundo}/`) && await lado(malik.img) === 1024);
+      ok("a ficha do Malik traz dado, arma e relação", malik.system.atributos.emocao.die === "d10" && malik.items.some((i) => i.system.ataque?.tipo === "distancia") && malik.system.relacoes.length === 7);
+      const pdf = game.journal.find((j) => j.name.startsWith("Fichas e históricos") && j.name.includes("Cruachan"));
+      ok("as fichas da editora entram como PDF no diário", await servido(pdf.pages.contents[0].src));
+      const handouts = game.journal.find((j) => j.name.startsWith("Handouts") && j.name.includes("Pântano"));
+      ok("os handouts estão servidos", handouts.pages.size === 5 && await servido(handouts.pages.contents[0].src));
+      const som = game.playlists.find((p) => p.name.includes("Pântano"))?.sounds.contents[0];
+      ok("a trilha toca da pasta do mundo", await servido(som.path));
+
+      const altar = game.items.getName("Altar Das Vinhas") ?? game.items.find((i) => i.name.toLowerCase() === "altar das vinhas");
+      ok("linha trocada no livro nasce rascunho", altar.system.informacoes.find((l) => /virote/i.test(l.texto))?.oculta === true);
+      const arvore = game.items.getName("Árvore");
+      ok("o quadro da árvore tem as quatro linhas do PDF, com perícia e DT", arvore.system.informacoes.map((l) => `${l.pericia}${l.dt}`).join() === "percepcao6,percepcao8,pesquisar6,pesquisar8");
+      ok("a descrição do ponto traz o handout", /<img/.test(arvore.system.descricaoBasica));
+      const roteiro = game.journal.find((j) => j.name.startsWith("Roteiro") && j.name.includes("Pântano"));
+      ok("o roteiro sai do PDF, dividido em cenas", roteiro.pages.size >= 6 && [...roteiro.pages].some((p) => p.name.startsWith("Cena 1") && p.text.content.length > 200));
+
+      // Joga um pedaço de cada cena de ação importada.
+      const combate = game.actors.getName("Cena 1: Os Afogados");
+      await game.op2.iniciarCena(combate);
+      await esperar(400);
+      ok("a cena tem os seis personagens", combate.system.participantes.map((u) => fromUuidSync(u)).filter(Boolean).length === 6);
+      await canvas.scene?.view?.();
+      await ilhota.view();
+      await esperar(1500);
+      const doMestre = game.messages.contents.slice(-3).filter((m) => m.whisper.length);
+      ok("o efeito da rodada vai em sussurro ao mestre; a mesa só vê a narração", doMestre.length >= 1);
+      await game.op2.adicionarCriaturas(combate, combate.system.criaturas[0], 2);
+      await esperar(800);
+      const tokens = combate.system.participantes.map((u) => fromUuidSync(u)).filter((a) => a?.type === "npc");
+      ok("a onda vira tokens sem vínculo, cada um com os seus PV", tokens.length === 2 && tokens[0].uuid !== tokens[1].uuid);
+      const rhiona = game.actors.find((a) => a.name.startsWith("Rhiona"));
+      const painel = game.op2.painelAcao(combate);
+      await esperar(1200);
+      ok("o painel mostra personagens e criaturas", painel.element.querySelectorAll(".op2-linha-acao").length === 8);
+      const martelo = fx.ataquesDe(rhiona).find((a) => a.nome === "Martelo de forja");
+      const golpe = await fx.atacar(rhiona, martelo, { cena: combate, rapido: true, escolha: { alvo: tokens[0].uuid } });
+      await esperar(400);
+      const pv = tokens[0].system.recursos.pv.value;
+      await fx.aplicarDanoDeCombate(tokens[0], { quantidade: golpe.dano });
+      await esperar(400);
+      ok("dano cai só no token atingido", tokens[0].system.recursos.pv.value === Math.max(0, pv - golpe.dano) && tokens[1].system.recursos.pv.value === 10);
+      await game.op2.encerrarCenaAcao(combate);
+
+      const enxurrada = game.actors.getName("Fase 1: A Enxurrada");
+      await game.op2.iniciarCena(enxurrada);
+      await esperar(400);
+      const avanco = await fx.avancar(rhiona, enxurrada, { rapido: true, escolha: { pericia: "atletismo", folego: 0, esforco: false, carregar: "" } });
+      ok("a Enxurrada corre com os parâmetros do livro", avanco.avanco > 0 && enxurrada.system.perseguicao.cortes.length === 3);
+      await game.op2.encerrarCenaAcao(enxurrada);
+
+      const mata = game.actors.getName("Cena 1: Nas Profundezas da Mata");
+      await game.op2.iniciarCena(mata);
+      await esperar(400);
+      const sorcha = game.actors.find((a) => a.name.startsWith("Sorcha"));
+      const dados = await fx.testeDeEsconderijo(sorcha, { rapido: true });
+      ok("a Mata esconde com os dados do teste", dados.length >= 2);
+      await fx.acaoDeArea(sorcha, mata, mata.system.furtividade.areas[0].acoes[1], { rapido: true });
+      ok("a ação da área soma avanço", sorcha.system.estado.furtividade.avancos === 1);
+      await fx.usarRuna(sorcha, { escolha: "esconderijo" });
+      ok("a runa de Brenna dá dado de esconderijo uma vez", sorcha.system.estado.runaUsada && sorcha.system.estado.furtividade.esconderijo.some((d) => d.dado === "d10"));
+      await esperar(600);
+      await painel.render({ force: true });
+      await esperar(600);
+      await game.op2.encerrarCenaAcao(mata);
+
+      const bau = game.items.find((i) => i.name === "Baú romano");
+      ok("a senha do baú sai do PDF", bau.system.senha.length === 4 && bau.system.abordagens.arrombar && bau.system.abordagens.destrancar);
+      ok("o Aughisk tem RD 5, com a nota de que é inferida na aventura", game.actors.getName("Aughisk").system.rd === 5);
+      await painel.close();
+      return passos;
+    });
+    relato.passos.push(...missoes);
+  }
+  await Promise.all([
+    page.waitForEvent("load", { timeout: 60000 }),
+    page.evaluate(() => game.op2.trocarModo("moderno")),
+  ]);
+  await page.waitForFunction(() => globalThis.game?.ready === true
+    && game.settings.get("ordem-paranormal-2e", "modo") === "moderno", null, { timeout: 60000 });
+
+  // A opção do modo moderno, nos dois estados (o padrão é ligada).
+  const moderno = await page.evaluate(async () => {
+    const SIS = "ordem-paranormal-2e";
+    const padrao = game.settings.settings.get(`${SIS}.combateNovoModerno`).default;
+    const ator = await Actor.create({ name: "E2E Opção", type: "personagem", system: { recursos: { pv: { value: 1, max: 5 }, pd: { value: 5, max: 5 } } } });
+    await ator.sheet.render({ force: true });
+    await new Promise((r) => setTimeout(r, 700));
+    const semAba = !ator.sheet.element.querySelector('[data-tab="condicao"][data-action="tab"]');
+    await ator.sheet.close();
+    await game.settings.set(SIS, "combateNovoModerno", true);
+    return { padrao, semAba, id: ator.id };
+  });
+  relato.passos.push([moderno.padrao === true, "o combate novo vem ligado por padrão no modo moderno"]);
+  relato.passos.push([moderno.semAba, "desligado, a ficha não mostra a aba Condição"]);
+  await page.reload();
+  await page.waitForFunction(() => globalThis.game?.ready === true
+    && Handlebars.partials["systems/ordem-paranormal-2e/templates/partials/controle-dado.hbs"], null, { timeout: 60000 });
+  const ligado = await page.evaluate(async (id) => {
+    const ator = game.actors.get(id);
+    await ator.sheet.render({ force: true });
+    await new Promise((r) => setTimeout(r, 700));
+    const comAba = Boolean(ator.sheet.element.querySelector('[data-tab="condicao"][data-action="tab"]'));
+    await ator.sheet.close();
+    await game.op2.vigilia.aplicarDanoDeCombate(ator, { quantidade: 3 });
+    await new Promise((r) => setTimeout(r, 400));
+    const pediu = /lesão/i.test(game.messages.contents.at(-1)?.content ?? "");
+    const perPericias = Boolean(ator.system.pericias.tecnologia);
+    await ator.delete();
+    return { comAba, pediu, perPericias };
+  }, moderno.id);
+  relato.passos.push([ligado.comAba && ligado.pediu, "ligado no moderno: ficha com a aba, e zerar PV pede teste de lesão"]);
+  relato.passos.push([ligado.perPericias, "e as perícias seguem as do modo moderno"]);
 }
 
 const falhas = relato.passos.filter(([ok]) => !ok);

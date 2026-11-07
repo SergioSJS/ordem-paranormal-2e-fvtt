@@ -8,8 +8,9 @@
  *   node scripts/e2e/dois-clientes.mjs            # porta 30099
  *   FOTO=/tmp/jogador.png node scripts/e2e/dois-clientes.mjs
  *
- * Achados que só apareceram aqui: nenhum de código — mas dois do próprio teste, que
- * valem como aviso a quem mexer: o Foundry entrega TODA mensagem a todos os clientes e
+ * Achados que só apareceram aqui: nenhum de código — mas três do próprio teste, que
+ * valem como aviso a quem mexer: o mundo do e2e tem os dois atos, com pontos de mesmo nome (procure
+ * pelo vínculo com a investigação, não pelo nome); o Foundry entrega TODA mensagem a todos os clientes e
  * esconde pelo `ChatMessage#visible` (um sussurro "só do mestre" está em
  * `game.messages` do jogador; o que conta é `visible` e o log); e um stub de
  * `AudioHelper.play` no jogador engole a difusão para a mesa — embrulhe o original.
@@ -27,7 +28,10 @@ async function entrar(label) {
   await page.selectOption("select[name='userid']", { label });
   await page.click("button[name='join'], button[type='submit']");
   await page.waitForURL("**/game");
-  await page.waitForFunction(() => globalThis.game?.ready === true, null, { timeout: 90000 });
+  // `game.ready` chega antes dos partials, e no servidor recém-ligado o intervalo é longo: a janela
+  // abre sem conteúdo e tudo o que vem depois falha em cascata (aconteceu na primeira rodada).
+  await page.waitForFunction(() => globalThis.game?.ready === true
+    && globalThis.Handlebars?.partials?.["systems/ordem-paranormal-2e/templates/partials/controle-dado.hbs"], null, { timeout: 90000 });
   await page.waitForTimeout(1200);
   return page;
 }
@@ -36,7 +40,9 @@ await gm.evaluate(async () => {
   let user = game.users.find((u) => u.name === "Jogador E2E");
   if (!user) user = await User.create({ name: "Jogador E2E", role: CONST.USER_ROLES.PLAYER });
   const pack = game.packs.get("world.op2-aventuras");
-  for (const adv of await pack.getDocuments()) if (adv.name.startsWith("Ato II")) await adv.import({ dialog: false });
+  // `adv.import()` não espera os extras: reimportar em segundo plano sobrescreve o que vem abaixo.
+  const { importarAventura } = await import("/systems/ordem-paranormal-2e/module/ui/extras-aventura.mjs");
+  for (const adv of await pack.getDocuments()) if (adv.name.startsWith("Ato II")) await importarAventura(adv, { dialog: false });
   await new Promise((r) => setTimeout(r, 1500));
   const amanda = game.actors.find((a) => a.type === "personagem" && a.name === "Amanda");
   await amanda.update({ ownership: { ...amanda.ownership, [user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER } });
@@ -49,9 +55,9 @@ await gm.evaluate(async () => {
   const { alternarAtiva } = await import("/systems/ordem-paranormal-2e/module/cena/investigacao-ativa.mjs");
   if (!game.settings.get("ordem-paranormal-2e", "investigacoesAtivasUuids").includes(inv.uuid)) await alternarAtiva(inv);
   await game.op2.definirInvestigacaoAtiva(inv.uuid);
-  const idolo = game.items.find((i) => i.type === "ponto-interesse" && i.name === "O Ídolo de Pedra");
+  const idolo = game.items.find((i) => i.type === "ponto-interesse" && i.name === "O Ídolo de Pedra" && game.actors.find((a) => a.type === "investigacao" && a.name.includes("Ato II")).system.pois.includes(i.uuid));
   if (inv.system.poisOcultos.includes(idolo.uuid)) await game.op2.alternarOculto(inv, "pois", idolo.uuid);
-  const painel = game.items.find((i) => i.type === "desafio-acesso" && i.name.includes("Painel Confuso"));
+  const painel = game.items.find((i) => i.type === "desafio-acesso" && i.name.includes("Painel Confuso") && game.actors.find((d) => d.type === "investigacao" && d.name.includes("Ato II")).system.desafios.includes(i.uuid));
   if (inv.system.desafiosOcultos.includes(painel.uuid)) await game.op2.alternarOculto(inv, "desafios", painel.uuid);
   await painel.update({ "system.hackTecnico.ultimaTentativaRodada": -1, "system.hackTecnico.resolvido": false });
   await game.settings.set("ordem-paranormal-2e", "revelacaoPeloMestre", false);
@@ -68,7 +74,7 @@ await jog.evaluate(() => { window.__tocados = []; const orig = foundry.audio.Aud
 // 1. jogador usa EMF (pelo botão) e termômetro no Ídolo
 const r1 = await jog.evaluate(async () => {
   const ator = game.user.character;
-  const idolo = game.items.find((i) => i.type === "ponto-interesse" && i.name === "O Ídolo de Pedra");
+  const idolo = game.items.find((i) => i.type === "ponto-interesse" && i.name === "O Ídolo de Pedra" && game.actors.find((a) => a.type === "investigacao" && a.name.includes("Ato II")).system.pois.includes(i.uuid));
   const antes = game.messages.size;
   game.op2.acoesInvestigacao(ator);
   await new Promise((r) => setTimeout(r, 900));
@@ -134,7 +140,7 @@ ok("áudio: 'ouvir' fica no jogador; 'tocar para a mesa' chega ao mestre", r3.to
 // 4. hack travado, do lado do jogador
 const r4 = await jog.evaluate(async () => {
   const ator = game.user.character;
-  const painel = game.items.find((i) => i.type === "desafio-acesso" && i.name.includes("Painel Confuso"));
+  const painel = game.items.find((i) => i.type === "desafio-acesso" && i.name.includes("Painel Confuso") && game.actors.find((d) => d.type === "investigacao" && d.name.includes("Ato II")).system.desafios.includes(i.uuid));
   const avisos = [];
   const orig = ui.notifications.warn.bind(ui.notifications);
   ui.notifications.warn = (m, o) => { avisos.push(String(m)); return orig(m, o); };
@@ -156,7 +162,7 @@ ok("hack: o botão do jogador mostra 'nesta rodada' antes do clique", /nesta rod
 
 // 5. mestre libera na ficha
 await gm.evaluate(async () => {
-  const painel = game.items.find((i) => i.type === "desafio-acesso" && i.name.includes("Painel Confuso"));
+  const painel = game.items.find((i) => i.type === "desafio-acesso" && i.name.includes("Painel Confuso") && game.actors.find((d) => d.type === "investigacao" && d.name.includes("Ato II")).system.desafios.includes(i.uuid));
   await painel.sheet.render(true); await new Promise((r) => setTimeout(r, 900));
   painel.sheet.element.querySelector("[data-action='liberarHack'][data-hack='hackTecnico']")?.click();
   await new Promise((r) => setTimeout(r, 600));
@@ -164,7 +170,7 @@ await gm.evaluate(async () => {
 });
 await esperar(800);
 const r5 = await jog.evaluate(async () => {
-  const painel = game.items.find((i) => i.type === "desafio-acesso" && i.name.includes("Painel Confuso"));
+  const painel = game.items.find((i) => i.type === "desafio-acesso" && i.name.includes("Painel Confuso") && game.actors.find((d) => d.type === "investigacao" && d.name.includes("Ato II")).system.desafios.includes(i.uuid));
   return { ultima: painel.system.hackTecnico.ultimaTentativaRodada, denovo: Boolean(await game.op2.hackTecnico(game.user.character, painel.uuid, { rapido: true })) };
 });
 ok("hack: 'Liberar tentativa' do mestre chega ao jogador e ele tenta de novo", r5.ultima === -1 && r5.denovo);
@@ -174,7 +180,7 @@ await gm.evaluate(() => game.settings.set("ordem-paranormal-2e", "revelacaoPeloM
 await esperar(800);
 const r6 = await jog.evaluate(async () => {
   const ator = game.user.character;
-  const idolo = game.items.find((i) => i.type === "ponto-interesse" && i.name === "O Ídolo de Pedra");
+  const idolo = game.items.find((i) => i.type === "ponto-interesse" && i.name === "O Ídolo de Pedra" && game.actors.find((a) => a.type === "investigacao" && a.name.includes("Ato II")).system.pois.includes(i.uuid));
   const antes = game.messages.size;
   const ex = await game.op2.examinar(ator, idolo.uuid, "percepcao", { rapido: true });
   await game.op2.usarFerramenta(ator, idolo.uuid, "infravermelho");
@@ -203,6 +209,142 @@ const r6b = await jog.evaluate(() => {
 console.log(JSON.stringify({ cardsMestre: r6gm, r6b }));
 ok("gate: depois de o mestre entregar, o jogador recebe a leitura e ela fica gravada", r6gm >= 1 && r6b.ferr.some((k) => k.endsWith(":infravermelho")) && r6b.ultimos.some((t) => /fluxos quentes|coração pulsando/.test(t)));
 await gm.evaluate(() => game.settings.set("ordem-paranormal-2e", "revelacaoPeloMestre", false));
+
+// O beta, do lado do jogador: quem não é dono de NPC nem da cena tem de conseguir jogar.
+// Precisa de uma rodada do e2e antes, que deixa as missões no compêndio do mundo.
+await gm.evaluate(() => game.settings.set("ordem-paranormal-2e", "modo", "vigilia"));
+for (const pagina of [gm, jog]) {
+  await pagina.reload({ waitUntil: "networkidle" });
+  await pagina.waitForFunction(() => globalThis.game?.ready === true && globalThis.Handlebars?.partials?.["systems/ordem-paranormal-2e/templates/partials/controle-dado.hbs"], null, { timeout: 90000 });
+  await pagina.waitForTimeout(1200);
+}
+const temMissao = await gm.evaluate(async () => {
+  if (!game.actors.getName("Cena 1: Os Afogados")) return false; // o e2e deixa importada
+  const user = game.users.find((u) => u.name === "Jogador E2E");
+  const rhiona = game.actors.find((a) => a.name.startsWith("Rhiona"));
+  await rhiona.update({ ownership: { ...rhiona.ownership, [user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER } });
+  await user.update({ character: rhiona.id });
+  const cena = game.actors.getName("Cena 1: Os Afogados");
+  await game.scenes.getName("A Ilhota").view();
+  await new Promise((r) => setTimeout(r, 2000));
+  await game.op2.iniciarCena(cena);
+  await game.op2.adicionarCriaturas(cena, cena.system.criaturas[0], 1);
+  await new Promise((r) => setTimeout(r, 1000));
+  await game.op2.avancarCena(cena);
+  await game.op2.avancarCena(cena);
+  return true;
+});
+ok("beta: as missões estão no compêndio do mundo", temMissao);
+if (temMissao) {
+  await esperar(1500);
+  const r7 = await jog.evaluate(async () => {
+    const fx = game.op2.vigilia;
+    const cena = game.op2.cenaAcaoAtiva();
+    const eu = game.user.character;
+    const painel = game.op2.painelAcao(cena);
+    await new Promise((r) => setTimeout(r, 1500));
+    const el = painel.element;
+    const linhas = [...el.querySelectorAll(".op2-linha-acao")];
+    const minhaLinha = linhas.find((l) => l.dataset.ator === eu.uuid);
+    const outraLinha = linhas.find((l) => l.dataset.ator !== eu.uuid);
+    const npcUuid = cena.system.participantes.findLast((u) => fromUuidSync(u)?.type === "npc");
+    const npc = fromUuidSync(npcUuid);
+    const dados = {
+      veLinhas: linhas.length,
+      temMeusBotoes: minhaLinha?.querySelectorAll('[data-action="agir"]').length > 0,
+      semBotoesDosOutros: outraLinha?.querySelectorAll('[data-action="agir"]').length === 0,
+      semMestre: !el.querySelector(".op2-painel-acao__mestre"),
+      semEditarOutro: !outraLinha?.querySelector("input[data-campo]"),
+      pvVisivel: npc?.system.recursos.pv.value,
+      numerosDoNpc: /PV \d/.test(linhas.find((l) => l.dataset.ator === npcUuid)?.querySelector(".op2-linha-acao__recursos")?.textContent ?? ""),
+      efeitoVisivel: game.messages.contents.filter((m) => m.visible).some((m) => /sofrem .* dano emocional/i.test(m.content)),
+    };
+    // O botão de reagir do NPC é do mestre: o clique do jogador avisa e não rola.
+    const antesDoClique = game.messages.size;
+    const avisos = [];
+    const aviso = ui.notifications.warn.bind(ui.notifications);
+    ui.notifications.warn = (t, o) => { avisos.push(t); return aviso(t, o); };
+    const card = await ChatMessage.create({ content: `<div class="op2-card"><button data-op2-acao="vigilia-revidar" data-ator-uuid="${npcUuid}" data-atacante-uuid="${eu.uuid}" data-total="9" data-ra="5" data-segunda="4" data-critico="0" data-bonus-dano="0">r</button></div>`, flags: { "ordem-paranormal-2e": { tipo: "vigilia" } } });
+    await new Promise((r) => setTimeout(r, 500));
+    document.querySelector(`[data-message-id="${card.id}"] [data-op2-acao="vigilia-revidar"]`)?.click();
+    await new Promise((r) => setTimeout(r, 600));
+    ui.notifications.warn = aviso;
+    dados.guardaDeDono = avisos.some((t) => /joga com/.test(t)) && game.messages.size === antesDoClique + 1;
+    // Age: ataque contra quem não é dele.
+    const martelo = fx.ataquesDe(eu).find((a) => a.tipo === "corpo");
+    const golpe = await fx.atacar(eu, martelo, { cena, rapido: true, escolha: { alvo: npcUuid } });
+    await new Promise((r) => setTimeout(r, 900));
+    dados.agiu = cena.system.agiram.some((a) => a.ator === eu.uuid);
+    await fx.aplicarDanoDeCombate(npc, { quantidade: 4 });
+    await new Promise((r) => setTimeout(r, 900));
+    dados.pvDepois = npc.system.recursos.pv.value;
+    dados.golpe = Boolean(golpe);
+    // Edita o que é dele.
+    painel.element.querySelector(`[data-action="alternarAgiu"][data-ator="${eu.uuid}"]`)?.click();
+    await new Promise((r) => setTimeout(r, 800));
+    dados.desmarcou = !cena.system.agiram.some((a) => a.ator === eu.uuid);
+    const campo = painel.element.querySelector(`input[data-campo="system.recursos.pd.value"][data-ator="${eu.uuid}"]`);
+    campo.value = "11";
+    campo.dispatchEvent(new Event("change", { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 700));
+    dados.pdEditado = eu.system.recursos.pd.value;
+    await painel.close();
+    return dados;
+  });
+  console.log(JSON.stringify(r7));
+  ok("beta: o jogador vê todas as linhas, com botões só na dele e sem controles de mestre",
+    r7.veLinhas >= 7 && r7.temMeusBotoes && r7.semBotoesDosOutros && r7.semMestre && r7.semEditarOutro);
+  ok("beta: o ataque do jogador marca que ele agiu, pela ponte do mestre", r7.golpe && r7.agiu);
+  ok("beta: o jogador não vê PV nem PD da criatura", !r7.numerosDoNpc);
+  ok("beta: o efeito da rodada não aparece para o jogador", !r7.efeitoVisivel);
+  ok("beta: reagir pelo NPC é só do mestre: o clique avisa e não rola", r7.guardaDeDono);
+  ok("beta: dano do jogador em NPC passa pelo mestre", r7.pvDepois === Math.max(0, r7.pvVisivel - 4));
+  ok("beta: o jogador edita o próprio PD", r7.pdEditado === 11);
+  ok("beta: o jogador desmarca o próprio 'já agiu', pela ponte do mestre", r7.desmarcou);
+
+  const r8 = await gm.evaluate(async () => {
+    const cena = game.op2.cenaAcaoAtiva();
+    const antes = cena.system.fase;
+    await game.op2.encerrarCenaAcao(cena);
+    const mata = await Actor.create({ name: "Dois Clientes Mata", type: "cena-acao", system: {
+      tipo: "furtividade", participantes: cena.system.participantes.filter((u) => fromUuidSync(u)?.type === "personagem").slice(0, 3),
+      furtividade: { areas: [{ nome: "Área", avancos: 2, acoes: [] }], tabela: [{ valor: 3, tipo: "procura", formula: "1d1" }] },
+    } });
+    await game.op2.iniciarCena(mata);
+    await new Promise((r) => setTimeout(r, 600));
+    return { antes, participantes: mata.system.participantes };
+  });
+  await esperar(1000);
+  const r9 = await jog.evaluate(async (participantes) => {
+    const fx = game.op2.vigilia;
+    const cena = game.op2.cenaAcaoAtiva();
+    const eu = game.user.character;
+    const aliado = participantes.map((u) => fromUuidSync(u)).find((a) => a.uuid !== eu.uuid);
+    await fx.testeDeEsconderijo(eu, { rapido: true });
+    const antes = aliado.system.estado.furtividade.esconderijo.length;
+    await fx.chamarAtencaoPara(eu, aliado, cena);
+    await new Promise((r) => setTimeout(r, 900));
+    const depois = aliado.system.estado.furtividade.esconderijo.length;
+    await fx.distrair(eu, cena, { rapido: true });
+    await new Promise((r) => setTimeout(r, 900));
+    await eu.update({ "system.estado.furtividade.esconderijo": [{ dado: "d6", valor: 1 }] });
+    await new Promise((r) => setTimeout(r, 300));
+    await fx.descartarIguais(eu, { alvos: [eu.uuid, aliado.uuid].join(","), valores: "1" });
+    await new Promise((r) => setTimeout(r, 900));
+    return { antes, depois, usos: cena.system.usosDistrair, restou: eu.system.estado.furtividade.esconderijo.length };
+  }, r8.participantes);
+  console.log(JSON.stringify(r9));
+  ok("beta: chamar atenção dá o dado ao aliado, que não é do jogador", r9.depois === r9.antes + 1);
+  ok("beta: distrair escala para o grupo, pela ponte do mestre", r9.usos === 1);
+  ok("beta: o botão de descartar funciona no cliente do jogador", r9.restou === 0);
+  await gm.evaluate(async () => {
+    const mata = game.actors.getName("Dois Clientes Mata");
+    await game.op2.encerrarCenaAcao(mata);
+    await mata.delete();
+    await game.settings.set("ordem-paranormal-2e", "modo", "moderno");
+  });
+}
+
 if (process.env.FOTO) await jog.screenshot({ path: process.env.FOTO });
 const falhas = globalThis.__falhas ?? 0;
 await browser.close();

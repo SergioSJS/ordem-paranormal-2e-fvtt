@@ -154,6 +154,18 @@ await fotografar("ficha-desafio", ".op2-ficha--desafio", {
 });
 await page.evaluate(() => [...foundry.applications.instances.values()].forEach((a) => a.close?.()));
 
+await fotografar("painel-acao", "#op2-painel-acao", {
+  antes: async () => {
+    const pcs = game.actors.filter((a) => a.type === "personagem").slice(0, 3);
+    const npc = await Actor.create({ name: "Afogado", type: "npc", system: {
+      recursos: { pv: { value: 10, max: 10 }, pd: { value: 0, max: 0 } }, ataques: [{ nome: "Garras", tipo: "corpo", dados: "d8+d6", bonusDano: 1 }],
+    } });
+    const cena = await Actor.create({ name: "Os Afogados", type: "cena-acao", system: { tipo: "combate", participantes: [...pcs.map((a) => a.uuid), npc.uuid] } });
+    await game.op2.iniciarCena(cena);
+    game.op2.painelAcao(cena);
+  },
+});
+
 await fotografar("dialogo-teste", "#op2-pericia-dialog", {
   antes: async ({ alanId }) => {
     const { escolherPericia } = await import("/systems/ordem-paranormal-2e/module/dice/pericia-dialog.mjs");

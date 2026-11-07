@@ -126,6 +126,11 @@ rádio. Aponte `OP2_E2E_DATA` para o User Data descartável para ele zerar
 OP2_E2E_DATA="$DATA" node scripts/e2e/verificar.mjs http://localhost:30099 /tmp
 ```
 
+O bloco do modo Vigília funciona igual, com o PDF e os dois zips de
+`jambo-arquivos/playtest2/v1/`: monta as duas missões, sobe as artes reduzidas e joga combate, perseguição e
+furtividade. `OP2_E2E_PDF_BETA` aponta para outro PDF, para conferir uma revisão nova. Sem os arquivos, esse
+trecho é pulado e o relatório diz.
+
 > O `/tmp` do macOS some de tempos em tempos (duas semanas paradas levaram `fvtt-e2e`,
 > `fvtt-e2e-v13` e as cópias). Recrie pelo bloco acima; o e2e monta o mundo do zero.
 
@@ -135,7 +140,9 @@ OP2_E2E_DATA="$DATA" node scripts/e2e/verificar.mjs http://localhost:30099 /tmp
 descartável (depois de uma rodada do e2e, que deixa os atos no compêndio do mundo) e
 confere dos dois lados: cards de ferramenta e de Examinar, o card só do mestre invisível
 para o jogador, o setor de ferramentas no painel do jogador, o áudio do EMF (só para si
-e para a mesa), o hack travado e o "Liberar tentativa" do mestre, a revelação pelo mestre.
+e para a mesa), o hack travado e o "Liberar tentativa" do mestre, a revelação pelo mestre. No modo Vigília, o
+jogador dono de um pré-gerado usa o painel de ação: só vê botão na própria linha, ataca, pede dano em NPC pela
+ponte do mestre, edita o próprio PD, chama atenção para um aliado e distrai.
 
 ```bash
 node scripts/e2e/dois-clientes.mjs
