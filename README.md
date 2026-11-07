@@ -250,6 +250,15 @@ settings do mundo para voltar ao combate simplificado.
 
 Onde o beta se contradiz ou deixa regra de fora, a decisão está em [docs/regras/LACUNAS.md](docs/regras/LACUNAS.md).
 
+## Efeitos de mesa
+
+Som e luz quando algo acontece: o dado de pavor bate um coração e escurece a borda da tela (e clareia, se o pavor
+sai); crítico toca um sino e doura o card; falha crítica desafina e faz o card tremer; dano dá um baque e pisca em
+quem apanhou, no palco, no painel e na transmissão; iniciar a cena rufa um tambor, e cada fase nova toca um gongo e
+atravessa a tela com o nome dela. O som é sintetizado no navegador, sem arquivo nenhum. Cada pessoa liga, desliga e
+regula o volume nas configurações, só na tela dela; quem pede menos movimento no sistema vê a cor sem pulsar nem
+tremer. Rolagem secreta não dispara efeito para quem não pode ver o resultado.
+
 ## Transmissão (OBS)
 
 Para quem joga em live: uma tela só com os cards dos personagens, sobre fundo transparente, para usar como fonte

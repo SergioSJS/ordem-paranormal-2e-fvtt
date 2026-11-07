@@ -4637,6 +4637,32 @@ const relato = await page.evaluate(async (boasVindas) => {
     await esperar(400);
     ok("condição se liga na linha do painel, também em NPC", npc.system.estado.condicoes.has("ocultacaoLeve"));
 
+    // Efeitos de mesa: o dado de pavor escurece a borda da tela, a fase nova atravessa a tela, o
+    // dano pisca em quem apanhou; desligado, nada aparece.
+    const efeitos = () => [...document.querySelectorAll("#op2-efeitos .op2-efeito")].map((e) => e.className);
+    await pc.update({ "system.estado.pavor": "d6" });
+    await game.op2.rolarTeste(pc, { chavePericia: "luta", dt: 7, rapido: true });
+    await esperar(300);
+    ok("o dado de pavor escurece a borda da tela (ou clareia, se saiu 1)", efeitos().some((c) => /op2-efeito--(pavor|alivio)/.test(c)));
+    await pc.update({ "system.estado.pavor": "" });
+    await game.op2.avancarCena(cena);
+    await esperar(300);
+    ok("a fase nova atravessa a tela com o nome dela", efeitos().some((c) => /op2-efeito--faixa/.test(c))
+      && [...document.querySelectorAll("#op2-efeitos .op2-efeito--faixa")].some((e) => e.textContent.includes(game.i18n.localize(`OP2.Fase.${cena.system.fase}`))));
+    const pvAntes = npc.system.recursos.pv.value;
+    await npc.update({ "system.recursos.pv.value": pvAntes - 1 });
+    await esperar(600);
+    ok("dano pisca em quem apanhou, na linha do painel",
+      painel.element.querySelector(`.op2-linha-acao[data-ator="${npc.uuid}"]`)?.classList.contains("op2-efeito--dano"));
+    await game.settings.set("ordem-paranormal-2e", "efeitosVisuais", false);
+    await new Promise((r) => setTimeout(r, 2500));
+    await game.op2.avancarCena(cena);
+    await esperar(300);
+    ok("com os efeitos visuais desligados, nada aparece", efeitos().length === 0);
+    await game.settings.set("ordem-paranormal-2e", "efeitosVisuais", true);
+    await npc.update({ "system.recursos.pv.value": pvAntes });
+    await cena.update({ "system.fase": "suporte" });
+
     // O fluxo da mesa, pelos botões: iniciou sem querer, parar; montar duas criaturas pela lista;
     // tirar uma pelo X; iniciar de novo. Nada disso pode depender de abrir a ficha da cena.
     painel.element.querySelector('[data-action="parar"]').click();
