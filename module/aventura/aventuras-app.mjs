@@ -6,9 +6,10 @@
  * é texto do livro, que a Licença da Comunidade não deixa redistribuir. O pacote
  * leva o extrator; o texto vem do PDF de quem já tem o material.
  */
-import { SYSTEM_ID } from "../config.mjs";
+import { SYSTEM_ID, MODOS } from "../config.mjs";
+import { modoAtual, trocarModo } from "../modo.mjs";
 import { LICENCA, SELO } from "../ui/licenca.mjs";
-import { ExtrasApp, extrasDaAventura, arquivosPresentes, pastaDosExtras } from "../ui/extras-aventura.mjs";
+import { ExtrasApp, extrasDaAventura, arquivosPresentes, pastaDosExtras, importarAventura } from "../ui/extras-aventura.mjs";
 import { linhasDoPdf } from "./pdf.mjs";
 import { ATOS, montarEGuardar, aventuraNoMundo, documentoDaAventura } from "./mundo.mjs";
 
@@ -61,7 +62,17 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
         artes: noMundo ? await this.#artesDe(ato) : null,
       };
     }));
-    return { ...contexto, atos, ...this.#estado, licenca: LICENCA, selo: SELO };
+    // Cada modo com o próprio PDF e os próprios zips. Modo sem aventura ainda não aparece.
+    const modoDoMundo = modoAtual();
+    const grupos = MODOS
+      .map((modo) => ({
+        modo,
+        rotulo: game.i18n.localize(`OP2.Modo.${modo}`),
+        doMundo: modo === modoDoMundo,
+        atos: atos.filter((ato) => ato.modo === modo),
+      }))
+      .filter((grupo) => grupo.atos.length);
+    return { ...contexto, grupos, ...this.#estado, licenca: LICENCA, selo: SELO };
   }
 
   _onRender(contexto, opcoes) {
@@ -132,9 +143,26 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
     if (!aventura) return;
     // Sem o diálogo do core: quem clicou aqui já disse que quer o ato no mundo, e o
     // aviso de sobrescrita do core só aparece quando há o que sobrescrever.
-    await aventura.import({ dialog: false });
+    // Aventura de outro modo: pergunta antes, porque a ficha dela usa outras perícias.
+    // Fechar o diálogo cancela. A troca vem por último: ela recarrega o mundo.
+    const trocarPara = ato.modo === modoAtual() ? null : ato.modo;
+    let trocar = false;
+    if (trocarPara) {
+      const rotulo = game.i18n.localize(`OP2.Modo.${trocarPara}`);
+      trocar = await foundry.applications.api.DialogV2.confirm({
+        window: { title: "OP2.Aventuras.OutroModoTitulo" },
+        content: `<p>${game.i18n.format("OP2.Aventuras.OutroModo", { modo: rotulo })}</p>`,
+        yes: { label: game.i18n.format("OP2.Aventuras.OutroModoTrocar", { modo: rotulo }) },
+        no: { label: "OP2.Aventuras.OutroModoManter" },
+      });
+      if (trocar === null) return;
+    }
+    // Espera o zip e a importação: a troca de modo recarrega a página e cortaria os dois.
+    const resultado = await importarAventura(aventura, { dialog: false });
+    if (!resultado) return void await this.render();
     ui.notifications.info(game.i18n.format("OP2.Aventuras.Importado", { nome: aventura.name }));
     Hooks.callAll("op2.aventurasMudaram");
+    if (trocar) return void await trocarModo(trocarPara);
     await this.render();
   }
 

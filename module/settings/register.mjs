@@ -4,13 +4,20 @@
  * Quase todos existem porque o playtest deixa a regra em aberto ou se contradiz
  * (spec §11). O default é sempre a leitura recomendada; a mesa ajusta se discordar.
  */
-import { SYSTEM_ID, DT_PADRAO } from "../config.mjs";
+import { SYSTEM_ID, DT_PADRAO, MODOS, MODO_PADRAO } from "../config.mjs";
 
 /** @type {Record<string, object>} */
 const SETTINGS = {
   dtPadrao: {
     scope: "world", config: true, type: Number, default: DT_PADRAO,
     range: { min: 2, max: 20, step: 1 },
+  },
+  // Moderno (alpha) ou Vigília (beta). `requiresReload`: ao salvar o formulário, o core
+  // recarrega a mesa inteira, que precisa ver as mesmas perícias. Fora do formulário, ver
+  // `trocarModo`. Nada se perde na troca: a ficha guarda as dos dois modos.
+  modo: {
+    scope: "world", config: true, type: String, default: MODO_PADRAO, requiresReload: true,
+    choices: Object.fromEntries(MODOS.map((modo) => [modo, `OP2.Modo.${modo}`])),
   },
   // O playtest não diz se dados descartados alimentam a detecção de crítico (spec §4.5).
   escopoCritico: {

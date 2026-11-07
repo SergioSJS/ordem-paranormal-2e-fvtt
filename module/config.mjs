@@ -18,9 +18,13 @@ export const ATRIBUTOS = {
   emocao: { ordem: 3 },
 };
 
-/** As 20 perícias, com o atributo-base sugerido (trocável no teste — spec §2.3). */
+/**
+ * As perícias dos dois modos, 20 em cada um, com o atributo-base sugerido (trocável no
+ * teste — spec §2.3). Sem `modos`, vale nos dois; `rotulos` troca o nome por modo.
+ */
 export const PERICIAS = {
   acrobacia: { atributo: "fisico" },
+  animais: { atributo: "emocao", modos: ["vigilia"] },
   aptidao: { atributo: "mente", especializada: true },
   atletismo: { atributo: "fisico" },
   crime: { atributo: "fisico" },
@@ -30,15 +34,16 @@ export const PERICIAS = {
   intimidar: { atributo: "emocao" },
   intuicao: { atributo: "emocao" },
   luta: { atributo: "fisico" },
-  maquinas: { atributo: "mente" },
+  maquinas: { atributo: "mente", modos: ["moderno"] },
   medicina: { atributo: "mente" },
-  ocultismo: { atributo: "mente" },
+  ocultismo: { atributo: "mente", rotulos: { vigilia: "bruxaria" } },
+  oficio: { atributo: "mente", modos: ["vigilia"] },
   percepcao: { atributo: "mente" },
   persuasao: { atributo: "emocao" },
-  pesquisar: { atributo: "mente" },
+  pesquisar: { atributo: "mente", rotulos: { vigilia: "inspecionar" } },
   pontaria: { atributo: "fisico" },
   sobrevivencia: { atributo: "mente" },
-  tecnologia: { atributo: "mente" },
+  tecnologia: { atributo: "mente", modos: ["moderno"] },
   vigor: { atributo: "fisico" },
 };
 
@@ -47,6 +52,45 @@ export const PERICIAS = {
  * "conhecimento em um campo específico", então o jogador pode criar outros.
  */
 export const APTIDOES_PADRAO = ["artes", "atualidades", "burocracia", "exatas", "humanas", "tatica"];
+
+/** Modos de jogo: o alpha é o moderno, o beta é o Vigília (docs/regras/alpha-para-beta.md). */
+export const MODOS = ["moderno", "vigilia"];
+export const MODO_PADRAO = "moderno";
+
+const APTIDOES_POR_MODO = {
+  moderno: APTIDOES_PADRAO,
+  vigilia: ["artes", "erudicao", "folclore", "guerra", "nobreza", "religiao"], // beta §2.2
+};
+
+/** As chaves de perícia que o modo mostra. A ficha guarda todas; ver `PERICIAS`. */
+export function periciasDoModo(modo) {
+  return Object.keys(PERICIAS).filter((chave) => !PERICIAS[chave].modos || PERICIAS[chave].modos.includes(modo));
+}
+
+/** A chave de i18n do nome da perícia: `pesquisar` é Inspecionar no Vigília (beta §2.2). */
+export function chaveDoRotuloDePericia(chave, modo) {
+  return `OP2.Pericia.${PERICIAS[chave]?.rotulos?.[modo] ?? chave}`;
+}
+
+/** As Aptidões que o modo traz de fábrica. */
+export function aptidoesDoModo(modo) {
+  return APTIDOES_POR_MODO[modo] ?? APTIDOES_PADRAO;
+}
+
+/**
+ * O campo aparece no modo? Os de fábrica de outro modo somem; os que a mesa criou
+ * aparecem sempre. Rótulo preenchido é o que marca um campo da mesa: ela pode chamar um
+ * campo de "Folclore" no moderno, e a chave sai igual à de fábrica do Vigília.
+ */
+export function aptidaoVisivel(sub, modo, rotulo = "") {
+  if (rotulo?.trim() || aptidoesDoModo(modo).includes(sub)) return true;
+  return !Object.values(APTIDOES_POR_MODO).some((lista) => lista.includes(sub));
+}
+
+/** O nome do campo Ocupação: é Vocação no Vigília (beta §2.1). */
+export function chaveDoRotuloDeOcupacao(modo) {
+  return modo === "vigilia" ? "OP2.Campo.Vocacao" : "OP2.Campo.Ocupacao";
+}
 
 export const PERFIS = ["executor", "analista", "vigilante"];
 
@@ -162,7 +206,7 @@ export const ICONES_PADRAO = {
 };
 
 export const OP2 = {
-  SYSTEM_ID, I18N, ESCADA, DADO_SOBRE_HUMANO, ATRIBUTOS, PERICIAS, APTIDOES_PADRAO,
+  SYSTEM_ID, I18N, ESCADA, DADO_SOBRE_HUMANO, ATRIBUTOS, PERICIAS, APTIDOES_PADRAO, MODOS,
   PERFIS, TIPOS_PERSONAGEM, DT_PADRAO, MAX_DADOS_ROLADOS, MAX_DADOS_CONTADOS,
   VALOR_MINIMO_CRITICO, TABELA_FALHA_CRITICA, PASSOS_DE_AJUDA,
   DT_FERIMENTO_BASE, DT_FERIMENTO_INCREMENTO,

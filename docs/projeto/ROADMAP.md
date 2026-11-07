@@ -160,17 +160,27 @@ do zip da editora, que o mestre entrega na hora de importar.
 ## Fase 5 — Modo Vigília (playtest beta, *Contos da Vigília*)
 
 Regras: `docs/regras/spec-beta.md`. Impacto: `docs/regras/alpha-para-beta.md`.
-Entra em paralelo: o modo moderno (Atos I e II) não perde nada. Só os dois primeiros blocos estão feitos.
+Entra em paralelo: o modo moderno (Atos I e II) não perde nada. Feitos: fontes, decisão e M1.
 
 - [x] **Fontes.** PDF e fichas extraídos e conferidos, spec, lacunas, catálogo das missões
 - [x] **Decisão:** dois modos em paralelo, moderno e Vigília, com importação de PDF e zip dos dois
-- [ ] **M1 — Modos:** setting `modo`; perícias em união, Aptidões e rótulos por modo; janela de aventuras agrupada por modo
+- [x] **M1 — Modos:** setting `modo`; perícias em união, Aptidões e rótulos por modo; janela de aventuras agrupada por modo, com a pergunta ao importar aventura de outro modo
 - [ ] **M2 — Motor:** modificador fixo, crítico no dano, dado de pavor, marcadores de Análise
 - [ ] **M3 — Ficha e itens:** relações, armadura, equipamento com mecânica, NPC com RD e ações
 - [ ] **M4 — Combate:** tracker por fases, ações, manobras, condições, lesão e trauma; no modo moderno, opção de mundo ligada por padrão (desligada, volta o combate simplificado)
 - [ ] **M5 — Cenas de ação:** perseguição, furtividade, equilíbrio, escalar; Investigar com Observar
 - [ ] **M6 — Missão 1:** extrator, montagem, extras, e2e. **Dá para jogar aqui:** gratuita, usa tudo menos furtividade
 - [ ] **M7 — Missão 2:** extrator, montagem, extras, e2e nas duas versões
+
+**Apontado na revisão do M1, para os marcos seguintes:**
+
+- **M3:** "Ocupação" ainda fixa em `Habilidade.Origem.ocupacao` e em `OP2.Ocupacao.*`; `oficio` sem campo para a
+  especialização (`Ofício (metalurgia)`); NPC grava o rótulo traduzido, então não acompanha o modo.
+- **M5:** Hackear e ferramentas rolam `tecnologia`, oculta no Vigília: esconder as abordagens lá.
+- **M6:** a janela só lê um PDF por vez e no primeiro grupo. Com dois grupos, ligar botão, input, progresso e
+  estado por modo, e passar o modo à montagem.
+- **Geral:** `game.ready` chega antes dos partials (`precarregarTemplates` sai no `init`, sem quem aguarde), e
+  uma janela aberta nesse intervalo falha. Preexistente, janela de cerca de 1 s.
 
 **Pronto quando:** as duas missões jogam do início ao epílogo com dois clientes, em v13 e v14, a
 partir do PDF e do zip do mestre, e os Atos I e II continuam passando no e2e.

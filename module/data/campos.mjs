@@ -1,5 +1,6 @@
 /** Construtores de campo reaproveitados pelos data models. */
-import { ESCADA, PERICIAS, ATRIBUTOS, APTIDOES_PADRAO } from "../config.mjs";
+import { ESCADA, PERICIAS, ATRIBUTOS, aptidoesDoModo } from "../config.mjs";
+import { modoAtual } from "../modo.mjs";
 
 const f = () => foundry.data.fields;
 
@@ -40,7 +41,7 @@ export function campoPericia(atributoBase) {
   });
 }
 
-/** As 20 perícias como schema fixo. */
+/** As perícias dos dois modos como schema fixo: quem decide o que aparece é a tela. */
 export function campoPericias() {
   const { SchemaField } = f();
   const schema = {};
@@ -73,7 +74,7 @@ export function campoAptidoes() {
   return TypedObjectField ? new TypedObjectField(entrada, opcoes) : new ObjectField(opcoes);
 }
 
-/** Valores iniciais das aptidões padrão, usados na criação do ator. */
+/** Valores iniciais das aptidões do modo do mundo, usados na criação do ator. */
 export function aptidoesIniciais() {
-  return Object.fromEntries(APTIDOES_PADRAO.map((c) => [c, { rotulo: "", die: "d4" }]));
+  return Object.fromEntries(aptidoesDoModo(modoAtual()).map((c) => [c, { rotulo: "", die: "d4" }]));
 }

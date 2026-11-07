@@ -34,6 +34,11 @@
       "Reduzido": "Attribute reduced until the end of the scene",
       "Aumentado": "{atributo} {base} → {dado} until the end of the scene"
     },
+    "Modo": {
+      "moderno": "Modern mode",
+      "vigilia": "Vigil mode",
+      "DoMundo": "this world's mode"
+    },
     "Pericia": {
       "acrobacia": "Acrobatics",
       "aptidao": "Aptitude",
@@ -55,6 +60,10 @@
       "sobrevivencia": "Survival",
       "tecnologia": "Technology",
       "vigor": "Fortitude",
+      "animais": "Animals",
+      "oficio": "Craft",
+      "inspecionar": "Inspect",
+      "bruxaria": "Witchcraft",
       "Rolar": "Click to roll · Shift to open the dialog",
       "Buscar": "Search",
       "Dica": "The paired attribute is a suggestion — swap it in the check dialog.",
@@ -67,6 +76,11 @@
       "exatas": "Sciences",
       "humanas": "Humanities",
       "tatica": "Tactics",
+      "erudicao": "Scholarship",
+      "folclore": "Folklore",
+      "guerra": "War",
+      "nobreza": "Nobility",
+      "religiao": "Religion",
       "Adicionar": "New field",
       "Remover": "Remove field",
       "Exemplo": "e.g. Cooking, Sailing, Zoology"
@@ -83,6 +97,7 @@
     "Campo": {
       "Perfil": "Profile",
       "Ocupacao": "Occupation",
+      "Vocacao": "Vocation",
       "Nivel": "Level",
       "Nex": "NEX",
       "NexAjuda": "NEX is the paranormal progression track. No published mechanic yet in the playtest; the field is here for when it ships."
@@ -119,7 +134,7 @@
     },
     "Habilidade": {
       "Adicionar": "New ability",
-      "Vazio": "No abilities yet. A character starts with two: one from the profile, one from the occupation.",
+      "Vazio": "No abilities yet. A character starts with two: one from the profile, one from the {ocupacao}.",
       "OrigemRotulo": "Source",
       "Custo": "Cost",
       "SemCusto": "No cost",
@@ -547,9 +562,13 @@
         "todos": "Every rolled die",
         "contados": "Only the counted dice"
       },
+      "modo": {
+        "name": "Game mode",
+        "hint": "Modern is the alpha playtest (Acts I and II); Vigil is the beta playtest. Changes the skills, Aptitudes and labels the sheet shows. Nothing is lost: the sheet keeps both, and switching reloads the world for everyone."
+      },
       "compartilharPericia": {
         "name": "Share check skill",
-        "hint": "The body text says Research; the summary table says Insight. The default follows the normative text."
+        "hint": "The body text says Research; the summary table says Insight. The default follows the normative text. In Vigil mode, Research shows as Inspect."
       },
       "ajudaAlvo": {
         "name": "Help steps up",
@@ -898,6 +917,10 @@
       "SemMarcadorNaCena": "This marker is not on the open scene."
     },
     "Aventuras": {
+      "OutroModoTitulo": "Adventure from another mode",
+      "OutroModo": "This adventure belongs to {modo} and uses other skills. Switch this world to it after importing? Nothing is lost by switching.",
+      "OutroModoTrocar": "Switch to {modo}",
+      "OutroModoManter": "Import without switching",
       "Titulo": "Playtest adventures",
       "Explicacao": "The adventure text belongs to the book, and the Community License does not allow redistributing it. Pick the playtest PDF you already own: the system reads the text here in the browser, builds the acts and stores them in this world's compendium, ready to import. The file goes nowhere. The art comes in the publisher's zips, requested when importing.",
       "Escolher": "Choose the playtest PDF",

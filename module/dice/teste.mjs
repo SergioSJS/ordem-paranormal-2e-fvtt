@@ -2,7 +2,8 @@
  * Orquestra um teste do começo ao fim: monta os componentes, rola, resolve a escolha
  * dos dados contabilizados e publica o card no chat.
  */
-import { SYSTEM_ID } from "../config.mjs";
+import { SYSTEM_ID, chaveDoRotuloDePericia } from "../config.mjs";
+import { modoAtual } from "../modo.mjs";
 import { OP2Roll } from "./op2-roll.mjs";
 import { TesteDialog } from "./teste-dialog.mjs";
 import { SelecaoDados } from "./selecao-dados.mjs";
@@ -142,7 +143,7 @@ function configuracaoRapida(ator, base) {
 
 /** "aptidao.exatas" → "Aptidão (Exatas)". */
 export function rotuloDePericia(chave) {
-  if (!chave.startsWith("aptidao.")) return game.i18n.localize(`OP2.Pericia.${chave}`);
+  if (!chave.startsWith("aptidao.")) return game.i18n.localize(chaveDoRotuloDePericia(chave, modoAtual()));
   const sub = chave.slice("aptidao.".length);
   const rotuloSub = game.i18n.localize(`OP2.Aptidao.${sub}`);
   return `${game.i18n.localize("OP2.Pericia.aptidao")} (${rotuloSub})`;

@@ -5,7 +5,8 @@
  * dados que será rolado — o dado da perícia e o do atributo pareado — em vez de um
  * seletor de texto. É a leitura que o livro usa e a que torna a ficha escaneável.
  */
-import { ESCADA, ATRIBUTOS, PERICIAS, PERFIS, APTIDOES_PADRAO } from "../config.mjs";
+import { ESCADA, ATRIBUTOS, PERICIAS, PERFIS, periciasDoModo, chaveDoRotuloDePericia, chaveDoRotuloDeOcupacao, aptidoesDoModo, aptidaoVisivel } from "../config.mjs";
+import { modoAtual } from "../modo.mjs";
 import { stepDie } from "../dice/escada.mjs";
 import { rolarTeste } from "../dice/teste.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
@@ -78,6 +79,8 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       atributos: this.#atributos(sistema),
       pericias: this.#pericias(sistema),
       aptidoes: this.#aptidoes(sistema),
+      rotuloOcupacao: game.i18n.localize(chaveDoRotuloDeOcupacao(modoAtual())),
+      rotuloOcupacaoMinusculo: game.i18n.localize(chaveDoRotuloDeOcupacao(modoAtual())).toLowerCase(),
       recursos: {
         pv: this.#recurso(sistema.recursos.pv, "pv"),
         pd: this.#recurso(sistema.recursos.pd, "pd"),
@@ -140,7 +143,7 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   #pericias(sistema) {
-    return Object.keys(PERICIAS)
+    return periciasDoModo(modoAtual())
       .filter((chave) => !PERICIAS[chave].especializada)
       .map((chave) => this.#linhaDePericia(sistema, chave))
       .sort((a, b) => a.rotulo.localeCompare(b.rotulo, "pt-BR"));
@@ -157,7 +160,7 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       chave: chaveTeste,
       rotulo: chaveAptidao
         ? (sistema.aptidoes[chaveAptidao].rotulo || game.i18n.localize(`OP2.Aptidao.${chaveAptidao}`))
-        : game.i18n.localize(`OP2.Pericia.${chave}`),
+        : game.i18n.localize(chaveDoRotuloDePericia(chave, modoAtual())),
       die: pericia.die,
       dadoEfetivo: pericia.dadoEfetivo ?? pericia.die,
       valor: pericia.valor,
@@ -172,7 +175,8 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   #aptidoes(sistema) {
-    const chaves = Object.keys(sistema.aptidoes ?? {});
+    const modo = modoAtual();
+    const chaves = Object.keys(sistema.aptidoes ?? {}).filter((sub) => aptidaoVisivel(sub, modo, sistema.aptidoes[sub].rotulo));
     const chaveAtributo = sistema.pericias.aptidao.atributo;
     return {
       rotulo: game.i18n.localize("OP2.Pericia.aptidao"),
@@ -183,7 +187,7 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       },
       campos: chaves
         .map((sub) => this.#linhaDePericia(sistema, "aptidao", { chaveAptidao: sub }))
-        .map((linha, i) => ({ ...linha, sub: chaves[i], padrao: APTIDOES_PADRAO.includes(chaves[i]) })),
+        .map((linha, i) => ({ ...linha, sub: chaves[i], padrao: aptidoesDoModo(modo).includes(chaves[i]) })),
     };
   }
 
@@ -315,7 +319,13 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (!rotulo) return;
 
     const chave = rotulo.slugify({ strict: true });
-    if (this.actor.system.aptidoes[chave]) {
+    const existente = this.actor.system.aptidoes[chave];
+    // Campo de fábrica de outro modo, oculto na ficha: dar nome a ele é o que o traz de
+    // volta. Avisar "duplicada" sobre o que não se vê não diria nada.
+    if (existente && !aptidaoVisivel(chave, modoAtual(), existente.rotulo)) {
+      return void await this.actor.update({ [`system.aptidoes.${chave}.rotulo`]: rotulo });
+    }
+    if (existente) {
       return void ui.notifications.warn(game.i18n.format("OP2.Aviso.AptidaoDuplicada", { rotulo }));
     }
     await this.actor.update({ [`system.aptidoes.${chave}`]: { rotulo, die: "d4" } });

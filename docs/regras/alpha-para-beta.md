@@ -14,10 +14,12 @@ Decidido pelo mantenedor em 2026-11-06. O beta se passa no passado, então não 
 
 **Nada do modo moderno é apagado.** Mundos existentes abrem em `moderno`, iguais a hoje.
 
-- **Setting de mundo `modo`**, default `moderno`. Trocar não perde dado (ver abaixo).
+- **Setting de mundo `modo`**, default `moderno`. Trocar não perde dado (ver abaixo) e recarrega a mesa
+  inteira: pelo `requiresReload` no formulário, por `trocarModo()` fora dele.
 - **Perícias em união.** `PERICIAS` passa a ter 22 chaves, cada uma com os modos em que aparece, e o
   schema do ator guarda todas: o modo só decide o que as telas mostram. Sem migração. As seis telas que
-  fazem `Object.keys(PERICIAS)` passam por `periciasDoModo()`.
+  fazem `Object.keys(PERICIAS)` passam por `periciasDoModo()`. Campo de Aptidão que a mesa criou (rótulo
+  preenchido) aparece em qualquer modo, mesmo com a chave de um de fábrica do outro.
 
   | Chave | Moderno | Vigília |
   |---|---|---|

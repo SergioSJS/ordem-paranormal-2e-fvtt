@@ -105,6 +105,16 @@ await page.click("button[name='join'], button[type='submit']");
 await page.waitForURL("**/game");
 await page.waitForFunction(() => globalThis.game?.ready === true, null, { timeout: 60000 });
 
+// Rodada interrompida no bloco de modos deixa o mundo no Vigília, e a suíte inteira espera
+// o moderno. A troca recarrega a página.
+if (await page.evaluate(() => game.settings.get("ordem-paranormal-2e", "modo")) !== "moderno") {
+  await Promise.all([
+    page.waitForEvent("load", { timeout: 60000 }),
+    page.evaluate(() => game.op2.trocarModo("moderno")),
+  ]);
+  await page.waitForFunction(() => globalThis.game?.ready === true, null, { timeout: 60000 });
+}
+
 // A tela de boas-vindas abre para o mestre ao entrar (enquanto o setting estiver ligado):
 // confere o que ela diz e fecha, para não ficar na frente do resto da suíte.
 const boasVindas = await page.evaluate(async () => {
@@ -4332,6 +4342,134 @@ const relato = await page.evaluate(async (boasVindas) => {
     return passos;
   });
   relato.passos.push(...uso);
+}
+
+// Modos de jogo (docs/regras/alpha-para-beta.md). Por último: trocar o modo recarrega a
+// página de verdade, e é isso que precisa ser exercitado. Volta para o moderno no fim.
+{
+  // `game.ready` chega antes dos partials: o pré-carregamento sai no `init`, sem quem
+  // o aguarde, e a ficha aberta nesse intervalo falha (visto no v13, depois da recarga).
+  const mundoPronto = (modo) => page.waitForFunction((m) => globalThis.game?.ready === true
+    && game.settings.get("ordem-paranormal-2e", "modo") === m
+    && Handlebars.partials["systems/ordem-paranormal-2e/templates/partials/controle-dado.hbs"],
+  modo, { timeout: 60000 });
+  const trocarModo = async (modo) => {
+    await Promise.all([
+      page.waitForEvent("load", { timeout: 60000 }),
+      page.evaluate((m) => game.op2.trocarModo(m), modo),
+    ]);
+    await mundoPronto(modo);
+  };
+  const fichaDe = (nome) => page.evaluate(async (n) => {
+    const ator = game.actors.getName(n);
+    await ator.sheet.render({ force: true });
+    await new Promise((r) => setTimeout(r, 800));
+    const el = ator.sheet.element;
+    const rotulos = [...el.querySelectorAll(".op2-pericia")].map((l) => l.textContent.replace(/\s+/g, " ").trim());
+    const dados = { linhas: rotulos.length, texto: rotulos.join(" | "),
+      ocupacao: el.querySelector(".op2-ocupacao")?.placeholder ?? "",
+      tecnologia: ator.system.pericias.tecnologia.die, erudicao: ator.system.aptidoes.erudicao?.die ?? null,
+      tatica: ator.system.aptidoes.tatica?.die ?? null };
+    await ator.sheet.close();
+    return dados;
+  }, nome);
+  const passo = (ok, titulo) => relato.passos.push([Boolean(ok), titulo]);
+
+  await page.evaluate(async () => {
+    const ator = await Actor.create({ name: "E2E Modos", type: "personagem" });
+    await ator.update({ "system.pericias.tecnologia.die": "d8", "system.aptidoes.tatica.die": "d10" });
+  });
+  const moderno = await fichaDe("E2E Modos");
+  passo(moderno.linhas === 25 && /Tecnologia/.test(moderno.texto) && /Tática/.test(moderno.texto)
+    && !/Animais|Inspecionar|Bruxaria|Erudição/.test(moderno.texto) && /Ocupação/.test(moderno.ocupacao),
+  `modo moderno: 25 linhas, como sempre, sem nada do Vigília (${moderno.linhas}, ${moderno.ocupacao})`);
+
+  passo(await page.evaluate(() => game.settings.settings.get("ordem-paranormal-2e.modo").requiresReload === true),
+    "salvar o modo no formulário recarrega a mesa, depois de gravar todos os settings");
+  // Campo da mesa com o nome de um campo de fábrica do Vigília: no moderno, ele aparece.
+  await page.evaluate(() => game.actors.getName("E2E Modos").update({ "system.aptidoes.nobreza": { rotulo: "Nobreza", die: "d6" } }));
+  passo(/Nobreza/.test((await fichaDe("E2E Modos")).texto), "campo da mesa com chave de fábrica de outro modo não some da ficha");
+
+  await trocarModo("vigilia");
+  const vigilia = await fichaDe("E2E Modos");
+  passo(vigilia.linhas === 25 && /Animais/.test(vigilia.texto) && /Ofício/.test(vigilia.texto)
+    && /Inspecionar/.test(vigilia.texto) && /Bruxaria/.test(vigilia.texto) && /Erudição/.test(vigilia.texto)
+    && !/Tecnologia|Máquinas|Pesquisar|Ocultismo|Tática/.test(vigilia.texto),
+  `modo Vigília: 25 linhas, com as perícias e Aptidões dele (${vigilia.linhas})`);
+  passo(/Vocação/.test(vigilia.ocupacao), "modo Vigília: o campo chama Vocação");
+  passo(vigilia.tecnologia === "d8" && vigilia.tatica === "d10", "trocar de modo não perde o que a ficha já tinha");
+  passo(vigilia.erudicao === "d4", "o campo de Aptidão do novo modo aparece em d4, sem migração");
+
+  const edicao = await page.evaluate(async () => {
+    const ator = game.actors.getName("E2E Modos");
+    await ator.update({ "system.aptidoes.erudicao.die": "d8" });
+    const novo = await Actor.create({ name: "E2E Modos Novo", type: "personagem" });
+    const dados = { erudicao: ator.system.aptidoes.erudicao.die, salvo: ator.toObject().system.aptidoes.erudicao?.die,
+      artes: ator.system.aptidoes.artes?.die, doNovo: Object.keys(novo.system.aptidoes).sort().join(",") };
+    await novo.delete();
+    return dados;
+  });
+  passo(edicao.erudicao === "d8" && edicao.salvo === "d8", "editar o campo novo grava na ficha");
+  passo(edicao.doNovo === "artes,erudicao,folclore,guerra,nobreza,religiao", `personagem novo nasce com as Aptidões do modo (${edicao.doNovo})`);
+
+  const teste = await page.evaluate(async () => {
+    const { rotuloDePericia } = await import("/systems/ordem-paranormal-2e/module/dice/teste.mjs");
+    return { pesquisar: rotuloDePericia("pesquisar"), ocultismo: rotuloDePericia("ocultismo"), guerra: rotuloDePericia("aptidao.guerra") };
+  });
+  passo(teste.pesquisar === "Inspecionar" && teste.ocultismo === "Bruxaria" && teste.guerra === "Aptidão (Guerra)",
+    `rolagem e card usam os nomes do modo (${teste.pesquisar}, ${teste.ocultismo}, ${teste.guerra})`);
+
+  // A janela: grupo do modo, e a pergunta ao importar aventura do outro modo.
+  await page.evaluate(() => game.op2.aventuras());
+  await page.waitForSelector('#op2-aventuras .op2-aventuras__grupo[data-modo="moderno"]', { timeout: 20000 });
+  const janela = await page.evaluate(() => ({
+    grupos: [...document.querySelectorAll("#op2-aventuras .op2-aventuras__grupo")].map((g) => g.dataset.modo).join(","),
+    deste: document.querySelector("#op2-aventuras .op2-aventuras__modo-mundo") !== null,
+    atos: document.querySelectorAll('#op2-aventuras [data-modo="moderno"] .op2-aventuras__ato').length,
+    importar: Boolean(document.querySelector('#op2-aventuras [data-action="importar"][data-ato="ato-i"]')),
+  }));
+  passo(janela.grupos === "moderno" && janela.atos === 2 && !janela.deste,
+    `a janela agrupa por modo: atos no moderno, sem dizer que é o deste mundo (${janela.grupos})`);
+  if (janela.importar) {
+    // Tira do mundo um pré-gerado do ato: reaparecer depois da recarga é a prova de que a
+    // importação terminou, e não foi cortada pela troca de modo.
+    const sentinela = await page.evaluate(async () => {
+      const pack = game.packs.get("world.op2-aventuras");
+      const aventura = await pack.getDocument([...pack.index].find((e) => e.name === "Ato I — O Porão")._id);
+      const pregerado = [...aventura.actors].find((a) => a.type === "personagem");
+      await game.actors.get(pregerado._id)?.delete();
+      return pregerado._id;
+    });
+    const contar = () => page.evaluate(() => game.actors.size + game.scenes.size);
+    const antes = await contar();
+    await page.click('#op2-aventuras [data-action="importar"][data-ato="ato-i"]');
+    const dialogo = page.locator("dialog.dialog, .application.dialog").last();
+    await dialogo.waitFor({ timeout: 20000 });
+    const texto = await dialogo.textContent();
+    passo(/Modo moderno/.test(texto) && /Trocar para o Modo moderno/.test(texto) && /Importar sem trocar/.test(texto),
+      "importar aventura de outro modo pergunta antes, com as três saídas");
+    await page.evaluate(() => [...foundry.applications.instances.values()].find((a) => a instanceof foundry.applications.api.DialogV2)?.close());
+    await page.waitForTimeout(800);
+    passo(await contar() === antes, "fechar o diálogo cancela: nada entra no mundo");
+    await page.click('#op2-aventuras [data-action="importar"][data-ato="ato-i"]');
+    await dialogo.waitFor({ timeout: 20000 });
+    await Promise.all([
+      page.waitForEvent("load", { timeout: 120000 }),
+      page.click('.application.dialog button[data-action="yes"], dialog.dialog button[data-action="yes"]'),
+    ]);
+    await mundoPronto("moderno");
+    passo(await page.evaluate((id) => Boolean(game.actors.get(id)), sentinela),
+      "trocar importa a aventura até o fim e só então recarrega o mundo no modo dela");
+  } else {
+    passo(false, "sem o Ato I no compêndio do mundo: a pergunta de importação não foi exercitada");
+    await trocarModo("moderno");
+  }
+
+  const volta = await fichaDe("E2E Modos");
+  passo(volta.linhas === 26 && /Nobreza/.test(volta.texto) && /Tecnologia/.test(volta.texto) && /Tática/.test(volta.texto) && !/Erudição/.test(volta.texto)
+    && volta.tecnologia === "d8" && volta.tatica === "d10" && volta.erudicao === "d8",
+  "de volta ao moderno: a ficha é a de antes, e a Erudição segue guardada");
+  await page.evaluate(() => game.actors.getName("E2E Modos").delete());
 }
 
 const falhas = relato.passos.filter(([ok]) => !ok);

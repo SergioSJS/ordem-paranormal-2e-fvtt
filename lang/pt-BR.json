@@ -34,6 +34,11 @@
       "Reduzido": "Atributo reduzido até o fim da cena",
       "Aumentado": "{atributo} {base} → {dado} até o fim da cena"
     },
+    "Modo": {
+      "moderno": "Modo moderno",
+      "vigilia": "Modo Vigília",
+      "DoMundo": "modo deste mundo"
+    },
     "Pericia": {
       "acrobacia": "Acrobacia",
       "aptidao": "Aptidão",
@@ -55,6 +60,10 @@
       "sobrevivencia": "Sobrevivência",
       "tecnologia": "Tecnologia",
       "vigor": "Vigor",
+      "animais": "Animais",
+      "oficio": "Ofício",
+      "inspecionar": "Inspecionar",
+      "bruxaria": "Bruxaria",
       "Rolar": "Clique para rolar · Shift para abrir o diálogo",
       "Buscar": "Buscar",
       "Dica": "O atributo pareado é sugestão — troque no diálogo de teste.",
@@ -67,6 +76,11 @@
       "exatas": "Exatas",
       "humanas": "Humanas",
       "tatica": "Tática",
+      "erudicao": "Erudição",
+      "folclore": "Folclore",
+      "guerra": "Guerra",
+      "nobreza": "Nobreza",
+      "religiao": "Religião",
       "Adicionar": "Novo campo",
       "Remover": "Remover campo",
       "Exemplo": "Ex.: Culinária, Náutica, Zoologia"
@@ -83,6 +97,7 @@
     "Campo": {
       "Perfil": "Perfil",
       "Ocupacao": "Ocupação",
+      "Vocacao": "Vocação",
       "Nivel": "Nível",
       "Nex": "NEX",
       "NexAjuda": "NEX é a progressão paranormal. Sem mecânica publicada no playtest ainda; o campo já existe para quando sair."
@@ -119,7 +134,7 @@
     },
     "Habilidade": {
       "Adicionar": "Nova habilidade",
-      "Vazio": "Nenhuma habilidade. O personagem começa com duas: uma do perfil, uma da ocupação.",
+      "Vazio": "Nenhuma habilidade. O personagem começa com duas: uma do perfil, uma da {ocupacao}.",
       "OrigemRotulo": "Origem",
       "Custo": "Custo",
       "SemCusto": "Sem custo",
@@ -547,9 +562,13 @@
         "todos": "Todos os dados rolados",
         "contados": "Só os dados contabilizados"
       },
+      "modo": {
+        "name": "Modo de jogo",
+        "hint": "Moderno é o playtest alpha (Atos I e II); Vigília é o playtest beta. Muda as perícias, as Aptidões e os nomes que a ficha mostra. Nada se perde: a ficha guarda os dois, e a troca recarrega o mundo para todos."
+      },
       "compartilharPericia": {
         "name": "Perícia de Compartilhar",
-        "hint": "O corpo do texto diz Pesquisar; a tabela-resumo diz Intuição. O padrão segue o texto normativo."
+        "hint": "O corpo do texto diz Pesquisar; a tabela-resumo diz Intuição. O padrão segue o texto normativo. No modo Vigília, Pesquisar aparece como Inspecionar."
       },
       "ajudaAlvo": {
         "name": "Ajuda aumenta",
@@ -898,6 +917,10 @@
       "SemMarcadorNaCena": "Este marcador não está na cena aberta."
     },
     "Aventuras": {
+      "OutroModoTitulo": "Aventura de outro modo",
+      "OutroModo": "Esta aventura é do {modo} e usa outras perícias. Trocar o modo deste mundo depois de importar? Nada se perde na troca.",
+      "OutroModoTrocar": "Trocar para o {modo}",
+      "OutroModoManter": "Importar sem trocar",
       "Titulo": "Aventuras do playtest",
       "Explicacao": "O texto das aventuras é do livro, e a Licença da Comunidade não permite redistribuí-lo. Escolha o PDF do playtest que você já tem: o sistema lê o texto aqui no navegador, monta os atos e guarda no compêndio deste mundo, prontos para importar. O arquivo não vai para lugar nenhum. As artes vêm nos zips da editora, pedidos na hora de importar.",
       "Escolher": "Escolher o PDF do playtest",

@@ -1,5 +1,6 @@
 /** Ficha reduzida de NPC: só os atributos e as perícias que o mestre declarou. */
-import { ATRIBUTOS, SYSTEM_ID, PERICIAS, APTIDOES_PADRAO, ESCADA } from "../config.mjs";
+import { ATRIBUTOS, SYSTEM_ID, ESCADA, periciasDoModo, chaveDoRotuloDePericia, aptidoesDoModo } from "../config.mjs";
+import { modoAtual } from "../modo.mjs";
 import { stepDie } from "../dice/escada.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
 import { ligarRodaDoMouse } from "../ui/controle-dado.mjs";
@@ -146,10 +147,11 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
 /** As opções do diálogo: perícias do playtest, Aptidões com o campo, e os dados da escada. */
 export function opcoesDePericiaNpc() {
-  const pericias = Object.keys(PERICIAS).filter((c) => c !== "aptidao")
-    .map((chave) => ({ chave, rotulo: game.i18n.localize(`OP2.Pericia.${chave}`) }))
+  const modo = modoAtual();
+  const pericias = periciasDoModo(modo).filter((c) => c !== "aptidao")
+    .map((chave) => ({ chave, rotulo: game.i18n.localize(chaveDoRotuloDePericia(chave, modo)) }))
     .sort((a, b) => a.rotulo.localeCompare(b.rotulo, game.i18n.lang));
-  const aptidoes = APTIDOES_PADRAO.map((sub) => ({
+  const aptidoes = aptidoesDoModo(modo).map((sub) => ({
     chave: `aptidao-${sub}`,
     rotulo: `${game.i18n.localize("OP2.Pericia.aptidao")} (${game.i18n.localize(`OP2.Aptidao.${sub}`)})`,
   }));

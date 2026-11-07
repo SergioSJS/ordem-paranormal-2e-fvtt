@@ -26,6 +26,7 @@ import { stepDie, faces } from "./dice/escada.mjs";
 import { registrarSettings, lerConfig } from "./settings/register.mjs";
 import { registrarHelpersDeDado } from "./ui/dice-icons.mjs";
 import { registrarHelpers, precarregarTemplates } from "./ui/handlebars.mjs";
+import { trocarModo } from "./modo.mjs";
 import { registrarChat } from "./ui/chat.mjs";
 import { registrarSocket } from "./ui/socket.mjs";
 import { registrarExtrasDeAventura } from "./ui/extras-aventura.mjs";
@@ -131,7 +132,7 @@ Hooks.once("init", () => {
     vincularDesafioAoPonto, removerDesafioDoPonto, pontoDoDesafio,
     alternarJaAgiu, alternarOculto, moverParticipante,
     marcarNoMapa, desmarcarDoMapa, abrirMarcador,
-    aventuras: abrirAventurasApp, boasVindas: abrirBoasVindas,
+    aventuras: abrirAventurasApp, boasVindas: abrirBoasVindas, trocarModo,
   };
 });
 

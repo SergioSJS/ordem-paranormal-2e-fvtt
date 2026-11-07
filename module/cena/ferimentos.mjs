@@ -11,7 +11,7 @@
  */
 import { SYSTEM_ID } from "../config.mjs";
 import { dtDaQueda } from "./queda.mjs";
-import { rolarTeste, renderizar } from "../dice/teste.mjs";
+import { rolarTeste, renderizar, rotuloDePericia } from "../dice/teste.mjs";
 import { lerConfig } from "../settings/register.mjs";
 
 /** @typedef {"ferimento"|"trauma"} TipoDeQueda */
@@ -45,7 +45,7 @@ export async function pedirTesteDeQueda(ator, tipo) {
     titulo: game.i18n.localize(`${config.i18n}.Titulo`),
     texto: game.i18n.format(`${config.i18n}.Texto`, {
       ator: ator.name,
-      pericia: game.i18n.localize(`OP2.Pericia.${config.pericia}`),
+      pericia: rotuloDePericia(config.pericia),
       dt: dtDaQueda(testes),
     }),
     consequencia: game.i18n.localize(tipo === "trauma"

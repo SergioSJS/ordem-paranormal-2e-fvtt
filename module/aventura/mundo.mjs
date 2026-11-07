@@ -19,8 +19,8 @@ const PACK_DO_MUNDO = "op2-aventuras";
 
 /** Os atos que o sistema sabe montar. */
 export const ATOS = [
-  { nome: "ato-i", rotulo: "OP2.Aventuras.AtoI", aventura: "Ato I — O Porão" },
-  { nome: "ato-ii", rotulo: "OP2.Aventuras.AtoII", aventura: "Ato II — O Porão" },
+  { nome: "ato-i", modo: "moderno", rotulo: "OP2.Aventuras.AtoI", aventura: "Ato I — O Porão" },
+  { nome: "ato-ii", modo: "moderno", rotulo: "OP2.Aventuras.AtoII", aventura: "Ato II — O Porão" },
 ];
 
 /** O que cada ato precisa dos compêndios do sistema (`scripts/aventura/gerar-fontes.mjs`). */

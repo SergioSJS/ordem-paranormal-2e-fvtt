@@ -43,8 +43,8 @@ no pacote. Pronto para a rodada de teste manual que fecha a v1.
 **Versão:** 0.0.1 (a v1 é decisão de release).
 **Próximo:** Fase 5, o **modo Vigília** (playtest beta: combate por fases, perseguição,
 furtividade, medo, relações; duas missões medievais), em paralelo ao **modo moderno** (alpha,
-Atos I e II), que não perde nada; o combate novo vale nos dois, opcional no moderno. Fontes prontas, nada implementado
-(`docs/regras/alpha-para-beta.md`). **v13 e v14 exercitados pelo e2e** (13.351 e 14.363: 645 verificações
+Atos I e II), que não perde nada; o combate novo vale nos dois, opcional no moderno. Fontes prontas e setting de modo no lugar (M1); as regras do Vigília ainda não
+(`docs/regras/alpha-para-beta.md`). **v13 e v14 exercitados pelo e2e** (13.351 e 14.363: 660 verificações
 cada; `dois-clientes.mjs` confere a visão do jogador) — o bundle da cena leva os dois
 formatos de fundo, e o que só existe no v14 (níveis,
 `Collection#every`, `Note.author`) é tratado com guarda dos dois lados.
@@ -54,6 +54,11 @@ formatos de fundo, e o que só existe no v14 (níveis,
 - **Identificadores em pt-BR**: tipos, chaves, funções (`personagem`, `pericias`, `stepDie`
   é exceção por ser termo técnico consolidado). Comentários e docs em pt-BR.
 - **Sem `template.json`** — sempre `TypeDataModel`.
+- **Dois modos de jogo:** `moderno` (alpha) e `vigilia` (beta), setting de mundo. Tela nunca lista
+  `Object.keys(PERICIAS)` nem monta `OP2.Pericia.<chave>` à mão: `periciasDoModo()` e
+  `rotuloDePericia()`. A ficha guarda as perícias dos dois, e o modo só decide o que aparece.
+- **`adventure.import()` não espera:** com extras, o hook cancela e segue em segundo plano. Quem
+  precisa do resultado (a troca de modo recarrega a página) usa `importarAventura()`.
 - **Sem Active Effects** — a escada de dados não é aditiva. Passos vão para `stepMod` e
   são resolvidos em `prepareDerivedData()`. É também o que mantém v13 e v14 compatíveis.
 - **ApplicationV2 / DocumentSheetV2** em tudo. Nada de AppV1.

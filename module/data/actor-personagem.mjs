@@ -5,7 +5,8 @@
  * paranormal (NEX) e os contadores de ferimento/trauma já existem porque são citados,
  * mesmo com a mecânica ainda não publicada.
  */
-import { PERFIS, TIPOS_PERSONAGEM, PERICIAS, DT_FERIMENTO_BASE, DT_FERIMENTO_INCREMENTO } from "../config.mjs";
+import { PERFIS, TIPOS_PERSONAGEM, PERICIAS, DT_FERIMENTO_BASE, DT_FERIMENTO_INCREMENTO, aptidoesDoModo } from "../config.mjs";
+import { modoAtual } from "../modo.mjs";
 import { stepDie, faces } from "../dice/escada.mjs";
 import { campoAtributos, campoPericias, campoAptidoes, campoRecurso, campoContador } from "./campos.mjs";
 
@@ -101,6 +102,12 @@ export class PersonagemData extends foundry.abstract.TypeDataModel {
       // O tamanho do dado é comparado direto contra a DT ao Investigar, sem rolagem (spec §6.3).
       pericia.valor = faces(pericia.dadoEfetivo);
       pericia.especializada = PERICIAS[chave]?.especializada ?? false;
+    }
+
+    // Ficha vinda de outro modo não tem os campos deste: entram em d4, só na memória,
+    // e a primeira edição grava. Assim trocar de modo não pede migração.
+    for (const sub of aptidoesDoModo(modoAtual())) {
+      this.aptidoes[sub] ??= { rotulo: "", die: "d4" };
     }
 
     for (const aptidao of Object.values(this.aptidoes ?? {})) {

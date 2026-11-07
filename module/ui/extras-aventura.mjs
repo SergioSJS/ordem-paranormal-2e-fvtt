@@ -345,6 +345,15 @@ export class ExtrasMenuApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 }
 
+/**
+ * Importa e espera até o fim. `adventure.import()` não serve para quem precisa do
+ * resultado: com extras, o hook abaixo cancela e segue em segundo plano, e ele volta na hora.
+ * @returns {Promise<object|null>} o resultado da importação, ou `null` se o mestre desistiu
+ */
+export async function importarAventura(adventure, options = {}) {
+  return extrasDaAventura(adventure) ? resolverEImportar(adventure, options) : adventure.import(options);
+}
+
 export function registrarExtrasDeAventura() {
   Hooks.on("preImportAdventure", (adventure, options, toCreate, toUpdate) => {
     const extras = extrasDaAventura(adventure);
