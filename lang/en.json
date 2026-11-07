@@ -1210,7 +1210,11 @@
       "Arraste": "Drag actors from the sidebar here",
       "JaNaCena": "That actor is already in the scene.",
       "PastaCriaturas": "Creatures in scene",
-      "QuantosAjuda": "A creature can join as many times as you like: each with its own HP and a number in its name (Drowned 1, Drowned 2). With a map open, it becomes a token on it."
+      "QuantosAjuda": "A creature can join as many times as you like: each with its own HP and a number in its name (Drowned 1, Drowned 2). With a map open, it becomes a token on it.",
+      "Parar": "Stop",
+      "PararAjuda": "Takes the scene off the air without resetting anything and goes back to setup. Undoes an accidental Start.",
+      "EncerrarAjuda": "Ends the scene: participants' conditions, markers, held dice, chase and stealth reset.",
+      "MontagemAjuda": "Set the scene up before starting: choose who joins (a creature joins as many times as you ask, each with its own HP) or drag actors from the sidebar onto the panel. The X on each row removes from the scene."
     },
     "Combate2": {
       "Desarmado": "Unarmed",
@@ -1570,9 +1574,29 @@
       "EstiloRotulo": "Style",
       "Estilo": {
         "cartao": "Cards (background, border, HP and DP bars)",
-        "livre": "No background (loose avatar, HP and DP as text)"
+        "livre": "No background (loose avatar, HP and DP as colored text)",
+        "ambos": "Both, in two columns side by side"
       },
-      "EstiloAjuda": "For avatars with a transparent background, use \"No background\". The URL picks the style of each OBS source, without changing this:"
+      "EstiloAjuda": "The URL picks the style of each OBS source, without changing this (=cartao, =livre, =ambos):",
+      "EnquadramentoRotulo": "Avatar",
+      "Enquadramento": {
+        "busto": "Bust (head and torso)",
+        "inteiro": "Full (the whole image)"
+      }
+    },
+    "Efeitos": {
+      "efeitosVisuais": {
+        "nome": "Visual effects",
+        "ajuda": "Dread darkens the screen edge, a critical gilds the card, a critical failure shakes it, damage flashes on whoever was hit, and each new phase sweeps across the screen. This screen only."
+      },
+      "efeitosSonoros": {
+        "nome": "Sound effects",
+        "ajuda": "A heartbeat on the dread die, a bell on a critical, a thud on damage, a drum when the scene starts, a gong on each phase. Synthesized in the browser. This screen only."
+      },
+      "volumeEfeitos": {
+        "nome": "Effects volume",
+        "ajuda": "Volume of the system's sound effects, on this screen."
+      }
     }
   }
 }

@@ -77,15 +77,27 @@
           <p class="op2-ajuda">{{#if ehGM}}{{localize "OP2.CenaAcao.SemPersonagens"}}{{else}}{{localize "OP2.CenaAcao.AindaNao"}}{{/if}}</p>
         {{/unless}}
         {{#if ehGM}}
-          <div class="op2-painel-acao__mestre">
-            <button type="button" class="op2-botao op2-painel-acao__iniciar" data-action="iniciar" {{#unless contagem.total}}disabled{{/unless}}>
-              <i class="fa-solid fa-play" aria-hidden="true"></i> {{localize "OP2.CenaAcao.Iniciar"}}
+          {{!-- Montar aqui mesmo, sem iniciar: quantidade × ator, os jogadores, ou arrastar. --}}
+          <div class="op2-painel-acao__montagem" data-escolha>
+            <input type="number" name="quantosPor" value="1" min="1" max="20" aria-label="{{localize 'OP2.CenaAcao.Quantos'}}"
+              data-tooltip="{{localize 'OP2.CenaAcao.QuantosAjuda'}}">
+            <span aria-hidden="true">×</span>
+            <select name="escolhido" aria-label="{{localize 'OP2.CenaAcao.Escolher'}}">
+              <option value="">{{localize "OP2.CenaAcao.Escolher"}}</option>
+              {{#if candidatos.pcs.length}}<optgroup label="{{localize 'OP2.CenaAcao.Personagens'}}">{{#each candidatos.pcs}}<option value="{{uuid}}">{{nome}}</option>{{/each}}</optgroup>{{/if}}
+              {{#if candidatos.npcs.length}}<optgroup label="{{localize 'OP2.CenaAcao.Criaturas'}}">{{#each candidatos.npcs}}<option value="{{uuid}}">{{nome}}</option>{{/each}}</optgroup>{{/if}}
+            </select>
+            <button type="button" class="op2-botao op2-botao--pequeno" data-action="porEscolhido">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "OP2.CenaAcao.Adicionar"}}
             </button>
             <button type="button" class="op2-botao op2-botao--pequeno" data-action="porJogadores">
               <i class="fa-solid fa-users" aria-hidden="true"></i> {{localize "OP2.CenaAcao.DosJogadores"}}
             </button>
-            <button type="button" class="op2-botao op2-botao--pequeno" data-action="montar">
-              <i class="fa-solid fa-users-gear" aria-hidden="true"></i> {{localize "OP2.CenaAcao.Montar"}}
+          </div>
+          <p class="op2-ajuda">{{localize "OP2.CenaAcao.MontagemAjuda"}}</p>
+          <div class="op2-painel-acao__mestre op2-painel-acao__comecar">
+            <button type="button" class="op2-botao op2-painel-acao__iniciar" data-action="iniciar" {{#unless contagem.total}}disabled{{/unless}}>
+              <i class="fa-solid fa-play" aria-hidden="true"></i> {{localize "OP2.CenaAcao.Iniciar"}}
             </button>
           </div>
         {{/if}}
@@ -149,7 +161,14 @@
               <button type="button" class="op2-botao op2-botao--pequeno" data-action="criaturaEscolhida">{{localize "OP2.Furtividade.UsarLinha"}}</button>
             </span>
           {{/if}}
-          <button type="button" class="op2-botao op2-botao--fantasma op2-painel-acao__encerrar" data-action="encerrar">{{localize "OP2.CenaAcao.Encerrar"}}</button>
+          <span class="op2-painel-acao__saidas">
+            <button type="button" class="op2-botao op2-botao--fantasma" data-action="parar" data-tooltip="{{localize 'OP2.CenaAcao.PararAjuda'}}">
+              <i class="fa-solid fa-pause" aria-hidden="true"></i> {{localize "OP2.CenaAcao.Parar"}}
+            </button>
+            <button type="button" class="op2-botao op2-botao--fantasma op2-painel-acao__encerrar" data-action="encerrar" data-tooltip="{{localize 'OP2.CenaAcao.EncerrarAjuda'}}">
+              <i class="fa-solid fa-flag-checkered" aria-hidden="true"></i> {{localize "OP2.CenaAcao.Encerrar"}}
+            </button>
+          </span>
         </div>
       {{/if}}
     {{/if}}
@@ -189,6 +208,10 @@
                 {{#if rd}}<span>RD {{rd}}</span>{{/if}}{{#if veNumeros}}{{#if armadura}}<span>{{localize "OP2.CenaAcao.Armadura" n=armadura}}</span>{{/if}}{{/if}}{{#if pavor}}<span>{{localize "OP2.Pavor.Titulo"}} {{pavor}}</span>{{/if}}{{#if marcadores}}<span>{{localize "OP2.PosRolagem.Marcadores" n=marcadores}}</span>{{/if}}
               </span>
             </div>
+            {{#if @root.ehGM}}
+              <button type="button" class="op2-botao op2-botao--fantasma op2-linha-acao__tirar" data-action="tirar" data-ator="{{uuid}}"
+                data-tooltip="{{localize 'OP2.CenaAcao.Tirar'}}" aria-label="{{localize 'OP2.CenaAcao.Tirar'}}"><i class="fa-solid fa-xmark"></i></button>
+            {{/if}}
             {{#if dono}}{{#if @root.ehCombate}}{{#if @root.ativa}}
               <button type="button" class="op2-botao op2-botao--pequeno op2-linha-acao__agiu{{#if agiu}} ativo{{/if}}" data-action="alternarAgiu" data-ator="{{uuid}}" aria-pressed="{{agiu}}">
                 <i class="fa-solid {{#if agiu}}fa-square-check{{else}}fa-square{{/if}}" aria-hidden="true"></i> {{localize "OP2.CenaAcao.JaAgiu"}}

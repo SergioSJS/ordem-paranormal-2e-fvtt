@@ -11,6 +11,7 @@ import { FASES, MANOBRAS, jaAgiu, CONDICOES } from "./combate.mjs";
 import {
   cenaAcaoAtiva, iniciarCena, avancarCena, encerrarCenaAcao, participantesDe, adicionarCriaturas, atorDe,
   definirRodada, definirFase, alternarAgiu, mudarCondicao, sortearCabecas, porNaCena, personagensDosJogadores,
+  tirarDaCena, pararCena, candidatosParaCena,
 } from "./cena-acao.mjs";
 import { atacar, ataquesDe, acaoOposta, acaoGeral, manobra } from "./acoes-combate.mjs";
 import { avancar, recuperarFolego, sacrificio, avisarDaVala } from "./acoes-perseguicao.mjs";
@@ -141,6 +142,9 @@ export class PainelAcaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
       agir: PainelAcaoApp.#agir,
       abrirFicha: PainelAcaoApp.#abrirFicha,
       montar: PainelAcaoApp.#montar,
+      tirar: PainelAcaoApp.#tirar,
+      parar: PainelAcaoApp.#parar,
+      porEscolhido: PainelAcaoApp.#porEscolhido,
       porJogadores: PainelAcaoApp.#porJogadores,
     },
   };
@@ -222,6 +226,7 @@ export class PainelAcaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
       modeloUnico: modelos.length === 1 ? modelos[0] : null,
       quantosPadrao: Math.max(1, participantes.filter((a) => a.type === "personagem").length),
       cenas: this.#cenasParaEscolher(cena),
+      candidatos: game.user.isGM ? candidatosParaCena(cena) : { pcs: [], npcs: [] },
       guia: guiaDaCena(tipo, fase),
       // Combate: as quatro fases explicadas, para consulta sem abrir o livro.
       guiasDaRodada: tipo === "combate" ? FASES.map((f) => ({ rotulo: game.i18n.localize(`OP2.Fase.${f}`), texto: game.i18n.localize(`OP2.Guia.${f}`), atual: f === fase })) : [],
@@ -365,6 +370,26 @@ export class PainelAcaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const uuid = this.element.querySelector("[name=modelo]")?.value;
     const quantos = Number(this.element.querySelector("[name=quantos]")?.value) || 1;
     if (uuid) await adicionarCriaturas(this.cena, uuid, quantos);
+  }
+
+  /** Tirar alguém da cena, parada ou no ar (a criatura que a cena criou sai do mapa junto). */
+  static #tirar(_evento, alvo) {
+    return tirarDaCena(this.cena, alvo.dataset.ator);
+  }
+
+  /** Tira a cena do ar sem zerar nada: desfaz um Iniciar sem querer. */
+  static #parar() {
+    return pararCena(this.cena);
+  }
+
+  /** Quantidade × ator: personagem entra uma vez; criatura, quantas vezes pedir. */
+  static async #porEscolhido(_evento, alvo) {
+    const linha = alvo.closest("[data-escolha]");
+    const uuid = linha?.querySelector("[name=escolhido]")?.value;
+    if (!uuid) return;
+    const quantos = Number(linha.querySelector("[name=quantosPor]")?.value) || 1;
+    if (atorDe(uuid)?.type === "npc") await adicionarCriaturas(this.cena, uuid, quantos);
+    else await porNaCena(this.cena, [uuid]);
   }
 
   /** Montar a cena é na ficha dela: quem está, as ondas, os parâmetros. */

@@ -30,7 +30,10 @@
     <span class="op2-tag op2-tag--secao">{{localize "OP2.Transmissao.SecaoAparencia"}}</span>
     <label class="op2-campo"><span>{{localize "OP2.Transmissao.EstiloRotulo"}}</span>
       <select name="estilo">{{#each estilos}}<option value="{{valor}}" {{#if atual}}selected{{/if}}>{{rotulo}}</option>{{/each}}</select>
-      <span class="op2-ajuda">{{localize "OP2.Transmissao.EstiloAjuda"}} <code>{{enderecoLivre}}</code></span>
+      <span class="op2-ajuda">{{localize "OP2.Transmissao.EstiloAjuda"}} <code>{{enderecoLivre}}</code> <code>{{enderecoAmbos}}</code></span>
+    </label>
+    <label class="op2-campo"><span>{{localize "OP2.Transmissao.EnquadramentoRotulo"}}</span>
+      <select name="enquadramento">{{#each enquadramentos}}<option value="{{valor}}" {{#if atual}}selected{{/if}}>{{rotulo}}</option>{{/each}}</select>
     </label>
     <div class="op2-transmissao-config__grade">
       <label class="op2-campo"><span>{{localize "OP2.Transmissao.PosicaoRotulo"}}</span>

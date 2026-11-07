@@ -1210,7 +1210,11 @@
       "Arraste": "Arraste atores da barra lateral para cá",
       "JaNaCena": "Esse ator já está na cena.",
       "PastaCriaturas": "Criaturas em cena",
-      "QuantosAjuda": "Criatura entra quantas vezes você quiser: cada uma com os seus PV e um número no nome (Afogado 1, Afogado 2). Com um mapa aberto, vira token nele."
+      "QuantosAjuda": "Criatura entra quantas vezes você quiser: cada uma com os seus PV e um número no nome (Afogado 1, Afogado 2). Com um mapa aberto, vira token nele.",
+      "Parar": "Parar",
+      "PararAjuda": "Tira a cena do ar sem zerar nada e volta à montagem. Para desfazer um Iniciar sem querer.",
+      "EncerrarAjuda": "Acaba a cena: condições, marcadores, dados guardados, perseguição e furtividade de quem participa voltam a zero.",
+      "MontagemAjuda": "Monte a cena antes de iniciar: escolha quem entra (criatura entra quantas vezes você pedir, cada uma com os seus PV) ou arraste atores da barra lateral para o painel. O X em cada linha tira da cena."
     },
     "Combate2": {
       "Desarmado": "Desarmado",
@@ -1570,9 +1574,29 @@
       "EstiloRotulo": "Estilo",
       "Estilo": {
         "cartao": "Cartões (fundo, borda, barras de PV e PD)",
-        "livre": "Sem fundo (avatar solto, PV e PD em texto)"
+        "livre": "Sem fundo (avatar solto, PV e PD em texto colorido)",
+        "ambos": "Os dois, em duas colunas lado a lado"
       },
-      "EstiloAjuda": "Para o avatar com fundo transparente, use \"Sem fundo\". A URL escolhe o estilo de cada fonte do OBS, sem mexer aqui:"
+      "EstiloAjuda": "A URL escolhe o estilo de cada fonte do OBS, sem mexer aqui (=cartao, =livre, =ambos):",
+      "EnquadramentoRotulo": "Avatar",
+      "Enquadramento": {
+        "busto": "Busto (cabeça e tronco)",
+        "inteiro": "Inteiro (a imagem toda)"
+      }
+    },
+    "Efeitos": {
+      "efeitosVisuais": {
+        "nome": "Efeitos visuais",
+        "ajuda": "Pavor escurece a borda da tela, crítico doura o card, falha crítica o faz tremer, dano pisca em quem apanhou, e cada fase nova atravessa a tela. Só nesta tela."
+      },
+      "efeitosSonoros": {
+        "nome": "Efeitos sonoros",
+        "ajuda": "Coração no dado de pavor, sino no crítico, baque no dano, tambor ao começar a cena, gongo a cada fase. Sintetizados no navegador. Só nesta tela."
+      },
+      "volumeEfeitos": {
+        "nome": "Volume dos efeitos",
+        "ajuda": "Volume dos efeitos sonoros do sistema, nesta tela."
+      }
     }
   }
 }

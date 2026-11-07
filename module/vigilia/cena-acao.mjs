@@ -53,11 +53,36 @@ export async function porNaCena(cena, uuids) {
 }
 
 /** Tira um ator da cena (e da lista de quem já agiu). */
-export function tirarDaCena(cena, uuid) {
-  return cena.update({
+/**
+ * Tira um ator da cena (e da lista de quem já agiu). Criatura que a própria cena criou (o
+ * "Afogado 2") sai também do mapa ou da pasta; token ou ator que o mestre pôs fica onde está.
+ */
+export async function tirarDaCena(cena, uuid) {
+  await cena.update({
     "system.participantes": cena.system.participantes.filter((u) => u !== uuid),
     "system.agiram": cena.system.agiram.filter((a) => a.ator !== uuid),
   });
+  const ator = atorDe(uuid);
+  if (ator?.isToken && ator.token?.getFlag(SYSTEM_ID, "daCena") === cena.id) await ator.token.delete();
+  else if (!ator?.isToken && ator?.getFlag(SYSTEM_ID, "daCena") === cena.id) await ator.delete();
+}
+
+/**
+ * Tira a cena do ar sem zerar nada: desfaz um "Iniciar" sem querer e volta à montagem. Quem
+ * participa fica como estava; o próximo Iniciar recomeça na rodada 1.
+ */
+export function pararCena(cena) {
+  return cena.update({ "system.ativa": false, "system.rodada": 0, "system.fase": "", "system.agiram": [] });
+}
+
+/** Quem pode entrar pela lista: personagens (fora os que já estão) e criaturas-modelo (sempre). */
+export function candidatosParaCena(cena) {
+  const naCena = new Set(cena?.system.participantes ?? []);
+  const ordenar = (lista) => lista.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+  const lista = (tipo) => ordenar(game.actors
+    .filter((a) => a.type === tipo && !a.getFlag(SYSTEM_ID, "copiaDe") && (tipo === "npc" || !naCena.has(a.uuid)))
+    .map((a) => ({ uuid: a.uuid, nome: a.name })));
+  return { pcs: lista("personagem"), npcs: lista("npc") };
 }
 
 /** Os personagens de quem joga: o escolhido de cada jogador e todo personagem com dono jogador. */
@@ -239,6 +264,7 @@ export async function adicionarCriaturas(cena, modeloUuid, quantos = 1) {
     const base = modelo.prototypeToken.toObject();
     const tokens = nomes.map((nome, i) => ({
       ...base, actorId: modelo.id, actorLink: false, name: nome, delta: { name: nome },
+      flags: { ...(base.flags ?? {}), [SYSTEM_ID]: { ...(base.flags?.[SYSTEM_ID] ?? {}), daCena: cena.id } },
       x: Math.round(centro.x + (i - (n - 1) / 2) * tamanho * 1.2 - tamanho / 2),
       y: Math.round(centro.y - tamanho / 2),
     }));
@@ -252,7 +278,7 @@ export async function adicionarCriaturas(cena, modeloUuid, quantos = 1) {
     const criados = await CONFIG.Actor.documentClass.createDocuments(nomes.map((nome) => ({
       ...dados, name: nome, folder: pasta.id,
       prototypeToken: { ...dados.prototypeToken, name: nome },
-      flags: { ...(dados.flags ?? {}), [SYSTEM_ID]: { ...(dados.flags?.[SYSTEM_ID] ?? {}), copiaDe: modelo.id } },
+      flags: { ...(dados.flags ?? {}), [SYSTEM_ID]: { ...(dados.flags?.[SYSTEM_ID] ?? {}), copiaDe: modelo.id, daCena: cena.id } },
     })));
     uuids = criados.map((a) => a.uuid);
   }

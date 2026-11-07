@@ -416,6 +416,25 @@ if (process.env.FOTO_TRANSMISSAO_LIVRE) {
   const caixa = await (await jog.$("#op2-transmissao"))?.boundingBox();
   if (caixa) await jog.screenshot({ path: process.env.FOTO_TRANSMISSAO_LIVRE, clip: { x: Math.max(0, caixa.x - 12), y: Math.max(0, caixa.y - 12), width: caixa.width + 24, height: caixa.height + 24 } });
 }
+// Os dois estilos lado a lado: o mesmo personagem nas duas colunas, e a rolagem acende os dois.
+await jog.goto(`http://localhost:${PORTA}/game?op2-transmissao=ambos`, { waitUntil: "networkidle" });
+await jog.waitForFunction(() => globalThis.game?.ready === true && document.querySelector("#op2-transmissao .op2-transmissao__card"), null, { timeout: 60000 });
+await gm.evaluate(async (id) => { await game.op2.rolarTeste(game.actors.get(id), { chavePericia: "percepcao", rapido: true, dt: 7 }); }, tx1.id);
+await jog.waitForTimeout(1500);
+const tx5 = await jog.evaluate((id) => ({
+  colunas: document.querySelectorAll("#op2-transmissao .op2-transmissao__cards").length,
+  livre: Boolean(document.querySelector("#op2-transmissao .op2-transmissao__cards--livre")),
+  cartao: Boolean(document.querySelector("#op2-transmissao .op2-transmissao__cards--cartao")),
+  acesos: document.querySelectorAll(`#op2-transmissao [data-ator-id="${id}"].op2-transmissao__card--rolou`).length,
+  busto: document.querySelector("#op2-transmissao .op2-transmissao__cards--busto") !== null,
+}), tx1.id);
+console.log(JSON.stringify(tx5));
+ok("transmissão com os dois estilos: duas colunas, avatar em busto, e a rolagem acende o card nas duas",
+  tx5.colunas === 2 && tx5.livre && tx5.cartao && tx5.busto && tx5.acesos === 2);
+if (process.env.FOTO_TRANSMISSAO_AMBOS) {
+  const caixa = await (await jog.$("#op2-transmissao"))?.boundingBox();
+  if (caixa) await jog.screenshot({ path: process.env.FOTO_TRANSMISSAO_AMBOS, clip: { x: Math.max(0, caixa.x - 12), y: Math.max(0, caixa.y - 12), width: caixa.width + 24, height: caixa.height + 24 } });
+}
 if (process.env.FOTO_TRANSMISSAO) {
   const caixa = await (await jog.$("#op2-transmissao"))?.boundingBox();
   if (caixa) await jog.screenshot({ path: process.env.FOTO_TRANSMISSAO, clip: { x: Math.max(0, caixa.x - 12), y: Math.max(0, caixa.y - 12), width: caixa.width + 24, height: caixa.height + 24 }, omitBackground: true });

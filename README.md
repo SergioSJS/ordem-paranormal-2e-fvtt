@@ -219,8 +219,10 @@ celta e os títulos em versalete. O modo moderno continua com o visual do alpha.
 zip da editora. Cada missão vem com cena, marcadores, pontos, desafios, pré-gerados, roteiro e as cenas de ação.
 
 **Uma cena de ação** é um ator do tipo `cena-acao`: um combate, uma perseguição ou uma furtividade. O painel de ação
-(o botão de espadas) escolhe a cena no topo. Parada, a cena mostra quem está nela e o botão de iniciar. No ar, mostra a
-rodada, a fase e o que cada um pode fazer. **Montar a cena** abre a ficha dela, onde o mestre escolhe quem entra:
+(o botão de espadas) escolhe a cena no topo. **Parada, a cena se monta ali mesmo**: quantidade × ator (criatura entra
+quantas vezes você pedir, cada uma com os seus PV e um número no nome), os personagens dos jogadores, ou arrastar da
+barra lateral; o X em cada linha tira da cena, e o Iniciar fica por último. No ar, mostra a rodada, a fase e o que cada
+um pode fazer; **Parar** tira a cena do ar sem zerar nada (para um Iniciar sem querer) e **Encerrar** acaba a cena. **Montar a cena** abre a ficha dela, onde o mestre escolhe quem entra:
 personagens e criaturas, pela lista, pelos tokens selecionados no mapa, pelos personagens dos jogadores ou
 arrastando da barra lateral. Ali também ficam os modelos das ondas, que o painel põe no mapa em levas. As cenas das
 missões nascem sem personagens, porque cada mesa joga com os seus. **Nova cena** cria outra (combate, perseguição ou

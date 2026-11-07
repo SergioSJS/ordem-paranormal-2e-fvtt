@@ -368,7 +368,14 @@
       p { margin: 0; }
     }
     .op2-painel-acao__iniciar { padding-inline: 1.4em; font-weight: 700; }
-    .op2-painel-acao__encerrar { margin-inline-start: auto; }
+    .op2-painel-acao__saidas { display: inline-flex; margin-inline-start: auto; gap: var(--op2-e1); }
+    .op2-painel-acao__encerrar { border-color: color-mix(in srgb, var(--op2-perigo) 60%, transparent); }
+    .op2-painel-acao__montagem { display: flex; flex-wrap: wrap; align-items: center; gap: var(--op2-e2); }
+    .op2-painel-acao__montagem input[type="number"] { width: 3.5em; }
+    .op2-painel-acao__montagem select { flex: 1 1 12rem; max-width: none; }
+    .op2-painel-acao__comecar { padding-top: var(--op2-e2); border-top: 1px solid var(--op2-linha); }
+    .op2-linha-acao__tirar { width: 2rem; padding: 0; }
+    .op2-linha-acao__identidade { grid-template-columns: 48px 1fr auto auto; }
     .op2-painel-acao__grupo { display: inline-flex; align-items: center; gap: var(--op2-e1); }
     .op2-painel-acao__ondas {
       padding: var(--op2-e1) var(--op2-e2); border: 1px solid var(--op2-linha);

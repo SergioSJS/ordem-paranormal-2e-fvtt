@@ -15,6 +15,13 @@ body.op2-transmissao-modo > *:not(#op2-transmissao) {
   --op2-transmissao-escala: 1;
   --op2-transmissao-pv: #c0392b;
   --op2-transmissao-pd: #4f7bbf;
+  // As cores do texto no estilo sem fundo: vivas, para ler sobre qualquer vídeo.
+  --op2-transmissao-nome: #ff6a4d;
+  --op2-transmissao-pv-texto: #ff6b5b;
+  --op2-transmissao-pd-texto: #7fb2ff;
+  --op2-transmissao-jogador: #d6dde3;
+  // Busto: quanto o avatar aproxima, a partir do topo.
+  --op2-transmissao-zoom: 1.35;
   position: fixed;
   z-index: 10000;
   display: flex;
@@ -46,6 +53,12 @@ body.op2-transmissao-modo > *:not(#op2-transmissao) {
   strong { font-family: var(--op2-fonte-display); font-size: 1.1rem; }
 }
 
+.op2-transmissao__colunas {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
 .op2-transmissao__cards {
   display: flex;
   flex-direction: column;
@@ -56,6 +69,7 @@ body.op2-transmissao-modo > *:not(#op2-transmissao) {
 }
 
 .op2-transmissao[data-direcao="linha"] .op2-transmissao__cards { flex-direction: row; flex-wrap: wrap; }
+.op2-transmissao[data-direcao="linha"] .op2-transmissao__colunas { flex-direction: column; }
 
 .op2-transmissao__card {
   position: relative;
@@ -72,13 +86,32 @@ body.op2-transmissao-modo > *:not(#op2-transmissao) {
   transition: box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
 }
 
+// A moldura recorta o avatar. Busto: a imagem cobre a moldura pelo topo e aproxima, e sobra
+// cabeça e tronco (num retrato de corpo inteiro, num token, numa foto). Inteiro: cabe toda.
 .op2-transmissao__retrato {
+  display: block;
+  overflow: hidden;
   width: 76px;
   height: 76px;
   border: 2px solid var(--op2-linha-forte);
   border-radius: var(--op2-raio);
-  object-fit: cover;
-  object-position: center top;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    object-fit: cover;
+    object-position: center top;
+    transform: scale(var(--op2-transmissao-zoom));
+    transform-origin: center top;
+  }
+}
+
+.op2-transmissao__cards--inteiro .op2-transmissao__retrato img {
+  object-fit: contain;
+  object-position: center bottom;
+  transform: none;
 }
 
 .op2-transmissao__dados {
@@ -199,22 +232,15 @@ body.op2-transmissao-modo > *:not(#op2-transmissao) {
   to { opacity: 1; transform: none; }
 }
 
-// Estilo "sem fundo": nada de caixa. O avatar (PNG com fundo transparente) fica solto e maior,
-// PV e PD viram texto, e todo texto ganha contorno escuro para ler sobre qualquer vídeo.
-.op2-transmissao[data-estilo="livre"] {
+// Estilo "sem fundo": nada de caixa. O avatar (PNG com fundo transparente) fica solto, PV e PD
+// viram texto colorido, e todo texto ganha contorno escuro para ler sobre qualquer vídeo.
+.op2-transmissao__cards--livre {
   --op2-transmissao-contorno: 0 0 2px #000, 0 0 4px #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
   color: #fff;
 
-  .op2-transmissao__cena {
-    padding: 0;
-    border: 0;
-    background: none;
-    text-shadow: var(--op2-transmissao-contorno);
-  }
-
   .op2-transmissao__card {
-    align-items: end;
-    grid-template-columns: 112px 1fr;
+    align-items: center;
+    grid-template-columns: 104px 1fr;
     padding: 0;
     border: 0;
     background: none;
@@ -222,16 +248,14 @@ body.op2-transmissao-modo > *:not(#op2-transmissao) {
   }
 
   .op2-transmissao__retrato {
-    width: 112px;
-    height: 136px;
+    width: 104px;
+    height: 104px;
     border: 0;
     border-radius: 0;
-    object-fit: contain;
-    object-position: center bottom;
     filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
   }
 
-  .op2-transmissao__dados { justify-content: flex-end; padding-bottom: 6px; }
+  &.op2-transmissao__cards--inteiro .op2-transmissao__retrato { height: 136px; }
 
   .op2-transmissao__nome,
   .op2-transmissao__jogador,
@@ -239,22 +263,36 @@ body.op2-transmissao-modo > *:not(#op2-transmissao) {
   .op2-transmissao__estado > span,
   .op2-transmissao__rolagem { text-shadow: var(--op2-transmissao-contorno); }
 
-  .op2-transmissao__jogador { color: #e8e8e8; }
-  .op2-transmissao__texto { font-size: 1.05rem; font-weight: 700; }
-  .op2-transmissao__rotulo { color: #e8e8e8; }
+  .op2-transmissao__nome { color: var(--op2-transmissao-nome); font-size: 1.3rem; }
+  .op2-transmissao__jogador { color: var(--op2-transmissao-jogador); font-style: italic; }
+  .op2-transmissao__texto { font-size: 1.1rem; font-weight: 700; }
+  .op2-transmissao__recurso--pv .op2-transmissao__rotulo,
+  .op2-transmissao__recurso--pv .op2-transmissao__numero { color: var(--op2-transmissao-pv-texto); }
+  .op2-transmissao__recurso--pd .op2-transmissao__rotulo,
+  .op2-transmissao__recurso--pd .op2-transmissao__numero { color: var(--op2-transmissao-pd-texto); }
+  .op2-transmissao__max { opacity: 0.8; font-size: 0.85em; }
 
-  .op2-transmissao__estado > span { border: 0; color: #fff; }
+  .op2-transmissao__estado > span { border: 0; color: #ffd27a; }
+  .op2-transmissao__pavor { color: #ff9a7a !important; }
 
   .op2-transmissao__card--rolou {
     border: 0;
     box-shadow: none;
-    .op2-transmissao__retrato { filter: drop-shadow(0 0 10px var(--op2-vermelho-claro)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)); }
+    .op2-transmissao__retrato { filter: drop-shadow(0 0 10px var(--op2-transmissao-nome)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)); }
   }
 
   .op2-transmissao__rolagem { border-top: 0; }
-  .op2-transmissao__rolagem-titulo { color: #e8e8e8; }
+  .op2-transmissao__rolagem-titulo { color: var(--op2-transmissao-jogador); }
+  .op2-transmissao__total { color: #fff; }
+  .op2-transmissao__rolagem--sucesso .op2-transmissao__desfecho { color: #7dde6a; }
+  .op2-transmissao__rolagem--critico .op2-transmissao__desfecho { color: #ffd34d; }
+  .op2-transmissao__rolagem--falha .op2-transmissao__desfecho,
+  .op2-transmissao__rolagem--falhacritica .op2-transmissao__desfecho { color: #ff8a7a; }
   .op2-transmissao__card--caido .op2-transmissao__retrato { filter: grayscale(1) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)); }
 }
+
+// No Vigília o nome sai em dourado: o osso do tema some sobre o vídeo.
+body.op2-vigilia .op2-transmissao { --op2-transmissao-nome: #f0c060; }
 
 // A janela de configuração.
 .op2-transmissao-config__corpo { display: flex; flex-direction: column; gap: var(--op2-e3); }

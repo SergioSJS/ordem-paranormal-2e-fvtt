@@ -23,8 +23,9 @@ const POSICOES = ["top-left", "top-right", "bottom-left", "bottom-right", "top-c
 // Quanto tempo o card fica aceso com a rolagem.
 const TEMPO_DA_ROLAGEM = 9000;
 
-const ESTILOS = ["cartao", "livre"];
-const PADRAO = { usuario: "", posicao: "top-left", direcao: "coluna", escala: 1, condicoes: true, estilo: "cartao", atores: [] };
+const ESTILOS = ["cartao", "livre", "ambos"];
+const ENQUADRAMENTOS = ["busto", "inteiro"];
+const PADRAO = { usuario: "", posicao: "top-left", direcao: "coluna", escala: 1, condicoes: true, estilo: "cartao", enquadramento: "busto", atores: [] };
 
 export const configDaTransmissao = () => ({ ...PADRAO, ...(game.settings.get(SYSTEM_ID, CHAVE) ?? {}) });
 
@@ -43,7 +44,8 @@ export function ehTransmissao() {
  * O estilo desta tela: o da URL (`?op2-transmissao=livre`) ganha do configurado, para o OBS ter
  * duas fontes, uma de cada estilo, ao mesmo tempo.
  *   cartao — o card com fundo, borda e barras de PV/PD;
- *   livre  — sem fundo nenhum: o avatar (PNG transparente) solto e PV/PD só em texto.
+ *   livre  — sem fundo nenhum: o avatar (PNG transparente) solto e PV/PD só em texto, com cor;
+ *   ambos  — as duas colunas lado a lado: quem monta o overlay recorta a que quiser no OBS.
  */
 function estiloDaTela(cfg) {
   const daUrl = new URLSearchParams(globalThis.location?.search ?? "").get(PARAMETRO);
@@ -93,7 +95,11 @@ function contexto() {
   });
   return {
     cards,
-    livre: estiloDaTela(cfg) === "livre",
+    colunas: estiloDaTela(cfg) === "ambos"
+      ? [{ estilo: "cartao", livre: false }, { estilo: "livre", livre: true }]
+      : [{ estilo: estiloDaTela(cfg), livre: estiloDaTela(cfg) === "livre" }],
+    // Busto: o avatar recortado na cabeça e no tronco. Inteiro: a figura toda.
+    enquadramento: ENQUADRAMENTOS.includes(cfg.enquadramento) ? cfg.enquadramento : PADRAO.enquadramento,
     cena: noAr ? {
       tipo: game.i18n.localize(`OP2.CenaAcao.Tipo.${noAr.system.tipo}`),
       fase: noAr.system.fase ? game.i18n.localize(`OP2.Fase.${noAr.system.fase}`) : "",
@@ -118,11 +124,11 @@ export function atualizarTransmissao() {
     aplicarLayout(elemento, configDaTransmissao());
     // O que estava aceso continua aceso depois do redesenho.
     for (const [id, html] of acesas) {
-      const card = elemento.querySelector(`[data-ator-id="${CSS.escape(id)}"]`);
-      if (!card) continue;
-      card.classList.add("op2-transmissao__card--rolou");
-      card.querySelector(".op2-transmissao__rolagem")?.remove();
-      card.insertAdjacentHTML("beforeend", html);
+      for (const card of elemento.querySelectorAll(`[data-ator-id="${CSS.escape(id)}"]`)) {
+        card.classList.add("op2-transmissao__card--rolou");
+        card.querySelector(".op2-transmissao__rolagem")?.remove();
+        card.insertAdjacentHTML("beforeend", html);
+      }
     }
   }, 80);
 }
@@ -157,21 +163,24 @@ function aoChegarMensagem(mensagem) {
   if (!elemento || !mensagem.isContentVisible || mensagem.blind || !mensagem.rolls?.length) return;
   const ator = ChatMessage.getSpeakerActor(mensagem.speaker);
   const id = ator?.isToken ? ator.token?.actorId ?? ator.id : ator?.id;
-  const card = id && elemento.querySelector(`[data-ator-id="${CSS.escape(id)}"]`);
-  if (!card) return;
+  // Um card por coluna: no estilo "os dois", o mesmo personagem aparece duas vezes.
+  const cards = id ? [...elemento.querySelectorAll(`[data-ator-id="${CSS.escape(id)}"]`)] : [];
+  if (!cards.length) return;
   const html = rolagemEmHtml(mensagem);
   if (!html) return;
   acesas.set(id, html);
-  card.querySelector(".op2-transmissao__rolagem")?.remove();
-  card.insertAdjacentHTML("beforeend", html);
-  card.classList.add("op2-transmissao__card--rolou");
-  clearTimeout(card._op2Timer);
+  for (const card of cards) {
+    card.querySelector(".op2-transmissao__rolagem")?.remove();
+    card.insertAdjacentHTML("beforeend", html);
+    card.classList.add("op2-transmissao__card--rolou");
+  }
   setTimeout(() => {
     if (acesas.get(id) !== html) return;
     acesas.delete(id);
-    const atual = elemento?.querySelector(`[data-ator-id="${CSS.escape(id)}"]`);
-    atual?.classList.remove("op2-transmissao__card--rolou");
-    atual?.querySelector(".op2-transmissao__rolagem")?.remove();
+    for (const atual of elemento?.querySelectorAll(`[data-ator-id="${CSS.escape(id)}"]`) ?? []) {
+      atual.classList.remove("op2-transmissao__card--rolou");
+      atual.querySelector(".op2-transmissao__rolagem")?.remove();
+    }
   }, TEMPO_DA_ROLAGEM);
 }
 
@@ -230,6 +239,8 @@ export class TransmissaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
       usuarios: game.users.filter((u) => !u.isGM).map((u) => ({ id: u.id, nome: u.name, atual: u.id === cfg.usuario })),
       estilos: ESTILOS.map((e) => ({ valor: e, rotulo: game.i18n.localize(`OP2.Transmissao.Estilo.${e}`), atual: e === cfg.estilo })),
       enderecoLivre: `${enderecoBase}/game?${PARAMETRO}=livre`,
+      enderecoAmbos: `${enderecoBase}/game?${PARAMETRO}=ambos`,
+      enquadramentos: ENQUADRAMENTOS.map((e) => ({ valor: e, rotulo: game.i18n.localize(`OP2.Transmissao.Enquadramento.${e}`), atual: e === cfg.enquadramento })),
       posicoes: POSICOES.map((p) => ({ valor: p, rotulo: game.i18n.localize(`OP2.Transmissao.Posicao.${p}`), atual: p === cfg.posicao })),
       personagens: game.actors.filter((a) => a.type === "personagem")
         .map((a) => ({ id: a.id, nome: a.name, marcado: marcados.has(a.id), jogadores: jogadoresDe(a, cfg).join(", ") }))
@@ -246,6 +257,7 @@ export class TransmissaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
       usuario: d.usuario ?? "", posicao: d.posicao ?? PADRAO.posicao, direcao: d.direcao ?? PADRAO.direcao,
       escala: Math.min(2, Math.max(0.5, Number(d.escala) || 1)), condicoes: Boolean(d.condicoes), atores,
       estilo: ESTILOS.includes(d.estilo) ? d.estilo : PADRAO.estilo,
+      enquadramento: ENQUADRAMENTOS.includes(d.enquadramento) ? d.enquadramento : PADRAO.enquadramento,
     });
     ui.notifications.info(game.i18n.localize("OP2.Transmissao.Salvo"));
     this.render();

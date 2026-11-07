@@ -7,7 +7,7 @@
  */
 import { SYSTEM_ID } from "../config.mjs";
 import { abrirPainelAcao } from "../vigilia/painel-acao.mjs";
-import { atorDe, porNaCena, tirarDaCena, personagensDosJogadores, adicionarCriaturas } from "../vigilia/cena-acao.mjs";
+import { atorDe, porNaCena, tirarDaCena, personagensDosJogadores, adicionarCriaturas, candidatosParaCena } from "../vigilia/cena-acao.mjs";
 import { TIPOS_DE_CENA } from "../data/actor-cena-acao.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -49,12 +49,7 @@ export class CenaAcaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       };
     };
     const participantes = sistema.participantes.map(linha);
-    const naCena = new Set(sistema.participantes);
-    // Criatura do diretório é modelo: nunca "está na cena" (cada vez que entra é outra instância).
-    // As cópias que a cena criou (pasta "Criaturas em cena") não aparecem como modelo.
-    const candidatos = (tipo) => ordenar(game.actors
-      .filter((a) => a.type === tipo && !a.getFlag(SYSTEM_ID, "copiaDe") && (tipo === "npc" || !naCena.has(a.uuid)))
-      .map((a) => ({ uuid: a.uuid, nome: a.name })));
+    const candidatos = candidatosParaCena(this.actor);
     const modelos = new Set(sistema.criaturas);
     return {
       ...contexto,
@@ -67,8 +62,8 @@ export class CenaAcaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         { titulo: game.i18n.localize("OP2.CenaAcao.Personagens"), linhas: participantes.filter((p) => p.ehPc) },
         { titulo: game.i18n.localize("OP2.CenaAcao.Criaturas"), linhas: participantes.filter((p) => !p.ehPc) },
       ],
-      candidatosPc: candidatos("personagem"),
-      candidatosNpc: candidatos("npc"),
+      candidatosPc: candidatos.pcs,
+      candidatosNpc: candidatos.npcs,
       temSelecionados: Boolean(canvas?.ready),
       modelos: sistema.criaturas.map(linha),
       candidatosModelo: ordenar(game.actors.filter((a) => a.type === "npc" && !modelos.has(a.uuid)).map((a) => ({ uuid: a.uuid, nome: a.name }))),

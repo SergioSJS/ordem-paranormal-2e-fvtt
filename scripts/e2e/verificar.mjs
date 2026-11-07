@@ -4636,6 +4636,33 @@ const relato = await page.evaluate(async (boasVindas) => {
     painel.element.querySelector(`[data-action="alternarCondicao"][data-condicao="ocultacaoLeve"][data-ator="${npc.uuid}"]`).click();
     await esperar(400);
     ok("condição se liga na linha do painel, também em NPC", npc.system.estado.condicoes.has("ocultacaoLeve"));
+
+    // O fluxo da mesa, pelos botões: iniciou sem querer, parar; montar duas criaturas pela lista;
+    // tirar uma pelo X; iniciar de novo. Nada disso pode depender de abrir a ficha da cena.
+    painel.element.querySelector('[data-action="parar"]').click();
+    await esperar(600);
+    ok("Parar tira a cena do ar sem encerrar: volta à montagem e mantém quem está",
+      !cena.system.ativa && cena.system.participantes.length === 3 && npc.system.estado.condicoes.has("ocultacaoLeve"));
+    const montagem = painel.element.querySelector(".op2-painel-acao__montagem");
+    ok("parada, o painel mostra a montagem e o Iniciar", Boolean(montagem) && Boolean(painel.element.querySelector('[data-action="iniciar"]')));
+    montagem.querySelector("[name=quantosPor]").value = "2";
+    montagem.querySelector("[name=escolhido]").value = npc.uuid;
+    montagem.querySelector('[data-action="porEscolhido"]').click();
+    await esperar(1200);
+    const instancias = cena.system.participantes.slice(3).map((u) => fromUuidSync(u)?.actor ?? fromUuidSync(u));
+    ok("montar 2 × a criatura pelo painel dá duas instâncias numeradas", instancias.length === 2
+      && instancias.every((a) => a && a.uuid !== npc.uuid && new RegExp(`^${npc.name} \\d+$`).test(a.name)));
+    const tirada = instancias[1];
+    painel.element.querySelector(`[data-action="tirar"][data-ator="${cena.system.participantes.at(-1)}"]`).click();
+    await esperar(800);
+    // Token sem vínculo tem o id do modelo: o que some é o token; cópia do ator some do diretório.
+    const sumiu = tirada?.isToken ? !tirada.token?.parent?.tokens.get(tirada.token.id) : !game.actors.get(tirada?.id);
+    ok("o X da linha tira da cena, e a criatura que a cena criou some junto", cena.system.participantes.length === 4 && sumiu);
+    painel.element.querySelector('[data-action="tirar"][data-ator="' + cena.system.participantes.at(-1) + '"]').click();
+    await esperar(600);
+    painel.element.querySelector('[data-action="iniciar"]').click();
+    await esperar(800);
+    ok("Iniciar de novo pelo painel", cena.system.ativa && cena.system.rodada === 1);
     await cena.update({ "system.fase": "corpo" });
     const caido = await game.op2.rolarTeste(outro, { chavePericia: "acrobacia", dt: 7, rapido: true });
     ok("caído e atrapalhado baixam dois passos no teste físico", caido.dados.find((d) => d.componente.tipo === "pericia").dado === "d4");
