@@ -149,7 +149,9 @@ function legendaDoCard(mensagem) {
 
 /** Card do sistema de alguém em cena: ele dá um passo à frente, com a legenda. */
 function aoChegarMensagem(mensagem) {
-  if (!elemento?.isConnected || !mensagem.visible) return;
+  // `isContentVisible`, não `visible`: rolagem sussurrada é "visível" (aparece que houve), mas o
+  // conteúdo não — a legenda de um NPC rolado às escondidas contaria o resultado aos jogadores.
+  if (!elemento?.isConnected || !mensagem.isContentVisible) return;
   if (!mensagem.getFlag(SYSTEM_ID, "tipo") && !/op2-card/.test(mensagem.content ?? "")) return;
   const ator = ChatMessage.getSpeakerActor(mensagem.speaker);
   if (!ator) return;

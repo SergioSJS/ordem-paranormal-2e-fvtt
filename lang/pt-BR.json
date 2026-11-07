@@ -1523,6 +1523,47 @@
       "Agir": "Agir: as ações desta fase",
       "Caido": "caído",
       "Recolher": "Recolher ou abrir o palco"
+    },
+    "Transmissao": {
+      "Titulo": "Transmissão",
+      "MenuNome": "Modo transmissão",
+      "MenuBotao": "Configurar a transmissão",
+      "MenuAjuda": "Uma tela só com os cards dos personagens (rosto, nome, quem joga, PV, PD) e as rolagens, sobre fundo transparente, para o OBS.",
+      "Explica": "Quem entrar como o usuário de transmissão (ou abrir o endereço direto) vê só os cards, com fundo transparente: use como fonte de navegador no OBS. Ela só vê o que um jogador vê: sussurro e rolagem cega não aparecem.",
+      "SecaoObs": "OBS",
+      "SecaoAparencia": "Aparência",
+      "SecaoQuem": "Quem aparece",
+      "Usuario": "Usuário de transmissão",
+      "Nenhum": "(nenhum)",
+      "CriarUsuario": "Criar \"Transmissão\"",
+      "NomeUsuario": "Transmissão",
+      "Passo1": "Crie ou escolha o usuário e salve. Dê acesso de observador aos personagens.",
+      "Passo2": "No OBS, adicione uma fonte Navegador com o endereço de entrada, clique em Interagir e entre como esse usuário:",
+      "Passo3": "Pronto: a fonte abre direto nos cards. O OBS guarda o login.",
+      "Direto": "Ou, em qualquer sessão, abra este endereço:",
+      "DarAcesso": "Dar acesso de observador aos personagens",
+      "AcessoDado": "Acesso de observador dado em {n} personagem(ns).",
+      "PosicaoRotulo": "Posição",
+      "Direcao": "Direção",
+      "Coluna": "Em coluna",
+      "Linha": "Em linha",
+      "Escala": "Escala",
+      "MostrarCondicoes": "Mostrar pavor e condições",
+      "QuemAjuda": "Nenhum marcado: aparecem os personagens de quem joga.",
+      "Salvar": "Salvar",
+      "Salvo": "Transmissão salva.",
+      "Critico": "Crítico!",
+      "FalhaCritica": "Falha crítica",
+      "Sucesso": "Sucesso",
+      "Falha": "Falha",
+      "Posicao": {
+        "top-left": "No alto, à esquerda",
+        "top-right": "No alto, à direita",
+        "top-center": "No alto, no meio",
+        "bottom-left": "Embaixo, à esquerda",
+        "bottom-right": "Embaixo, à direita",
+        "bottom-center": "Embaixo, no meio"
+      }
     }
   }
 }

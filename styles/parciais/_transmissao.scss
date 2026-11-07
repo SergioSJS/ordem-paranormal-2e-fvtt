@@ -1,0 +1,211 @@
+// Modo transmissão (module/ui/transmissao.mjs): só os cards, fundo transparente, para o OBS.
+
+// Fora da layer de propósito: o fundo do core no <body> e no <html> precisa sumir de vez.
+html:has(body.op2-transmissao-modo),
+body.op2-transmissao-modo {
+  background: none transparent !important;
+}
+
+body.op2-transmissao-modo > *:not(#op2-transmissao) {
+  visibility: hidden !important;
+}
+
+@layer system {
+.op2-transmissao {
+  --op2-transmissao-escala: 1;
+  --op2-transmissao-pv: #c0392b;
+  --op2-transmissao-pd: #4f7bbf;
+  position: fixed;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  margin: 24px;
+  color: var(--op2-texto);
+  font-family: var(--op2-fonte-corpo);
+  gap: 10px;
+  transform: scale(var(--op2-transmissao-escala));
+
+  &[data-posicao^="top"] { top: 0; }
+  &[data-posicao^="bottom"] { bottom: 0; flex-direction: column-reverse; }
+  &[data-posicao$="left"] { left: 0; align-items: flex-start; transform-origin: left top; }
+  &[data-posicao$="right"] { right: 0; align-items: flex-end; transform-origin: right top; }
+  &[data-posicao$="center"] { left: 50%; align-items: center; translate: -50% 0; transform-origin: center top; }
+  &[data-posicao^="bottom"][data-posicao$="left"] { transform-origin: left bottom; }
+  &[data-posicao^="bottom"][data-posicao$="right"] { transform-origin: right bottom; }
+}
+
+.op2-transmissao__cena {
+  display: flex;
+  align-items: center;
+  padding: 4px 12px;
+  border: 1px solid var(--op2-linha-forte);
+  background: color-mix(in srgb, var(--op2-fundo) 88%, transparent);
+  font-size: 0.95rem;
+  gap: 10px;
+
+  strong { font-family: var(--op2-fonte-display); font-size: 1.1rem; }
+}
+
+.op2-transmissao__cards {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  gap: 10px;
+}
+
+.op2-transmissao[data-direcao="linha"] .op2-transmissao__cards { flex-direction: row; flex-wrap: wrap; }
+
+.op2-transmissao__card {
+  position: relative;
+  display: grid;
+  width: 320px;
+  grid-template-columns: 76px 1fr;
+  padding: 8px;
+  border: 1px solid var(--op2-linha-forte);
+  border-radius: var(--op2-raio);
+  background: color-mix(in srgb, var(--op2-fundo) 90%, transparent);
+  background-image: var(--op2-textura, none);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
+  gap: 10px;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+}
+
+.op2-transmissao__retrato {
+  width: 76px;
+  height: 76px;
+  border: 2px solid var(--op2-linha-forte);
+  border-radius: var(--op2-raio);
+  object-fit: cover;
+  object-position: center top;
+}
+
+.op2-transmissao__dados {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.op2-transmissao__nome {
+  overflow: hidden;
+  font-family: var(--op2-fonte-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op2-transmissao__jogador {
+  overflow: hidden;
+  margin-top: -2px;
+  color: var(--op2-texto-fraco);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op2-transmissao__recurso {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1.8em 1fr auto;
+  font-size: 0.82rem;
+  gap: 6px;
+}
+
+.op2-transmissao__rotulo { color: var(--op2-texto-fraco); font-weight: 700; }
+
+.op2-transmissao__barra {
+  overflow: hidden;
+  height: 8px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--op2-texto-fraco) 30%, transparent);
+
+  > span { display: block; height: 100%; transition: width 0.4s ease; }
+}
+
+.op2-transmissao__recurso--pv .op2-transmissao__barra > span { background: var(--op2-transmissao-pv); }
+.op2-transmissao__recurso--pd .op2-transmissao__barra > span { background: var(--op2-transmissao-pd); }
+.op2-transmissao__numero { font-variant-numeric: tabular-nums; font-weight: 700; }
+
+.op2-transmissao__estado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+
+  > span {
+    padding: 0 0.35em;
+    border: 1px solid var(--op2-linha-forte);
+    color: var(--op2-texto-fraco);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+  }
+}
+
+.op2-transmissao__pavor { border-color: var(--op2-vermelho-claro) !important; color: var(--op2-texto) !important; }
+
+.op2-transmissao__agiu {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  color: var(--op2-sucesso);
+}
+
+.op2-transmissao__card--agiu { opacity: 0.75; }
+.op2-transmissao__card--caido {
+  opacity: 0.6;
+  .op2-transmissao__retrato { filter: grayscale(1); }
+}
+
+// Rolou: o card acende e mostra a rolagem embaixo, com os dados desenhados.
+.op2-transmissao__card--rolou {
+  border-color: var(--op2-vermelho-claro);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--op2-vermelho-claro) 55%, transparent), 0 4px 16px rgba(0, 0, 0, 0.55);
+  opacity: 1;
+}
+
+.op2-transmissao__rolagem {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  align-items: center;
+  padding-top: 6px;
+  border-top: 1px solid var(--op2-linha);
+  animation: op2-transmissao-rolagem 0.3s ease-out;
+  gap: 4px 10px;
+}
+
+.op2-transmissao__rolagem-titulo { width: 100%; color: var(--op2-texto-fraco); font-size: 0.8rem; }
+
+.op2-transmissao__rolagem-dados {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  .op2-dado { width: 1.9rem; height: 1.9rem; font-size: 0.95rem; }
+}
+
+.op2-transmissao__total { margin-left: 4px; font-family: var(--op2-fonte-display); font-size: 1.5rem; font-weight: 700; }
+.op2-transmissao__desfecho { margin-left: auto; font-family: var(--op2-fonte-display); font-size: 1.1rem; }
+.op2-transmissao__rolagem--critico .op2-transmissao__desfecho { color: var(--op2-critico); }
+.op2-transmissao__rolagem--sucesso .op2-transmissao__desfecho { color: var(--op2-sucesso); }
+.op2-transmissao__rolagem--falhacritica .op2-transmissao__desfecho,
+.op2-transmissao__rolagem--falha .op2-transmissao__desfecho { color: var(--op2-texto-fraco); }
+
+@keyframes op2-transmissao-rolagem {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+
+// A janela de configuração.
+.op2-transmissao-config__corpo { display: flex; flex-direction: column; gap: var(--op2-e3); }
+.op2-transmissao-config__secao { display: flex; flex-direction: column; padding: var(--op2-e2); border: 1px solid var(--op2-linha); gap: var(--op2-e2); }
+.op2-transmissao-config__linha { display: flex; align-items: center; gap: var(--op2-e2); select { flex: 1; } }
+.op2-transmissao-config__passos { margin: 0; padding-left: 1.2em; li { margin-bottom: 0.2em; } }
+.op2-transmissao-config__grade { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--op2-e2); }
+.op2-transmissao-config__atores { display: grid; grid-template-columns: 1fr 1fr; margin: 0; padding: 0; list-style: none; gap: 2px var(--op2-e3); }
+.op2-transmissao-config__rodape { display: flex; justify-content: flex-end; }
+.op2-transmissao-config code { user-select: all; word-break: break-all; }
+}

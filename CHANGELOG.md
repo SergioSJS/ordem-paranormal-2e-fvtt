@@ -38,6 +38,10 @@ o modo; os Atos I e II continuam como estavam.
 - **Palco**: a cena de ação como teatro no rodapé da tela, para todo mundo. Retratos de quem está em cena, PV,
   condições, quem já agiu, quem caiu; quem age dá um passo à frente com a legenda do card; clicar no próprio
   personagem abre as ações da fase.
+- **Modo transmissão (OBS).** Um usuário (ou `/game?op2-transmissao`) que vê só os cards dos personagens, com
+  fundo transparente: rosto, personagem, quem joga, PV, PD, pavor e condições, e a rolagem de cada um com os dados
+  desenhados, o total e o desfecho. Sussurro e rolagem cega não aparecem. Configurável: posição, direção, escala,
+  quem aparece; o usuário e o acesso de observador saem de um clique.
 - **Pastas do Vigília em azul-petróleo**, para não se confundirem com as vermelhas dos Atos no mesmo mundo.
 - **Retratos cortados pelo topo** na ficha e no painel: antes o corte era no meio e sobrava o tronco.
 - **PDF gratuito do beta** conferido: monta a Missão 1 igual à do completo e diz que a 2 é só de assinantes.

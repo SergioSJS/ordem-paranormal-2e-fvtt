@@ -1523,6 +1523,47 @@
       "Agir": "Act: this phase's actions",
       "Caido": "down",
       "Recolher": "Collapse or open the stage"
+    },
+    "Transmissao": {
+      "Titulo": "Stream",
+      "MenuNome": "Stream mode",
+      "MenuBotao": "Set up the stream",
+      "MenuAjuda": "A screen with only the character cards (face, name, player, HP, DP) and the rolls, on a transparent background, for OBS.",
+      "Explica": "Whoever logs in as the stream user (or opens the direct address) sees only the cards on a transparent background: use it as an OBS browser source. It only sees what a player sees: whispers and blind rolls never show.",
+      "SecaoObs": "OBS",
+      "SecaoAparencia": "Appearance",
+      "SecaoQuem": "Who shows",
+      "Usuario": "Stream user",
+      "Nenhum": "(none)",
+      "CriarUsuario": "Create \"Stream\"",
+      "NomeUsuario": "Stream",
+      "Passo1": "Create or pick the user and save. Give it observer access to the characters.",
+      "Passo2": "In OBS, add a Browser source with the join address, click Interact and log in as that user:",
+      "Passo3": "Done: the source opens straight on the cards. OBS keeps the login.",
+      "Direto": "Or, in any session, open this address:",
+      "DarAcesso": "Give observer access to the characters",
+      "AcessoDado": "Observer access given on {n} character(s).",
+      "PosicaoRotulo": "Position",
+      "Direcao": "Direction",
+      "Coluna": "Column",
+      "Linha": "Row",
+      "Escala": "Scale",
+      "MostrarCondicoes": "Show dread and conditions",
+      "QuemAjuda": "None checked: the players' characters show.",
+      "Salvar": "Save",
+      "Salvo": "Stream saved.",
+      "Critico": "Critical!",
+      "FalhaCritica": "Critical failure",
+      "Sucesso": "Success",
+      "Falha": "Failure",
+      "Posicao": {
+        "top-left": "Top left",
+        "top-right": "Top right",
+        "top-center": "Top center",
+        "bottom-left": "Bottom left",
+        "bottom-right": "Bottom right",
+        "bottom-center": "Bottom center"
+      }
     }
   }
 }

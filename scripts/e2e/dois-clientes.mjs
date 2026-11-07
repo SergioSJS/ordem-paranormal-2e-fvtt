@@ -348,6 +348,57 @@ if (temMissao) {
   });
 }
 
+// Modo transmissão: o jogador abre a tela do OBS; só o que ele poderia ver aparece.
+await jog.goto(`http://localhost:${PORTA}/game?op2-transmissao`, { waitUntil: "networkidle" });
+await jog.waitForFunction(() => globalThis.game?.ready === true && document.querySelector("#op2-transmissao .op2-transmissao__card"), null, { timeout: 60000 });
+const tx1 = await jog.evaluate(() => {
+  const meu = game.user.character;
+  const card = document.querySelector(`#op2-transmissao [data-ator-id="${meu?.id}"]`);
+  return {
+    id: meu?.id, modo: document.body.classList.contains("op2-transmissao-modo"), temCard: Boolean(card),
+    nome: card?.querySelector(".op2-transmissao__nome")?.textContent ?? "",
+    jogador: card?.querySelector(".op2-transmissao__jogador")?.textContent ?? "",
+    pv: card?.querySelector(".op2-transmissao__recurso--pv .op2-transmissao__numero")?.textContent ?? "",
+    interfaceEscondida: getComputedStyle(document.getElementById("interface") ?? document.body).visibility === "hidden",
+  };
+});
+console.log(JSON.stringify(tx1));
+ok("transmissão: a tela vira só os cards, sem a interface do Foundry", tx1.modo && tx1.interfaceEscondida);
+ok("transmissão: o card traz o personagem, quem joga e os PV", tx1.temCard && tx1.nome.length > 0 && /Jogador E2E/.test(tx1.jogador) && /\d+\/\d+/.test(tx1.pv));
+await gm.evaluate(async (id) => {
+  const ator = game.actors.get(id);
+  const falar = ChatMessage.getSpeaker({ actor: ator });
+  // Sussurro ao mestre e rolagem cega: a transmissão não pode mostrar nenhum dos dois.
+  for (const extra of [{ whisper: [game.user.id] }, { whisper: [game.user.id], blind: true }]) {
+    const roll = await new Roll("2d6").evaluate();
+    await ChatMessage.create({ speaker: falar, rolls: [roll], content: "segredo", ...extra });
+  }
+}, tx1.id);
+await new Promise((r) => setTimeout(r, 1500));
+const tx2 = await jog.evaluate((id) => ({
+  acendeu: Boolean(document.querySelector(`#op2-transmissao [data-ator-id="${id}"].op2-transmissao__card--rolou`)),
+  // O sussurro chega ao cliente (o core mostra que houve uma rolagem secreta): o teste é real.
+  chegou: game.messages.contents.some((m) => m.whisper.length && m.rolls.length && !m.isContentVisible),
+}), tx1.id);
+ok("transmissão: sussurro e rolagem cega chegam ao cliente e não aparecem", tx2.chegou && !tx2.acendeu);
+await gm.evaluate(async (id) => { await game.op2.rolarTeste(game.actors.get(id), { chavePericia: "percepcao", rapido: true, dt: 7 }); }, tx1.id);
+await new Promise((r) => setTimeout(r, 1500));
+const tx3 = await jog.evaluate((id) => {
+  const card = document.querySelector(`#op2-transmissao [data-ator-id="${id}"]`);
+  return {
+    acendeu: card?.classList.contains("op2-transmissao__card--rolou"),
+    dados: card?.querySelectorAll(".op2-transmissao__rolagem .op2-dado").length ?? 0,
+    total: card?.querySelector(".op2-transmissao__total")?.textContent ?? "",
+    titulo: card?.querySelector(".op2-transmissao__rolagem-titulo")?.textContent ?? "",
+  };
+}, tx1.id);
+console.log(JSON.stringify(tx3));
+ok("transmissão: a rolagem pública acende o card, com os dados desenhados e o total", tx3.acendeu && tx3.dados >= 2 && /= \d+/.test(tx3.total) && tx3.titulo.length > 0);
+if (process.env.FOTO_TRANSMISSAO) {
+  const caixa = await (await jog.$("#op2-transmissao"))?.boundingBox();
+  if (caixa) await jog.screenshot({ path: process.env.FOTO_TRANSMISSAO, clip: { x: Math.max(0, caixa.x - 12), y: Math.max(0, caixa.y - 12), width: caixa.width + 24, height: caixa.height + 24 }, omitBackground: true });
+}
+
 if (process.env.FOTO) await jog.screenshot({ path: process.env.FOTO });
 const falhas = globalThis.__falhas ?? 0;
 await browser.close();

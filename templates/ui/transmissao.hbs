@@ -1,0 +1,37 @@
+{{#if cena}}
+  <div class="op2-transmissao__cena">
+    <span class="op2-tag op2-tag--pequena">{{cena.tipo}}</span>
+    {{#if cena.fase}}<strong>{{cena.fase}}</strong>{{/if}}
+    <span>{{localize "OP2.CenaAcao.RodadaCurta" n=cena.rodada}}</span>
+  </div>
+{{/if}}
+<ol class="op2-transmissao__cards">
+  {{#each cards}}
+    <li class="op2-transmissao__card{{#if caido}} op2-transmissao__card--caido{{/if}}{{#if agiu}} op2-transmissao__card--agiu{{/if}}" data-ator-id="{{id}}">
+      <img class="op2-transmissao__retrato" src="{{img}}" alt="">
+      <div class="op2-transmissao__dados">
+        <span class="op2-transmissao__nome">{{nome}}</span>
+        {{#if jogadores}}<span class="op2-transmissao__jogador">{{jogadores}}</span>{{/if}}
+        <span class="op2-transmissao__recurso op2-transmissao__recurso--pv">
+          <span class="op2-transmissao__rotulo">PV</span>
+          <span class="op2-transmissao__barra"><span style="width: {{pv.pct}}%"></span></span>
+          <span class="op2-transmissao__numero">{{pv.value}}/{{pv.max}}</span>
+        </span>
+        {{#if pd.max}}
+          <span class="op2-transmissao__recurso op2-transmissao__recurso--pd">
+            <span class="op2-transmissao__rotulo">PD</span>
+            <span class="op2-transmissao__barra"><span style="width: {{pd.pct}}%"></span></span>
+            <span class="op2-transmissao__numero">{{pd.value}}/{{pd.max}}</span>
+          </span>
+        {{/if}}
+        {{#if temEstado}}
+          <span class="op2-transmissao__estado">
+            {{#if pavor}}<span class="op2-transmissao__pavor">{{localize "OP2.Pavor.Titulo"}} {{pavor}}</span>{{/if}}
+            {{#each condicoes}}<span>{{this}}</span>{{/each}}
+          </span>
+        {{/if}}
+      </div>
+      {{#if agiu}}<i class="fa-solid fa-check op2-transmissao__agiu" aria-label="{{localize 'OP2.CenaAcao.JaAgiu'}}"></i>{{/if}}
+    </li>
+  {{/each}}
+</ol>

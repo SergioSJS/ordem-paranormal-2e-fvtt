@@ -229,7 +229,7 @@ const vigilia = await page.evaluate(async () => {
     recursos: { pv: { value: 10, max: 10 }, pd: { value: 0, max: 0 } }, ataques: [{ nome: "Garras", tipo: "corpo", dados: "d8+d6", bonusDano: 1 }],
   } });
   const cena = await Actor.create({ name: "Os Afogados", type: "cena-acao", system: { tipo: "combate", participantes: [rhiona.uuid, rowan.uuid, npc.uuid] } });
-  return { rhionaId: rhiona.id, cenaId: cena.id };
+  return { rhionaId: rhiona.id, rowanId: rowan.id, cenaId: cena.id };
 });
 
 Object.assign(dados, vigilia);
@@ -259,6 +259,26 @@ if (palco) {
   await page.screenshot({ path: `${SAIDA}/palco.png`, clip });
   console.log(`${SAIDA}/palco.png`);
 } else console.log("(sem elemento) palco");
+// A transmissão (OBS): outra sessão com ?op2-transmissao, só os cards, fundo transparente.
+await page.evaluate(({ rhionaId, rowanId }) => game.settings.set("ordem-paranormal-2e", "transmissao",
+  { posicao: "top-left", direcao: "coluna", escala: 1, condicoes: true, usuario: "", atores: [rhionaId, rowanId] }), dados);
+const tx = await browser.newPage({ viewport: { width: 1200, height: 800 }, deviceScaleFactor: 2 });
+await tx.goto(`http://localhost:${PORTA}/join`, { waitUntil: "networkidle" });
+await tx.selectOption("select[name='userid']", { label: "Gamemaster" });
+await tx.click("button[name='join'], button[type='submit']");
+await tx.waitForURL("**/game");
+await tx.goto(`http://localhost:${PORTA}/game?op2-transmissao`, { waitUntil: "networkidle" });
+await tx.waitForFunction(() => globalThis.game?.ready === true && document.querySelector("#op2-transmissao .op2-transmissao__card"), null, { timeout: 60000 });
+await page.evaluate(({ rhionaId }) => game.op2.rolarTeste(game.actors.get(rhionaId), { chavePericia: "percepcao", rapido: true, dt: 7 }), dados);
+await tx.waitForTimeout(1500);
+const caixaTx = await (await tx.$("#op2-transmissao"))?.boundingBox();
+if (caixaTx) {
+  await tx.screenshot({ path: `${SAIDA}/transmissao.png`, omitBackground: true,
+    clip: { x: Math.max(0, caixaTx.x - 12), y: Math.max(0, caixaTx.y - 12), width: caixaTx.width + 24, height: caixaTx.height + 24 } });
+  console.log(`${SAIDA}/transmissao.png`);
+} else console.log("(sem elemento) transmissao");
+await tx.close();
+await page.evaluate(() => game.settings.set("ordem-paranormal-2e", "transmissao", {}));
 await trocarModo("moderno");
 
 await browser.close();

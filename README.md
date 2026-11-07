@@ -248,6 +248,20 @@ settings do mundo para voltar ao combate simplificado.
 
 Onde o beta se contradiz ou deixa regra de fora, a decisão está em [docs/regras/LACUNAS.md](docs/regras/LACUNAS.md).
 
+## Transmissão (OBS)
+
+Para quem joga em live: uma tela só com os cards dos personagens, sobre fundo transparente, para usar como fonte
+de navegador no OBS. Cada card traz o rosto, o nome do personagem, o nome de quem joga, PV e PD (em barra e em
+número), pavor e condições; quando a pessoa rola, o card acende com os dados desenhados, o total e o desfecho. Numa
+cena de ação, aparecem também a fase, a rodada e quem já agiu.
+
+Em **Configurações → Ordem Paranormal 2 → Configurar a transmissão**: crie o usuário "Transmissão", dê a ele acesso
+de observador aos personagens e salve. No OBS, adicione uma fonte Navegador com o endereço `/join`, clique em
+Interagir e entre como esse usuário. Ou abra `/game?op2-transmissao` em qualquer sessão. Ali também se escolhem a
+posição, a direção, a escala e quem aparece.
+
+A transmissão só vê o que um jogador veria: sussurro e rolagem cega nunca aparecem.
+
 ## Compêndios do Ato I
 
 O que é nosso viaja no sistema: as regras em compêndio, e — dentro da aventura de cada
