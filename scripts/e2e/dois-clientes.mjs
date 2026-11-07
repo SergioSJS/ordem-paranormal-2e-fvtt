@@ -394,6 +394,28 @@ const tx3 = await jog.evaluate((id) => {
 }, tx1.id);
 console.log(JSON.stringify(tx3));
 ok("transmissão: a rolagem pública acende o card, com os dados desenhados e o total", tx3.acendeu && tx3.dados >= 2 && /= \d+/.test(tx3.total) && tx3.titulo.length > 0);
+// Estilo sem fundo pela URL: avatar solto, PV e PD em texto, sem barra.
+await jog.goto(`http://localhost:${PORTA}/game?op2-transmissao=livre`, { waitUntil: "networkidle" });
+await jog.waitForFunction(() => globalThis.game?.ready === true && document.querySelector("#op2-transmissao .op2-transmissao__card"), null, { timeout: 60000 });
+await jog.waitForTimeout(500);
+const tx4 = await jog.evaluate((id) => {
+  const el = document.getElementById("op2-transmissao");
+  const card = el?.querySelector(`[data-ator-id="${id}"]`);
+  return {
+    estilo: el?.dataset.estilo, barras: card?.querySelectorAll(".op2-transmissao__barra").length ?? -1,
+    texto: card?.querySelector(".op2-transmissao__recurso--pv")?.textContent.replace(/\s+/g, " ").trim() ?? "",
+    fundo: card ? getComputedStyle(card).backgroundColor : "",
+  };
+}, tx1.id);
+console.log(JSON.stringify(tx4));
+ok("transmissão sem fundo pela URL: PV em texto, sem barra, card transparente",
+  tx4.estilo === "livre" && tx4.barras === 0 && /PV \d+\/\d+/.test(tx4.texto) && /rgba\(0, 0, 0, 0\)|transparent/.test(tx4.fundo));
+if (process.env.FOTO_TRANSMISSAO_LIVRE) {
+  await gm.evaluate(async (id) => { await game.op2.rolarTeste(game.actors.get(id), { chavePericia: "percepcao", rapido: true, dt: 7 }); }, tx1.id);
+  await jog.waitForTimeout(1500);
+  const caixa = await (await jog.$("#op2-transmissao"))?.boundingBox();
+  if (caixa) await jog.screenshot({ path: process.env.FOTO_TRANSMISSAO_LIVRE, clip: { x: Math.max(0, caixa.x - 12), y: Math.max(0, caixa.y - 12), width: caixa.width + 24, height: caixa.height + 24 } });
+}
 if (process.env.FOTO_TRANSMISSAO) {
   const caixa = await (await jog.$("#op2-transmissao"))?.boundingBox();
   if (caixa) await jog.screenshot({ path: process.env.FOTO_TRANSMISSAO, clip: { x: Math.max(0, caixa.x - 12), y: Math.max(0, caixa.y - 12), width: caixa.width + 24, height: caixa.height + 24 }, omitBackground: true });

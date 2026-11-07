@@ -39,6 +39,9 @@
             <span class="op2-aventuras__erro">{{localize (op2Concat "OP2.Aventuras.Motivo." motivo)}}</span>
             {{#if erro}}<code class="op2-aventuras__erro-detalhe">{{erro}}</code>{{/if}}
           {{/if}}
+          {{#if desatualizada}}
+            <span class="op2-aventuras__erro">{{localize "OP2.Aventuras.Desatualizada"}}</span>
+          {{/if}}
           {{#if artes}}
             <span class="op2-aventuras__artes{{#if artes.faltam}} op2-aventuras__artes--faltam{{/if}}">
               <i class="fa-solid {{#if artes.faltam}}fa-file-zipper{{else}}fa-circle-check{{/if}}" aria-hidden="true"></i>

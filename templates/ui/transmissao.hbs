@@ -12,17 +12,23 @@
       <div class="op2-transmissao__dados">
         <span class="op2-transmissao__nome">{{nome}}</span>
         {{#if jogadores}}<span class="op2-transmissao__jogador">{{jogadores}}</span>{{/if}}
-        <span class="op2-transmissao__recurso op2-transmissao__recurso--pv">
-          <span class="op2-transmissao__rotulo">PV</span>
-          <span class="op2-transmissao__barra"><span style="width: {{pv.pct}}%"></span></span>
-          <span class="op2-transmissao__numero">{{pv.value}}/{{pv.max}}</span>
-        </span>
-        {{#if pd.max}}
-          <span class="op2-transmissao__recurso op2-transmissao__recurso--pd">
-            <span class="op2-transmissao__rotulo">PD</span>
-            <span class="op2-transmissao__barra"><span style="width: {{pd.pct}}%"></span></span>
-            <span class="op2-transmissao__numero">{{pd.value}}/{{pd.max}}</span>
+        {{#if @root.livre}}
+          {{!-- Sem fundo: só o valor, sem barra. --}}
+          <span class="op2-transmissao__texto op2-transmissao__recurso--pv"><span class="op2-transmissao__rotulo">PV</span> <span class="op2-transmissao__numero">{{pv.value}}/{{pv.max}}</span></span>
+          {{#if pd.max}}<span class="op2-transmissao__texto op2-transmissao__recurso--pd"><span class="op2-transmissao__rotulo">PD</span> <span class="op2-transmissao__numero">{{pd.value}}/{{pd.max}}</span></span>{{/if}}
+        {{else}}
+          <span class="op2-transmissao__recurso op2-transmissao__recurso--pv">
+            <span class="op2-transmissao__rotulo">PV</span>
+            <span class="op2-transmissao__barra"><span style="width: {{pv.pct}}%"></span></span>
+            <span class="op2-transmissao__numero">{{pv.value}}/{{pv.max}}</span>
           </span>
+          {{#if pd.max}}
+            <span class="op2-transmissao__recurso op2-transmissao__recurso--pd">
+              <span class="op2-transmissao__rotulo">PD</span>
+              <span class="op2-transmissao__barra"><span style="width: {{pd.pct}}%"></span></span>
+              <span class="op2-transmissao__numero">{{pd.value}}/{{pd.max}}</span>
+            </span>
+          {{/if}}
         {{/if}}
         {{#if temEstado}}
           <span class="op2-transmissao__estado">

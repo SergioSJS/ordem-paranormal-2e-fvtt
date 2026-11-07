@@ -23,7 +23,8 @@ const POSICOES = ["top-left", "top-right", "bottom-left", "bottom-right", "top-c
 // Quanto tempo o card fica aceso com a rolagem.
 const TEMPO_DA_ROLAGEM = 9000;
 
-const PADRAO = { usuario: "", posicao: "top-left", direcao: "coluna", escala: 1, condicoes: true, atores: [] };
+const ESTILOS = ["cartao", "livre"];
+const PADRAO = { usuario: "", posicao: "top-left", direcao: "coluna", escala: 1, condicoes: true, estilo: "cartao", atores: [] };
 
 export const configDaTransmissao = () => ({ ...PADRAO, ...(game.settings.get(SYSTEM_ID, CHAVE) ?? {}) });
 
@@ -36,6 +37,18 @@ export function ehTransmissao() {
   if (new URLSearchParams(globalThis.location?.search ?? "").has(PARAMETRO)) return true;
   const { usuario } = configDaTransmissao();
   return Boolean(usuario) && game.user?.id === usuario;
+}
+
+/**
+ * O estilo desta tela: o da URL (`?op2-transmissao=livre`) ganha do configurado, para o OBS ter
+ * duas fontes, uma de cada estilo, ao mesmo tempo.
+ *   cartao — o card com fundo, borda e barras de PV/PD;
+ *   livre  — sem fundo nenhum: o avatar (PNG transparente) solto e PV/PD só em texto.
+ */
+function estiloDaTela(cfg) {
+  const daUrl = new URLSearchParams(globalThis.location?.search ?? "").get(PARAMETRO);
+  if (ESTILOS.includes(daUrl)) return daUrl;
+  return ESTILOS.includes(cfg.estilo) ? cfg.estilo : PADRAO.estilo;
 }
 
 /** Quem aparece: os escolhidos, ou os personagens de quem joga. */
@@ -80,6 +93,7 @@ function contexto() {
   });
   return {
     cards,
+    livre: estiloDaTela(cfg) === "livre",
     cena: noAr ? {
       tipo: game.i18n.localize(`OP2.CenaAcao.Tipo.${noAr.system.tipo}`),
       fase: noAr.system.fase ? game.i18n.localize(`OP2.Fase.${noAr.system.fase}`) : "",
@@ -91,6 +105,7 @@ function contexto() {
 function aplicarLayout(el, cfg) {
   el.dataset.posicao = POSICOES.includes(cfg.posicao) ? cfg.posicao : PADRAO.posicao;
   el.dataset.direcao = cfg.direcao === "linha" ? "linha" : "coluna";
+  el.dataset.estilo = estiloDaTela(cfg);
   el.style.setProperty("--op2-transmissao-escala", String(Number(cfg.escala) || 1));
 }
 
@@ -213,6 +228,8 @@ export class TransmissaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
       cfg,
       direcaoLinha: cfg.direcao === "linha",
       usuarios: game.users.filter((u) => !u.isGM).map((u) => ({ id: u.id, nome: u.name, atual: u.id === cfg.usuario })),
+      estilos: ESTILOS.map((e) => ({ valor: e, rotulo: game.i18n.localize(`OP2.Transmissao.Estilo.${e}`), atual: e === cfg.estilo })),
+      enderecoLivre: `${enderecoBase}/game?${PARAMETRO}=livre`,
       posicoes: POSICOES.map((p) => ({ valor: p, rotulo: game.i18n.localize(`OP2.Transmissao.Posicao.${p}`), atual: p === cfg.posicao })),
       personagens: game.actors.filter((a) => a.type === "personagem")
         .map((a) => ({ id: a.id, nome: a.name, marcado: marcados.has(a.id), jogadores: jogadoresDe(a, cfg).join(", ") }))
@@ -228,6 +245,7 @@ export class TransmissaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
     await game.settings.set(SYSTEM_ID, CHAVE, {
       usuario: d.usuario ?? "", posicao: d.posicao ?? PADRAO.posicao, direcao: d.direcao ?? PADRAO.direcao,
       escala: Math.min(2, Math.max(0.5, Number(d.escala) || 1)), condicoes: Boolean(d.condicoes), atores,
+      estilo: ESTILOS.includes(d.estilo) ? d.estilo : PADRAO.estilo,
     });
     ui.notifications.info(game.i18n.localize("OP2.Transmissao.Salvo"));
     this.render();

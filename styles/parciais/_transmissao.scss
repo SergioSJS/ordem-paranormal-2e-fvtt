@@ -199,6 +199,63 @@ body.op2-transmissao-modo > *:not(#op2-transmissao) {
   to { opacity: 1; transform: none; }
 }
 
+// Estilo "sem fundo": nada de caixa. O avatar (PNG com fundo transparente) fica solto e maior,
+// PV e PD viram texto, e todo texto ganha contorno escuro para ler sobre qualquer vídeo.
+.op2-transmissao[data-estilo="livre"] {
+  --op2-transmissao-contorno: 0 0 2px #000, 0 0 4px #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+  color: #fff;
+
+  .op2-transmissao__cena {
+    padding: 0;
+    border: 0;
+    background: none;
+    text-shadow: var(--op2-transmissao-contorno);
+  }
+
+  .op2-transmissao__card {
+    align-items: end;
+    grid-template-columns: 112px 1fr;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .op2-transmissao__retrato {
+    width: 112px;
+    height: 136px;
+    border: 0;
+    border-radius: 0;
+    object-fit: contain;
+    object-position: center bottom;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
+  }
+
+  .op2-transmissao__dados { justify-content: flex-end; padding-bottom: 6px; }
+
+  .op2-transmissao__nome,
+  .op2-transmissao__jogador,
+  .op2-transmissao__texto,
+  .op2-transmissao__estado > span,
+  .op2-transmissao__rolagem { text-shadow: var(--op2-transmissao-contorno); }
+
+  .op2-transmissao__jogador { color: #e8e8e8; }
+  .op2-transmissao__texto { font-size: 1.05rem; font-weight: 700; }
+  .op2-transmissao__rotulo { color: #e8e8e8; }
+
+  .op2-transmissao__estado > span { border: 0; color: #fff; }
+
+  .op2-transmissao__card--rolou {
+    border: 0;
+    box-shadow: none;
+    .op2-transmissao__retrato { filter: drop-shadow(0 0 10px var(--op2-vermelho-claro)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)); }
+  }
+
+  .op2-transmissao__rolagem { border-top: 0; }
+  .op2-transmissao__rolagem-titulo { color: #e8e8e8; }
+  .op2-transmissao__card--caido .op2-transmissao__retrato { filter: grayscale(1) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)); }
+}
+
 // A janela de configuração.
 .op2-transmissao-config__corpo { display: flex; flex-direction: column; gap: var(--op2-e3); }
 .op2-transmissao-config__secao { display: flex; flex-direction: column; padding: var(--op2-e2); border: 1px solid var(--op2-linha); gap: var(--op2-e2); }

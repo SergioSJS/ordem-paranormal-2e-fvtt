@@ -9,7 +9,8 @@
  * Os erros de cópia que o livro imprime entram como rascunho, com nota: o mestre decide
  * (docs/regras/LACUNAS.md, seção "Playtest beta").
  */
-import { ident, arquivoPublico, tituloLegivel, pasta, em, posicionarNaCena, escapar } from "./comum.mjs";
+import { SYSTEM_ID } from "../config.mjs";
+import { ident, COR_DAS_PASTAS, arquivoPublico, tituloLegivel, pasta, em, posicionarNaCena, escapar } from "./comum.mjs";
 import { slugDeArquivo } from "../ui/zip.mjs";
 
 const ASSETS = "systems/ordem-paranormal-2e/assets";
@@ -261,9 +262,16 @@ function itemDoPonto(missao, ponto, { handout, desafios = [], erros = {} }) {
 }
 
 /** O que as duas missões têm em comum. */
-// As pastas do Vigília em azul-petróleo: num mundo que também tem os Atos (vermelhos),
-// dá para ver de longe o que é de qual playtest.
-const COR_DAS_PASTAS = "#2f5866";
+
+/**
+ * Sobe quando a montagem muda o que o mundo recebe (luzes, pastas, cópias dos pré-gerados): a
+ * janela de aventuras compara com a da aventura guardada e avisa que vale ler o PDF de novo.
+ *   2 — luz e escuridão nas cenas, cópia dos pré-gerados por missão, cenas de ação vazias.
+ */
+export const REVISAO_DA_MONTAGEM = 2;
+
+/** O id da cópia de um pré-gerado numa missão (a importação de aventura velha usa o mesmo). */
+export const idDaCopia = (missao, idDoCompendio) => ident(`vigilia-${missao}-pregerado-${idDoCompendio}`);
 
 function montar({ missao, titulo, raiz, extraido, fontes, pregeradosNomes, escolherHandout, desafiosPorPonto, erros, extrasDePonto = [], npcs, itens, eventos, cenas, cenaPrincipal, descricao, investigacaoNome, eventoDaInvestigacao }) {
   const pastas = {
@@ -277,14 +285,15 @@ function montar({ missao, titulo, raiz, extraido, fontes, pregeradosNomes, escol
   pastas.desafios = pasta("Item", "Desafios de Acesso", pastas.itens._id, 200);
   pastas.eventos = pasta("Item", "Roteiros", pastas.itens._id, 300);
   pastas.itensDeMesa = pasta("Item", "Itens de Mesa", pastas.itens._id, 400);
-  for (const p of Object.values(pastas)) p.color = COR_DAS_PASTAS;
+  // Verde, o do Vigília: num mundo que também tem os Atos (vermelhos), não se confundem.
+  for (const p of Object.values(pastas)) p.color = COR_DAS_PASTAS.vigilia;
 
   const pregerados = (fontes.pregerados ?? [])
     .filter((a) => pregeradosNomes.some((n) => a.name.toLowerCase().includes(n)))
     // Cada missão com a SUA cópia: com o id do compêndio, importar a segunda missão
     // atualizava os atores da primeira (keepId) e os levava para a pasta dela — a
     // Missão 1 "chegava sem pré-gerados" num mundo que já tinha a 2 (achado em uso real).
-    .map((a) => ({ ...a, _id: ident(`vigilia-${missao}-pregerado-${a._id}`) }))
+    .map((a) => ({ ...a, _id: idDaCopia(missao, a._id), flags: { ...(a.flags ?? {}), [SYSTEM_ID]: { ...(a.flags?.[SYSTEM_ID] ?? {}), copiaDaMissao: missao } } }))
     .map(em(pastas.pregerados));
   const participantes = pregerados.map((a) => `Actor.${a._id}`);
 
@@ -360,7 +369,7 @@ function montar({ missao, titulo, raiz, extraido, fontes, pregeradosNomes, escol
       playlists: trilha,
       folders: Object.values(pastas), macros: [], tables: [], cards: [], combats: [],
       folder: null, sort: 0, ownership: { default: 0 },
-      flags: { "ordem-paranormal-2e": { extras: { pasta: missao, prefixo: PREFIXO, zip: EXTRAS[missao].zip, arquivos: EXTRAS[missao].arquivos } } },
+      flags: { "ordem-paranormal-2e": { revisaoDaMontagem: REVISAO_DA_MONTAGEM, extras: { pasta: missao, prefixo: PREFIXO, zip: EXTRAS[missao].zip, arquivos: EXTRAS[missao].arquivos } } },
     },
   };
 }

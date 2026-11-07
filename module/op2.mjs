@@ -38,6 +38,7 @@ import { registrarAcoesDeChatDaVigilia } from "./vigilia/acoes-chat.mjs";
 import { registrarPainelAcao, abrirPainelAcao } from "./vigilia/painel-acao.mjs";
 import { registrarPalco } from "./vigilia/palco.mjs";
 import { registrarTransmissao } from "./ui/transmissao.mjs";
+import { registrarAjustesDeImportacao } from "./aventura/importacao.mjs";
 import {
   atacar as atacarVigilia, revidar, defender as defenderVigilia, aplicarDanoDeCombate, acaoOposta, acaoGeral, manobra, ataquesDe,
 } from "./vigilia/acoes-combate.mjs";
@@ -135,6 +136,7 @@ Hooks.once("init", () => {
   registrarTransmissao();
   registrarMarcadores();
   registrarAventuras();
+  registrarAjustesDeImportacao();
   registrarExtrasDeAventura();
   registrarBoasVindas();
   registrarAtalhos();

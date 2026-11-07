@@ -201,3 +201,51 @@ test("Missão 2 sem senha na caixa avisa", () => {
   const { avisos } = montarMissao2({ pontos: [], roteiro: [] }, FONTES);
   assert.ok(avisos.some((a) => /senha/.test(a)));
 });
+
+// Importação de missão guardada antes das cópias dos pré-gerados.
+{
+  const { separarPregeradosDaImportacao, pintarPastasDaImportacao } = await import("../aventura/importacao.mjs");
+  const { idDaCopia } = await import("../aventura/missoes.mjs");
+  const { COR_DAS_PASTAS } = await import("../aventura/comum.mjs");
+  const aventura = { name: "Missão 1 — O Pântano dos Afogados", flags: { "ordem-paranormal-2e": { extras: { pasta: "missao-1" } } } };
+  const montar = () => ({
+    toCreate: {
+      Folder: [{ _id: "pastaRaiz", type: "Actor", name: "Missão 1 — O Pântano dos Afogados", color: "#7f1d1d" },
+        { _id: "pastaPg", type: "Actor", name: "Pré-gerados", folder: "pastaRaiz", color: "#7f1d1d" }],
+      Actor: [
+        { _id: "aaaaaaaaaaaaaaaa", type: "personagem", name: "Rhiona", folder: "pastaPg", flags: {} },
+        { _id: "inv0000000000001", type: "investigacao", name: "Fase 2", system: { participantes: ["Actor.aaaaaaaaaaaaaaaa", "Actor.bbbbbbbbbbbbbbbb"] } },
+        { _id: "cena000000000001", type: "cena-acao", name: "Cena 1", system: { participantes: ["Actor.aaaaaaaaaaaaaaaa"] } },
+      ],
+    },
+    // Rowan já existe no mundo (veio com a outra missão): o core manda atualizar.
+    toUpdate: { Actor: [{ _id: "bbbbbbbbbbbbbbbb", type: "personagem", name: "Rowan", folder: "pastaPg", flags: {} }] },
+  });
+
+  test("importação: troca pelo id da cópia da missão, refaz os vínculos e cria em vez de atualizar", () => {
+    const { toCreate, toUpdate } = montar();
+    assert.equal(separarPregeradosDaImportacao(aventura, toCreate, toUpdate, () => false), 2);
+    const rhiona = idDaCopia("missao-1", "aaaaaaaaaaaaaaaa");
+    const rowan = idDaCopia("missao-1", "bbbbbbbbbbbbbbbb");
+    const ids = toCreate.Actor.map((a) => a._id);
+    assert.ok(ids.includes(rhiona) && ids.includes(rowan), "as duas cópias são criadas");
+    assert.equal(toUpdate.Actor.length, 0, "nada atualiza o ator da outra missão");
+    const inv = toCreate.Actor.find((a) => a.type === "investigacao");
+    assert.deepEqual(inv.system.participantes, [`Actor.${rhiona}`, `Actor.${rowan}`]);
+    assert.deepEqual(toCreate.Actor.find((a) => a.type === "cena-acao").system.participantes, [], "cena de ação chega vazia");
+    assert.equal(toCreate.Actor.find((a) => a._id === rhiona).flags["ordem-paranormal-2e"].copiaDaMissao, "missao-1");
+  });
+
+  test("importação: aventura montada já com as cópias passa sem mexer", () => {
+    const { toCreate, toUpdate } = montar();
+    for (const a of [...toCreate.Actor, ...toUpdate.Actor]) a.flags = { "ordem-paranormal-2e": { copiaDaMissao: "missao-1" } };
+    assert.equal(separarPregeradosDaImportacao(aventura, toCreate, toUpdate, () => false), 0);
+  });
+
+  test("importação: as pastas da Missão entram verdes, mesmo vindas vermelhas da aventura guardada", () => {
+    const { toCreate, toUpdate } = montar();
+    assert.equal(pintarPastasDaImportacao(aventura, toCreate, toUpdate), 2);
+    assert.ok(toCreate.Folder.every((f) => f.color === COR_DAS_PASTAS.vigilia));
+    assert.equal(COR_DAS_PASTAS.vigilia, "#2f6b3a");
+  });
+}

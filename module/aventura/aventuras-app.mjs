@@ -6,6 +6,7 @@
  * é texto do livro, que a Licença da Comunidade não deixa redistribuir. O pacote
  * leva o extrator; o texto vem do PDF de quem já tem o material.
  */
+import { REVISAO_DA_MONTAGEM } from "./missoes.mjs";
 import { SYSTEM_ID, MODOS } from "../config.mjs";
 import { modoAtual, trocarModo } from "../modo.mjs";
 import { LICENCA, SELO } from "../ui/licenca.mjs";
@@ -60,6 +61,9 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
         // As artes vêm do zip da editora: dizer aqui o que já está na pasta do mundo
         // e oferecer o envio, em vez de só pedir na hora de importar.
         artes: noMundo ? await this.#artesDe(ato) : null,
+        // Guardada por uma montagem anterior: o que só a montagem traz (luzes) pede o PDF de novo.
+        desatualizada: noMundo && ato.modo === "vigilia" && !resultado?.ok
+          && ((await documentoDaAventura(ato.aventura))?.getFlag(SYSTEM_ID, "revisaoDaMontagem") ?? 0) < REVISAO_DA_MONTAGEM,
       };
     }));
     // Cada modo com o próprio PDF e os próprios zips. Modo sem aventura ainda não aparece.

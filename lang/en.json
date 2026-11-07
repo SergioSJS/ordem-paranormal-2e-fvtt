@@ -1021,7 +1021,8 @@
       "EnviarZip": "Upload the art zip",
       "ReenviarZip": "Resend the art zip",
       "Missao1": "Mission 1 — The Swamp of the Drowned",
-      "Missao2": "Mission 2 — The Cave of Cruachan"
+      "Missao2": "Mission 2 — The Cave of Cruachan",
+      "Desatualizada": "Stored by an earlier version. Pregens and folders already import right; for the scene lighting, read the PDF again."
     },
     "Licenca": {
       "Aviso": "This is unofficial content, published under the Ordem Paranormal Community License. Contains AI-generated material: the code is written with AI assistance; the texts are the author's.",
@@ -1207,7 +1208,9 @@
       "ComJogadores": "With the players' characters",
       "ComSelecionados": "With the tokens selected on the map ({n})",
       "Arraste": "Drag actors from the sidebar here",
-      "JaNaCena": "That actor is already in the scene."
+      "JaNaCena": "That actor is already in the scene.",
+      "PastaCriaturas": "Creatures in scene",
+      "QuantosAjuda": "A creature can join as many times as you like: each with its own HP and a number in its name (Drowned 1, Drowned 2). With a map open, it becomes a token on it."
     },
     "Combate2": {
       "Desarmado": "Unarmed",
@@ -1563,7 +1566,13 @@
         "bottom-left": "Bottom left",
         "bottom-right": "Bottom right",
         "bottom-center": "Bottom center"
-      }
+      },
+      "EstiloRotulo": "Style",
+      "Estilo": {
+        "cartao": "Cards (background, border, HP and DP bars)",
+        "livre": "No background (loose avatar, HP and DP as text)"
+      },
+      "EstiloAjuda": "For avatars with a transparent background, use \"No background\". The URL picks the style of each OBS source, without changing this:"
     }
   }
 }

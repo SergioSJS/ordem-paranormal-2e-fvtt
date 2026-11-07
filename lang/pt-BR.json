@@ -1021,7 +1021,8 @@
       "EnviarZip": "Enviar zip das artes",
       "ReenviarZip": "Reenviar zip das artes",
       "Missao1": "Missão 1 — O Pântano dos Afogados",
-      "Missao2": "Missão 2 — A Caverna de Cruachan"
+      "Missao2": "Missão 2 — A Caverna de Cruachan",
+      "Desatualizada": "Guardada por uma versão anterior. Pré-gerados e pastas já chegam certos ao importar; para as luzes das cenas, leia o PDF de novo."
     },
     "Licenca": {
       "Aviso": "Este é um conteúdo não oficial, publicado sob a Licença da Comunidade de Ordem Paranormal. Contém material gerado por inteligência artificial: o código é escrito com auxílio de IA; os textos são do autor.",
@@ -1207,7 +1208,9 @@
       "ComJogadores": "Com os personagens dos jogadores",
       "ComSelecionados": "Com os tokens selecionados no mapa ({n})",
       "Arraste": "Arraste atores da barra lateral para cá",
-      "JaNaCena": "Esse ator já está na cena."
+      "JaNaCena": "Esse ator já está na cena.",
+      "PastaCriaturas": "Criaturas em cena",
+      "QuantosAjuda": "Criatura entra quantas vezes você quiser: cada uma com os seus PV e um número no nome (Afogado 1, Afogado 2). Com um mapa aberto, vira token nele."
     },
     "Combate2": {
       "Desarmado": "Desarmado",
@@ -1563,7 +1566,13 @@
         "bottom-left": "Embaixo, à esquerda",
         "bottom-right": "Embaixo, à direita",
         "bottom-center": "Embaixo, no meio"
-      }
+      },
+      "EstiloRotulo": "Estilo",
+      "Estilo": {
+        "cartao": "Cartões (fundo, borda, barras de PV e PD)",
+        "livre": "Sem fundo (avatar solto, PV e PD em texto)"
+      },
+      "EstiloAjuda": "Para o avatar com fundo transparente, use \"Sem fundo\". A URL escolhe o estilo de cada fonte do OBS, sem mexer aqui:"
     }
   }
 }

@@ -2,6 +2,7 @@
  * A cena de ação em andamento: quem está nela, rodada e fase. O jogador não escreve em
  * documento de mundo, então o que muda a cena passa pelo mestre (`comoMestre`).
  */
+import { SYSTEM_ID } from "../config.mjs";
 import { comoMestre, registrarAcaoDeMestre } from "../ui/socket.mjs";
 import { linhaDaRodada } from "../cena/eventos.mjs";
 import { aplicarDano } from "../dice/falha-critica.mjs";
@@ -30,12 +31,25 @@ export const personagensDe = (cena) => participantesDe(cena).filter((a) => a.typ
 /** Quem pode entrar numa cena de ação: personagem ou NPC, inclusive token sem vínculo. */
 const PODE_ENTRAR = ["personagem", "npc"];
 
-/** Põe atores na cena, sem repetir; devolve quantos entraram. */
+/**
+ * Põe atores na cena e devolve quantos entraram. Personagem e token já em cena não repetem.
+ * Criatura do diretório (o ator-modelo) não entra ela mesma: vira uma instância nova, com PV
+ * próprio, a cada vez — pôr o Afogado duas vezes dá dois afogados.
+ */
 export async function porNaCena(cena, uuids) {
-  const atuais = cena.system.participantes;
-  const novos = [...new Set(uuids)].filter((u) => u && !atuais.includes(u) && PODE_ENTRAR.includes(atorDe(u)?.type));
-  if (novos.length) await cena.update({ "system.participantes": [...atuais, ...novos] });
-  return novos.length;
+  let entraram = 0;
+  const diretos = [];
+  for (const uuid of [...new Set(uuids)].filter(Boolean)) {
+    const ator = atorDe(uuid);
+    if (!PODE_ENTRAR.includes(ator?.type)) continue;
+    if (ator.type === "npc" && !ator.isToken && !ator.getFlag(SYSTEM_ID, "copiaDe")) {
+      entraram += (await adicionarCriaturas(cena, uuid, 1)).length;
+      continue;
+    }
+    if (!cena.system.participantes.includes(uuid)) diretos.push(uuid);
+  }
+  if (diretos.length) await cena.update({ "system.participantes": [...cena.system.participantes, ...diretos] });
+  return entraram + diretos.length;
 }
 
 /** Tira um ator da cena (e da lista de quem já agiu). */
@@ -197,21 +211,53 @@ export function mudarCondicao(ator, condicao, ligar) {
   return comoMestre("vigilia-condicao", { atorUuid: ator.uuid, condicao, ligar });
 }
 
-/** Coloca N criaturas na cena: tokens sem vínculo, cada um com PV próprio. */
-export async function adicionarCriaturas(cena, modeloUuid, quantos) {
-  const modelo = await fromUuid(modeloUuid);
-  const scene = canvas?.scene;
-  if (!modelo || !scene) return void ui.notifications.warn(game.i18n.localize("OP2.CenaAcao.SemCena"));
-  const base = modelo.prototypeToken.toObject();
-  const centro = { x: scene.dimensions.sceneRect.x + scene.dimensions.sceneRect.width / 2,
-    y: scene.dimensions.sceneRect.y + scene.dimensions.sceneRect.height / 2 };
-  const tokens = Array.from({ length: quantos }, (_v, i) => ({
-    ...base, actorId: modelo.id, actorLink: false,
-    x: centro.x + (i - quantos / 2) * scene.grid.size * 1.2, y: centro.y + scene.grid.size * 2,
-  }));
-  const criados = await scene.createEmbeddedDocuments("Token", tokens);
-  await cena.update({ "system.participantes": [...cena.system.participantes, ...criados.map((t) => t.actor.uuid)] });
-  return criados;
+/** O ator-modelo por trás de uma instância: o do token sem vínculo, ou o da cópia. */
+function modeloDe(ator) {
+  if (!ator) return null;
+  if (ator.isToken) return game.actors.get(ator.token?.actorId) ?? ator;
+  return game.actors.get(ator.getFlag(SYSTEM_ID, "copiaDe")) ?? ator;
+}
+
+/**
+ * Põe N criaturas na cena, cada uma com os SEUS PV e um nome numerado ("Afogado 1",
+ * "Afogado 2"…). Criatura não é pessoa única: pôr o mesmo Afogado de novo é outro afogado.
+ *
+ * Com um mapa aberto, cada uma vira um token sem vínculo, no meio da vista. Sem mapa, uma
+ * cópia do ator na pasta "Criaturas em cena". O ator-modelo nunca entra na cena.
+ */
+export async function adicionarCriaturas(cena, modeloUuid, quantos = 1) {
+  const modelo = modeloDe(await fromUuid(modeloUuid));
+  if (!modelo || modelo.type !== "npc") return [];
+  const n = Math.max(1, Math.min(20, Number(quantos) || 1));
+  const jaNaCena = participantesDe(cena).filter((a) => modeloDe(a)?.id === modelo.id).length;
+  const nomes = Array.from({ length: n }, (_v, i) => `${modelo.name} ${jaNaCena + i + 1}`);
+  const scene = canvas?.ready ? canvas.scene : null;
+  let uuids;
+  if (scene) {
+    const tamanho = scene.grid.size;
+    const centro = { x: canvas.stage.pivot.x, y: canvas.stage.pivot.y };
+    const base = modelo.prototypeToken.toObject();
+    const tokens = nomes.map((nome, i) => ({
+      ...base, actorId: modelo.id, actorLink: false, name: nome, delta: { name: nome },
+      x: Math.round(centro.x + (i - (n - 1) / 2) * tamanho * 1.2 - tamanho / 2),
+      y: Math.round(centro.y - tamanho / 2),
+    }));
+    const criados = await scene.createEmbeddedDocuments("Token", tokens);
+    uuids = criados.map((t) => t.actor?.uuid).filter(Boolean);
+  } else {
+    const pasta = game.folders.find((f) => f.type === "Actor" && f.name === game.i18n.localize("OP2.CenaAcao.PastaCriaturas"))
+      ?? await CONFIG.Folder.documentClass.create({ type: "Actor", name: game.i18n.localize("OP2.CenaAcao.PastaCriaturas") });
+    const dados = modelo.toObject();
+    delete dados._id;
+    const criados = await CONFIG.Actor.documentClass.createDocuments(nomes.map((nome) => ({
+      ...dados, name: nome, folder: pasta.id,
+      prototypeToken: { ...dados.prototypeToken, name: nome },
+      flags: { ...(dados.flags ?? {}), [SYSTEM_ID]: { ...(dados.flags?.[SYSTEM_ID] ?? {}), copiaDe: modelo.id } },
+    })));
+    uuids = criados.map((a) => a.uuid);
+  }
+  await cena.update({ "system.participantes": [...cena.system.participantes, ...uuids] });
+  return uuids;
 }
 
 export function registrarCenaAcao() {

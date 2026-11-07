@@ -41,8 +41,9 @@ o modo; os Atos I e II continuam como estavam.
 - **Modo transmissão (OBS).** Um usuário (ou `/game?op2-transmissao`) que vê só os cards dos personagens, com
   fundo transparente: rosto, personagem, quem joga, PV, PD, pavor e condições, e a rolagem de cada um com os dados
   desenhados, o total e o desfecho. Sussurro e rolagem cega não aparecem. Configurável: posição, direção, escala,
-  quem aparece; o usuário e o acesso de observador saem de um clique.
-- **Pastas do Vigília em azul-petróleo**, para não se confundirem com as vermelhas dos Atos no mesmo mundo.
+  quem aparece; o usuário e o acesso de observador saem de um clique. Estilo **sem fundo** para avatar
+  transparente (sem caixa, PV e PD em texto), escolhido na configuração ou pela URL de cada fonte.
+- **Pastas do Vigília em verde**, para não se confundirem com as vermelhas dos Atos no mesmo mundo. A cor vale na importação (também de uma aventura guardada antes) e, ao abrir o mundo, nas pastas das Missões já importadas.
 - **Retratos cortados pelo topo** na ficha e no painel: antes o corte era no meio e sobrava o tronco.
 - **PDF gratuito do beta** conferido: monta a Missão 1 igual à do completo e diz que a 2 é só de assinantes.
 

@@ -38,6 +38,9 @@
     {{#if editavel}}
       <div class="op2-ficha-cena__por">
         <div class="op2-ficha-cena__escolha" data-escolha>
+          <input type="number" name="quantos" value="1" min="1" max="20" class="op2-ficha-cena__quantos"
+            aria-label="{{localize 'OP2.CenaAcao.Quantos'}}" data-tooltip="{{localize 'OP2.CenaAcao.QuantosAjuda'}}">
+          <span aria-hidden="true">×</span>
           <select aria-label="{{localize 'OP2.CenaAcao.Escolher'}}">
             <option value="">{{localize "OP2.CenaAcao.Escolher"}}</option>
             {{#if candidatosPc.length}}
@@ -65,7 +68,7 @@
             </button>
           {{/if}}
         </div>
-        <p class="op2-ajuda">{{localize "OP2.CenaAcao.ParticipantesAjuda"}}</p>
+        <p class="op2-ajuda">{{localize "OP2.CenaAcao.QuantosAjuda"}} {{localize "OP2.CenaAcao.ParticipantesAjuda"}}</p>
       </div>
     {{/if}}
   </section>

@@ -260,6 +260,11 @@ de observador aos personagens e salve. No OBS, adicione uma fonte Navegador com 
 Interagir e entre como esse usuário. Ou abra `/game?op2-transmissao` em qualquer sessão. Ali também se escolhem a
 posição, a direção, a escala e quem aparece.
 
+Dois estilos: **cartões** (fundo, borda, barras de PV e PD) e **sem fundo**, para quem usa o avatar com fundo
+transparente: o avatar fica solto, sem contorno, e PV e PD aparecem só em texto ("PV 22/22"), com contorno escuro
+para ler sobre o vídeo. A URL escolhe o estilo de cada fonte (`/game?op2-transmissao=livre`), então dá para ter as
+duas no OBS ao mesmo tempo.
+
 A transmissão só vê o que um jogador veria: sussurro e rolagem cega nunca aparecem.
 
 ## Compêndios do Ato I

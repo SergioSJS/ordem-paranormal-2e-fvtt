@@ -4875,7 +4875,7 @@ const relato = await page.evaluate(async (boasVindas) => {
       ok("o roteiro sai do PDF, dividido em cenas", roteiro.pages.size >= 6 && [...roteiro.pages].some((p) => p.name.startsWith("Cena 1") && p.text.content.length > 200));
 
       // Joga um pedaço de cada cena de ação importada.
-      // Cada missão traz a sua cópia dos pré-gerados, na pasta dela, em azul-petróleo; as
+      // Cada missão traz a sua cópia dos pré-gerados, na pasta dela, em verde; as
       // cenas de ação nascem vazias e o mestre põe quem joga.
       const pregeradosDa = (missao) => game.folders.find((f) => f.type === "Actor" && f.name === "Pré-gerados"
         && f.folder?.name.startsWith(missao))?.contents ?? [];
@@ -4883,8 +4883,18 @@ const relato = await page.evaluate(async (boasVindas) => {
       const daM2 = pregeradosDa("Missão 2");
       ok("cada missão traz os seus pré-gerados: 6 na Missão 1, 8 na Missão 2, sem se roubarem",
         daM1.length === 6 && daM2.length === 8 && daM1.every((a) => !daM2.includes(a)));
-      ok("as pastas do Vigília têm a cor dele, não o vermelho dos Atos",
-        game.folders.filter((f) => /^Missão [12]/.test(f.name)).every((f) => f.color?.toString().toLowerCase() === "#2f5866"));
+      const pastasDasMissoes = game.folders.filter((f) => {
+        let raiz = f; while (raiz.folder) raiz = raiz.folder;
+        return /^Missão [12]/.test(raiz.name);
+      });
+      ok("todas as pastas das Missões são verdes, não o vermelho dos Atos",
+        pastasDasMissoes.length >= 10 && pastasDasMissoes.every((f) => f.color?.toString().toLowerCase() === "#2f6b3a"));
+      // Uma pasta que ficou vermelha (mundo importado antes da regra) volta a verde ao abrir o mundo.
+      const umaPasta = pastasDasMissoes.find((f) => f.type === "Actor");
+      await umaPasta.update({ color: "#7f1d1d" });
+      const { pintarPastasDasMissoes } = await import("/systems/ordem-paranormal-2e/module/aventura/importacao.mjs");
+      ok("pasta de Missão que ficou vermelha volta a verde ao abrir o mundo",
+        await pintarPastasDasMissoes() === 1 && umaPasta.color?.toString().toLowerCase() === "#2f6b3a");
       const combate = game.actors.getName("Cena 1: Os Afogados");
       ok("a cena de ação nasce sem personagens: cada mesa monta a sua", combate.system.participantes.length === 0
         && combate.system.criaturas.length === 1);
@@ -4921,6 +4931,15 @@ const relato = await page.evaluate(async (boasVindas) => {
       await fx.aplicarDanoDeCombate(tokens[0], { quantidade: golpe.dano });
       await esperar(400);
       ok("dano cai só no token atingido", tokens[0].system.recursos.pv.value === Math.max(0, pv - golpe.dano) && tokens[1].system.recursos.pv.value === 10);
+      // O caso da mesa: pôr o mesmo Afogado de novo tem de dar outro afogado, não "já está na cena".
+      const antesDosAfogados = combate.system.participantes.length;
+      const umAfogado = await game.op2.porNaCena(combate, [combate.system.criaturas[0]]);
+      const outroAfogado = await game.op2.porNaCena(combate, [combate.system.criaturas[0]]);
+      const novos = combate.system.participantes.slice(antesDosAfogados).map((u) => fromUuidSync(u));
+      ok("pôr o mesmo Afogado duas vezes dá dois afogados, cada um com nome numerado e os seus PV",
+        umAfogado === 1 && outroAfogado === 1 && novos.length === 2
+        && novos.every((a) => a?.isToken && /^Afogado \d+$/.test(a.name)) && novos[0].name !== novos[1].name
+        && !combate.system.participantes.includes(combate.system.criaturas[0]));
       await game.op2.encerrarCenaAcao(combate);
       await esperar(300);
       ok("encerrada a cena, o palco sai de cena", !document.getElementById("op2-palco"));

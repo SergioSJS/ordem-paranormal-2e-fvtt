@@ -7,7 +7,7 @@
  */
 import { SYSTEM_ID } from "../config.mjs";
 import { abrirPainelAcao } from "../vigilia/painel-acao.mjs";
-import { atorDe, porNaCena, tirarDaCena, personagensDosJogadores } from "../vigilia/cena-acao.mjs";
+import { atorDe, porNaCena, tirarDaCena, personagensDosJogadores, adicionarCriaturas } from "../vigilia/cena-acao.mjs";
 import { TIPOS_DE_CENA } from "../data/actor-cena-acao.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -50,8 +50,10 @@ export class CenaAcaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     };
     const participantes = sistema.participantes.map(linha);
     const naCena = new Set(sistema.participantes);
+    // Criatura do diretório é modelo: nunca "está na cena" (cada vez que entra é outra instância).
+    // As cópias que a cena criou (pasta "Criaturas em cena") não aparecem como modelo.
     const candidatos = (tipo) => ordenar(game.actors
-      .filter((a) => a.type === tipo && !naCena.has(a.uuid))
+      .filter((a) => a.type === tipo && !a.getFlag(SYSTEM_ID, "copiaDe") && (tipo === "npc" || !naCena.has(a.uuid)))
       .map((a) => ({ uuid: a.uuid, nome: a.name })));
     const modelos = new Set(sistema.criaturas);
     return {
@@ -112,10 +114,14 @@ export class CenaAcaoSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     return tirarDaCena(this.actor, alvo.dataset.uuid);
   }
 
-  /** O ator escolhido na lista ao lado do botão. */
+  /** O ator escolhido na lista ao lado do botão; criatura entra na quantidade pedida. */
   static async #porEscolhido(_evento, alvo) {
-    const select = alvo.closest("[data-escolha]")?.querySelector("select");
-    if (select?.value) await porNaCena(this.actor, [select.value]);
+    const linha = alvo.closest("[data-escolha]");
+    const uuid = linha?.querySelector("select")?.value;
+    if (!uuid) return;
+    const quantos = Number(linha.querySelector("[name=quantos]")?.value) || 1;
+    if (atorDe(uuid)?.type === "npc") await adicionarCriaturas(this.actor, uuid, quantos);
+    else await porNaCena(this.actor, [uuid]);
   }
 
   static async #porSelecionados() {

@@ -101,6 +101,12 @@ export function tituloLegivel(nome) {
  * Pastas da aventura: sem elas o import despeja tudo na raiz do diretório. O Foundry
  * cria as pastas junto com o conteúdo, uma árvore por tipo.
  */
+/**
+ * A cor das pastas por playtest: vermelho no moderno (alpha, os Atos), verde no Vigília
+ * (beta, as Missões). Num mundo com os dois, dá para ver de longe o que é de qual.
+ */
+export const COR_DAS_PASTAS = { moderno: "#7f1d1d", vigilia: "#2f6b3a" };
+
 export function pasta(tipo, nome, pai = null, sort = 0) {
   return {
     // O id leva a pasta-mãe: "Pontos de Interesse" existe nos dois atos, e com o mesmo
@@ -108,7 +114,7 @@ export function pasta(tipo, nome, pai = null, sort = 0) {
     // II — e apagar o Ato II levava os pontos do Ato I junto (achado em uso real).
     _id: ident(`pasta-${tipo}-${pai ?? "raiz"}-${nome}`),
     name: nome, type: tipo, folder: pai,
-    sorting: "m", sort, color: "#7f1d1d", description: "", flags: {},
+    sorting: "m", sort, color: COR_DAS_PASTAS.moderno, description: "", flags: {},
   };
 }
 
