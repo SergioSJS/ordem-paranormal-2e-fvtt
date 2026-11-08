@@ -21,7 +21,7 @@ export function lerDadosDeNpc(formula) {
  * @param {object} [opcoes]
  * @param {string} [opcoes.atributo] de que atributo é o teste: "caído" só pesa no físico (beta §7.5)
  */
-export function rolarDadosDeNpc(npc, formula, { dt, oposto = false, contexto, passos = 0, atributo = "fisico" } = {}) {
+export function rolarDadosDeNpc(npc, formula, { dt, oposto = false, contexto, passos = 0, atributo = "fisico", semCard = false } = {}) {
   const lista = lerDadosDeNpc(formula);
   // Passo de situação (alvo caído, ocultação) anda no primeiro dado da ficha.
   const componentes = lista.map((dado, i) => ({
@@ -29,6 +29,6 @@ export function rolarDadosDeNpc(npc, formula, { dt, oposto = false, contexto, pa
   }));
   return rolarTeste(npc, {
     componentes, dt: oposto ? null : dt, oposto, semDT: oposto, contexto: contexto ?? npc.name,
-    chavePericia: "luta", chaveAtributo: atributo, rapido: true,
+    chavePericia: "luta", chaveAtributo: atributo, rapido: true, semCard,
   });
 }

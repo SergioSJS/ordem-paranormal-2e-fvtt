@@ -435,6 +435,55 @@ if (process.env.FOTO_TRANSMISSAO_AMBOS) {
   const caixa = await (await jog.$("#op2-transmissao"))?.boundingBox();
   if (caixa) await jog.screenshot({ path: process.env.FOTO_TRANSMISSAO_AMBOS, clip: { x: Math.max(0, caixa.x - 12), y: Math.max(0, caixa.y - 12), width: caixa.width + 24, height: caixa.height + 24 } });
 }
+// Nada se move: quem monta o overlay recorta em volta dos cards uma vez. Começar a cena, mudar de
+// fase, rolar, levar dano, ganhar pavor e condição não podem mexer um pixel em card nenhum (a cena
+// empurrava tudo para baixo, e a rolagem esticava o card).
+await jog.goto(`http://localhost:${PORTA}/game?op2-transmissao=ambos`, { waitUntil: "networkidle" });
+await jog.waitForFunction(() => globalThis.game?.ready === true && document.querySelector("#op2-transmissao .op2-transmissao__card"), null, { timeout: 60000 });
+await jog.waitForTimeout(800);
+const caixas = () => jog.evaluate(() => [...document.querySelectorAll("#op2-transmissao, #op2-transmissao .op2-transmissao__cards, #op2-transmissao .op2-transmissao__card")]
+  .map((el) => { const r = el.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].join(","); }).join(" | "));
+const parado = await caixas();
+const fixos = [];
+await gm.evaluate(async (id) => {
+  const ator = game.actors.get(id);
+  const cena = await Actor.create({ name: "Transmissão Fixa", type: "cena-acao", system: { tipo: "combate", participantes: [ator.uuid] } });
+  await game.op2.iniciarCena(cena);
+}, tx1.id);
+await jog.waitForTimeout(1500);
+const comCena = await jog.evaluate(() => {
+  const el = document.getElementById("op2-transmissao-cena");
+  return { visivel: Boolean(el && !el.hidden && el.getBoundingClientRect().height > 0), texto: el?.textContent.replace(/\s+/g, " ").trim() ?? "", fora: !document.querySelector("#op2-transmissao #op2-transmissao-cena") };
+});
+console.log(JSON.stringify(comCena));
+fixos.push(["começar a cena", await caixas()]);
+await gm.evaluate(async () => { await game.op2.avancarCena(game.op2.cenaAcaoAtiva()); });
+await jog.waitForTimeout(1200);
+fixos.push(["mudar de fase", await caixas()]);
+await gm.evaluate(async (id) => {
+  const ator = game.actors.get(id);
+  await ator.update({ "system.estado.pavor": "d6", "system.estado.condicoes": ["agarrado", "atordoado", "caido", "mirando", "defendendo"],
+    "system.recursos.pv.value": Math.max(0, ator.system.recursos.pv.value - 1) });
+}, tx1.id);
+await jog.waitForTimeout(1200);
+fixos.push(["pavor, condições e dano", await caixas()]);
+await gm.evaluate(async (id) => { await game.op2.rolarTeste(game.actors.get(id), { chavePericia: "percepcao", rapido: true, dt: 7 }); }, tx1.id);
+await jog.waitForTimeout(1500);
+const acesoAgora = await jog.evaluate((id) => document.querySelectorAll(`#op2-transmissao [data-ator-id="${id}"].op2-transmissao__card--rolou .op2-transmissao__rolagem`).length, tx1.id);
+fixos.push(["rolar", await caixas()]);
+ok("transmissão: a cena aparece à parte, fora da coluna dos cards", comCena.visivel && comCena.fora && comCena.texto.length > 0);
+for (const [quando, agora] of fixos) {
+  if (agora !== parado) console.log(`  antes: ${parado}\n  depois: ${agora}`);
+  ok(`transmissão: ${quando} não move nenhum card`, agora === parado);
+}
+ok("transmissão: a rolagem acende dentro da vaga, nas duas colunas", acesoAgora === 2);
+await gm.evaluate(async (id) => {
+  const cena = game.actors.getName("Transmissão Fixa");
+  await game.op2.encerrarCenaAcao(cena);
+  await cena.delete();
+  const ator = game.actors.get(id);
+  await ator.update({ "system.estado.pavor": "", "system.estado.condicoes": [], "system.recursos.pv.value": ator.system.recursos.pv.max });
+}, tx1.id);
 if (process.env.FOTO_TRANSMISSAO) {
   const caixa = await (await jog.$("#op2-transmissao"))?.boundingBox();
   if (caixa) await jog.screenshot({ path: process.env.FOTO_TRANSMISSAO, clip: { x: Math.max(0, caixa.x - 12), y: Math.max(0, caixa.y - 12), width: caixa.width + 24, height: caixa.height + 24 }, omitBackground: true });

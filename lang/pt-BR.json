@@ -1063,7 +1063,9 @@
       "PainelDica": "Abre e fecha o painel de investigação.",
       "Acoes": "Janela de ações",
       "AcoesDica": "Abre e fecha a janela de ações do personagem: o do token selecionado, senão o seu.",
-      "SemPersonagem": "Escolha um personagem, ou selecione o token dele, para abrir as ações."
+      "SemPersonagem": "Escolha um personagem, ou selecione o token dele, para abrir as ações.",
+      "AlvoPalco": "Mirar a figura do palco",
+      "AlvoPalcoDica": "Com o mouse sobre uma figura do palco, mira nela (Shift soma aos alvos). Fora do palco, vale o T do Foundry, sobre o token."
     },
     "Patamar": {
       "iniciante": "Iniciante",
@@ -1527,9 +1529,16 @@
     },
     "Palco": {
       "Titulo": "Palco da cena",
-      "Agir": "Agir: as ações desta fase",
       "Caido": "caído",
-      "Recolher": "Recolher ou abrir o palco"
+      "Recolher": "Recolher ou abrir o palco",
+      "Abrir": "Clique: ficha, alvo, PV, condições e ações · T: mira · duplo clique: ficha",
+      "Ficha": "Abrir a ficha",
+      "Alvo": "Mirar (T sobre a figura; Shift soma alvos)",
+      "EhAlvo": "seu alvo",
+      "Agiu": "Já agiu nesta rodada",
+      "PvMenos": "Tirar 1 PV",
+      "PvMais": "Dar 1 PV",
+      "AcoesNoPainel": "Ações no painel"
     },
     "Transmissao": {
       "Titulo": "Transmissão",
@@ -1569,7 +1578,8 @@
         "top-center": "No alto, no meio",
         "bottom-left": "Embaixo, à esquerda",
         "bottom-right": "Embaixo, à direita",
-        "bottom-center": "Embaixo, no meio"
+        "bottom-center": "Embaixo, no meio",
+        "oculta": "Fora desta tela"
       },
       "EstiloRotulo": "Estilo",
       "Estilo": {
@@ -1582,7 +1592,10 @@
       "Enquadramento": {
         "busto": "Busto (cabeça e tronco)",
         "inteiro": "Inteiro (a imagem toda)"
-      }
+      },
+      "CenaRotulo": "Cena de ação (tipo, fase, rodada)",
+      "CenaAjuda": "Fica num canto só dela e nunca empurra os cards. Para pôr numa fonte separada do OBS, escolha \"Fora desta tela\" e use:",
+      "Fixo": "Os cards têm tamanho fixo: começar a cena, rolar dados, ganhar pavor ou condição e levar dano não mexem um pixel no lugar de nada. Recorte o overlay uma vez."
     },
     "Efeitos": {
       "efeitosVisuais": {
@@ -1597,6 +1610,27 @@
         "nome": "Volume dos efeitos",
         "ajuda": "Volume dos efeitos sonoros do sistema, nesta tela."
       }
+    },
+    "Confronto": {
+      "Acertou": "Acertou",
+      "Errou": "Errou",
+      "Critico": "Crítico!",
+      "FalhaCritica": "Falha crítica",
+      "AcertaNome": "{nome} acerta",
+      "DoisAcertam": "Os dois acertam",
+      "DoisErram": "Os dois erram",
+      "Defendeu": "{nome} se defende",
+      "NaoDefendeu": "{nome} não se defende",
+      "Vence": "{nome} vence",
+      "Oposto": "teste oposto",
+      "DanoEm": "de dano em {alvo}",
+      "DanoEmocionalEm": "de dano emocional em {alvo}",
+      "DanoTitulo": "Dano",
+      "DanoEmocionalTitulo": "Dano emocional",
+      "AguardaDefesa": "{alvo} está se defendendo: o dano só entra se a defesa perder.",
+      "Protecao": "{bruto} antes da proteção, {final} depois.",
+      "Caiu": "{nome} caiu.",
+      "Enlouqueceu": "{nome} chegou a 0 PD."
     }
   }
 }

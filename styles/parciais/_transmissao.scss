@@ -6,8 +6,25 @@ body.op2-transmissao-modo {
   background: none transparent !important;
 }
 
-body.op2-transmissao-modo > *:not(#op2-transmissao) {
+body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
   visibility: hidden !important;
+}
+
+// Os cantos da tela, para os cards e para a cena (cada um no seu).
+@mixin posicionado {
+  position: fixed;
+  z-index: 10000;
+  margin: 24px;
+  transform: scale(var(--op2-transmissao-escala, 1));
+
+  &[data-posicao^="top"] { top: 0; }
+  &[data-posicao^="bottom"] { bottom: 0; }
+  &[data-posicao$="left"] { left: 0; transform-origin: left top; }
+  &[data-posicao$="right"] { right: 0; transform-origin: right top; }
+  &[data-posicao$="center"] { left: 50%; translate: -50% 0; transform-origin: center top; }
+  &[data-posicao^="bottom"][data-posicao$="left"] { transform-origin: left bottom; }
+  &[data-posicao^="bottom"][data-posicao$="right"] { transform-origin: right bottom; }
+  &[data-posicao^="bottom"][data-posicao$="center"] { transform-origin: center bottom; }
 }
 
 @layer system {
@@ -22,35 +39,35 @@ body.op2-transmissao-modo > *:not(#op2-transmissao) {
   --op2-transmissao-jogador: #d6dde3;
   // Busto: quanto o avatar aproxima, a partir do topo.
   --op2-transmissao-zoom: 1.35;
-  position: fixed;
-  z-index: 10000;
-  display: flex;
-  flex-direction: column;
-  margin: 24px;
+  // Tamanho fixo do card: nada do que acontece no jogo estica ou encolhe a caixa.
+  --op2-transmissao-largura: 320px;
+  --op2-transmissao-vaga: 54px;
+  @include posicionado;
   color: var(--op2-texto);
   font-family: var(--op2-fonte-corpo);
-  gap: 10px;
-  transform: scale(var(--op2-transmissao-escala));
-
-  &[data-posicao^="top"] { top: 0; }
-  &[data-posicao^="bottom"] { bottom: 0; flex-direction: column-reverse; }
-  &[data-posicao$="left"] { left: 0; align-items: flex-start; transform-origin: left top; }
-  &[data-posicao$="right"] { right: 0; align-items: flex-end; transform-origin: right top; }
-  &[data-posicao$="center"] { left: 50%; align-items: center; translate: -50% 0; transform-origin: center top; }
-  &[data-posicao^="bottom"][data-posicao$="left"] { transform-origin: left bottom; }
-  &[data-posicao^="bottom"][data-posicao$="right"] { transform-origin: right bottom; }
 }
 
-.op2-transmissao__cena {
+// A cena de ação: caixa de tamanho fixo, num canto só dela. O texto se ajusta dentro.
+.op2-transmissao-cena {
+  @include posicionado;
   display: flex;
+  box-sizing: border-box;
+  overflow: hidden;
+  width: 420px;
+  height: 40px;
   align-items: center;
-  padding: 4px 12px;
+  justify-content: center;
+  padding: 0 12px;
   border: 1px solid var(--op2-linha-forte);
   background: color-mix(in srgb, var(--op2-fundo) 88%, transparent);
+  color: var(--op2-texto);
+  font-family: var(--op2-fonte-corpo);
   font-size: 0.95rem;
   gap: 10px;
+  white-space: nowrap;
 
-  strong { font-family: var(--op2-fonte-display); font-size: 1.1rem; }
+  &[hidden] { display: none; }
+  strong { overflow: hidden; font-family: var(--op2-fonte-display); font-size: 1.1rem; text-overflow: ellipsis; }
 }
 
 .op2-transmissao__colunas {
@@ -74,15 +91,20 @@ body.op2-transmissao-modo > *:not(#op2-transmissao) {
 .op2-transmissao__card {
   position: relative;
   display: grid;
-  width: 320px;
-  grid-template-columns: 76px 1fr;
+  box-sizing: border-box;
+  overflow: hidden;
+  width: var(--op2-transmissao-largura);
+  height: calc(98px + 6px + var(--op2-transmissao-vaga) + 18px);
+  flex: none;
+  grid-template-columns: 76px minmax(0, 1fr);
+  grid-template-rows: 98px var(--op2-transmissao-vaga);
   padding: 8px;
   border: 1px solid var(--op2-linha-forte);
   border-radius: var(--op2-raio);
   background: color-mix(in srgb, var(--op2-fundo) 90%, transparent);
   background-image: var(--op2-textura, none);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
-  gap: 10px;
+  gap: 6px 10px;
   transition: box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
 }
 
@@ -116,7 +138,9 @@ body.op2-transmissao-modo > *:not(#op2-transmissao) {
 
 .op2-transmissao__dados {
   display: flex;
+  overflow: hidden;
   min-width: 0;
+  height: 100%;
   flex-direction: column;
   gap: 3px;
 }
@@ -163,9 +187,13 @@ body.op2-transmissao-modo > *:not(#op2-transmissao) {
 .op2-transmissao__recurso--pd .op2-transmissao__barra > span { background: var(--op2-transmissao-pd); }
 .op2-transmissao__numero { font-variant-numeric: tabular-nums; font-weight: 700; }
 
+// Uma linha só, sempre reservada: condição a mais é cortada, nunca desce.
 .op2-transmissao__estado {
   display: flex;
-  flex-wrap: wrap;
+  overflow: hidden;
+  min-height: 1.15rem;
+  flex: none;
+  flex-wrap: nowrap;
   gap: 3px;
 
   > span {
@@ -174,6 +202,7 @@ body.op2-transmissao-modo > *:not(#op2-transmissao) {
     color: var(--op2-texto-fraco);
     font-size: 0.68rem;
     text-transform: uppercase;
+    white-space: nowrap;
   }
 }
 
@@ -199,48 +228,78 @@ body.op2-transmissao-modo > *:not(#op2-transmissao) {
   opacity: 1;
 }
 
-.op2-transmissao__rolagem {
-  display: flex;
-  flex-wrap: wrap;
+// A vaga da rolagem: reservada embaixo do card, do mesmo tamanho acesa ou apagada.
+.op2-transmissao__vaga {
+  overflow: hidden;
+  min-width: 0;
+  height: var(--op2-transmissao-vaga);
   grid-column: 1 / -1;
-  align-items: center;
-  padding-top: 6px;
-  border-top: 1px solid var(--op2-linha);
-  animation: op2-transmissao-rolagem 0.3s ease-out;
-  gap: 4px 10px;
 }
 
-.op2-transmissao__rolagem-titulo { width: 100%; color: var(--op2-texto-fraco); font-size: 0.8rem; }
+.op2-transmissao__rolagem {
+  display: grid;
+  box-sizing: border-box;
+  height: 100%;
+  align-items: center;
+  padding-top: 4px;
+  border-top: 1px solid var(--op2-linha);
+  animation: op2-transmissao-rolagem 0.3s ease-out;
+  gap: 2px 10px;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  white-space: nowrap;
+}
+
+.op2-transmissao__rolagem-titulo {
+  overflow: hidden;
+  grid-column: 1 / -1;
+  color: var(--op2-texto-fraco);
+  font-size: 0.8rem;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+}
 
 .op2-transmissao__rolagem-dados {
   display: flex;
   align-items: center;
   gap: 4px;
 
-  .op2-dado { width: 1.9rem; height: 1.9rem; font-size: 0.95rem; }
+  .op2-dado { width: 1.75rem; height: 1.75rem; flex: none; font-size: 0.9rem; }
 }
 
-.op2-transmissao__total { margin-left: 4px; font-family: var(--op2-fonte-display); font-size: 1.5rem; font-weight: 700; }
-.op2-transmissao__desfecho { margin-left: auto; font-family: var(--op2-fonte-display); font-size: 1.1rem; }
+.op2-transmissao__total { margin-left: 4px; font-family: var(--op2-fonte-display); font-size: 1.4rem; font-weight: 700; line-height: 1; }
+.op2-transmissao__desfecho { overflow: hidden; justify-self: end; font-family: var(--op2-fonte-display); font-size: 1.1rem; text-overflow: ellipsis; }
 .op2-transmissao__rolagem--critico .op2-transmissao__desfecho { color: var(--op2-critico); }
 .op2-transmissao__rolagem--sucesso .op2-transmissao__desfecho { color: var(--op2-sucesso); }
 .op2-transmissao__rolagem--falhacritica .op2-transmissao__desfecho,
 .op2-transmissao__rolagem--falha .op2-transmissao__desfecho { color: var(--op2-texto-fraco); }
 
+// Só opacidade: nada desliza.
 @keyframes op2-transmissao-rolagem {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: none; }
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// O dano pisca no card da transmissão sem tremer: o efeito geral sacode, aqui só brilha.
+.op2-transmissao .op2-efeito--dano { animation-name: op2-transmissao-dano; }
+
+@keyframes op2-transmissao-dano {
+  0%, 100% { filter: none; }
+  15% { filter: drop-shadow(0 0 12px rgba(220, 40, 30, 0.95)) brightness(1.35) sepia(0.6) hue-rotate(-30deg); }
 }
 
 // Estilo "sem fundo": nada de caixa. O avatar (PNG com fundo transparente) fica solto, PV e PD
 // viram texto colorido, e todo texto ganha contorno escuro para ler sobre qualquer vídeo.
 .op2-transmissao__cards--livre {
+  --op2-transmissao-retrato-altura: 104px;
   --op2-transmissao-contorno: 0 0 2px #000, 0 0 4px #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
   color: #fff;
 
   .op2-transmissao__card {
+    height: calc(var(--op2-transmissao-retrato-altura) + 6px + var(--op2-transmissao-vaga));
     align-items: center;
-    grid-template-columns: 104px 1fr;
+    grid-template-columns: 104px minmax(0, 1fr);
+    grid-template-rows: var(--op2-transmissao-retrato-altura) var(--op2-transmissao-vaga);
     padding: 0;
     border: 0;
     background: none;
@@ -249,13 +308,14 @@ body.op2-transmissao-modo > *:not(#op2-transmissao) {
 
   .op2-transmissao__retrato {
     width: 104px;
-    height: 104px;
+    height: var(--op2-transmissao-retrato-altura);
     border: 0;
     border-radius: 0;
     filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
   }
 
-  &.op2-transmissao__cards--inteiro .op2-transmissao__retrato { height: 136px; }
+  &.op2-transmissao__cards--inteiro { --op2-transmissao-retrato-altura: 136px; }
+  .op2-transmissao__dados { height: auto; max-height: 100%; justify-content: center; }
 
   .op2-transmissao__nome,
   .op2-transmissao__jogador,

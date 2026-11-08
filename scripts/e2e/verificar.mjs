@@ -4588,11 +4588,33 @@ const relato = await page.evaluate(async (boasVindas) => {
     // Ataque que não pode errar: Luta contra DT alta só importa no card; o que se confere é a escolha.
     const martelo = fx.ataquesDe(pc).find((a) => a.nome === "Martelo");
     ok("arma traz o bônus de dano", martelo.bonusDano === 3);
+    const mensagensAntes = game.messages.size;
     const ataque = await fx.atacar(pc, martelo, { cena, rapido: true, escolha: { alvo: npc.uuid } });
     await esperar(500);
     ok("o ataque publica card e registra que o personagem agiu", /Ataque/.test(ultimoCard()) && cena.system.agiram.some((a) => a.ator === pc.uuid));
     ok("o card do ataque sempre deixa pôr outro valor de dano", /vigilia-dano-manual/.test(ultimoCard()));
     ok("dano é RA + arma", ataque.dano >= ataque.roll.ra + 3);
+    // Um card só por ataque, de confronto: os dois retratos, o veredito grande, o dano com o nome
+    // de quem leva, e os dados dentro (a rolagem vai na mensagem, para efeitos e transmissão).
+    const cardAtaque = game.messages.contents.at(-1);
+    const domAtaque = new DOMParser().parseFromString(cardAtaque.content, "text/html");
+    const veredito = domAtaque.querySelector(".op2-confronto__veredito")?.textContent.trim() ?? "";
+    ok("o ataque sai num card só, de confronto, com a rolagem dentro",
+      game.messages.size === mensagensAntes + 1 && domAtaque.querySelectorAll(".op2-confronto__lado").length === 2
+      && domAtaque.querySelectorAll(".op2-confronto__lado .op2-dado").length >= 2 && cardAtaque.rolls.length === 1);
+    ok("o card de confronto diz quem acertou e quanto, em quem",
+      ataque.roll.sucesso
+        ? /Acertou|Crítico/i.test(veredito) && domAtaque.querySelector(".op2-confronto__dano")?.textContent.trim() === String(ataque.dano)
+          && domAtaque.querySelector(".op2-confronto__golpe")?.textContent.includes(npc.name)
+        : /Errou|Falha/i.test(veredito) && !domAtaque.querySelector(".op2-confronto__dano"));
+    const pvNpcAntes = npc.system.recursos.pv.value;
+    await fx.aplicarDanoDeCombate(npc, { quantidade: 4 });
+    await esperar(400);
+    const anuncio = new DOMParser().parseFromString(ultimoCard(), "text/html");
+    const entrou = pvNpcAntes - npc.system.recursos.pv.value;
+    ok("o dano aplicado vira um card com o número grande e quem levou",
+      anuncio.querySelector(".op2-confronto__dano")?.textContent.trim() === String(entrou) && anuncio.body.textContent.includes(npc.name));
+    await npc.update({ "system.recursos.pv.value": pvNpcAntes });
 
     // NPC ataca com os dados da ficha.
     const garras = fx.ataquesDe(npc)[0];
@@ -4984,6 +5006,72 @@ const relato = await page.evaluate(async (boasVindas) => {
       await fx.aplicarDanoDeCombate(tokens[0], { quantidade: golpe.dano });
       await esperar(400);
       ok("dano cai só no token atingido", tokens[0].system.recursos.pv.value === Math.max(0, pv - golpe.dano) && tokens[1].system.recursos.pv.value === 10);
+      // O palco conduz a cena: menu da figura (ficha, alvo, PV, condições), a barra (fase, rodada,
+      // avançar, parar) e o T sobre a figura.
+      const palco = () => document.getElementById("op2-palco");
+      const figuraDe = (uuid) => palco()?.querySelector(`.op2-palco__figura[data-ator="${CSS.escape(uuid)}"]`);
+      const clicar = (seletor, uuid) => (uuid ? figuraDe(uuid) : palco())?.querySelector(seletor)?.click();
+      clicar("[data-palco=figura]", rhiona.uuid);
+      const menu = figuraDe(rhiona.uuid)?.querySelector(".op2-palco__menu");
+      ok("no palco, o clique na figura abre o menu com ficha, alvo, já agiu, PV, condições e as ações da fase",
+        figuraDe(rhiona.uuid)?.classList.contains("op2-palco__figura--menu") && getComputedStyle(menu).display !== "none"
+        && ["ficha", "alvo", "agiu", "tirar", "pv", "condicao", "agir"].every((a) => menu.querySelector(`[data-palco="${a}"]`)));
+      const pvAntes = rhiona.system.recursos.pv.value;
+      clicar("[data-palco=pv][data-delta='-1']", rhiona.uuid);
+      await esperar(500);
+      ok("no palco, PV − tira 1 PV, e o menu continua aberto depois do redesenho",
+        rhiona.system.recursos.pv.value === pvAntes - 1 && figuraDe(rhiona.uuid)?.classList.contains("op2-palco__figura--menu"));
+      clicar("[data-palco=pv][data-delta='1']", rhiona.uuid);
+      clicar("[data-palco=condicao][data-condicao=mirando]", rhiona.uuid);
+      await esperar(500);
+      ok("no palco, a condição liga pelo menu", rhiona.system.estado.condicoes.has("mirando") && rhiona.system.recursos.pv.value === pvAntes);
+      clicar("[data-palco=condicao][data-condicao=mirando]", rhiona.uuid);
+      clicar("[data-palco=ficha]", rhiona.uuid);
+      await esperar(500);
+      ok("no palco, o botão da ficha abre a ficha", rhiona.sheet.rendered);
+      await rhiona.sheet.close();
+      figuraDe(tokens[1].uuid)?.querySelector(".op2-palco__retrato")?.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+      await esperar(500);
+      ok("no palco, o duplo clique abre a ficha da criatura", tokens[1].sheet.rendered);
+      await tokens[1].sheet.close();
+      // Alvo: o Afogado tem token (mira do Foundry); a Rhiona, sem token no mapa, ganha a mira do palco.
+      const { alvosMarcados, alternarAlvo } = await import("/systems/ordem-paranormal-2e/module/vigilia/alvos.mjs");
+      clicar("[data-palco=figura]", tokens[1].uuid);
+      clicar("[data-palco=alvo]", tokens[1].uuid);
+      await esperar(400);
+      ok("no palco, mirar o Afogado usa a mira do Foundry, no token", [...game.user.targets].some((t) => t.actor?.uuid === tokens[1].uuid)
+        && figuraDe(tokens[1].uuid)?.classList.contains("op2-palco__figura--alvo"));
+      alternarAlvo(rhiona, { somar: true });
+      await esperar(300);
+      ok("no palco, Shift soma o segundo alvo (a mira do palco cobre quem não tem token)",
+        alvosMarcados().map((a) => a.uuid).sort().join() === [tokens[1].uuid, rhiona.uuid].sort().join()
+        && figuraDe(rhiona.uuid)?.classList.contains("op2-palco__figura--alvo"));
+      // Como o T do core: sem Shift, mirar outro solta os anteriores; mirar de novo o mesmo desliga.
+      alternarAlvo(tokens[0]);
+      await esperar(300);
+      ok("no palco, mirar sem Shift troca a mira inteira", alvosMarcados().map((a) => a.uuid).join() === tokens[0].uuid);
+      alternarAlvo(tokens[0]);
+      await esperar(300);
+      ok("o T sobre a figura do palco é um atalho do sistema, antes do T do core",
+        game.keybindings.actions.has("ordem-paranormal-2e.alvoNoPalco") && alvosMarcados().length === 0);
+      // A barra: o mestre leva a cena sem abrir o painel.
+      clicar(".op2-palco__fase[data-fase=corpo]");
+      await esperar(400);
+      ok("na barra do palco, clicar numa fase vai até ela", combate.system.fase === "corpo");
+      const rodadaAntes = combate.system.rodada;
+      clicar("[data-palco=rodada][data-delta='1']");
+      await esperar(400);
+      ok("na barra do palco, + avança a rodada", combate.system.rodada === rodadaAntes + 1);
+      clicar("[data-palco=rodada][data-delta='-1']");
+      clicar("[data-palco=avancar]");
+      await esperar(400);
+      ok("na barra do palco, avançar passa à fase seguinte", combate.system.fase === "final");
+      clicar("[data-palco=parar]");
+      await esperar(500);
+      ok("na barra do palco, parar tira a cena do ar sem zerar a cena", !combate.system.ativa && !palco()
+        && combate.system.participantes.length >= 8);
+      await game.op2.iniciarCena(combate);
+      await esperar(500);
       // O caso da mesa: pôr o mesmo Afogado de novo tem de dar outro afogado, não "já está na cena".
       const antesDosAfogados = combate.system.participantes.length;
       const umAfogado = await game.op2.porNaCena(combate, [combate.system.criaturas[0]]);

@@ -4,6 +4,11 @@
  * PD, pavor e condições; quando a pessoa rola, o card acende com os dados desenhados, o
  * total e o desfecho.
  *
+ * Nada se move: o card tem tamanho fixo, com a vaga da rolagem e a linha do estado reservadas
+ * mesmo vazias, e a cena de ação mora num elemento à parte, com posição própria. Quem monta o
+ * overlay no OBS recorta em volta dos cards uma vez e nunca mais mexe (a cena empurrava tudo
+ * para baixo quando começava, e a rolagem esticava o card).
+ *
  * Entra no modo quem abre o jogo como o usuário de transmissão (escolhido na janela de
  * configuração, que também o cria) ou com `?op2-transmissao` na URL. A transmissão só vê
  * o que um jogador veria: sussurro e rolagem cega nunca aparecem, porque o filtro é o
@@ -25,11 +30,17 @@ const TEMPO_DA_ROLAGEM = 9000;
 
 const ESTILOS = ["cartao", "livre", "ambos"];
 const ENQUADRAMENTOS = ["busto", "inteiro"];
-const PADRAO = { usuario: "", posicao: "top-left", direcao: "coluna", escala: 1, condicoes: true, estilo: "cartao", enquadramento: "busto", atores: [] };
+// A cena de ação: um canto da tela, ou fora desta fonte (para pôr em outra, pela URL `=cena`).
+const POSICOES_DA_CENA = [...POSICOES, "oculta"];
+const PADRAO = {
+  usuario: "", posicao: "top-left", direcao: "coluna", escala: 1, condicoes: true, estilo: "cartao", enquadramento: "busto",
+  cena: "top-center", atores: [],
+};
 
 export const configDaTransmissao = () => ({ ...PADRAO, ...(game.settings.get(SYSTEM_ID, CHAVE) ?? {}) });
 
 let elemento = null;
+let elementoCena = null;
 let pendente = null;
 const acesas = new Map();
 
@@ -47,9 +58,20 @@ export function ehTransmissao() {
  *   livre  — sem fundo nenhum: o avatar (PNG transparente) solto e PV/PD só em texto, com cor;
  *   ambos  — as duas colunas lado a lado: quem monta o overlay recorta a que quiser no OBS.
  */
+const daUrl = () => new URLSearchParams(globalThis.location?.search ?? "").get(PARAMETRO);
+
+/** `?op2-transmissao=cena`: esta fonte mostra só a cena de ação, sem cards. */
+const soCena = () => daUrl() === "cena";
+
+/** Onde a cena aparece nesta tela; `null` quando fica fora dela. */
+function posicaoDaCena(cfg) {
+  const pos = POSICOES_DA_CENA.includes(cfg.cena) ? cfg.cena : PADRAO.cena;
+  if (soCena()) return pos === "oculta" ? PADRAO.cena : pos;
+  return pos === "oculta" ? null : pos;
+}
+
 function estiloDaTela(cfg) {
-  const daUrl = new URLSearchParams(globalThis.location?.search ?? "").get(PARAMETRO);
-  if (ESTILOS.includes(daUrl)) return daUrl;
+  if (ESTILOS.includes(daUrl())) return daUrl();
   return ESTILOS.includes(cfg.estilo) ? cfg.estilo : PADRAO.estilo;
 }
 
@@ -72,10 +94,15 @@ const barra = (recurso) => {
   return { value, max, pct: max ? Math.max(0, Math.min(100, Math.round((value / max) * 100))) : 0 };
 };
 
+/** A cena de ação no ar, ou `null`. */
+function cenaNoAr() {
+  const cena = cenaAcaoAtiva();
+  return cena?.system.ativa ? cena : null;
+}
+
 function contexto() {
   const cfg = configDaTransmissao();
-  const cena = cenaAcaoAtiva();
-  const noAr = cena?.system.ativa ? cena : null;
+  const noAr = cenaNoAr();
   const cards = atoresDaTransmissao(cfg).map((ator) => {
     const estado = ator.system.estado ?? {};
     const condicoes = cfg.condicoes ? [...(estado.condicoes ?? [])].map((c) => game.i18n.localize(`OP2.Condicao.${c}`)) : [];
@@ -88,7 +115,6 @@ function contexto() {
       pd: barra(ator.system.recursos?.pd),
       pavor: cfg.condicoes ? (estado.pavor ?? "") : "",
       condicoes,
-      temEstado: Boolean(cfg.condicoes && (estado.pavor || condicoes.length)),
       caido: (ator.system.recursos?.pv?.value ?? 1) <= 0,
       agiu: noAr ? jaAgiu(noAr.system.agiram, ator.uuid) : false,
     };
@@ -100,12 +126,24 @@ function contexto() {
       : [{ estilo: estiloDaTela(cfg), livre: estiloDaTela(cfg) === "livre" }],
     // Busto: o avatar recortado na cabeça e no tronco. Inteiro: a figura toda.
     enquadramento: ENQUADRAMENTOS.includes(cfg.enquadramento) ? cfg.enquadramento : PADRAO.enquadramento,
-    cena: noAr ? {
-      tipo: game.i18n.localize(`OP2.CenaAcao.Tipo.${noAr.system.tipo}`),
-      fase: noAr.system.fase ? game.i18n.localize(`OP2.Fase.${noAr.system.fase}`) : "",
-      rodada: noAr.system.rodada,
-    } : null,
   };
+}
+
+/** A faixa da cena: tipo, fase e rodada, em caixa de tamanho fixo. Vazia fora da cena. */
+function desenharCena(cfg) {
+  if (!elementoCena) return;
+  const pos = posicaoDaCena(cfg);
+  const noAr = cenaNoAr();
+  elementoCena.hidden = !pos || !noAr;
+  if (!pos) return;
+  elementoCena.dataset.posicao = pos;
+  elementoCena.style.setProperty("--op2-transmissao-escala", String(Number(cfg.escala) || 1));
+  if (!noAr) { elementoCena.replaceChildren(); return; }
+  const escapar = (t) => foundry.utils.escapeHTML(String(t ?? ""));
+  const fase = noAr.system.fase ? game.i18n.localize(`OP2.Fase.${noAr.system.fase}`) : "";
+  elementoCena.innerHTML = `<span class="op2-tag op2-tag--pequena">${escapar(game.i18n.localize(`OP2.CenaAcao.Tipo.${noAr.system.tipo}`))}</span>
+    ${fase ? `<strong>${escapar(fase)}</strong>` : ""}
+    <span>${escapar(game.i18n.format("OP2.CenaAcao.RodadaCurta", { n: noAr.system.rodada }))}</span>`;
 }
 
 function aplicarLayout(el, cfg) {
@@ -116,20 +154,17 @@ function aplicarLayout(el, cfg) {
 }
 
 export function atualizarTransmissao() {
-  if (!elemento || pendente) return;
+  if ((!elemento && !elementoCena) || pendente) return;
   pendente = setTimeout(async () => {
     pendente = null;
+    const cfg = configDaTransmissao();
+    desenharCena(cfg);
+    if (!elemento) return;
     const render = foundry.applications?.handlebars?.renderTemplate ?? globalThis.renderTemplate;
     elemento.innerHTML = await render(TEMPLATE, contexto());
-    aplicarLayout(elemento, configDaTransmissao());
+    aplicarLayout(elemento, cfg);
     // O que estava aceso continua aceso depois do redesenho.
-    for (const [id, html] of acesas) {
-      for (const card of elemento.querySelectorAll(`[data-ator-id="${CSS.escape(id)}"]`)) {
-        card.classList.add("op2-transmissao__card--rolou");
-        card.querySelector(".op2-transmissao__rolagem")?.remove();
-        card.insertAdjacentHTML("beforeend", html);
-      }
-    }
+    for (const [id, html] of acesas) acender(id, html);
   }, 80);
 }
 
@@ -156,6 +191,15 @@ export function rolagemEmHtml(mensagem) {
   </div>`;
 }
 
+/** Põe a rolagem na vaga reservada dos cards do ator (`html` vazio apaga). O card não muda de tamanho. */
+function acender(id, html) {
+  for (const card of elemento?.querySelectorAll(`[data-ator-id="${CSS.escape(id)}"]`) ?? []) {
+    card.classList.toggle("op2-transmissao__card--rolou", Boolean(html));
+    const vaga = card.querySelector(".op2-transmissao__vaga");
+    if (vaga) vaga.innerHTML = html;
+  }
+}
+
 function aoChegarMensagem(mensagem) {
   // Só o que esta tela pode LER: `visible` é verdadeiro para rolagem sussurrada (o jogador vê
   // que houve uma rolagem secreta, não o resultado) — o filtro é `isContentVisible`, que também
@@ -169,28 +213,29 @@ function aoChegarMensagem(mensagem) {
   const html = rolagemEmHtml(mensagem);
   if (!html) return;
   acesas.set(id, html);
-  for (const card of cards) {
-    card.querySelector(".op2-transmissao__rolagem")?.remove();
-    card.insertAdjacentHTML("beforeend", html);
-    card.classList.add("op2-transmissao__card--rolou");
-  }
+  acender(id, html);
   setTimeout(() => {
     if (acesas.get(id) !== html) return;
     acesas.delete(id);
-    for (const atual of elemento?.querySelectorAll(`[data-ator-id="${CSS.escape(id)}"]`) ?? []) {
-      atual.classList.remove("op2-transmissao__card--rolou");
-      atual.querySelector(".op2-transmissao__rolagem")?.remove();
-    }
+    acender(id, "");
   }, TEMPO_DA_ROLAGEM);
 }
 
 /** Liga o modo nesta tela: some a interface, sobram os cards. */
 export function ativarTransmissao() {
   document.body.classList.add("op2-transmissao-modo");
-  elemento = document.createElement("section");
-  elemento.id = "op2-transmissao";
-  elemento.className = "op2 op2-transmissao";
-  document.body.append(elemento);
+  // Duas peças independentes: os cards e a cena. Uma nunca empurra a outra.
+  if (!soCena()) {
+    elemento = document.createElement("section");
+    elemento.id = "op2-transmissao";
+    elemento.className = "op2 op2-transmissao";
+    document.body.append(elemento);
+  }
+  elementoCena = document.createElement("section");
+  elementoCena.id = "op2-transmissao-cena";
+  elementoCena.className = "op2 op2-transmissao-cena";
+  elementoCena.hidden = true;
+  document.body.append(elementoCena);
   for (const gatilho of ["updateActor", "createActor", "deleteActor", "updateUser", "createToken", "deleteToken", "updateToken"]) {
     Hooks.on(gatilho, atualizarTransmissao);
   }
@@ -242,6 +287,8 @@ export class TransmissaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
       enderecoAmbos: `${enderecoBase}/game?${PARAMETRO}=ambos`,
       enquadramentos: ENQUADRAMENTOS.map((e) => ({ valor: e, rotulo: game.i18n.localize(`OP2.Transmissao.Enquadramento.${e}`), atual: e === cfg.enquadramento })),
       posicoes: POSICOES.map((p) => ({ valor: p, rotulo: game.i18n.localize(`OP2.Transmissao.Posicao.${p}`), atual: p === cfg.posicao })),
+      posicoesDaCena: POSICOES_DA_CENA.map((p) => ({ valor: p, rotulo: game.i18n.localize(`OP2.Transmissao.Posicao.${p}`), atual: p === cfg.cena })),
+      enderecoCena: `${enderecoBase}/game?${PARAMETRO}=cena`,
       personagens: game.actors.filter((a) => a.type === "personagem")
         .map((a) => ({ id: a.id, nome: a.name, marcado: marcados.has(a.id), jogadores: jogadoresDe(a, cfg).join(", ") }))
         .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")),
@@ -258,6 +305,7 @@ export class TransmissaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
       escala: Math.min(2, Math.max(0.5, Number(d.escala) || 1)), condicoes: Boolean(d.condicoes), atores,
       estilo: ESTILOS.includes(d.estilo) ? d.estilo : PADRAO.estilo,
       enquadramento: ENQUADRAMENTOS.includes(d.enquadramento) ? d.enquadramento : PADRAO.enquadramento,
+      cena: POSICOES_DA_CENA.includes(d.cena) ? d.cena : PADRAO.cena,
     });
     ui.notifications.info(game.i18n.localize("OP2.Transmissao.Salvo"));
     this.render();

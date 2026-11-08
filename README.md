@@ -233,10 +233,29 @@ barra lateral para o painel também o põe na cena.
 e as manobras; no final, mover-se, fugir, investigar. Cada personagem vê primeiro as ações da fase atual, e as outras
 continuam a um clique, em "outras ações".
 
+**O card de confronto** mostra no chat quem agiu em quem. Ataque, revide, defesa, manobra, atrapalhar e fintar saem
+num card só, com os dados dentro:
+
+- os dois retratos com a seta entre eles;
+- o veredito em letra grande ("Acertou", "Errou", "Crítico!", "Fulano se defende");
+- o dano em número grande, com o nome de quem leva.
+
+Quem aplica o dano publica um card curto com o que entrou de fato, depois da proteção, e avisa se o alvo caiu.
+
 **O palco** é a cena vista como teatro, não como grade: uma faixa no rodapé com quem está em cena, personagens de um
 lado e criaturas do outro, a fase e a rodada no meio. Quem age dá um passo à frente, com a legenda do card; quem já
-agiu recua, quem caiu apaga. Clicar no próprio personagem abre as ações da fase. Todo mundo vê o palco enquanto a
-cena está no ar, e cada um recolhe o seu.
+agiu recua, quem caiu apaga. Todo mundo vê o palco enquanto a cena está no ar, e cada um recolhe o seu.
+
+Dá para conduzir o combate inteiro pelo palco, sem abrir o painel:
+
+- **Clique na figura**: abre o menu dela, com a ficha, o alvo, "já agiu", PV −/+, as condições e as ações da fase
+  (e, para o mestre, tirar da cena). O jogador vê o menu completo no próprio personagem e mira as criaturas.
+- **Duplo clique**: abre a ficha, do personagem ou da criatura.
+- **T com o mouse sobre a figura**: mira nela, como sobre o token (Shift+T soma alvos). Se ela tem token no mapa, é
+  a mira do próprio Foundry. Se não tem, por exemplo numa cena sem mapa, a mira fica no palco. O ataque e a manobra
+  oferecem primeiro quem está na mira.
+- **Barra** (mestre): clique numa fase para ir até ela, − e + na rodada, avançar, parar (volta à montagem sem zerar)
+  e encerrar.
 
 ![O palco da cena de ação](docs/img/palco.png)
 
@@ -264,7 +283,11 @@ tremer. Rolagem secreta não dispara efeito para quem não pode ver o resultado.
 Para quem joga em live: uma tela só com os cards dos personagens, sobre fundo transparente, para usar como fonte
 de navegador no OBS. Cada card traz o rosto, o nome do personagem, o nome de quem joga, PV e PD (em barra e em
 número), pavor e condições; quando a pessoa rola, o card acende com os dados desenhados, o total e o desfecho. Numa
-cena de ação, aparecem também a fase, a rodada e quem já agiu.
+cena de ação, aparece quem já agiu, e o tipo, a fase e a rodada ficam numa faixa à parte, num canto só dela.
+
+**Nada se move.** O card tem tamanho fixo: começar a cena, mudar de fase, rolar, levar dano, ganhar pavor ou
+condição não mexem um pixel no lugar de card nenhum. Recorte o overlay uma vez. A faixa da cena escolhe o seu
+canto, ou sai desta fonte e vai para outra (`/game?op2-transmissao=cena`).
 
 Em **Configurações → Ordem Paranormal 2 → Configurar a transmissão**: crie o usuário "Transmissão", dê a ele acesso
 de observador aos personagens e salve. No OBS, adicione uma fonte Navegador com o endereço `/join`, clique em

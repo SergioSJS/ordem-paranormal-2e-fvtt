@@ -1063,7 +1063,9 @@
       "PainelDica": "Opens and closes the investigation panel.",
       "Acoes": "Actions window",
       "AcoesDica": "Opens and closes the character's actions window: the selected token's, else yours.",
-      "SemPersonagem": "Choose a character, or select their token, to open the actions."
+      "SemPersonagem": "Choose a character, or select their token, to open the actions.",
+      "AlvoPalco": "Target the stage figure",
+      "AlvoPalcoDica": "With the mouse over a stage figure, targets it (Shift adds to targets). Off the stage, Foundry's T works on the token."
     },
     "Patamar": {
       "iniciante": "Novice",
@@ -1527,9 +1529,16 @@
     },
     "Palco": {
       "Titulo": "Scene stage",
-      "Agir": "Act: this phase's actions",
       "Caido": "down",
-      "Recolher": "Collapse or open the stage"
+      "Recolher": "Collapse or open the stage",
+      "Abrir": "Click: sheet, target, HP, conditions and actions · T: target · double click: sheet",
+      "Ficha": "Open the sheet",
+      "Alvo": "Target (T over the figure; Shift adds targets)",
+      "EhAlvo": "your target",
+      "Agiu": "Already acted this round",
+      "PvMenos": "Remove 1 HP",
+      "PvMais": "Add 1 HP",
+      "AcoesNoPainel": "Actions in the panel"
     },
     "Transmissao": {
       "Titulo": "Stream",
@@ -1569,7 +1578,8 @@
         "top-center": "Top center",
         "bottom-left": "Bottom left",
         "bottom-right": "Bottom right",
-        "bottom-center": "Bottom center"
+        "bottom-center": "Bottom center",
+        "oculta": "Off this screen"
       },
       "EstiloRotulo": "Style",
       "Estilo": {
@@ -1582,7 +1592,10 @@
       "Enquadramento": {
         "busto": "Bust (head and torso)",
         "inteiro": "Full (the whole image)"
-      }
+      },
+      "CenaRotulo": "Action scene (type, phase, round)",
+      "CenaAjuda": "It sits in its own corner and never pushes the cards. To put it in a separate OBS source, pick \"Off this screen\" and use:",
+      "Fixo": "Cards have a fixed size: starting a scene, rolling dice, gaining dread or a condition and taking damage never move anything by a pixel. Crop the overlay once."
     },
     "Efeitos": {
       "efeitosVisuais": {
@@ -1597,6 +1610,27 @@
         "nome": "Effects volume",
         "ajuda": "Volume of the system's sound effects, on this screen."
       }
+    },
+    "Confronto": {
+      "Acertou": "Hit",
+      "Errou": "Miss",
+      "Critico": "Critical!",
+      "FalhaCritica": "Critical failure",
+      "AcertaNome": "{nome} hits",
+      "DoisAcertam": "Both hit",
+      "DoisErram": "Both miss",
+      "Defendeu": "{nome} defends",
+      "NaoDefendeu": "{nome} fails to defend",
+      "Vence": "{nome} wins",
+      "Oposto": "opposed test",
+      "DanoEm": "damage to {alvo}",
+      "DanoEmocionalEm": "emotional damage to {alvo}",
+      "DanoTitulo": "Damage",
+      "DanoEmocionalTitulo": "Emotional damage",
+      "AguardaDefesa": "{alvo} is defending: damage only lands if the defense loses.",
+      "Protecao": "{bruto} before protection, {final} after.",
+      "Caiu": "{nome} is down.",
+      "Enlouqueceu": "{nome} reached 0 SP."
     }
   }
 }

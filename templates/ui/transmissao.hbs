@@ -23,24 +23,19 @@
           </span>
         {{/if}}
       {{/if}}
-      {{#if temEstado}}
-        <span class="op2-transmissao__estado">
-          {{#if pavor}}<span class="op2-transmissao__pavor">{{localize "OP2.Pavor.Titulo"}} {{pavor}}</span>{{/if}}
-          {{#each condicoes}}<span>{{this}}</span>{{/each}}
-        </span>
-      {{/if}}
+      {{!-- A linha do estado fica reservada mesmo vazia. --}}
+      <span class="op2-transmissao__estado">
+        {{#if pavor}}<span class="op2-transmissao__pavor">{{localize "OP2.Pavor.Titulo"}} {{pavor}}</span>{{/if}}
+        {{#each condicoes}}<span>{{this}}</span>{{/each}}
+      </span>
     </div>
+    {{!-- A vaga da rolagem existe sempre, vazia ou não: o card nunca muda de tamanho. --}}
+    <div class="op2-transmissao__vaga"></div>
     {{#if agiu}}<i class="fa-solid fa-check op2-transmissao__agiu" aria-label="{{localize 'OP2.CenaAcao.JaAgiu'}}"></i>{{/if}}
   </li>
 {{/inline}}
 
-{{#if cena}}
-  <div class="op2-transmissao__cena">
-    <span class="op2-tag op2-tag--pequena">{{cena.tipo}}</span>
-    {{#if cena.fase}}<strong>{{cena.fase}}</strong>{{/if}}
-    <span>{{localize "OP2.CenaAcao.RodadaCurta" n=cena.rodada}}</span>
-  </div>
-{{/if}}
+{{!-- A cena de ação não mora aqui: é o #op2-transmissao-cena, num canto só dela. --}}
 {{!-- Uma coluna por estilo: cartões, sem fundo, ou as duas lado a lado. --}}
 <div class="op2-transmissao__colunas">
   {{#each colunas}}

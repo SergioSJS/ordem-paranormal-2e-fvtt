@@ -31,7 +31,26 @@
   gap: var(--op2-e2);
 }
 
+// As fases em fila: a atual em destaque; o mestre clica para ir a outra.
+.op2-palco__fases {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  align-items: baseline;
+  list-style: none;
+  gap: var(--op2-e2);
+}
+
 .op2-palco__fase {
+  color: var(--op2-texto-fraco);
+  font-size: 0.85rem;
+
+  &[data-palco] { cursor: pointer; }
+  &[data-palco]:hover { color: var(--op2-texto); }
+}
+
+.op2-palco__fase--atual {
+  color: var(--op2-texto);
   font-family: var(--op2-fonte-display);
   font-size: 1.15rem;
   letter-spacing: 0.04em;
@@ -52,7 +71,14 @@
   cursor: pointer;
 
   &:hover { color: var(--op2-texto); border-color: var(--op2-vermelho-claro); }
+  &.ativo { border-color: var(--op2-vermelho-claro); background: color-mix(in srgb, var(--op2-vermelho-claro) 25%, transparent); color: var(--op2-texto); }
 }
+
+.op2-palco__botao--mini { width: 1.3rem; height: 1.3rem; line-height: 1; }
+.op2-palco__botao--destaque { border-color: var(--op2-vermelho-claro); color: var(--op2-texto); }
+.op2-palco__botao--perigo:hover { background: color-mix(in srgb, var(--op2-vermelho-claro) 30%, transparent); }
+
+.op2-palco__rodada { display: inline-flex; align-items: center; gap: 4px; }
 
 .op2-palco--recolhido {
   .op2-palco__elenco { display: none; }
@@ -117,8 +143,25 @@
     object-position: center top;
   }
 
-  &[data-palco] { cursor: pointer; }
-  &[data-palco]:hover { border-color: var(--op2-vermelho-claro); }
+  cursor: pointer;
+  &:hover, &:focus-visible { border-color: var(--op2-vermelho-claro); }
+}
+
+// Alvo deste usuário: moldura dourada e a mira no canto.
+.op2-palco__figura--alvo .op2-palco__retrato {
+  border-color: #e8b53a;
+  box-shadow: 0 0 10px rgba(232, 181, 58, 0.6);
+}
+
+.op2-palco__mira {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  padding: 4px;
+  border-radius: 50%;
+  background: var(--op2-fundo);
+  color: #e8b53a;
+  font-size: 0.75rem;
 }
 
 .op2-palco__figura--criatura .op2-palco__retrato { border-radius: var(--op2-raio); }
@@ -220,7 +263,9 @@
   bottom: calc(100% + 8px);
   left: 50%;
   display: none;
-  width: 240px;
+  overflow-y: auto;
+  width: 260px;
+  max-height: 60vh;
   flex-wrap: wrap;
   padding: var(--op2-e2);
   border: 1px solid var(--op2-linha-forte);
@@ -229,8 +274,8 @@
   transform: translateX(-50%);
   gap: var(--op2-e1);
 
-  > strong { width: 100%; color: var(--op2-texto-fraco); font-size: 0.75rem; text-transform: uppercase; }
-  > em { color: var(--op2-texto-fraco); font-size: 0.8rem; }
+  > strong { overflow: hidden; width: 100%; font-family: var(--op2-fonte-display); font-size: 1rem; text-overflow: ellipsis; white-space: nowrap; }
+  em { color: var(--op2-texto-fraco); font-size: 0.8rem; }
 
   details {
     display: block;
@@ -242,6 +287,20 @@
 }
 
 .op2-palco__figura--menu .op2-palco__menu { display: flex; }
+
+.op2-palco__ferramentas,
+.op2-palco__pv-editar,
+.op2-palco__acoes {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--op2-e1);
+}
+
+.op2-palco__pv-editar > strong { min-width: 3.5em; font-variant-numeric: tabular-nums; text-align: center; }
+
+.op2-palco__menu-titulo { width: 100%; color: var(--op2-texto-fraco); font-size: 0.75rem; text-transform: uppercase; }
 
 // Nas pontas, legenda e menu abrem para dentro do palco, em vez de vazar pela borda da tela.
 .op2-palco__lado--pcs .op2-palco__figura:first-child,

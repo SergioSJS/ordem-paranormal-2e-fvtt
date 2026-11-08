@@ -48,6 +48,18 @@ o modo; os Atos I e II continuam como estavam.
   cena; o X em cada linha tira da cena (a criatura que a cena criou sai do mapa junto).
 - **Transmissão**: estilo "os dois" (cartões e sem fundo em duas colunas), avatar em busto (cabeça e tronco) ou
   inteiro, e cor no sem fundo (nome no destaque do modo, PV em vermelho, PD em azul).
+- **Card de confronto no chat.** Ataque, revide, defesa, manobra, atrapalhar e fintar viram um card só, com os
+  dois retratos, a seta, o veredito grande e o dano em número grande com o nome de quem leva; os dados ficam dentro
+  do card, em vez de um card de teste genérico à parte (que oferecia "Dano RA/RB" sem saber o alvo). O dano aplicado
+  publica o que entrou, depois da proteção, e se o alvo caiu.
+- **O combate todo pelo palco.** Clique na figura abre ficha, alvo, já agiu, PV −/+, condições, ações da fase e
+  tirar da cena; duplo clique abre a ficha (também da criatura); `T` sobre a figura mira nela (Shift soma), com a
+  mira do Foundry quando há token e a do palco quando não há. Na barra, o mestre vai a uma fase com um clique,
+  mexe na rodada, avança, para e encerra.
+- **Transmissão parada no lugar.** O card tem tamanho fixo (a vaga da rolagem e a linha do estado ficam
+  reservadas mesmo vazias) e a cena de ação mora num elemento à parte, com posição própria ou fora da tela (para
+  uma fonte separada, `=cena`). Antes, começar a cena empurrava todos os cards para baixo e a rolagem esticava o
+  card. O e2e mede cada card antes e depois de cena, fase, rolagem, dano, pavor e condição.
 - **Efeitos de mesa**: coração e borda escura no dado de pavor, sino e brilho no crítico, tremor na falha
   crítica, baque e pisca no dano, tambor ao iniciar a cena, gongo e faixa a cada fase. Som sintetizado (Web
   Audio, sem arquivo). Liga, desliga e volume por pessoa; respeita "menos movimento" do sistema.

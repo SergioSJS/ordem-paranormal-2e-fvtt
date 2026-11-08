@@ -1,0 +1,99 @@
+// Card de confronto (module/vigilia/confronto.mjs): quem em quem, o veredito e o dano, de longe.
+@layer system {
+.op2-confronto__duelo {
+  display: grid;
+  align-items: start;
+  margin-block: var(--op2-e1);
+  gap: var(--op2-e1);
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+.op2-confronto__lado {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  gap: 3px;
+
+  img {
+    width: 56px;
+    height: 56px;
+    border: 2px solid var(--op2-linha-forte);
+    border-radius: var(--op2-raio);
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  figcaption {
+    overflow: hidden;
+    max-width: 100%;
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.15;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.op2-confronto__lado--venceu img {
+  border-color: var(--op2-vermelho-claro);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--op2-vermelho-claro) 55%, transparent);
+}
+
+.op2-confronto__seta {
+  align-self: center;
+  margin-top: -18px;
+  color: var(--op2-texto-fraco);
+  font-size: 1.5rem;
+}
+
+.op2-confronto__dados {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+
+  .op2-dado { width: 1.35rem; height: 1.35rem; font-size: 0.7rem; }
+}
+
+.op2-confronto__total { margin-left: 2px; font-family: var(--op2-fonte-display); font-size: 1.05rem; font-weight: 700; }
+
+// O veredito: a primeira coisa que se lê.
+.op2-confronto__veredito {
+  margin: var(--op2-e1) 0 0;
+  font-family: var(--op2-fonte-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.op2-confronto__veredito--acerto { color: var(--op2-sucesso); }
+.op2-confronto__veredito--critico { color: var(--op2-critico); }
+.op2-confronto__veredito--erro { color: var(--op2-texto-fraco); }
+.op2-confronto__veredito--falha-critica { color: var(--op2-vermelho-claro); }
+.op2-confronto__veredito--defesa { color: #5f8fd0; }
+
+// O dano: número grande, e em quem.
+.op2-confronto__golpe {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  margin: 2px 0;
+  gap: 0.4em;
+  font-size: 0.95rem;
+}
+
+.op2-confronto__dano {
+  color: var(--op2-vermelho-claro);
+  font-family: var(--op2-fonte-display);
+  font-size: 2.1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+}

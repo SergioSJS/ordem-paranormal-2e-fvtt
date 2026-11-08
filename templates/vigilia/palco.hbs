@@ -1,9 +1,16 @@
+{{#*inline "botaoDeAcao"}}
+  <button type="button" class="op2-botao op2-botao--pequeno{{#if destaque}} op2-botao--destaque{{/if}}" data-palco="agir" data-qual="{{qual}}"
+    {{#if ataque}}data-ataque="{{ataque}}"{{/if}}{{#if geral}}data-geral="{{geral}}"{{/if}}{{#if manobra}}data-manobra="{{manobra}}"{{/if}}>{{rotulo}}</button>
+{{/inline}}
+
 {{#*inline "figura"}}
-  <figure class="op2-palco__figura{{#if agiu}} op2-palco__figura--agiu{{/if}}{{#if derrotado}} op2-palco__figura--derrotado{{/if}}{{#if dono}} op2-palco__figura--minha{{/if}}{{#unless ehPc}} op2-palco__figura--criatura{{/unless}}"
+  <figure class="op2-palco__figura{{#if agiu}} op2-palco__figura--agiu{{/if}}{{#if derrotado}} op2-palco__figura--derrotado{{/if}}{{#if dono}} op2-palco__figura--minha{{/if}}{{#unless ehPc}} op2-palco__figura--criatura{{/unless}}{{#if alvo}} op2-palco__figura--alvo{{/if}}"
     data-ator="{{uuid}}">
-    <div class="op2-palco__retrato" {{#if dono}}data-palco="figura" role="button" tabindex="0" data-tooltip="{{localize 'OP2.Palco.Agir'}}"{{/if}}>
+    <div class="op2-palco__retrato" data-palco="figura" role="button" tabindex="0" aria-haspopup="menu"
+      data-tooltip="{{localize 'OP2.Palco.Abrir'}}" aria-label="{{nome}}">
       <img src="{{img}}" alt="">
       {{#if agiu}}<i class="fa-solid fa-check op2-palco__visto" aria-label="{{localize 'OP2.CenaAcao.JaAgiu'}}"></i>{{/if}}
+      {{#if alvo}}<i class="fa-solid fa-crosshairs op2-palco__mira" aria-label="{{localize 'OP2.Palco.EhAlvo'}}"></i>{{/if}}
     </div>
     <figcaption>
       <span class="op2-palco__nome">{{nome}}</span>
@@ -16,26 +23,59 @@
         <span class="op2-palco__condicoes">{{#each condicoesAtivas}}<span>{{this}}</span>{{/each}}</span>
       {{/if}}
     </figcaption>
-    {{#if temMenu}}
-      <div class="op2-palco__menu" role="menu">
-        <strong>{{localize "OP2.Guia.NestaFase"}}</strong>
-        {{#each nestaFase}}
-          <button type="button" class="op2-botao op2-botao--pequeno{{#if destaque}} op2-botao--destaque{{/if}}" data-palco="agir" data-qual="{{qual}}"
-            {{#if ataque}}data-ataque="{{ataque}}"{{/if}}{{#if geral}}data-geral="{{geral}}"{{/if}}{{#if manobra}}data-manobra="{{manobra}}"{{/if}}>{{rotulo}}</button>
-        {{else}}
-          <em>{{localize "OP2.Guia.NadaNestaFase"}}</em>
-        {{/each}}
-        {{#if outrasAcoes.length}}
-          <details>
-            <summary>{{localize "OP2.Guia.OutrasAcoes"}}</summary>
-            {{#each outrasAcoes}}
-              <button type="button" class="op2-botao op2-botao--pequeno" data-palco="agir" data-qual="{{qual}}"
-                {{#if ataque}}data-ataque="{{ataque}}"{{/if}}{{#if geral}}data-geral="{{geral}}"{{/if}}{{#if manobra}}data-manobra="{{manobra}}"{{/if}}>{{rotulo}}</button>
-            {{/each}}
-          </details>
+    <div class="op2-palco__menu" role="menu" aria-label="{{nome}}">
+      <strong>{{nome}}</strong>
+      <div class="op2-palco__ferramentas">
+        {{#if podeFicha}}
+          <button type="button" class="op2-palco__botao" data-palco="ficha" data-tooltip="{{localize 'OP2.Palco.Ficha'}}" aria-label="{{localize 'OP2.Palco.Ficha'}}">
+            <i class="fa-solid fa-id-card" aria-hidden="true"></i></button>
+        {{/if}}
+        <button type="button" class="op2-palco__botao{{#if alvo}} ativo{{/if}}" data-palco="alvo" aria-pressed="{{alvo}}"
+          data-tooltip="{{localize 'OP2.Palco.Alvo'}}" aria-label="{{localize 'OP2.Palco.Alvo'}}">
+          <i class="fa-solid fa-crosshairs" aria-hidden="true"></i></button>
+        {{#if dono}}
+          <button type="button" class="op2-palco__botao{{#if agiu}} ativo{{/if}}" data-palco="agiu" aria-pressed="{{agiu}}"
+            data-tooltip="{{localize 'OP2.Palco.Agiu'}}" aria-label="{{localize 'OP2.Palco.Agiu'}}">
+            <i class="fa-solid fa-check" aria-hidden="true"></i></button>
+        {{/if}}
+        {{#if @root.ehGM}}
+          <button type="button" class="op2-palco__botao op2-palco__botao--perigo" data-palco="tirar"
+            data-tooltip="{{localize 'OP2.CenaAcao.Tirar'}}" aria-label="{{localize 'OP2.CenaAcao.Tirar'}}">
+            <i class="fa-solid fa-user-minus" aria-hidden="true"></i></button>
         {{/if}}
       </div>
-    {{/if}}
+      {{#if dono}}
+        <div class="op2-palco__pv-editar">
+          <span>PV</span>
+          <button type="button" class="op2-palco__botao" data-palco="pv" data-delta="-1" aria-label="{{localize 'OP2.Palco.PvMenos'}}">−</button>
+          <strong>{{pv.value}}/{{pv.max}}</strong>
+          <button type="button" class="op2-palco__botao" data-palco="pv" data-delta="1" aria-label="{{localize 'OP2.Palco.PvMais'}}">+</button>
+        </div>
+      {{/if}}
+      {{#if temAcoes}}
+        <span class="op2-palco__menu-titulo">{{localize "OP2.Guia.NestaFase"}}</span>
+        <div class="op2-palco__acoes">
+          {{#each nestaFase}}{{> botaoDeAcao}}{{else}}<em>{{localize "OP2.Guia.NadaNestaFase"}}</em>{{/each}}
+        </div>
+        {{#if outrasAcoes.length}}
+          <details data-detalhe="outras">
+            <summary>{{localize "OP2.Guia.OutrasAcoes"}}</summary>
+            {{#each outrasAcoes}}{{> botaoDeAcao}}{{/each}}
+          </details>
+        {{/if}}
+      {{/if}}
+      {{#if acoesNoPainel}}
+        <button type="button" class="op2-botao op2-botao--pequeno" data-palco="painelDoAtor">{{localize "OP2.Palco.AcoesNoPainel"}}</button>
+      {{/if}}
+      {{#if dono}}
+        <details data-detalhe="condicoes">
+          <summary>{{localize "OP2.Secao.Condicoes"}}</summary>
+          {{#each condicoes}}
+            <button type="button" class="op2-botao op2-botao--pequeno{{#if ativa}} ativo{{/if}}" data-palco="condicao" data-condicao="{{chave}}" aria-pressed="{{ativa}}">{{rotulo}}</button>
+          {{/each}}
+        </details>
+      {{/if}}
+    </div>
   </figure>
 {{/inline}}
 
@@ -46,11 +86,36 @@
 </div>
 <header class="op2-palco__barra">
   <span class="op2-tag op2-tag--pequena">{{rotuloTipo}}</span>
-  {{#if faseRotulo}}<strong class="op2-palco__fase">{{faseRotulo}}</strong>{{/if}}
-  <span class="op2-palco__rodada">{{localize "OP2.CenaAcao.RodadaCurta" n=rodada}}</span>
+  {{!-- As fases em ordem, a atual acesa. O mestre clica para ir a uma delas. --}}
+  {{#if fases.length}}
+    <ol class="op2-palco__fases">
+      {{#each fases}}
+        <li class="op2-palco__fase{{#if atual}} op2-palco__fase--atual{{/if}}" {{#if atual}}aria-current="step"{{/if}}
+          {{#if @root.ehGM}}data-palco="fase" data-fase="{{chave}}" role="button" tabindex="0"{{/if}}>{{rotulo}}</li>
+      {{/each}}
+    </ol>
+  {{else if faseRotulo}}
+    <strong class="op2-palco__fase op2-palco__fase--atual">{{faseRotulo}}</strong>
+  {{/if}}
+  <span class="op2-palco__rodada">
+    {{#if ehGM}}<button type="button" class="op2-palco__botao op2-palco__botao--mini" data-palco="rodada" data-delta="-1" data-tooltip="{{localize 'OP2.CenaAcao.RodadaMenos'}}" aria-label="{{localize 'OP2.CenaAcao.RodadaMenos'}}">−</button>{{/if}}
+    {{localize "OP2.CenaAcao.RodadaCurta" n=rodada}}
+    {{#if ehGM}}<button type="button" class="op2-palco__botao op2-palco__botao--mini" data-palco="rodada" data-delta="1" data-tooltip="{{localize 'OP2.CenaAcao.RodadaMais'}}" aria-label="{{localize 'OP2.CenaAcao.RodadaMais'}}">+</button>{{/if}}
+  </span>
   {{#if guia}}
     <span class="op2-palco__guia" data-tooltip="{{guia.texto}}" data-tooltip-direction="UP" tabindex="0"
       aria-label="{{guia.texto}}"><i class="fa-solid fa-circle-question" aria-hidden="true"></i></span>
+  {{/if}}
+  {{#if ehGM}}
+    <button type="button" class="op2-palco__botao op2-palco__botao--destaque" data-palco="avancar" data-tooltip="{{proximo}}" aria-label="{{proximo}}">
+      <i class="fa-solid fa-forward-step" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="op2-palco__botao" data-palco="parar" data-tooltip="{{localize 'OP2.CenaAcao.PararAjuda'}}" aria-label="{{localize 'OP2.CenaAcao.Parar'}}">
+      <i class="fa-solid fa-pause" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="op2-palco__botao op2-palco__botao--perigo" data-palco="encerrar" data-tooltip="{{localize 'OP2.CenaAcao.EncerrarAjuda'}}" aria-label="{{localize 'OP2.CenaAcao.Encerrar'}}">
+      <i class="fa-solid fa-flag-checkered" aria-hidden="true"></i>
+    </button>
   {{/if}}
   <button type="button" class="op2-palco__botao" data-palco="painel" data-tooltip="{{localize 'OP2.CenaAcao.Painel'}}" aria-label="{{localize 'OP2.CenaAcao.Painel'}}">
     <i class="fa-solid fa-swords" aria-hidden="true"></i>

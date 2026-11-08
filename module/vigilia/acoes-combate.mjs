@@ -4,6 +4,9 @@
  * O mesmo cliente rola os dois lados do que é teste oposto em ação geral e manobra: é um
  * clique, e quem não é dono do alvo não precisa escrever nele. Só a escrita passa pelo mestre.
  * Ataque corpo a corpo é diferente: o alvo escolhe revidar ou não, então o card espera.
+ *
+ * Toda ação contra alguém sai num card de confronto só (`confronto.mjs`), com os dados dentro:
+ * as rolagens são `semCard`.
  */
 import { rolarTeste } from "../dice/teste.mjs";
 import { rolarDadosDeNpc } from "./npc.mjs";
@@ -17,6 +20,8 @@ import {
 import { danoDepoisDaProtecao } from "./dano.mjs";
 import { atorDe, cenaAcaoAtiva, participantesDe, registrarAcao, mudarCondicao } from "./cena-acao.mjs";
 import { MAX_MARCADORES, PASSOS_FINTA } from "../config.mjs";
+import { alvosMarcados } from "./alvos.mjs";
+import { cardConfronto, lado, golpe, vereditoDoTeste } from "./confronto.mjs";
 
 const nome = (a) => foundry.utils.escapeHTML(a.name);
 const condicoesDe = (a) => [...(a.system.estado?.condicoes ?? [])];
@@ -41,9 +46,9 @@ export function ataquesDe(ator) {
   return lista;
 }
 
-/** Os outros da cena: é entre eles que se escolhe o alvo; a mira do Foundry tem prioridade. */
+/** Os outros da cena: é entre eles que se escolhe o alvo; a mira (do Foundry ou do palco) tem prioridade. */
 function candidatos(ator, cena) {
-  const marcados = [...game.user.targets].map((t) => t.actor).filter(Boolean);
+  const marcados = alvosMarcados();
   if (marcados.length) return marcados.filter((a) => a.uuid !== ator.uuid);
   return (cena ? participantesDe(cena) : []).filter((a) => a.uuid !== ator.uuid);
 }
@@ -93,10 +98,10 @@ async function perguntarAtaque(ator, ataque, cena) {
 
 /** Rola o teste de ataque de quem quer que seja. */
 async function rolarAtaque(ator, ataque, { dt, passos = 0, dadosExtras = [], oposto = false, contexto, rapido = false }) {
-  if (ehNpc(ator)) return rolarDadosDeNpc(ator, [ataque.dados, ...dadosExtras].join("+"), { dt, oposto, contexto, passos });
+  if (ehNpc(ator)) return rolarDadosDeNpc(ator, [ataque.dados, ...dadosExtras].join("+"), { dt, oposto, contexto, passos, semCard: true });
   return rolarTeste(ator, {
     chavePericia: ataque.tipo === "distancia" ? "pontaria" : "luta",
-    dt, oposto, passos, contexto, rapido,
+    dt, oposto, passos, contexto, rapido, semCard: true,
     modificador: ataque.bonusTeste,
     minimoCritico: ataque.minimoCritico,
     dadosExtras: dadosExtras.map((dado) => ({ chave: `extra.${dado}`, rotulo: dado, tipo: "extra", dado })),
@@ -153,15 +158,18 @@ export async function atacar(ator, ataque, { cena = cenaAcaoAtiva(), escolha, ra
   // Corpo a corpo contra quem também ataca vira teste oposto (beta §7.3).
   else if (ataque.tipo === "corpo") botoes.push({ rotulo: game.i18n.format("OP2.Combate2.Revidar", { alvo: alvo.name }), acao: "vigilia-revidar", dados: { atorUuid: alvo.uuid, ...contexto } });
 
-  await cardVigilia(ator, {
+  if (r.sucesso && defendendo) linhas.push(game.i18n.format("OP2.Confronto.AguardaDefesa", { alvo: nome(alvo) }));
+  await cardConfronto(ator, {
     titulo: game.i18n.format("OP2.Combate2.AtaqueTitulo", { ataque: ataque.nome }),
     selo: `${game.i18n.localize("OP2.DT")} ${dtFinal}`,
-    estilo: r.sucesso ? "sucesso" : "falha",
-    texto: game.i18n.format(r.sucesso ? "OP2.Combate2.Acertou" : "OP2.Combate2.Errou", {
-      atacante: nome(ator), alvo: nome(alvo), total: roll.total, dano,
-    }),
+    esquerda: lado(ator, roll, { venceu: r.sucesso }),
+    direita: lado(alvo),
+    veredito: vereditoDoTeste(roll, { acertou: r.sucesso }),
+    golpes: r.sucesso ? [golpe(dano, alvo)] : [],
+    distancia: ataque.tipo === "distancia",
     linhas,
     botoes,
+    rolls: [roll],
   });
   return { roll, dano, alvo };
 }
@@ -185,11 +193,21 @@ export async function revidar(alvo, dataset, { rapido = false } = {}) {
   const botoes = [];
   if (acertaA) botoes.push({ rotulo: game.i18n.format("OP2.Combate2.DanoEm", { dano: danoA, alvo: alvo.name }), acao: "vigilia-dano", dados: { atorUuid: alvo.uuid, quantidade: danoA, ignoraRd: dataset.ignoraRd } });
   if (acertaB) botoes.push({ rotulo: game.i18n.format("OP2.Combate2.DanoEm", { dano: danoB, alvo: atacante.name }), acao: "vigilia-dano", dados: { atorUuid: atacante.uuid, quantidade: danoB, ignoraRd: ataque.ignoraRd ?? 0 } });
-  await cardVigilia(alvo, {
+  const t = (chave, dados) => game.i18n.format(`OP2.Confronto.${chave}`, dados);
+  let veredito = { classe: "erro", rotulo: t("DoisErram") };
+  if (acertaA && acertaB) veredito = { classe: "acerto", rotulo: t("DoisAcertam") };
+  else if (acertaA) veredito = { classe: "acerto", rotulo: t("AcertaNome", { nome: atacante.name }) };
+  else if (acertaB) veredito = { classe: "acerto", rotulo: t("AcertaNome", { nome: alvo.name }) };
+  await cardConfronto(alvo, {
     titulo: game.i18n.localize("OP2.Combate2.CruzadoTitulo"),
-    texto: game.i18n.format("OP2.Combate2.Cruzado", { a: nome(atacante), ta: totalA, b: nome(alvo), tb: roll.total }),
+    selo: game.i18n.localize("OP2.Confronto.Oposto"),
+    esquerda: { ...lado(atacante, null, { venceu: acertaA }), total: totalA },
+    direita: lado(alvo, roll, { venceu: acertaB }),
+    veredito,
+    golpes: [...(acertaA ? [golpe(danoA, alvo)] : []), ...(acertaB ? [golpe(danoB, atacante)] : [])],
     linhas: [game.i18n.localize(!acertaA && !acertaB ? "OP2.Combate2.NinguemAcertou" : (acertaA && acertaB ? "OP2.Combate2.DoisAcertaram" : "OP2.Combate2.UmAcertou"))],
     botoes,
+    rolls: [roll],
   });
   return { roll, acertaA, acertaB };
 }
@@ -201,18 +219,26 @@ export async function defender(alvo, dataset, { rapido = false } = {}) {
   const extra = { chave: "defesa", rotulo: game.i18n.localize("OP2.Combate2.DefesaDado"), tipo: "extra", dado: "d6" };
   const corpo = Number(dataset.corpo) === 1;
   const roll = ehNpc(alvo)
-    ? await rolarDadosDeNpc(alvo, dadosDoNpcPara(alvo, corpo ? "luta" : "acrobacia", "fisico", "d6"), { oposto: true })
-    : await rolarTeste(alvo, { chavePericia: corpo && alvo.system.pericias.luta.valor > alvo.system.pericias.acrobacia.valor ? "luta" : "acrobacia", oposto: true, rapido, dadosExtras: [extra], contexto: game.i18n.localize("OP2.Combate2.DefesaTitulo") });
+    ? await rolarDadosDeNpc(alvo, dadosDoNpcPara(alvo, corpo ? "luta" : "acrobacia", "fisico", "d6"), { oposto: true, semCard: true })
+    : await rolarTeste(alvo, { chavePericia: corpo && alvo.system.pericias.luta.valor > alvo.system.pericias.acrobacia.valor ? "luta" : "acrobacia", oposto: true, rapido, semCard: true, dadosExtras: [extra], contexto: game.i18n.localize("OP2.Combate2.DefesaTitulo") });
   if (!roll) return null;
   const venceu = defesaVenceu(roll.total, Number(dataset.total));
   const dano = danoDoAcerto({ ra: Number(dataset.ra), segunda: Number(dataset.segunda), critico: Number(dataset.critico) === 1 }, Number(dataset.bonusDano));
   await mudarCondicao(alvo, "defendendo", false);
-  await cardVigilia(alvo, {
+  // Perder a defesa não faz acertar quem já não tinha alcançado a DT.
+  const entra = !venceu && dataset.sucesso !== "0";
+  await cardConfronto(alvo, {
     titulo: game.i18n.localize("OP2.Combate2.DefesaTitulo"),
-    estilo: venceu ? "sucesso" : "falha",
-    texto: game.i18n.format(venceu ? "OP2.Combate2.DefesaVenceu" : "OP2.Combate2.DefesaPerdeu", { alvo: nome(alvo), defesa: roll.total, ataque: dataset.total }),
-    // Perder a defesa não faz acertar quem já não tinha alcançado a DT.
-    botoes: venceu || dataset.sucesso === "0" ? [] : [{ rotulo: game.i18n.format("OP2.Combate2.AplicarDano", { dano }), acao: "vigilia-dano", dados: { atorUuid: alvo.uuid, quantidade: dano, ignoraRd: dataset.ignoraRd } }],
+    selo: game.i18n.localize("OP2.Confronto.Oposto"),
+    esquerda: { ...lado(atacante, null, { venceu: !venceu }), total: Number(dataset.total) },
+    direita: lado(alvo, roll, { venceu }),
+    veredito: venceu
+      ? { classe: "defesa", rotulo: game.i18n.format("OP2.Confronto.Defendeu", { nome: alvo.name }) }
+      : { classe: "acerto", rotulo: game.i18n.format("OP2.Confronto.NaoDefendeu", { nome: alvo.name }) },
+    golpes: entra ? [golpe(dano, alvo)] : [],
+    linhas: [game.i18n.format(venceu ? "OP2.Combate2.DefesaVenceu" : "OP2.Combate2.DefesaPerdeu", { alvo: nome(alvo), defesa: roll.total, ataque: dataset.total })],
+    botoes: entra ? [{ rotulo: game.i18n.format("OP2.Combate2.AplicarDano", { dano }), acao: "vigilia-dano", dados: { atorUuid: alvo.uuid, quantidade: dano, ignoraRd: dataset.ignoraRd } }] : [],
+    rolls: [roll],
   });
   return { roll, venceu };
 }
@@ -227,6 +253,22 @@ async function escolherAtaque(ator, lista) {
     rejectClose: false,
   });
   return lista.find((a) => a.id === id) ?? null;
+}
+
+/** Anuncia no chat o dano que entrou, depois da proteção: "9 de dano em Afogado 1", e se caiu. */
+async function anunciarDano(alvo, final, bruto, recurso, antes) {
+  const t = (chave, dados) => game.i18n.format(`OP2.Confronto.${chave}`, dados);
+  const linhas = [];
+  if (bruto > final) linhas.push(t("Protecao", { bruto, final }));
+  // `antes`: lido antes de aplicar. Quem pediu ao mestre ainda não recebeu o update aqui.
+  if (final > 0 && antes - final <= 0) linhas.push(t(recurso === "pd" ? "Enlouqueceu" : "Caiu", { nome: nome(alvo) }));
+  return cardVigilia(alvo, {
+    titulo: t(recurso === "pd" ? "DanoEmocionalTitulo" : "DanoTitulo"),
+    estilo: final > 0 ? "falha" : "investigacao",
+    texto: `<span class="op2-confronto__golpe"><strong class="op2-confronto__dano">${final}</strong>
+      <span>${t(recurso === "pd" ? "DanoEmocionalEm" : "DanoEm", { alvo: nome(alvo) })}</span></span>`,
+    linhas,
+  });
 }
 
 /**
@@ -253,7 +295,14 @@ export async function aplicarDanoDeCombate(alvo, dataset, { gastar } = {}) {
       }],
     });
   }
-  if (!alvo.isOwner) return comoMestre("vigilia-dano", { atorUuid: alvo.uuid, quantidade: danoDepoisDaProtecao(quantidade, { rd, ignoraRd: Number(dataset.ignoraRd ?? 0) }), recurso });
+  const antes = alvo.system.recursos?.[recurso]?.value ?? 0;
+  if (!alvo.isOwner) {
+    const final = danoDepoisDaProtecao(quantidade, { rd, ignoraRd: Number(dataset.ignoraRd ?? 0) });
+    // O anúncio vem antes: o pedido de teste de lesão, se zerar, sai depois dele.
+    await anunciarDano(alvo, final, quantidade, recurso, antes);
+    await comoMestre("vigilia-dano", { atorUuid: alvo.uuid, quantidade: final, recurso });
+    return final;
+  }
   let gastarArmadura = false;
   if (temArmadura) {
     gastarArmadura = gastar ?? await foundry.applications.api.DialogV2.confirm({
@@ -264,8 +313,8 @@ export async function aplicarDanoDeCombate(alvo, dataset, { gastar } = {}) {
     if (gastarArmadura) await alvo.update({ "system.estado.armaduraGasta": alvo.system.estado.armaduraGasta + 1 });
   }
   const final = danoDepoisDaProtecao(quantidade, { rd, ignoraRd: Number(dataset.ignoraRd ?? 0), gastarArmadura });
+  await anunciarDano(alvo, final, quantidade, recurso, antes);
   await aplicarDano(alvo, final, recurso);
-  ui.notifications.info(game.i18n.format("OP2.Chat.DanoAplicado", { quantidade: final, alvos: alvo.name }));
   return final;
 }
 
@@ -279,7 +328,13 @@ export async function pedirDanoManual(alvo, dataset) {
     rejectClose: false,
   });
   if (!quantidade) return null;
-  if (quantidade.crua) return alvo.isOwner ? aplicarDano(alvo, quantidade.q, dataset.recurso ?? "pv") : comoMestre("vigilia-dano", { atorUuid: alvo.uuid, quantidade: quantidade.q, recurso: dataset.recurso ?? "pv" });
+  if (quantidade.crua) {
+    const recurso = dataset.recurso ?? "pv";
+    const antes = alvo.system.recursos?.[recurso]?.value ?? 0;
+    await anunciarDano(alvo, quantidade.q, quantidade.q, recurso, antes);
+    if (alvo.isOwner) return aplicarDano(alvo, quantidade.q, recurso);
+    return comoMestre("vigilia-dano", { atorUuid: alvo.uuid, quantidade: quantidade.q, recurso });
+  }
   return aplicarDanoDeCombate(alvo, { ...dataset, quantidade: quantidade.q });
 }
 
@@ -291,8 +346,8 @@ export function dadosDoNpcPara(npc, pericia, atributo = "fisico", extra = "") {
 
 /** Rola a resposta passiva de quem quer que seja, sem diálogo. */
 async function rolarResposta(ator, pericia, atributo, contexto) {
-  if (ehNpc(ator)) return rolarDadosDeNpc(ator, dadosDoNpcPara(ator, pericia, atributo), { oposto: true, contexto, atributo });
-  return rolarTeste(ator, { chavePericia: pericia, chaveAtributo: atributo, oposto: true, rapido: true, contexto });
+  if (ehNpc(ator)) return rolarDadosDeNpc(ator, dadosDoNpcPara(ator, pericia, atributo), { oposto: true, contexto, atributo, semCard: true });
+  return rolarTeste(ator, { chavePericia: pericia, chaveAtributo: atributo, oposto: true, rapido: true, contexto, semCard: true });
 }
 
 const PERICIA_PADRAO = { atrapalhar: "enganacao", fintar: "enganacao" };
@@ -308,20 +363,31 @@ export async function acaoOposta(ator, qual, { cena = cenaAcaoAtiva(), alvoUuid:
     : PERICIA_PADRAO[qual];
   if (!pericia) return null;
   const meu = ehNpc(ator)
-    ? await rolarDadosDeNpc(ator, dadosDoNpcPara(ator, pericia, "emocao"), { oposto: true, atributo: "emocao" })
-    : await rolarTeste(ator, { chavePericia: pericia, oposto: true, rapido, contexto: game.i18n.localize(`OP2.Combate2.${qual}`) });
+    ? await rolarDadosDeNpc(ator, dadosDoNpcPara(ator, pericia, "emocao"), { oposto: true, atributo: "emocao", semCard: true })
+    : await rolarTeste(ator, { chavePericia: pericia, oposto: true, rapido, semCard: true, contexto: game.i18n.localize(`OP2.Combate2.${qual}`) });
   if (!meu) return null;
   const dele = await rolarResposta(alvo, qual === "fintar" ? "intuicao" : "percepcao", qual === "fintar" ? "emocao" : "mente", game.i18n.localize(`OP2.Combate2.${qual}`));
   const venceu = meu.total > dele.total;
   if (cena) await registrarAcao(cena, ator, "suporte");
   const condicao = qual === "atrapalhar" ? { alvo, chave: "atrapalhado" } : { alvo: ator, chave: "fintando" };
-  await cardVigilia(ator, {
+  await cardConfronto(ator, {
     titulo: game.i18n.localize(`OP2.Combate2.${qual}`),
-    estilo: venceu ? "sucesso" : "falha",
-    texto: game.i18n.format(venceu ? `OP2.Combate2.${qual}Venceu` : "OP2.Combate2.OpostoPerdeu", { ator: nome(ator), alvo: nome(alvo), a: meu.total, b: dele.total }),
+    selo: game.i18n.localize("OP2.Confronto.Oposto"),
+    esquerda: lado(ator, meu, { venceu }),
+    direita: lado(alvo, dele, { venceu: !venceu }),
+    veredito: vereditoOposto(ator, alvo, venceu),
+    linhas: [game.i18n.format(venceu ? `OP2.Combate2.${qual}Venceu` : "OP2.Combate2.OpostoPerdeu", { ator: nome(ator), alvo: nome(alvo), a: meu.total, b: dele.total })],
     botoes: [botaoDeCondicao(condicao.alvo, condicao.chave, venceu)],
+    rolls: [meu, dele],
   });
   return { venceu };
+}
+
+/** Teste oposto: quem venceu, em letra grande. */
+function vereditoOposto(ator, alvo, venceu) {
+  return venceu
+    ? { classe: "acerto", rotulo: game.i18n.format("OP2.Confronto.Vence", { nome: ator.name }) }
+    : { classe: "erro", rotulo: game.i18n.format("OP2.Confronto.Vence", { nome: alvo.name }) };
 }
 
 /**
@@ -369,12 +435,19 @@ export async function manobra(ator, qual, { cena = cenaAcaoAtiva(), alvoUuid: pe
   if (venceu && porCinco && qual === "derrubar") {
     botoes.push({ rotulo: game.i18n.format("OP2.Combate2.DanoEm", { dano: meu.resultado.rb, alvo: alvo.name }), acao: "vigilia-dano", dados: { atorUuid: alvo.uuid, quantidade: meu.resultado.rb } });
   }
-  await cardVigilia(ator, {
+  await cardConfronto(ator, {
     titulo: game.i18n.localize(`OP2.Manobra.${qual}.nome`),
-    estilo: venceu ? "sucesso" : "falha",
-    texto: venceu ? game.i18n.localize(`OP2.Manobra.${qual}.efeito`) : game.i18n.format("OP2.Combate2.OpostoPerdeu", { ator: nome(ator), alvo: nome(alvo), a: meu.total, b: dele.total }),
-    linhas: venceu && porCinco ? [game.i18n.localize(`OP2.Manobra.${qual}.porCinco`)] : [],
+    selo: game.i18n.localize("OP2.Confronto.Oposto"),
+    esquerda: lado(ator, meu, { venceu }),
+    direita: lado(alvo, dele, { venceu: !venceu }),
+    veredito: vereditoOposto(ator, alvo, venceu),
+    golpes: venceu && porCinco && qual === "derrubar" ? [golpe(meu.resultado.rb, alvo)] : [],
+    linhas: [
+      venceu ? game.i18n.localize(`OP2.Manobra.${qual}.efeito`) : game.i18n.format("OP2.Combate2.OpostoPerdeu", { ator: nome(ator), alvo: nome(alvo), a: meu.total, b: dele.total }),
+      ...(venceu && porCinco ? [game.i18n.localize(`OP2.Manobra.${qual}.porCinco`)] : []),
+    ],
     botoes,
+    rolls: [meu, dele],
   });
   return { venceu, porCinco };
 }
