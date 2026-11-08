@@ -215,17 +215,22 @@
   font-size: 0.75rem;
 }
 
-// Já agiu: um passo atrás. Caído: no chão, apagado.
-.op2-palco__figura--agiu { opacity: 0.6; transform: translateY(6px); }
+// Já agiu: um passo atrás. Caído: no chão, apagado. A opacidade vai nos filhos, não na
+// figura: o menu mora dentro dela e herdaria a transparência, ilegível sobre o mapa.
+.op2-palco__figura > :not(.op2-palco__menu) { transition: opacity 0.25s ease; }
+.op2-palco__figura--agiu {
+  transform: translateY(6px);
+  > :not(.op2-palco__menu) { opacity: 0.6; }
+}
 .op2-palco__figura--derrotado {
-  opacity: 0.45;
+  > :not(.op2-palco__menu) { opacity: 0.45; }
   .op2-palco__retrato img { filter: grayscale(1); }
 }
 
 // Quem age: um passo à frente, aceso, com a legenda por cima.
 .op2-palco__figura--age {
   z-index: 2;
-  opacity: 1;
+  > :not(.op2-palco__menu) { opacity: 1; }
   transform: translateY(-14px) scale(1.08);
 
   .op2-palco__retrato {

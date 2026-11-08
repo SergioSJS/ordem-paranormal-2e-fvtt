@@ -253,18 +253,61 @@ await page.evaluate(async ({ rhionaId, cenaId }) => {
   await game.op2.vigilia.atacar(rhiona, game.op2.vigilia.ataquesDe(rhiona)[0], { cena, rapido: true, escolha: { alvo: alvo.uuid } });
 }, dados);
 await page.waitForTimeout(1500);
+// O card de confronto do ataque de cima, na mesma folha em branco dos cards do modo moderno,
+// com o tema do beta. `<base>` para os retratos dos atores carregarem do servidor.
+const confronto = await page.evaluate(() => game.messages.contents
+  .filter((m) => m.content.includes("op2-confronto")).at(-1)?.content ?? null);
+if (confronto) {
+  await folha.setContent(`
+    <base href="http://localhost:${PORTA}/">
+    <style>${css}</style>
+    <body class="op2 op2-vigilia theme-dark" style="margin:0;padding:16px;background:#0d0908">
+      <div style="max-width:400px">${confronto}</div>
+    </body>`);
+  await folha.waitForTimeout(600);
+  const el = await folha.$(".op2-card");
+  if (el) {
+    await el.screenshot({ path: `${SAIDA}/card-confronto.png` });
+    console.log(`${SAIDA}/card-confronto.png`);
+  } else console.log("(sem .op2-card) confronto");
+} else console.log("(sem card) confronto");
+// O palco conduz o combate: a criatura na mira e o menu da figura aberto (ficha, alvo, PV, ações).
+await page.evaluate(async ({ cenaId }) => {
+  const cena = game.actors.get(cenaId);
+  const alvo = cena.system.participantes.map((u) => fromUuidSync(u)).find((a) => a?.type === "npc");
+  const { alternarAlvo } = await import("/systems/ordem-paranormal-2e/module/vigilia/alvos.mjs");
+  alternarAlvo(alvo);
+}, dados);
+await page.waitForTimeout(600);
+await page.click(`#op2-palco .op2-palco__figura:not(.op2-palco__figura--criatura) [data-palco="figura"]`).catch(() => null);
+// Mouse fora do palco: a dica do retrato cobriria a barra de fases no print.
+await page.mouse.move(5, 5);
+await page.waitForTimeout(1200);
 const palco = await (await page.$("#op2-palco"))?.boundingBox();
 if (palco) {
-  const clip = { x: palco.x - 16, y: Math.max(0, palco.y - 90), width: palco.width + 32, height: palco.height + 100 };
+  const menu = await (await page.$("#op2-palco .op2-palco__figura--menu .op2-palco__menu"))?.boundingBox();
+  const topo = Math.max(0, Math.min(palco.y - 90, menu ? menu.y - 16 : Infinity));
+  const clip = { x: palco.x - 16, y: topo, width: palco.width + 32, height: palco.y + palco.height + 10 - topo };
   await page.screenshot({ path: `${SAIDA}/palco.png`, clip });
-  console.log(`${SAIDA}/palco.png`);
+  console.log(`${SAIDA}/palco.png${menu ? "" : " (sem menu)"}`);
 } else console.log("(sem elemento) palco");
+await page.keyboard.press("Escape");
 // A transmissão (OBS): outra sessão com ?op2-transmissao, só os cards, fundo transparente.
-await page.evaluate(({ rhionaId, rowanId }) => game.settings.set("ordem-paranormal-2e", "transmissao",
-  { posicao: "top-left", direcao: "coluna", escala: 1, condicoes: true, usuario: "", atores: [rhionaId, rowanId] }), dados);
+// Pelo usuário "Transmissão", como o README manda: o Foundry não deixa o mesmo usuário entrar
+// duas vezes (a opção dele fica desabilitada no /join enquanto a outra sessão está aberta).
+const camera = await page.evaluate(async ({ rhionaId, rowanId }) => {
+  const usuario = game.users.getName("Transmissão")
+    ?? await User.create({ name: "Transmissão", role: CONST.USER_ROLES.PLAYER });
+  for (const id of [rhionaId, rowanId]) {
+    await game.actors.get(id).update({ [`ownership.${usuario.id}`]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER });
+  }
+  await game.settings.set("ordem-paranormal-2e", "transmissao",
+    { posicao: "top-left", direcao: "coluna", escala: 1, condicoes: true, usuario: usuario.id, atores: [rhionaId, rowanId] });
+  return usuario.id;
+}, dados);
 const tx = await browser.newPage({ viewport: { width: 1200, height: 800 }, deviceScaleFactor: 2 });
 await tx.goto(`http://localhost:${PORTA}/join`, { waitUntil: "networkidle" });
-await tx.selectOption("select[name='userid']", { label: "Gamemaster" });
+await tx.selectOption("select[name='userid']", { label: "Transmissão" });
 await tx.click("button[name='join'], button[type='submit']");
 await tx.waitForURL("**/game");
 await tx.goto(`http://localhost:${PORTA}/game?op2-transmissao`, { waitUntil: "networkidle" });
@@ -278,7 +321,10 @@ if (caixaTx) {
   console.log(`${SAIDA}/transmissao.png`);
 } else console.log("(sem elemento) transmissao");
 await tx.close();
-await page.evaluate(() => game.settings.set("ordem-paranormal-2e", "transmissao", {}));
+await page.evaluate(async (id) => {
+  await game.settings.set("ordem-paranormal-2e", "transmissao", {});
+  await game.users.get(id)?.delete();
+}, camera);
 await trocarModo("moderno");
 
 await browser.close();

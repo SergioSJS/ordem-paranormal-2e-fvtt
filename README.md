@@ -240,6 +240,8 @@ num card só, com os dados dentro:
 - o veredito em letra grande ("Acertou", "Errou", "Crítico!", "Fulano se defende");
 - o dano em número grande, com o nome de quem leva.
 
+![Card de confronto](docs/img/card-confronto.png)
+
 Quem aplica o dano publica um card curto com o que entrou de fato, depois da proteção, e avisa se o alvo caiu.
 
 **O palco** é a cena vista como teatro, não como grade: uma faixa no rodapé com quem está em cena, personagens de um
@@ -292,7 +294,10 @@ canto, ou sai desta fonte e vai para outra (`/game?op2-transmissao=cena`).
 Em **Configurações → Ordem Paranormal 2 → Configurar a transmissão**: crie o usuário "Transmissão", dê a ele acesso
 de observador aos personagens e salve. No OBS, adicione uma fonte Navegador com o endereço `/join`, clique em
 Interagir e entre como esse usuário. Ou abra `/game?op2-transmissao` em qualquer sessão. Ali também se escolhem a
-posição, a direção, a escala e quem aparece.
+posição, a direção, a escala e quem aparece. O usuário próprio não é capricho: o Foundry não deixa o mesmo usuário
+entrar duas vezes, então o mestre, já na mesa, não consegue entrar de novo pelo OBS.
+
+![Os cards da transmissão, um deles com a rolagem acesa](docs/img/transmissao.png)
 
 Dois estilos: **cartões** (fundo, borda, barras de PV e PD) e **sem fundo**, para quem usa o avatar com fundo
 transparente: o avatar fica solto, sem contorno, e PV e PD aparecem só em texto ("PV 22/22"), com contorno escuro

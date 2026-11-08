@@ -55,11 +55,15 @@ o modo; os Atos I e II continuam como estavam.
 - **O combate todo pelo palco.** Clique na figura abre ficha, alvo, já agiu, PV −/+, condições, ações da fase e
   tirar da cena; duplo clique abre a ficha (também da criatura); `T` sobre a figura mira nela (Shift soma), com a
   mira do Foundry quando há token e a do palco quando não há. Na barra, o mestre vai a uma fase com um clique,
-  mexe na rodada, avança, para e encerra.
+  mexe na rodada, avança, para e encerra. O menu de quem já agiu fica opaco (só a figura apaga): antes ele
+  herdava a transparência e não se lia sobre o mapa.
 - **Transmissão parada no lugar.** O card tem tamanho fixo (a vaga da rolagem e a linha do estado ficam
   reservadas mesmo vazias) e a cena de ação mora num elemento à parte, com posição própria ou fora da tela (para
   uma fonte separada, `=cena`). Antes, começar a cena empurrava todos os cards para baixo e a rolagem esticava o
   card. O e2e mede cada card antes e depois de cena, fase, rolagem, dano, pavor e condição.
+- **Prints novos no README:** o card de confronto, o palco com o menu aberto e, pela primeira vez, a
+  transmissão. O script de prints entrava como mestre duas vezes, e o Foundry não deixa: agora entra pelo
+  usuário "Transmissão", como o README manda.
 - **Efeitos de mesa**: coração e borda escura no dado de pavor, sino e brilho no crítico, tremor na falha
   crítica, baque e pisca no dano, tambor ao iniciar a cena, gongo e faixa a cada fase. Som sintetizado (Web
   Audio, sem arquivo). Liga, desliga e volume por pessoa; respeita "menos movimento" do sistema.

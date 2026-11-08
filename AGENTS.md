@@ -47,7 +47,7 @@ II), que não perde nada; o combate novo vale nos dois, opcional e ligado por pa
 saem do PDF e dos zips do mestre, como os atos (`module/extrator/missoes.mjs`, `module/aventura/missoes.mjs`).
 O PDF gratuito do beta (só a Missão 1) monta igual ao completo, e o e2e lê os dois.
 **Próximo:** a rodada de mesa de verdade. **v13 e v14 exercitados pelo e2e** (13.351 e 14.363, com o PDF e
-os zips reais: 781 verificações cada; `dois-clientes.mjs`, 26, confere a visão do jogador) — o bundle da cena leva os dois formatos de
+os zips reais: 798 verificações cada; `dois-clientes.mjs`, 38, confere a visão do jogador) — o bundle da cena leva os dois formatos de
 fundo, e o que só existe no v14 (níveis, `Collection#every`, `Note.author`) é tratado com guarda dos dois lados.
 
 ## Convenções

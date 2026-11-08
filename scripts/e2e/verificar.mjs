@@ -5026,6 +5026,21 @@ const relato = await page.evaluate(async (boasVindas) => {
       await esperar(500);
       ok("no palco, a condição liga pelo menu", rhiona.system.estado.condicoes.has("mirando") && rhiona.system.recursos.pv.value === pvAntes);
       clicar("[data-palco=condicao][data-condicao=mirando]", rhiona.uuid);
+      // Quem já agiu fica apagado, mas o menu dele não: aberto sobre o mapa, translúcido não se lê.
+      const jaAgira = figuraDe(rhiona.uuid)?.classList.contains("op2-palco__figura--agiu");
+      if (!jaAgira) clicar("[data-palco=agiu]", rhiona.uuid);
+      await esperar(500);
+      const opacidadeAte = (el) => { let o = 1; for (let e = el; e && e !== palco(); e = e.parentElement) o *= Number(getComputedStyle(e).opacity); return o; };
+      const figuraAgiu = figuraDe(rhiona.uuid);
+      // A condição de cima postou card: ela está "à frente", acesa de propósito por uns segundos.
+      figuraAgiu?.classList.remove("op2-palco__figura--age");
+      await esperar(400);
+      ok("no palco, quem já agiu fica apagado, mas o menu dele continua opaco",
+        figuraAgiu?.classList.contains("op2-palco__figura--agiu") && figuraAgiu.classList.contains("op2-palco__figura--menu")
+        && opacidadeAte(figuraAgiu.querySelector(".op2-palco__retrato")) < 0.9
+        && opacidadeAte(figuraAgiu.querySelector(".op2-palco__menu")) === 1);
+      if (!jaAgira) clicar("[data-palco=agiu]", rhiona.uuid);
+      await esperar(400);
       clicar("[data-palco=ficha]", rhiona.uuid);
       await esperar(500);
       ok("no palco, o botão da ficha abre a ficha", rhiona.sheet.rendered);
