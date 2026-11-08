@@ -209,7 +209,12 @@ function ligar(elemento) {
       // Ação que não dá para repetir sem dobrar o efeito: marca o botão, e o segundo clique
       // pergunta. Só pergunta, porque a mesa pode mesmo querer aplicar de novo.
       const unica = ACOES_UNICAS.has(op2Acao);
-      if (unica && clicado.classList.contains("op2-botao--usado")) {
+      // Botões de um mesmo grupo são alternativas (absorver ou levar o dano): usado um, o outro
+      // também pergunta.
+      const { grupo } = clicado.dataset;
+      const irmaos = grupo ? [...(clicado.closest(".op2-card")?.querySelectorAll("[data-op2-acao]") ?? [])]
+        .filter((b) => b.dataset.grupo === grupo) : [clicado];
+      if (unica && irmaos.some((b) => b.classList.contains("op2-botao--usado"))) {
         const denovo = await foundry.applications.api.DialogV2.confirm({
           window: { title: clicado.textContent.trim() },
           content: `<p>${game.i18n.localize("OP2.Chat.JaUsado")}</p>`,

@@ -4598,6 +4598,9 @@ const relato = await page.evaluate(async (boasVindas) => {
     // de quem leva, e os dados dentro (a rolagem vai na mensagem, para efeitos e transmissão).
     const cardAtaque = game.messages.contents.at(-1);
     const domAtaque = new DOMParser().parseFromString(cardAtaque.content, "text/html");
+    const saidas = [...domAtaque.querySelectorAll('[data-op2-acao="vigilia-revidar"], [data-op2-acao="vigilia-dano"]')];
+    ok("no corpo a corpo, aplicar o dano e revidar são alternativas: usada uma, a outra pergunta (beta §7.3)",
+      saidas.some((b) => b.dataset.op2Acao === "vigilia-revidar") && saidas.every((b) => b.dataset.grupo === "desfecho"));
     const veredito = domAtaque.querySelector(".op2-confronto__veredito")?.textContent.trim() ?? "";
     ok("o ataque sai num card só, de confronto, com a rolagem dentro",
       game.messages.size === mensagensAntes + 1 && domAtaque.querySelectorAll(".op2-confronto__lado").length === 2
@@ -4628,6 +4631,35 @@ const relato = await page.evaluate(async (boasVindas) => {
     const pvPc = pc.system.recursos.pv.value;
     await fx.aplicarDanoDeCombate(pc, { quantidade: 12 }, { gastar: true });
     ok("ponto de armadura reduz 10 e fica gasto", pc.system.recursos.pv.value === pvPc - 2 && pc.system.armadura.disponivel === 2);
+    // Sem escolha feita, a armadura vira card com as duas saídas (beta §8.4): nada cai antes do clique.
+    const pvAntesDaEscolha = pc.system.recursos.pv.value;
+    await fx.aplicarDanoDeCombate(pc, { quantidade: 4 });
+    await esperar(900);
+    const cardArmadura = game.messages.contents.at(-1);
+    // Uma cópia só: o Foundry mostra a mensagem no log e também na notificação do chat.
+    const botoesArmadura = () => [...(document.querySelector(`[data-message-id="${cardArmadura.id}"]`)
+      ?.querySelectorAll('[data-grupo="armadura"]') ?? [])];
+    ok("com armadura, o dano vira escolha no card (absorver ou levar), sem cair nem gastar nada",
+      botoesArmadura().length === 2 && pc.system.recursos.pv.value === pvAntesDaEscolha && pc.system.armadura.disponivel === 2);
+    botoesArmadura().find((b) => b.dataset.armadura === "0")?.click();
+    await esperar(900);
+    ok("levar o dano tira o inteiro e guarda a armadura",
+      pc.system.recursos.pv.value === pvAntesDaEscolha - 4 && pc.system.armadura.disponivel === 2);
+    botoesArmadura().find((b) => b.dataset.armadura === "1")?.click();
+    await esperar(600);
+    const jaUsado = game.i18n.localize("OP2.Chat.JaUsado");
+    const pergunta = [...foundry.applications.instances.values()]
+      .find((a) => a instanceof foundry.applications.api.DialogV2 && a.element?.textContent.includes(jaUsado));
+    ok("escolhida uma saída, a outra pergunta antes de aplicar de novo", Boolean(pergunta) && pc.system.armadura.disponivel === 2);
+    await pergunta?.close();
+    await esperar(300);
+    // Duas escolhas pendentes e um ponto só: o segundo "absorver" avisa e não aplica nada.
+    const gastaAntes = pc.system.estado.armaduraGasta;
+    await pc.update({ "system.estado.armaduraGasta": pc.system.armadura.total });
+    const pvSemPonto = pc.system.recursos.pv.value;
+    const semPonto = await fx.aplicarDanoDeCombate(pc, { quantidade: 4, armadura: "1" });
+    ok("absorver sem ponto de armadura sobrando avisa e não aplica", semPonto === false && pc.system.recursos.pv.value === pvSemPonto);
+    await pc.update({ "system.estado.armaduraGasta": gastaAntes });
 
     // Condição e rodada.
     await fx.acaoOposta(pc, "atrapalhar", { cena, alvoUuid: outro.uuid, rapido: true });

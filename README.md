@@ -242,7 +242,10 @@ num card só, com os dados dentro:
 
 ![Card de confronto](docs/img/card-confronto.png)
 
-Quem aplica o dano publica um card curto com o que entrou de fato, depois da proteção, e avisa se o alvo caiu.
+Quem aplica o dano publica um card curto com o que entrou de fato, depois da proteção, e avisa se o alvo caiu. Se o
+alvo tem ponto de armadura, antes vem a escolha, em card, para quem joga com ele (e para o mestre): **absorver**
+(gasta 1 ponto e tira 10) ou **levar o dano**. Para o jogador decidir, o personagem precisa ser dele (permissão de
+dono); com observador, a escolha fica só com o mestre.
 
 **O palco** é a cena vista como teatro, não como grade: uma faixa no rodapé com quem está em cena, personagens de um
 lado e criaturas do outro, a fase e a rodada no meio. Quem age dá um passo à frente, com a legenda do card; quem já

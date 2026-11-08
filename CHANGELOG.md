@@ -61,6 +61,9 @@ o modo; os Atos I e II continuam como estavam.
   reservadas mesmo vazias) e a cena de ação mora num elemento à parte, com posição própria ou fora da tela (para
   uma fonte separada, `=cena`). Antes, começar a cena empurrava todos os cards para baixo e a rolagem esticava o
   card. O e2e mede cada card antes e depois de cena, fase, rolagem, dano, pavor e condição.
+- **Armadura é escolha de quem apanha** (beta §8.4). Com ponto sobrando, o dano vira um card com dois botões,
+  "Absorver" (gasta 1 ponto, tira 10) e "Levar o dano", para quem joga com o alvo e para o mestre. Antes era um
+  Sim/Não depois de "Aplicar dano", que passava por confirmação e gastava a armadura sem ninguém escolher.
 - **Prints novos no README:** o card de confronto, o palco com o menu aberto e, pela primeira vez, a
   transmissão. O script de prints entrava como mestre duas vezes, e o Foundry não deixa: agora entra pelo
   usuário "Transmissão", como o README manda.

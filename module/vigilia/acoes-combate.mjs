@@ -148,15 +148,18 @@ export async function atacar(ator, ataque, { cena = cenaAcaoAtiva(), escolha, ra
     sucesso: r.sucesso ? 1 : 0,
   };
   const defendendo = condicoesDe(alvo).includes("defendendo");
+  // Corpo a corpo, aplicar o dano e revidar são saídas alternativas: o revide vira teste oposto e
+  // traz o dano deste golpe de novo (beta §7.3). Usada uma, a outra pergunta antes (`grupo`).
+  const grupo = ataque.tipo === "corpo" && !defendendo ? "desfecho" : undefined;
   const botoes = [];
   if (r.sucesso && !defendendo) {
-    botoes.push({ rotulo: game.i18n.format("OP2.Combate2.AplicarDano", { dano }), acao: "vigilia-dano", dados: { atorUuid: alvo.uuid, quantidade: dano, ignoraRd: contexto.ignoraRd } });
+    botoes.push({ rotulo: game.i18n.format("OP2.Combate2.AplicarDano", { dano }), acao: "vigilia-dano", dados: { atorUuid: alvo.uuid, quantidade: dano, ignoraRd: contexto.ignoraRd, grupo } });
   }
   // Sempre há como pôr outro valor, ou ferir mesmo com a regra dizendo que errou.
   botoes.push({ rotulo: game.i18n.localize("OP2.Combate2.DanoManual"), acao: "vigilia-dano-manual", dados: { atorUuid: alvo.uuid, quantidade: dano, ignoraRd: contexto.ignoraRd } });
   if (defendendo) botoes.push({ rotulo: game.i18n.format("OP2.Combate2.Defender", { alvo: alvo.name }), acao: "vigilia-defender", dados: { atorUuid: alvo.uuid, ...contexto, corpo: ataque.tipo === "corpo" ? 1 : 0 } });
   // Corpo a corpo contra quem também ataca vira teste oposto (beta §7.3).
-  else if (ataque.tipo === "corpo") botoes.push({ rotulo: game.i18n.format("OP2.Combate2.Revidar", { alvo: alvo.name }), acao: "vigilia-revidar", dados: { atorUuid: alvo.uuid, ...contexto } });
+  else if (ataque.tipo === "corpo") botoes.push({ rotulo: game.i18n.format("OP2.Combate2.Revidar", { alvo: alvo.name }), acao: "vigilia-revidar", dados: { atorUuid: alvo.uuid, ...contexto, grupo } });
 
   if (r.sucesso && defendendo) linhas.push(game.i18n.format("OP2.Confronto.AguardaDefesa", { alvo: nome(alvo) }));
   await cardConfronto(ator, {
@@ -272,47 +275,65 @@ async function anunciarDano(alvo, final, bruto, recurso, antes) {
 }
 
 /**
- * O dano do card. Quem não é dono do alvo pede ao mestre; o dono escolhe gastar armadura
- * antes (beta §8.4). A RD do alvo e o que a arma ignora saem aqui (beta §8.5).
+ * A escolha da armadura, em card: absorver (gasta 1 ponto, tira 10) ou levar o dano inteiro
+ * (beta §8.4, ação livre de quem sofre). Vai para quem joga com o alvo e para o mestre, que
+ * decide por quem não está. Card, não pop-up de Sim/Não: na mesa, o "Sim" depois de "Aplicar
+ * dano" passava por confirmação e gastava a armadura sem ninguém escolher.
+ */
+function cardDaArmadura(alvo, quantidade, recurso, ignoraRd) {
+  const rd = alvo.system.rd ?? 0;
+  const n = alvo.system.armadura.disponivel;
+  const absorvido = danoDepoisDaProtecao(quantidade, { rd, ignoraRd: Number(ignoraRd), gastarArmadura: true });
+  const inteiro = danoDepoisDaProtecao(quantidade, { rd, ignoraRd: Number(ignoraRd) });
+  const dados = (armadura) => ({ atorUuid: alvo.uuid, quantidade, recurso, ignoraRd, armadura, grupo: "armadura" });
+  return cardVigilia(alvo, {
+    titulo: game.i18n.localize("OP2.Combate2.ArmaduraTitulo"),
+    texto: game.i18n.format("OP2.Combate2.ArmaduraPergunta", { alvo: alvo.name, dano: inteiro, n }),
+    whisper: donosDe(alvo),
+    botoes: [
+      { rotulo: game.i18n.format("OP2.Combate2.ArmaduraAbsorver", { dano: absorvido }), acao: "vigilia-dano-dono", dados: dados(1) },
+      { rotulo: game.i18n.format("OP2.Combate2.ArmaduraLevar", { dano: inteiro }), acao: "vigilia-dano-dono", dados: dados(0) },
+    ],
+  });
+}
+
+/**
+ * O dano do card. Com ponto de armadura sobrando, quem joga com o alvo escolhe antes
+ * (`cardDaArmadura`); `gastar` (ou `data-armadura` do botão) é essa escolha já feita. Quem não
+ * é dono do alvo pede ao mestre. A RD do alvo e o que a arma ignora saem aqui (beta §8.5).
  */
 export async function aplicarDanoDeCombate(alvo, dataset, { gastar } = {}) {
   const quantidade = Number(dataset.quantidade);
   const recurso = dataset.recurso ?? "pv";
   const rd = alvo.system.rd ?? 0;
+  const ignoraRd = Number(dataset.ignoraRd ?? 0);
   const temArmadura = recurso === "pv" && quantidade > 0 && (alvo.system.armadura?.disponivel ?? 0) > 0;
-  // Gastar armadura é decisão de quem joga com o alvo (beta §8.4): o card vai para ele, em vez de
-  // ferir direto. O mestre também é dono de todo personagem, mas não é ele quem decide; com o
-  // jogador ausente, o card chega ao mestre e ele clica (`decidir`).
-  const quemDecideEOutro = !alvo.isOwner || (game.user.isGM && alvo.hasPlayerOwner && !dataset.decidir && gastar === undefined);
-  if (quemDecideEOutro && temArmadura) {
-    return cardVigilia(alvo, {
-      titulo: game.i18n.localize("OP2.Combate2.ArmaduraTitulo"),
-      texto: game.i18n.format("OP2.Combate2.ArmaduraPergunta", { dano: quantidade, n: alvo.system.armadura.disponivel }),
-      whisper: donosDe(alvo),
-      botoes: [{
-        rotulo: game.i18n.format("OP2.Combate2.DanoEm", { dano: quantidade, alvo: alvo.name }), acao: "vigilia-dano-dono",
-        dados: { atorUuid: alvo.uuid, quantidade, recurso, ignoraRd: dataset.ignoraRd ?? 0, decidir: 1 },
-      }],
-    });
+  const escolha = gastar ?? (dataset.armadura === undefined ? undefined : String(dataset.armadura) === "1");
+  if (temArmadura && escolha === undefined) {
+    await cardDaArmadura(alvo, quantidade, recurso, ignoraRd);
+    return true;
+  }
+  if (escolha === true && !temArmadura && recurso === "pv" && quantidade > 0) {
+    // Dois danos esperando escolha e um ponto só: o primeiro "absorver" gastou.
+    ui.notifications.warn(game.i18n.format("OP2.Combate2.SemArmadura", { alvo: alvo.name }));
+    return false;
   }
   const antes = alvo.system.recursos?.[recurso]?.value ?? 0;
   if (!alvo.isOwner) {
-    const final = danoDepoisDaProtecao(quantidade, { rd, ignoraRd: Number(dataset.ignoraRd ?? 0) });
+    // Sem mestre, o dano não entra: anunciar antes seria mentir no chat, e o botão ficaria gasto.
+    if (!game.users.activeGM) {
+      ui.notifications.warn(game.i18n.localize("OP2.Aviso.SemMestreOnline"));
+      return false;
+    }
+    const final = danoDepoisDaProtecao(quantidade, { rd, ignoraRd });
     // O anúncio vem antes: o pedido de teste de lesão, se zerar, sai depois dele.
     await anunciarDano(alvo, final, quantidade, recurso, antes);
     await comoMestre("vigilia-dano", { atorUuid: alvo.uuid, quantidade: final, recurso });
     return final;
   }
-  let gastarArmadura = false;
-  if (temArmadura) {
-    gastarArmadura = gastar ?? await foundry.applications.api.DialogV2.confirm({
-      window: { title: game.i18n.localize("OP2.Combate2.ArmaduraTitulo") },
-      content: `<p>${game.i18n.format("OP2.Combate2.ArmaduraPergunta", { dano: quantidade, n: alvo.system.armadura.disponivel })}</p>`,
-      rejectClose: false,
-    });
-    if (gastarArmadura) await alvo.update({ "system.estado.armaduraGasta": alvo.system.estado.armaduraGasta + 1 });
-  }
-  const final = danoDepoisDaProtecao(quantidade, { rd, ignoraRd: Number(dataset.ignoraRd ?? 0), gastarArmadura });
+  const gastarArmadura = Boolean(escolha) && temArmadura;
+  if (gastarArmadura) await alvo.update({ "system.estado.armaduraGasta": alvo.system.estado.armaduraGasta + 1 });
+  const final = danoDepoisDaProtecao(quantidade, { rd, ignoraRd, gastarArmadura });
   await anunciarDano(alvo, final, quantidade, recurso, antes);
   await aplicarDano(alvo, final, recurso);
   return final;
