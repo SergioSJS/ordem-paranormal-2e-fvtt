@@ -492,12 +492,56 @@ await gm.evaluate(async (id) => { await game.op2.rolarTeste(game.actors.get(id),
 await jog.waitForTimeout(1500);
 const acesoAgora = await jog.evaluate((id) => document.querySelectorAll(`#op2-transmissao [data-ator-id="${id}"].op2-transmissao__card--rolou .op2-transmissao__rolagem`).length, tx1.id);
 fixos.push(["rolar", await caixas()]);
+// O selo de "já agiu" não pode cair em cima do nome, e a faixa da cena não pode cobrir card nenhum.
+await gm.evaluate(async (id) => {
+  const { alternarAgiu, cenaAcaoAtiva } = await import("/systems/ordem-paranormal-2e/module/vigilia/cena-acao.mjs");
+  await alternarAgiu(cenaAcaoAtiva(), game.actors.get(id));
+}, tx1.id);
+await jog.waitForTimeout(1200);
+const sobreposicoes = await jog.evaluate(() => {
+  const r = (el) => el.getBoundingClientRect();
+  const cruza = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+  const cena = document.getElementById("op2-transmissao-cena");
+  const selos = [...document.querySelectorAll("#op2-transmissao .op2-transmissao__agiu")];
+  const textos = (li) => [...li.querySelectorAll(".op2-transmissao__nome, .op2-transmissao__jogador, .op2-transmissao__recurso, .op2-transmissao__texto")];
+  return {
+    selos: selos.length,
+    seloSobreTexto: selos.filter((s) => textos(s.closest("li")).some((t) => cruza(r(s), r(t)))).length,
+    cenaSobreCard: cena && !cena.hidden ? [...document.querySelectorAll("#op2-transmissao .op2-transmissao__card")].filter((c) => cruza(r(c), r(cena))).length : 0,
+  };
+});
+console.log(JSON.stringify(sobreposicoes));
+// O gabarito: em cada coluna, cada vaga fica na mesma posição (relativa ao card) em todos os cards,
+// tenha conteúdo ou não (quem joga vazio, PD sem máximo). É o que o OBS recorta.
+const gabarito = await jog.evaluate(() => {
+  const VAGAS = [".op2-transmissao__retrato", ".op2-transmissao__nome", ".op2-transmissao__jogador", ".op2-transmissao__recurso--pv",
+    ".op2-transmissao__recurso--pd", ".op2-transmissao__estado", ".op2-transmissao__vaga"];
+  return [...document.querySelectorAll("#op2-transmissao .op2-transmissao__cards")].map((col) => {
+    const cards = [...col.querySelectorAll(".op2-transmissao__card")];
+    const assinaturas = cards.map((c) => {
+      const base = c.getBoundingClientRect();
+      return VAGAS.map((sel) => {
+        const el = c.querySelector(sel);
+        if (!el) return `${sel}:ausente`;
+        const r = el.getBoundingClientRect();
+        return [r.left - base.left, r.top - base.top, r.width, r.height].map((n) => Math.round(n)).join(",");
+      }).join(" ");
+    });
+    return { cards: cards.length, iguais: new Set(assinaturas).size === 1, ausente: assinaturas.some((a) => a.includes("ausente")), exemplo: assinaturas };
+  });
+});
+console.log(JSON.stringify(gabarito));
+fixos.push(["marcar que agiu", await caixas()]);
 ok("transmissão: a cena aparece à parte, fora da coluna dos cards", comCena.visivel && comCena.fora && comCena.texto.length > 0);
 for (const [quando, agora] of fixos) {
   if (agora !== parado) console.log(`  antes: ${parado}\n  depois: ${agora}`);
   ok(`transmissão: ${quando} não move nenhum card`, agora === parado);
 }
 ok("transmissão: a rolagem acende dentro da vaga, nas duas colunas", acesoAgora === 2);
+ok("transmissão: o gabarito é o mesmo em todo card (quem joga e PD com vaga mesmo vazios)",
+  gabarito.length >= 1 && gabarito.every((g) => g.cards >= 2 && g.iguais && !g.ausente));
+ok("transmissão: o selo de já agiu fica no retrato, sem cobrir nome nem PV, e a faixa da cena não cobre card",
+  sobreposicoes.selos >= 2 && sobreposicoes.seloSobreTexto === 0 && sobreposicoes.cenaSobreCard === 0);
 await gm.evaluate(async (id) => {
   const cena = game.actors.getName("Transmissão Fixa");
   await game.op2.encerrarCenaAcao(cena);

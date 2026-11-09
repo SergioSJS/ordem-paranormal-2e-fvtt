@@ -53,7 +53,8 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
   display: flex;
   box-sizing: border-box;
   overflow: hidden;
-  width: 420px;
+  // Estreita: num OBS pouco largo, com as duas colunas de cards, 420 px avançava sobre elas.
+  width: 300px;
   height: 40px;
   align-items: center;
   justify-content: center;
@@ -136,36 +137,56 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
   transform: none;
 }
 
+// O gabarito do card: cada informação numa vaga de altura fixa, sempre na mesma linha, com ou sem
+// conteúdo. Quem joga vazio, PD sem máximo, nenhuma condição: a vaga continua lá, e nada sobe.
+// É isto que o OBS recorta, uma vez, para todos os cards.
+.op2-transmissao {
+  --op2-tx-vaga-nome: 20px;
+  --op2-tx-vaga-jogador: 15px;
+  --op2-tx-vaga-recurso: 15px;
+  --op2-tx-vaga-estado: 18px;
+  --op2-tx-vaga-espaco: 3px;
+}
+
 .op2-transmissao__dados {
-  display: flex;
+  display: grid;
   overflow: hidden;
   min-width: 0;
   height: 100%;
-  flex-direction: column;
-  gap: 3px;
+  align-content: start;
+  grid-template-rows:
+    var(--op2-tx-vaga-nome) var(--op2-tx-vaga-jogador) var(--op2-tx-vaga-recurso)
+    var(--op2-tx-vaga-recurso) var(--op2-tx-vaga-estado);
+  row-gap: var(--op2-tx-vaga-espaco);
+
+  > * { min-width: 0; }
 }
+
+// PD de quem não tem PD: a vaga fica, invisível.
+.op2-transmissao__recurso--vazio { visibility: hidden; }
 
 .op2-transmissao__nome {
   overflow: hidden;
   font-family: var(--op2-fonte-display);
   font-size: 1.2rem;
   font-weight: 700;
-  line-height: 1.1;
+  line-height: var(--op2-tx-vaga-nome);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .op2-transmissao__jogador {
   overflow: hidden;
-  margin-top: -2px;
   color: var(--op2-texto-fraco);
   font-size: 0.8rem;
+  line-height: var(--op2-tx-vaga-jogador);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .op2-transmissao__recurso {
   display: grid;
+  overflow: hidden;
   align-items: center;
   grid-template-columns: 1.8em 1fr auto;
   font-size: 0.82rem;
@@ -191,12 +212,12 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
 .op2-transmissao__estado {
   display: flex;
   overflow: hidden;
-  min-height: 1.15rem;
-  flex: none;
+  align-items: center;
   flex-wrap: nowrap;
   gap: 3px;
 
   > span {
+    line-height: calc(var(--op2-tx-vaga-estado) - 4px);
     padding: 0 0.35em;
     border: 1px solid var(--op2-linha-forte);
     color: var(--op2-texto-fraco);
@@ -208,11 +229,26 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
 
 .op2-transmissao__pavor { border-color: var(--op2-vermelho-claro) !important; color: var(--op2-texto) !important; }
 
+// "Já agiu": selo no canto de baixo do retrato, onde não há texto. No canto do card ele caía em
+// cima dos nomes longos (e, no estilo sem fundo, por baixo da faixa da cena).
 .op2-transmissao__agiu {
   position: absolute;
-  top: 6px;
-  right: 8px;
-  color: var(--op2-sucesso);
+  z-index: 1;
+  top: calc(8px + 76px - 20px);
+  left: calc(8px + 76px - 20px);
+  // O Font Awesome não tem layer e ganharia do nosso `display`: vai pela variável dele.
+  --fa-display: block;
+  box-sizing: border-box;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #12160f;
+  border-radius: 50%;
+  background: #3f9a4a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
 }
 
 .op2-transmissao__card--agiu { opacity: 0.75; }
@@ -440,11 +476,21 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
     filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
   }
 
+  // As vagas do estilo sem fundo: letra maior, somam a altura do retrato (104 px).
+  --op2-tx-vaga-nome: 24px;
+  --op2-tx-vaga-jogador: 16px;
+  --op2-tx-vaga-recurso: 20px;
+  --op2-tx-vaga-estado: 16px;
+  --op2-tx-vaga-espaco: 2px;
+
   &.op2-transmissao__cards--inteiro { --op2-transmissao-retrato-altura: 136px; }
   // A coluna não corta: era ela que comia o contorno de tudo encostado à esquerda (nome, quem
   // joga, PV, PD). Cada linha que precisa de reticências corta sozinha, com folga para o contorno.
-  .op2-transmissao__dados { overflow: visible; height: auto; max-height: 100%; justify-content: center; }
-  .op2-transmissao__estado { margin: -3px; padding: 3px; }
+  // Cada vaga recua 3 px para a esquerda e devolve no padding: o texto fica no lugar, e o
+  // contorno escuro da primeira letra cabe dentro da vaga.
+  .op2-transmissao__dados { overflow: visible; }
+  .op2-transmissao__dados > * { margin-left: -3px; padding-left: 3px; }
+  .op2-transmissao__texto { line-height: var(--op2-tx-vaga-recurso); white-space: nowrap; overflow: hidden; }
 
   .op2-transmissao__nome,
   .op2-transmissao__jogador,
@@ -452,10 +498,6 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
   .op2-transmissao__estado > span,
   .op2-transmissao__rolagem { text-shadow: var(--op2-transmissao-contorno); }
 
-  // Mesma folga do título da rolagem: o corte com reticências comia o contorno e a perna do "g".
-  .op2-transmissao__nome,
-  .op2-transmissao__jogador { margin: -3px; padding: 3px; }
-  .op2-transmissao__jogador { margin-top: -5px; }
   .op2-transmissao__nome { color: var(--op2-transmissao-nome); font-size: 1.3rem; }
   .op2-transmissao__jogador { color: var(--op2-transmissao-jogador); font-style: italic; }
   .op2-transmissao__texto { font-size: 1.1rem; font-weight: 700; }
@@ -478,6 +520,7 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
   // aqui não tem borda nem folga: deixa a sombra dos dados e o contorno do texto passarem da caixa.
   .op2-transmissao__card { overflow: visible; }
   .op2-transmissao__vaga { inset: auto 0 0 0; }
+  .op2-transmissao__agiu { top: calc(var(--op2-transmissao-retrato-altura) - 24px); left: calc(104px - 24px); }
   .op2-transmissao__dado { filter: drop-shadow(0 0 2px #000) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.8)); }
   .op2-transmissao__dado small { text-shadow: var(--op2-transmissao-contorno); }
   .op2-transmissao__dado--ra small { color: #ff7a6a; }
