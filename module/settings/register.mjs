@@ -4,13 +4,25 @@
  * Quase todos existem porque o playtest deixa a regra em aberto ou se contradiz
  * (spec §11). O default é sempre a leitura recomendada; a mesa ajusta se discordar.
  */
-import { SYSTEM_ID, DT_PADRAO } from "../config.mjs";
+import { SYSTEM_ID, DT_PADRAO, MODOS, MODO_PADRAO } from "../config.mjs";
 
 /** @type {Record<string, object>} */
 const SETTINGS = {
   dtPadrao: {
     scope: "world", config: true, type: Number, default: DT_PADRAO,
     range: { min: 2, max: 20, step: 1 },
+  },
+  // Moderno (alpha) ou Vigília (beta). `requiresReload`: ao salvar o formulário, o core
+  // recarrega a mesa inteira, que precisa ver as mesmas perícias. Fora do formulário, ver
+  // `trocarModo`. Nada se perde na troca: a ficha guarda as dos dois modos.
+  modo: {
+    scope: "world", config: true, type: String, default: MODO_PADRAO, requiresReload: true,
+    choices: Object.fromEntries(MODOS.map((modo) => [modo, `OP2.Modo.${modo}`])),
+  },
+  // O combate do beta no modo moderno: as regras não são presas à época. No Vigília é o
+  // único que existe, e este setting não faz nada lá.
+  combateNovoModerno: {
+    scope: "world", config: true, type: Boolean, default: true, requiresReload: true,
   },
   // O playtest não diz se dados descartados alimentam a detecção de crítico (spec §4.5).
   escopoCritico: {
@@ -40,6 +52,12 @@ const SETTINGS = {
   // (na própria tela ou aqui). "Sobre e licença", no menu, abre a mesma janela sempre.
   boasVindas: {
     scope: "world", config: true, type: Boolean, default: true,
+  },
+  // Examinar entrega a pista na hora, no card do jogador. Há mesa em que o mestre
+  // quer narrar antes: com isto ligado, o card vai só a ele, com o botão de entregar
+  // (achado em uso real: "não role pelo sistema, a descrição vai aparecer").
+  revelacaoPeloMestre: {
+    scope: "world", config: true, type: Boolean, default: false,
   },
   // Clique simples rola direto; Shift abre o diálogo. Invertível por preferência.
   cliqueAbreDialogo: {

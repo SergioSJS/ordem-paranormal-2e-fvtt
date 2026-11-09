@@ -135,11 +135,12 @@ export function alternarPainelInvestigacao() {
  * sidebar sempre que ela muda de estado, em vez de chutar um valor fixo.
  */
 function reposicionarBotaoFlutuante() {
-  const botao = document.getElementById("op2-botao-painel");
   const sidebar = document.getElementById("sidebar");
-  if (!botao) return;
   const largura = sidebar?.getBoundingClientRect().width ?? 0;
-  botao.style.right = `${largura + 12}px`;
+  for (const id of ["op2-botao-painel", "op2-botao-painel-acao"]) {
+    const botao = document.getElementById(id);
+    if (botao) botao.style.right = `${largura + 12}px`;
+  }
 }
 
 function criarBotaoFlutuante() {

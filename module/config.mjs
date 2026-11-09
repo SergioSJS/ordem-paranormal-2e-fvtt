@@ -18,9 +18,13 @@ export const ATRIBUTOS = {
   emocao: { ordem: 3 },
 };
 
-/** As 20 perícias, com o atributo-base sugerido (trocável no teste — spec §2.3). */
+/**
+ * As perícias dos dois modos, 20 em cada um, com o atributo-base sugerido (trocável no
+ * teste — spec §2.3). Sem `modos`, vale nos dois; `rotulos` troca o nome por modo.
+ */
 export const PERICIAS = {
   acrobacia: { atributo: "fisico" },
+  animais: { atributo: "emocao", modos: ["vigilia"] },
   aptidao: { atributo: "mente", especializada: true },
   atletismo: { atributo: "fisico" },
   crime: { atributo: "fisico" },
@@ -30,15 +34,16 @@ export const PERICIAS = {
   intimidar: { atributo: "emocao" },
   intuicao: { atributo: "emocao" },
   luta: { atributo: "fisico" },
-  maquinas: { atributo: "mente" },
+  maquinas: { atributo: "mente", modos: ["moderno"] },
   medicina: { atributo: "mente" },
-  ocultismo: { atributo: "mente" },
+  ocultismo: { atributo: "mente", rotulos: { vigilia: "bruxaria" } },
+  oficio: { atributo: "mente", modos: ["vigilia"] },
   percepcao: { atributo: "mente" },
   persuasao: { atributo: "emocao" },
-  pesquisar: { atributo: "mente" },
+  pesquisar: { atributo: "mente", rotulos: { vigilia: "inspecionar" } },
   pontaria: { atributo: "fisico" },
   sobrevivencia: { atributo: "mente" },
-  tecnologia: { atributo: "mente" },
+  tecnologia: { atributo: "mente", modos: ["moderno"] },
   vigor: { atributo: "fisico" },
 };
 
@@ -47,6 +52,45 @@ export const PERICIAS = {
  * "conhecimento em um campo específico", então o jogador pode criar outros.
  */
 export const APTIDOES_PADRAO = ["artes", "atualidades", "burocracia", "exatas", "humanas", "tatica"];
+
+/** Modos de jogo: o alpha é o moderno, o beta é o Vigília (docs/regras/alpha-para-beta.md). */
+export const MODOS = ["moderno", "vigilia"];
+export const MODO_PADRAO = "moderno";
+
+const APTIDOES_POR_MODO = {
+  moderno: APTIDOES_PADRAO,
+  vigilia: ["artes", "erudicao", "folclore", "guerra", "nobreza", "religiao"], // beta §2.2
+};
+
+/** As chaves de perícia que o modo mostra. A ficha guarda todas; ver `PERICIAS`. */
+export function periciasDoModo(modo) {
+  return Object.keys(PERICIAS).filter((chave) => !PERICIAS[chave].modos || PERICIAS[chave].modos.includes(modo));
+}
+
+/** A chave de i18n do nome da perícia: `pesquisar` é Inspecionar no Vigília (beta §2.2). */
+export function chaveDoRotuloDePericia(chave, modo) {
+  return `OP2.Pericia.${PERICIAS[chave]?.rotulos?.[modo] ?? chave}`;
+}
+
+/** As Aptidões que o modo traz de fábrica. */
+export function aptidoesDoModo(modo) {
+  return APTIDOES_POR_MODO[modo] ?? APTIDOES_PADRAO;
+}
+
+/**
+ * O campo aparece no modo? Os de fábrica de outro modo somem; os que a mesa criou
+ * aparecem sempre. Rótulo preenchido é o que marca um campo da mesa: ela pode chamar um
+ * campo de "Folclore" no moderno, e a chave sai igual à de fábrica do Vigília.
+ */
+export function aptidaoVisivel(sub, modo, rotulo = "") {
+  if (rotulo?.trim() || aptidoesDoModo(modo).includes(sub)) return true;
+  return !Object.values(APTIDOES_POR_MODO).some((lista) => lista.includes(sub));
+}
+
+/** O nome do campo Ocupação: é Vocação no Vigília (beta §2.1). */
+export function chaveDoRotuloDeOcupacao(modo) {
+  return modo === "vigilia" ? "OP2.Campo.Vocacao" : "OP2.Campo.Ocupacao";
+}
 
 export const PERFIS = ["executor", "analista", "vigilante"];
 
@@ -78,12 +122,30 @@ export const TABELA_FALHA_CRITICA = {
   8: { chave: "nenhum", efeito: "nenhum" },
 };
 
+/** Dado de pavor: gastar antes do teste (beta §9.1). */
+export const CUSTO_CONTROLAR_PAVOR = 1;
+export const CUSTO_ABRACAR_PAVOR = 5;
+/** Prontidão: rolar um dado de novo (beta §12). */
+export const CUSTO_PD_PRONTIDAO = 2;
+/** Análise: quanto a ação dá e quanto se acumula (beta §12). */
+export const MARCADORES_POR_ACAO = 2;
+export const MAX_MARCADORES = 4;
+
 /** Ajuda: quanto o dado do ajudante concede ao aliado (spec §4.7). */
 export const PASSOS_DE_AJUDA = { d4: 0, d6: 1, d8: 1, d10: 2, d12: 2 };
 
 /** Escalada de DT dos testes de ferimento e trauma: 7, 10, 13, 16… (spec §8.2/§8.3). */
 export const DT_FERIMENTO_BASE = 7;
 export const DT_FERIMENTO_INCREMENTO = 3;
+
+/* Combate e cenas de ação do beta (beta §7, §8, §11). */
+export const DT_ATAQUE = 7;
+/** O que longe, cobertura leve e caído à distância somam à DT. */
+export const BONUS_DT_SITUACAO = 3;
+export const PASSOS_FINTA = 2;
+export const REDUCAO_POR_PONTO_DE_ARMADURA = 10;
+export const DT_ESCONDER = 7;
+export const DT_ESCONDER_INCREMENTO = 3;
 
 /** Ações de investigação travadas para o grupo após um sucesso (spec §6.4/§6.5). */
 export const DT_RECAPITULAR = 10;
@@ -119,7 +181,7 @@ export const FERRAMENTAS_COM_CARGA = { lanternaUV: 3, poRevelador: 5 };
 /**
  * Sobrecarga mental de referência (spec §7.6): dano emocional ao fim de cada rodada.
  * A última linha cobre "9 ou mais" — a diagramação da tabela admite outra leitura,
- * então a tabela é editável por cena (docs/LACUNAS.md). `dano` é uma expressão de
+ * então a tabela é editável por cena (docs/regras/LACUNAS.md). `dano` é uma expressão de
  * rolagem: "0" não machuca, "1" é fixo, "1d4" rola.
  */
 export const TABELA_SOBRECARGA_PADRAO = [
@@ -162,10 +224,11 @@ export const ICONES_PADRAO = {
 };
 
 export const OP2 = {
-  SYSTEM_ID, I18N, ESCADA, DADO_SOBRE_HUMANO, ATRIBUTOS, PERICIAS, APTIDOES_PADRAO,
+  SYSTEM_ID, I18N, ESCADA, DADO_SOBRE_HUMANO, ATRIBUTOS, PERICIAS, APTIDOES_PADRAO, MODOS,
   PERFIS, TIPOS_PERSONAGEM, DT_PADRAO, MAX_DADOS_ROLADOS, MAX_DADOS_CONTADOS,
   VALOR_MINIMO_CRITICO, TABELA_FALHA_CRITICA, PASSOS_DE_AJUDA,
   DT_FERIMENTO_BASE, DT_FERIMENTO_INCREMENTO,
+  DT_ATAQUE, BONUS_DT_SITUACAO, PASSOS_FINTA, REDUCAO_POR_PONTO_DE_ARMADURA, DT_ESCONDER, DT_ESCONDER_INCREMENTO,
   DT_RECAPITULAR, DT_COMPARTILHAR, CUSTO_PD_EXAMINAR, FERRAMENTAS_POI,
   FERRAMENTAS_ORDO, FERRAMENTAS_COM_CARGA,
   TABELA_SOBRECARGA_PADRAO, ICONES, ICONES_PADRAO,

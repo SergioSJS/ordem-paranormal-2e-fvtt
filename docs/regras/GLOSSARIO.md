@@ -50,3 +50,19 @@ identificadores em pt-BR, e consistência aqui é o que evita `skill`, `pericia`
 - Classes: **PascalCase**, sufixo em pt-BR (`PersonagemSheet`, `PersonagemData`).
 - CSS: `.op2-<bloco>__<elemento>--<modificador>`.
 - i18n: `OP2.<Área>.<Chave>`, com a área em PascalCase.
+
+## Termos do modo Vigília (propostos, ainda sem código)
+
+| Termo | Chave proposta | Observação |
+|---|---|---|
+| Modo de jogo | `modo`: `moderno`, `vigilia` | setting de mundo; alpha = moderno, beta = Vigília |
+| Vocação | `ocupacao` (chave mantida) | só muda o rótulo |
+| Fase de combate | `fase`: `suporte`, `distancia`, `corpo`, `final` | `beta §7.1` |
+| Dado de pavor | `estado.pavor` | `beta §9.1` |
+| Relação | `relacoes[]`: `com`, `grau`, `rotulo`, `invocada` | `beta §9.2` |
+| Pontos de armadura | `armadura` | nunca "PA" |
+| Pontos de avanço | `avanco` | nunca "PA" |
+| Teste de lesão | `testesLesao` | herda de `testesFerimento` |
+| Dados de esconderijo | `esconderijo[]` | guarda dado e valor |
+| Fôlego | `folego` | dados bônus da perseguição |
+

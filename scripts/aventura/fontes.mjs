@@ -93,6 +93,16 @@ export function fontesDoAtoI(opcoes = {}) {
   };
 }
 
+/** O modo Vigília: os oito pré-gerados e as cenas das duas missões. */
+export function fontesDaVigilia({ nivel = false } = {}) {
+  const cenas = ler("vigilia-cenas").filter((d) => d._key).map(semChave);
+  return {
+    pregerados: ler("vigilia-personagens").map(semChave),
+    cenas: nivel ? cenas.map(comNivel) : cenas,
+    posicoes: posicoes("vigilia-cenas"),
+  };
+}
+
 /** @returns {{agentes: object[], cena: object|null, ferramentas: object[]}} */
 export function fontesDoAtoII(opcoes = {}) {
   return {

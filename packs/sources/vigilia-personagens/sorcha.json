@@ -1,0 +1,447 @@
+{
+  "_id": "a377d62065d11cf1",
+  "name": "Sorcha Roth",
+  "type": "personagem",
+  "img": "systems/ordem-paranormal-2e/assets/vigilia/tokens/personagem-sorcha.webp",
+  "system": {
+    "tipo": "sobrevivente",
+    "perfil": "vigilante",
+    "ocupacao": "Talentosa",
+    "nivel": 3,
+    "nex": 0,
+    "atributos": {
+      "fisico": {
+        "die": "d8"
+      },
+      "mente": {
+        "die": "d6"
+      },
+      "emocao": {
+        "die": "d8"
+      }
+    },
+    "pericias": {
+      "acrobacia": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "animais": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "aptidao": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "atletismo": {
+        "die": "d8",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "crime": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "disciplina": {
+        "die": "d8",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "enganacao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "furtividade": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "intimidar": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "intuicao": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "luta": {
+        "die": "d8",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "maquinas": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "medicina": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "ocultismo": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "oficio": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "percepcao": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "persuasao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "pesquisar": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "pontaria": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "sobrevivencia": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "tecnologia": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "vigor": {
+        "die": "d8",
+        "atributo": "fisico",
+        "stepMod": 0
+      }
+    },
+    "aptidoes": {
+      "artes": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "erudicao": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "folclore": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "guerra": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "nobreza": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "religiao": {
+        "rotulo": "",
+        "die": "d4"
+      }
+    },
+    "recursos": {
+      "pv": {
+        "value": 22,
+        "max": 22
+      },
+      "pd": {
+        "value": 14,
+        "max": 14
+      }
+    },
+    "patamar": "iniciante",
+    "relacoes": [
+      {
+        "com": "Rhiona",
+        "grau": 2,
+        "rotulo": "RESPEITO",
+        "invocada": false
+      },
+      {
+        "com": "Rowan",
+        "grau": 0,
+        "rotulo": "NEUTRO",
+        "invocada": false
+      },
+      {
+        "com": "Muirenn",
+        "grau": 2,
+        "rotulo": "ADMIRAÇÃO",
+        "invocada": false
+      },
+      {
+        "com": "Cavan",
+        "grau": 1,
+        "rotulo": "PROTEÇÃO",
+        "invocada": false
+      },
+      {
+        "com": "Malik",
+        "grau": 0,
+        "rotulo": "NEUTRO",
+        "invocada": false
+      },
+      {
+        "com": "Sira",
+        "grau": 0,
+        "rotulo": "SUSPEITA",
+        "invocada": false
+      },
+      {
+        "com": "Cormac",
+        "grau": 1,
+        "rotulo": "SUSPEITA",
+        "invocada": false
+      }
+    ],
+    "biografia": ""
+  },
+  "items": [
+    {
+      "_id": "a486ce12214ecc14",
+      "name": "Prontidão",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+      "system": {
+        "origem": "perfil",
+        "perfil": "vigilante",
+        "custo": "",
+        "custoPD": 0,
+        "descricao": "<p>Uma vez por rodada, por 2 PD: rola de novo um dado que não tenha dado 1, num teste seu ou de outro ser em alcance curto. Em combate, pode agir na fase da ação ou em fases posteriores, depois de qualquer ação daquela fase já rolada.</p>",
+        "mecanica": "prontidao",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false,
+          "pdAoDescobrir": 0
+        },
+        "impeto": {
+          "espacos": 0,
+          "preenchidos": 0
+        },
+        "usoEmInvestigacao": ""
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "280643d6a6b39df1",
+      "name": "Guardiã",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+      "system": {
+        "origem": "ocupacao",
+        "perfil": "",
+        "custo": "",
+        "custoPD": 0,
+        "descricao": "<p>+1 PV por patamar (já na ficha). Uma vez por rodada, por 2 PD: toma para si o ataque contra um aliado em alcance curto.</p>",
+        "mecanica": "",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false,
+          "pdAoDescobrir": 0
+        },
+        "impeto": {
+          "espacos": 0,
+          "preenchidos": 0
+        },
+        "usoEmInvestigacao": ""
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "a5456a55442609b2",
+      "name": "Instinto de Sobrevivência",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+      "system": {
+        "origem": "ocupacao",
+        "perfil": "",
+        "custo": "",
+        "custoPD": 0,
+        "descricao": "<p>Com metade ou menos dos PV máximos, um passo a mais em todos os testes. Marque no teste.</p>",
+        "mecanica": "",
+        "efeito": {
+          "tipo": "passo",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false,
+          "pdAoDescobrir": 0
+        },
+        "impeto": {
+          "espacos": 0,
+          "preenchidos": 0
+        },
+        "usoEmInvestigacao": ""
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "b2226e6b1c649093",
+      "name": "Lança",
+      "type": "equipamento",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/equipamento.svg",
+      "system": {
+        "quantidade": 1,
+        "equipado": true,
+        "arma": true,
+        "descricao": "<p>Um passo a mais no primeiro ataque contra quem ainda não a atacou.</p>",
+        "ataque": {
+          "tipo": "corpo",
+          "bonusDano": 2,
+          "bonusTeste": 0,
+          "minimoCritico": 0,
+          "ignoraRd": 0,
+          "pequena": false
+        },
+        "marcial": false,
+        "armadura": 0,
+        "passos": "",
+        "cargas": {
+          "usa": false,
+          "value": 0,
+          "max": 0
+        }
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "47efa5925fcfb21a",
+      "name": "Escudo",
+      "type": "equipamento",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/equipamento.svg",
+      "system": {
+        "quantidade": 1,
+        "equipado": true,
+        "arma": false,
+        "descricao": "<p>Perdendo teste oposto de ataque com 7 ou mais no seu, reduz o dano pela sua rolagem baixa.</p>",
+        "ataque": {
+          "tipo": "",
+          "bonusDano": 0,
+          "bonusTeste": 0,
+          "minimoCritico": 0,
+          "ignoraRd": 0,
+          "pequena": false
+        },
+        "marcial": false,
+        "armadura": 0,
+        "passos": "",
+        "cargas": {
+          "usa": false,
+          "value": 0,
+          "max": 0
+        }
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "292fc69fa13aeba7",
+      "name": "Elmo aberto",
+      "type": "equipamento",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/equipamento.svg",
+      "system": {
+        "quantidade": 1,
+        "equipado": true,
+        "arma": false,
+        "descricao": "",
+        "ataque": {
+          "tipo": "",
+          "bonusDano": 0,
+          "bonusTeste": 0,
+          "minimoCritico": 0,
+          "ignoraRd": 0,
+          "pequena": false
+        },
+        "marcial": false,
+        "armadura": 1,
+        "passos": "percepcao -1",
+        "cargas": {
+          "usa": false,
+          "value": 0,
+          "max": 0
+        }
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    }
+  ],
+  "prototypeToken": {
+    "name": "Sorcha Roth",
+    "texture": {
+      "src": "systems/ordem-paranormal-2e/assets/vigilia/tokens/personagem-sorcha.webp"
+    },
+    "depth": 1,
+    "actorLink": true,
+    "disposition": 1,
+    "sight": {
+      "enabled": false
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!actors!a377d62065d11cf1"
+}

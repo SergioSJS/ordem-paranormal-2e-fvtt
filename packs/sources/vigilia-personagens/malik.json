@@ -1,0 +1,378 @@
+{
+  "_id": "eff5ee204f0f0dbf",
+  "name": "Malik ibn Qamar",
+  "type": "personagem",
+  "img": "systems/ordem-paranormal-2e/assets/vigilia/tokens/personagem-malik.webp",
+  "system": {
+    "tipo": "sobrevivente",
+    "perfil": "executor",
+    "ocupacao": "Explorador",
+    "nivel": 3,
+    "nex": 0,
+    "atributos": {
+      "fisico": {
+        "die": "d6"
+      },
+      "mente": {
+        "die": "d6"
+      },
+      "emocao": {
+        "die": "d10"
+      }
+    },
+    "pericias": {
+      "acrobacia": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "animais": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "aptidao": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "atletismo": {
+        "die": "d6",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "crime": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "disciplina": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "enganacao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "furtividade": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "intimidar": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "intuicao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "luta": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "maquinas": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "medicina": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "ocultismo": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "oficio": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "percepcao": {
+        "die": "d10",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "persuasao": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "pesquisar": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "pontaria": {
+        "die": "d8",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "sobrevivencia": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "tecnologia": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "vigor": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      }
+    },
+    "aptidoes": {
+      "artes": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "erudicao": {
+        "rotulo": "",
+        "die": "d8"
+      },
+      "folclore": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "guerra": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "nobreza": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "religiao": {
+        "rotulo": "",
+        "die": "d4"
+      }
+    },
+    "recursos": {
+      "pv": {
+        "value": 15,
+        "max": 15
+      },
+      "pd": {
+        "value": 19,
+        "max": 19
+      }
+    },
+    "patamar": "iniciante",
+    "relacoes": [
+      {
+        "com": "Rhiona",
+        "grau": 0,
+        "rotulo": "NEUTRO",
+        "invocada": false
+      },
+      {
+        "com": "Rowan",
+        "grau": 0,
+        "rotulo": "NEUTRO",
+        "invocada": false
+      },
+      {
+        "com": "Muirenn",
+        "grau": 1,
+        "rotulo": "ADMIRAÇÃO",
+        "invocada": false
+      },
+      {
+        "com": "Cavan",
+        "grau": 1,
+        "rotulo": "ADMIRAÇÃO",
+        "invocada": false
+      },
+      {
+        "com": "Sira",
+        "grau": 1,
+        "rotulo": "CURIOSIDADE",
+        "invocada": false
+      },
+      {
+        "com": "Sorcha",
+        "grau": 0,
+        "rotulo": "NEUTRO",
+        "invocada": false
+      },
+      {
+        "com": "Cormac",
+        "grau": 1,
+        "rotulo": "CURIOSIDADE",
+        "invocada": false
+      }
+    ],
+    "biografia": ""
+  },
+  "items": [
+    {
+      "_id": "2e74b60387ddce7c",
+      "name": "Ímpeto",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+      "system": {
+        "origem": "perfil",
+        "perfil": "executor",
+        "custo": "",
+        "custoPD": 0,
+        "descricao": "<p>Uma barra de cinco espaços, que enche um a cada teste falho. Ação livre: 1 espaço dá +d4 num teste; 3 espaços sobem um atributo em um passo até o fim da cena; 3 espaços dão uma ação extra em cena de conflito. A barra esvazia no fim da cena.</p>",
+        "mecanica": "",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false,
+          "pdAoDescobrir": 0
+        },
+        "impeto": {
+          "espacos": 5,
+          "preenchidos": 0
+        },
+        "usoEmInvestigacao": ""
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "a83a8b77bb14f924",
+      "name": "Ímpeto Fervilhante",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+      "system": {
+        "origem": "ocupacao",
+        "perfil": "",
+        "custo": "",
+        "custoPD": 0,
+        "descricao": "<p>No início de cada cena, a barra de ímpeto ganha um espaço.</p>",
+        "mecanica": "",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false,
+          "pdAoDescobrir": 0
+        },
+        "impeto": {
+          "espacos": 0,
+          "preenchidos": 0
+        },
+        "usoEmInvestigacao": ""
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "21b9b78bfb3f7c9e",
+      "name": "Arco composto",
+      "type": "equipamento",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/equipamento.svg",
+      "system": {
+        "quantidade": 1,
+        "equipado": true,
+        "arma": true,
+        "descricao": "",
+        "ataque": {
+          "tipo": "distancia",
+          "bonusDano": 1,
+          "bonusTeste": 0,
+          "minimoCritico": 0,
+          "ignoraRd": 0,
+          "pequena": false
+        },
+        "marcial": false,
+        "armadura": 0,
+        "passos": "",
+        "cargas": {
+          "usa": false,
+          "value": 0,
+          "max": 0
+        }
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "f95f95a130242800",
+      "name": "Diário de viagem",
+      "type": "equipamento",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/equipamento.svg",
+      "system": {
+        "quantidade": 1,
+        "equipado": true,
+        "arma": false,
+        "descricao": "",
+        "ataque": {
+          "tipo": "",
+          "bonusDano": 0,
+          "bonusTeste": 0,
+          "minimoCritico": 0,
+          "ignoraRd": 0,
+          "pequena": false
+        },
+        "marcial": false,
+        "armadura": 0,
+        "passos": "",
+        "cargas": {
+          "usa": false,
+          "value": 0,
+          "max": 0
+        }
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    }
+  ],
+  "prototypeToken": {
+    "name": "Malik ibn Qamar",
+    "texture": {
+      "src": "systems/ordem-paranormal-2e/assets/vigilia/tokens/personagem-malik.webp"
+    },
+    "depth": 1,
+    "actorLink": true,
+    "disposition": 1,
+    "sight": {
+      "enabled": false
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!actors!eff5ee204f0f0dbf"
+}

@@ -32,3 +32,9 @@ $latin-ext: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
 @include familia("OP2 Display", "big-shoulders", 400 800);
 @include familia("OP2 Mono", "cutive-mono", 400);
 @include familia("OP2 Corpo", "bitter", 400 700);
+
+// Modo Vigília: Barlow é a fonte de texto das fichas do beta, e é livre. Estática, um
+// arquivo por peso. O título (IM Fell English SC) fica em _vigilia.scss.
+@include familia("OP2 Vigilia Corpo", "barlow-400", 400);
+@include familia("OP2 Vigilia Corpo", "barlow-700", 700);
+@include familia("OP2 Vigilia Corpo", "barlow-800", 800);

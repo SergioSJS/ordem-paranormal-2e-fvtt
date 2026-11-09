@@ -1,0 +1,551 @@
+// Modo transmissão (module/ui/transmissao.mjs): só os cards, fundo transparente, para o OBS.
+
+// Fora da layer de propósito: o fundo do core no <body> e no <html> precisa sumir de vez.
+html:has(body.op2-transmissao-modo),
+body.op2-transmissao-modo {
+  background: none transparent !important;
+}
+
+body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
+  visibility: hidden !important;
+}
+
+// Os cantos da tela, para os cards e para a cena (cada um no seu).
+@mixin posicionado {
+  position: fixed;
+  z-index: 10000;
+  margin: 24px;
+  transform: scale(var(--op2-transmissao-escala, 1));
+
+  &[data-posicao^="top"] { top: 0; }
+  &[data-posicao^="bottom"] { bottom: 0; }
+  &[data-posicao$="left"] { left: 0; transform-origin: left top; }
+  &[data-posicao$="right"] { right: 0; transform-origin: right top; }
+  &[data-posicao$="center"] { left: 50%; translate: -50% 0; transform-origin: center top; }
+  &[data-posicao^="bottom"][data-posicao$="left"] { transform-origin: left bottom; }
+  &[data-posicao^="bottom"][data-posicao$="right"] { transform-origin: right bottom; }
+  &[data-posicao^="bottom"][data-posicao$="center"] { transform-origin: center bottom; }
+}
+
+@layer system {
+.op2-transmissao {
+  --op2-transmissao-escala: 1;
+  --op2-transmissao-pv: #c0392b;
+  --op2-transmissao-pd: #4f7bbf;
+  // As cores do texto no estilo sem fundo: vivas, para ler sobre qualquer vídeo.
+  --op2-transmissao-nome: #ff6a4d;
+  --op2-transmissao-pv-texto: #ff6b5b;
+  --op2-transmissao-pd-texto: #7fb2ff;
+  --op2-transmissao-jogador: #d6dde3;
+  // Busto: quanto o avatar aproxima, a partir do topo.
+  --op2-transmissao-zoom: 1.35;
+  // Tamanho fixo do card: nada do que acontece no jogo estica ou encolhe a caixa.
+  --op2-transmissao-largura: 320px;
+  --op2-transmissao-vaga: 54px;
+  @include posicionado;
+  color: var(--op2-texto);
+  font-family: var(--op2-fonte-corpo);
+}
+
+// A cena de ação: caixa de tamanho fixo, num canto só dela. O texto se ajusta dentro.
+.op2-transmissao-cena {
+  @include posicionado;
+  display: flex;
+  box-sizing: border-box;
+  overflow: hidden;
+  // Estreita: num OBS pouco largo, com as duas colunas de cards, 420 px avançava sobre elas.
+  width: 300px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border: 1px solid var(--op2-linha-forte);
+  background: color-mix(in srgb, var(--op2-fundo) 88%, transparent);
+  color: var(--op2-texto);
+  font-family: var(--op2-fonte-corpo);
+  font-size: 0.95rem;
+  gap: 10px;
+  white-space: nowrap;
+
+  &[hidden] { display: none; }
+  strong { overflow: hidden; font-family: var(--op2-fonte-display); font-size: 1.1rem; text-overflow: ellipsis; }
+}
+
+.op2-transmissao__colunas {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.op2-transmissao__cards {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  gap: 10px;
+}
+
+.op2-transmissao[data-direcao="linha"] .op2-transmissao__cards { flex-direction: row; flex-wrap: wrap; }
+.op2-transmissao[data-direcao="linha"] .op2-transmissao__colunas { flex-direction: column; }
+
+.op2-transmissao__card {
+  position: relative;
+  display: grid;
+  box-sizing: border-box;
+  overflow: hidden;
+  width: var(--op2-transmissao-largura);
+  height: calc(98px + 6px + var(--op2-transmissao-vaga) + 18px);
+  flex: none;
+  grid-template-columns: 76px minmax(0, 1fr);
+  grid-template-rows: 98px var(--op2-transmissao-vaga);
+  padding: 8px;
+  border: 1px solid var(--op2-linha-forte);
+  border-radius: var(--op2-raio);
+  background: color-mix(in srgb, var(--op2-fundo) 90%, transparent);
+  background-image: var(--op2-textura, none);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
+  gap: 6px 10px;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+}
+
+// A moldura recorta o avatar. Busto: a imagem cobre a moldura pelo topo e aproxima, e sobra
+// cabeça e tronco (num retrato de corpo inteiro, num token, numa foto). Inteiro: cabe toda.
+.op2-transmissao__retrato {
+  display: block;
+  overflow: hidden;
+  width: 76px;
+  height: 76px;
+  border: 2px solid var(--op2-linha-forte);
+  border-radius: var(--op2-raio);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    object-fit: cover;
+    object-position: center top;
+    transform: scale(var(--op2-transmissao-zoom));
+    transform-origin: center top;
+  }
+}
+
+.op2-transmissao__cards--inteiro .op2-transmissao__retrato img {
+  object-fit: contain;
+  object-position: center bottom;
+  transform: none;
+}
+
+// O gabarito do card: cada informação numa vaga de altura fixa, sempre na mesma linha, com ou sem
+// conteúdo. Quem joga vazio, PD sem máximo, nenhuma condição: a vaga continua lá, e nada sobe.
+// É isto que o OBS recorta, uma vez, para todos os cards.
+.op2-transmissao {
+  --op2-tx-vaga-nome: 20px;
+  --op2-tx-vaga-jogador: 15px;
+  --op2-tx-vaga-recurso: 15px;
+  --op2-tx-vaga-estado: 18px;
+  --op2-tx-vaga-espaco: 3px;
+}
+
+.op2-transmissao__dados {
+  display: grid;
+  overflow: hidden;
+  min-width: 0;
+  height: 100%;
+  align-content: start;
+  grid-template-rows:
+    var(--op2-tx-vaga-nome) var(--op2-tx-vaga-jogador) var(--op2-tx-vaga-recurso)
+    var(--op2-tx-vaga-recurso) var(--op2-tx-vaga-estado);
+  row-gap: var(--op2-tx-vaga-espaco);
+
+  > * { min-width: 0; }
+}
+
+// PD de quem não tem PD: a vaga fica, invisível.
+.op2-transmissao__recurso--vazio { visibility: hidden; }
+
+.op2-transmissao__nome {
+  overflow: hidden;
+  font-family: var(--op2-fonte-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: var(--op2-tx-vaga-nome);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op2-transmissao__jogador {
+  overflow: hidden;
+  color: var(--op2-texto-fraco);
+  font-size: 0.8rem;
+  line-height: var(--op2-tx-vaga-jogador);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op2-transmissao__recurso {
+  display: grid;
+  overflow: hidden;
+  align-items: center;
+  grid-template-columns: 1.8em 1fr auto;
+  font-size: 0.82rem;
+  gap: 6px;
+}
+
+.op2-transmissao__rotulo { color: var(--op2-texto-fraco); font-weight: 700; }
+
+.op2-transmissao__barra {
+  overflow: hidden;
+  height: 8px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--op2-texto-fraco) 30%, transparent);
+
+  > span { display: block; height: 100%; transition: width 0.4s ease; }
+}
+
+.op2-transmissao__recurso--pv .op2-transmissao__barra > span { background: var(--op2-transmissao-pv); }
+.op2-transmissao__recurso--pd .op2-transmissao__barra > span { background: var(--op2-transmissao-pd); }
+.op2-transmissao__numero { font-variant-numeric: tabular-nums; font-weight: 700; }
+
+// Uma linha só, sempre reservada: condição a mais é cortada, nunca desce.
+.op2-transmissao__estado {
+  display: flex;
+  overflow: hidden;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 3px;
+
+  > span {
+    line-height: calc(var(--op2-tx-vaga-estado) - 4px);
+    padding: 0 0.35em;
+    border: 1px solid var(--op2-linha-forte);
+    color: var(--op2-texto-fraco);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+}
+
+.op2-transmissao__pavor { border-color: var(--op2-vermelho-claro) !important; color: var(--op2-texto) !important; }
+
+// "Já agiu": selo no canto de baixo do retrato, onde não há texto. No canto do card ele caía em
+// cima dos nomes longos (e, no estilo sem fundo, por baixo da faixa da cena).
+.op2-transmissao__agiu {
+  position: absolute;
+  z-index: 1;
+  top: calc(8px + 76px - 20px);
+  left: calc(8px + 76px - 20px);
+  // O Font Awesome não tem layer e ganharia do nosso `display`: vai pela variável dele.
+  --fa-display: block;
+  box-sizing: border-box;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #12160f;
+  border-radius: 50%;
+  background: #3f9a4a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.op2-transmissao__card--agiu { opacity: 0.75; }
+.op2-transmissao__card--caido {
+  opacity: 0.6;
+  .op2-transmissao__retrato { filter: grayscale(1); }
+}
+
+// Rolou: o card acende e mostra a rolagem embaixo, com os dados desenhados.
+.op2-transmissao__card--rolou {
+  border-color: var(--op2-vermelho-claro);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--op2-vermelho-claro) 55%, transparent), 0 4px 16px rgba(0, 0, 0, 0.55);
+  opacity: 1;
+}
+
+// A rolagem aparece na faixa de baixo do card, que fica vazia: por cima dela, sem fundo, sem
+// esconder nome, PV, PD nem estado. A camada é absoluta e do tamanho da faixa reservada, então
+// o card não muda nem um pixel, acesa ou apagada.
+// Sem `overflow: hidden`: cortava seco a sombra dos dados. O card (com 8 px de folga) é quem limita.
+.op2-transmissao__vaga {
+  position: absolute;
+  z-index: 2;
+  min-width: 0;
+  height: var(--op2-transmissao-vaga);
+  inset: auto 8px 8px 8px;
+  pointer-events: none;
+}
+
+// Uma linha: os dados | o que foi rolado e o desfecho | o total, grande.
+.op2-transmissao__rolagem {
+  display: grid;
+  box-sizing: border-box;
+  height: 100%;
+  align-items: center;
+  animation: op2-transmissao-rolagem 0.3s ease-out;
+  column-gap: 10px;
+  grid-template-areas: "dados titulo total" "dados desfecho total";
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: 1fr 1fr;
+  white-space: nowrap;
+}
+
+.op2-transmissao__rolagem-fim { display: contents; }
+
+.op2-transmissao__rolagem-titulo {
+  overflow: hidden;
+  align-self: end;
+  grid-area: titulo;
+  color: var(--op2-texto-fraco);
+  font-family: var(--op2-fonte-corpo);
+  font-size: 0.78rem;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+}
+
+// Os dados na forma de cada um, com o valor dentro. Base neutra; a RA acende em vermelho e a RB
+// em azul, com a etiqueta embaixo, para ler de longe na live. Número em fonte de corpo: na
+// versalete do Vigília o 11 vira "II".
+.op2-transmissao {
+  --op2-transmissao-ra: #d63a2a;
+  --op2-transmissao-rb: #2f74d0;
+  --op2-transmissao-dado: #e4ddcc;
+  --op2-transmissao-pavor: #4b2a5e;
+}
+
+.op2-transmissao__rolagem-dados {
+  display: flex;
+  align-items: flex-start;
+  grid-area: dados;
+  gap: 5px;
+}
+
+// Tamanho fixo: cinco (quatro do teste e o pavor) cabem na faixa, e o título é que encolhe.
+.op2-transmissao__dado {
+  display: flex;
+  width: 2.3rem;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+
+  .op2-dado {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    flex: none;
+    background: var(--op2-transmissao-dado);
+    color: #1b1714 !important;
+    font-family: var(--op2-fonte-corpo);
+    font-size: 1.1rem;
+    font-weight: 800;
+
+    &.op2-dado--d4 { font-size: 0.9rem; }
+    &.op2-dado--d8, &.op2-dado--d10, &.op2-dado--d12 { font-size: 0.98rem; }
+  }
+
+  .op2-dado--descartado { opacity: 0.35; }
+
+  small {
+    min-height: 0.7rem;
+    color: var(--op2-texto-fraco);
+    font-family: var(--op2-fonte-corpo);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    line-height: 0.7rem;
+  }
+
+  &--ra .op2-dado { background: var(--op2-transmissao-ra); color: #fff !important; }
+  &--ra small { color: var(--op2-transmissao-ra); }
+  &--rb .op2-dado { background: var(--op2-transmissao-rb); color: #fff !important; }
+  &--rb small { color: var(--op2-transmissao-rb); }
+  &--pavor .op2-dado { background: var(--op2-transmissao-pavor); color: #f3e6ff !important; }
+}
+
+.op2-transmissao__total {
+  grid-area: total;
+  font-family: var(--op2-fonte-corpo);
+  font-size: 2.1rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 1;
+}
+
+// O título e o desfecho cortam com reticências (`overflow: hidden`), e isso cortava o contorno
+// escuro das letras no estilo sem fundo. A folga de 3 px por dentro, desfeita na margem, dá espaço
+// ao contorno sem mudar onde o texto fica.
+.op2-transmissao__rolagem-titulo,
+.op2-transmissao__desfecho {
+  margin: -3px;
+  padding: 3px;
+}
+
+.op2-transmissao__desfecho {
+  overflow: hidden;
+  align-self: start;
+  grid-area: desfecho;
+  font-family: var(--op2-fonte-corpo);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.op2-transmissao__rolagem--critico .op2-transmissao__desfecho { color: var(--op2-critico); }
+.op2-transmissao__rolagem--sucesso .op2-transmissao__desfecho { color: var(--op2-sucesso); }
+.op2-transmissao__rolagem--falhacritica .op2-transmissao__desfecho,
+.op2-transmissao__rolagem--falha .op2-transmissao__desfecho { color: var(--op2-texto-fraco); }
+
+// Guias de recorte (configuração "contornos para montar o overlay"). Nada fica por cima do
+// conteúdo: o tracejado do card é `outline` do lado de fora dele; a área da rolagem é pintada no
+// FUNDO da própria faixa (tracejado e listras em gradiente, nome com z-index negativo), então os
+// dados, o total e o texto ficam por cima. Nada disso ocupa espaço: ligar e desligar não move nada.
+.op2-transmissao[data-guias="1"] {
+  --op2-guia-rolagem: #ff4fd8;
+  .op2-transmissao__card { outline: 2px dashed #34e0ff; outline-offset: 4px; }
+
+  .op2-transmissao__vaga {
+    background:
+      repeating-linear-gradient(90deg, var(--op2-guia-rolagem) 0 6px, transparent 6px 10px) top / 100% 2px no-repeat,
+      repeating-linear-gradient(90deg, var(--op2-guia-rolagem) 0 6px, transparent 6px 10px) bottom / 100% 2px no-repeat,
+      repeating-linear-gradient(0deg, var(--op2-guia-rolagem) 0 6px, transparent 6px 10px) left / 2px 100% no-repeat,
+      repeating-linear-gradient(0deg, var(--op2-guia-rolagem) 0 6px, transparent 6px 10px) right / 2px 100% no-repeat,
+      repeating-linear-gradient(135deg, color-mix(in srgb, var(--op2-guia-rolagem) 14%, transparent) 0 8px, transparent 8px 16px);
+
+    &::before {
+      position: absolute;
+      z-index: -1;
+      right: 6px;
+      bottom: 4px;
+      color: var(--op2-guia-rolagem);
+      content: attr(data-guia);
+      font-family: var(--op2-fonte-corpo);
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      opacity: 0.8;
+      text-transform: uppercase;
+    }
+  }
+}
+
+.op2-transmissao-cena[data-guias="1"] { outline: 2px dashed #ffd400; outline-offset: 4px; }
+
+// Só opacidade: nada desliza.
+@keyframes op2-transmissao-rolagem {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// O dano pisca no card da transmissão sem tremer: o efeito geral sacode, aqui só brilha.
+.op2-transmissao .op2-efeito--dano { animation-name: op2-transmissao-dano; }
+
+@keyframes op2-transmissao-dano {
+  0%, 100% { filter: none; }
+  15% { filter: drop-shadow(0 0 12px rgba(220, 40, 30, 0.95)) brightness(1.35) sepia(0.6) hue-rotate(-30deg); }
+}
+
+// Estilo "sem fundo": nada de caixa. O avatar (PNG com fundo transparente) fica solto, PV e PD
+// viram texto colorido, e todo texto ganha contorno escuro para ler sobre qualquer vídeo.
+.op2-transmissao__cards--livre {
+  --op2-transmissao-retrato-altura: 104px;
+  --op2-transmissao-contorno: 0 0 2px #000, 0 0 4px #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+  color: #fff;
+
+  .op2-transmissao__card {
+    height: calc(var(--op2-transmissao-retrato-altura) + 6px + var(--op2-transmissao-vaga));
+    align-items: center;
+    grid-template-columns: 104px minmax(0, 1fr);
+    grid-template-rows: var(--op2-transmissao-retrato-altura) var(--op2-transmissao-vaga);
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .op2-transmissao__retrato {
+    width: 104px;
+    height: var(--op2-transmissao-retrato-altura);
+    border: 0;
+    border-radius: 0;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
+  }
+
+  // As vagas do estilo sem fundo: letra maior, somam a altura do retrato (104 px).
+  --op2-tx-vaga-nome: 24px;
+  --op2-tx-vaga-jogador: 16px;
+  --op2-tx-vaga-recurso: 20px;
+  --op2-tx-vaga-estado: 16px;
+  --op2-tx-vaga-espaco: 2px;
+
+  &.op2-transmissao__cards--inteiro { --op2-transmissao-retrato-altura: 136px; }
+  // A coluna não corta: era ela que comia o contorno de tudo encostado à esquerda (nome, quem
+  // joga, PV, PD). Cada linha que precisa de reticências corta sozinha, com folga para o contorno.
+  // Cada vaga recua 3 px para a esquerda e devolve no padding: o texto fica no lugar, e o
+  // contorno escuro da primeira letra cabe dentro da vaga.
+  .op2-transmissao__dados { overflow: visible; }
+  .op2-transmissao__dados > * { margin-left: -3px; padding-left: 3px; }
+  .op2-transmissao__texto { line-height: var(--op2-tx-vaga-recurso); white-space: nowrap; overflow: hidden; }
+
+  .op2-transmissao__nome,
+  .op2-transmissao__jogador,
+  .op2-transmissao__texto,
+  .op2-transmissao__estado > span,
+  .op2-transmissao__rolagem { text-shadow: var(--op2-transmissao-contorno); }
+
+  .op2-transmissao__nome { color: var(--op2-transmissao-nome); font-size: 1.3rem; }
+  .op2-transmissao__jogador { color: var(--op2-transmissao-jogador); font-style: italic; }
+  .op2-transmissao__texto { font-size: 1.1rem; font-weight: 700; }
+  .op2-transmissao__recurso--pv .op2-transmissao__rotulo,
+  .op2-transmissao__recurso--pv .op2-transmissao__numero { color: var(--op2-transmissao-pv-texto); }
+  .op2-transmissao__recurso--pd .op2-transmissao__rotulo,
+  .op2-transmissao__recurso--pd .op2-transmissao__numero { color: var(--op2-transmissao-pd-texto); }
+  .op2-transmissao__max { opacity: 0.8; font-size: 0.85em; }
+
+  .op2-transmissao__estado > span { border: 0; color: #ffd27a; }
+  .op2-transmissao__pavor { color: #ff9a7a !important; }
+
+  .op2-transmissao__card--rolou {
+    border: 0;
+    box-shadow: none;
+    .op2-transmissao__retrato { filter: drop-shadow(0 0 10px var(--op2-transmissao-nome)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)); }
+  }
+
+  // Sem fundo: a mesma faixa de baixo, embaixo do avatar e do texto, sem pintar nada atrás. O card
+  // aqui não tem borda nem folga: deixa a sombra dos dados e o contorno do texto passarem da caixa.
+  .op2-transmissao__card { overflow: visible; }
+  .op2-transmissao__vaga { inset: auto 0 0 0; }
+  .op2-transmissao__agiu { top: calc(var(--op2-transmissao-retrato-altura) - 24px); left: calc(104px - 24px); }
+  .op2-transmissao__dado { filter: drop-shadow(0 0 2px #000) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.8)); }
+  .op2-transmissao__dado small { text-shadow: var(--op2-transmissao-contorno); }
+  .op2-transmissao__dado--ra small { color: #ff7a6a; }
+  .op2-transmissao__dado--rb small { color: #7fb2ff; }
+  .op2-transmissao__rolagem-titulo { color: var(--op2-transmissao-jogador); }
+  .op2-transmissao__total { color: #fff; }
+  .op2-transmissao__rolagem--sucesso .op2-transmissao__desfecho { color: #7dde6a; }
+  .op2-transmissao__rolagem--critico .op2-transmissao__desfecho { color: #ffd34d; }
+  .op2-transmissao__rolagem--falha .op2-transmissao__desfecho,
+  .op2-transmissao__rolagem--falhacritica .op2-transmissao__desfecho { color: #ff8a7a; }
+  .op2-transmissao__card--caido .op2-transmissao__retrato { filter: grayscale(1) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)); }
+}
+
+// No Vigília o nome sai em dourado: o osso do tema some sobre o vídeo.
+body.op2-vigilia .op2-transmissao { --op2-transmissao-nome: #f0c060; }
+
+// A janela de configuração.
+.op2-transmissao-config__corpo { display: flex; flex-direction: column; gap: var(--op2-e3); }
+.op2-transmissao-config__secao { display: flex; flex-direction: column; padding: var(--op2-e2); border: 1px solid var(--op2-linha); gap: var(--op2-e2); }
+.op2-transmissao-config__linha { display: flex; align-items: center; gap: var(--op2-e2); select { flex: 1; } }
+.op2-transmissao-config__passos { margin: 0; padding-left: 1.2em; li { margin-bottom: 0.2em; } }
+.op2-transmissao-config__grade { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--op2-e2); }
+.op2-transmissao-config__atores { display: grid; grid-template-columns: 1fr 1fr; margin: 0; padding: 0; list-style: none; gap: 2px var(--op2-e3); }
+// A pasta embaixo do nome: é o que separa a Rhiona da Missão 1 da Rhiona da Missão 2.
+.op2-transmissao-config__pasta { display: block; padding-left: 1.6em; font-size: 0.75rem; }
+.op2-transmissao-config__rodape { display: flex; justify-content: flex-end; }
+.op2-transmissao-config code { user-select: all; word-break: break-all; }
+}

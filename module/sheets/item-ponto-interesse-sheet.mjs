@@ -5,10 +5,12 @@
  * só do mestre: o jogador nunca vê DT, reação de ferramenta nem a explicação
  * do POI. A revelação acontece pelas ações de investigação, não pela ficha.
  */
-import { PERICIAS, APTIDOES_PADRAO, FERRAMENTAS_POI } from "../config.mjs";
+import { PERICIAS, FERRAMENTAS_POI, periciasDoModo, aptidoesDoModo } from "../config.mjs";
+import { modoAtual } from "../modo.mjs";
 import { OP2ItemSheet } from "./item-sheet.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
 import { cicloVisibilidadeInfo, limparRevelacao } from "../cena/acoes-investigacao.mjs";
+import { alternarFerramentaOculta } from "../cena/acoes-ferramenta.mjs";
 import { vincularDesafioAoPonto, removerDesafioDoPonto, todasInvestigacoes, alternarOculto } from "../cena/investigacao-ativa.mjs";
 import { chaveInfo } from "../cena/investigacao.mjs";
 import { textoPuroDaLinha } from "../cena/texto-linha.mjs";
@@ -28,6 +30,7 @@ export class PontoInteresseSheet extends OP2ItemSheet {
       removerDesafioVinculado: PontoInteresseSheet.#removerDesafioVinculado,
       alternarOcultoNaInvestigacao: PontoInteresseSheet.#alternarOcultoNaInvestigacao,
       limparRevelacao: PontoInteresseSheet.#limparRevelacao,
+      alternarFerramentaOculta: PontoInteresseSheet.#alternarFerramentaOculta,
     },
   };
 
@@ -146,26 +149,35 @@ export class PontoInteresseSheet extends OP2ItemSheet {
       })).map((info) => ({ ...info, temRevelacao: Boolean(info.reveladoPor || info.contadaPor) })),
       descricaoBasicaEnriquecida: await enriquecer(this.item.system.descricaoBasica),
       descricaoContextualEnriquecida: await enriquecer(this.item.system.descricaoContextual),
-      // Perícias válidas no quadro: as 19 comuns + cada campo de Aptidão.
-      opcoesPericia: [
-        ...Object.keys(PERICIAS).filter((c) => !PERICIAS[c].especializada),
-        ...APTIDOES_PADRAO.map((sub) => `aptidao.${sub}`),
-      ].map((c) => ({ chave: c, rotulo: rotuloDePericia(c) })),
+      // As do modo + cada campo de Aptidão do modo + as já usadas no quadro: um ponto de
+      // outro modo não pode perder a perícia em silêncio ao salvar o select.
+      opcoesPericia: [...new Set([
+        ...periciasDoModo(modoAtual()).filter((c) => !PERICIAS[c].especializada),
+        ...aptidoesDoModo(modoAtual()).map((sub) => `aptidao.${sub}`),
+        ...this.item.system.informacoes.flatMap((i) => [i.pericia, i.periciaAlternativa].filter(Boolean)),
+      ])].map((c) => ({ chave: c, rotulo: rotuloDePericia(c) })),
       // Só as ferramentas com reação (ou recém-adicionadas) aparecem; as demais
       // ficam no seletor. Vazio (null ou "") = leitura normal (spec §9.3). Rádio
-      // Modificado tem editor próprio (conjuntos), não texto livre (docs/LACUNAS.md).
-      ferramentasConfiguradas: FERRAMENTAS_POI
+      // Modificado tem editor próprio (conjuntos), não texto livre (docs/regras/LACUNAS.md).
+      // A leitura é HTML (o laser e a câmera trazem a imagem do handout; o EMF, o link
+      // da playlist): vai no editor rico, como as descrições. Num textarea as tags
+      // apareciam cruas na ficha (achado em uso real, no Ato II).
+      ferramentasConfiguradas: await Promise.all(FERRAMENTAS_POI
         .filter((chave) => ferramentas[chave] || this.#ferramentasNovas.has(chave))
-        .map((chave) => ({
+        .map(async (chave) => ({
           chave,
           rotulo: rotuloFerramenta(chave),
           ehRadio: chave === "radio",
+          oculta: (this.item.system.ferramentasOcultas ?? []).includes(chave),
+          campo: chave === "radio" ? null : this.item.system.schema.fields.ferramentas.fields[chave],
           valor: chave === "radio" ? "" : (ferramentas[chave] || ""),
+          enriquecido: chave === "radio" ? "" : await enriquecer(ferramentas[chave] || ""),
           conjuntos: chave === "radio"
             ? (ferramentas.radio?.conjuntos ?? []).map((conjunto, indice) => ({ ...conjunto, indice }))
             : [],
           radioTexto: chave === "radio" ? (ferramentas.radio?.texto ?? "") : "",
-        })),
+          radioTextoEnriquecido: chave === "radio" ? await enriquecer(ferramentas.radio?.texto ?? "") : "",
+        }))),
       ferramentasDisponiveis: FERRAMENTAS_POI
         .filter((chave) => !ferramentas[chave] && !this.#ferramentasNovas.has(chave))
         .map((chave) => ({ chave, rotulo: rotuloFerramenta(chave) })),
@@ -195,9 +207,15 @@ export class PontoInteresseSheet extends OP2ItemSheet {
     });
   }
 
+  /** Rascunho ↔ liberada, para a leitura de uma ferramenta (o mesmo olho do painel). */
+  static async #alternarFerramentaOculta(_evento, alvo) {
+    if (!this.isEditable) return;
+    await alternarFerramentaOculta(this.item.uuid, alvo.dataset.ferramenta);
+  }
+
   static async #adicionarInformacao() {
     const informacoes = this.item.system.informacoes.map((i) => ({ ...i }));
-    informacoes.push({ id: foundry.utils.randomID(), pericia: "percepcao", dt: 7, texto: "" });
+    informacoes.push({ id: foundry.utils.randomID(), pericia: "percepcao", periciaAlternativa: "", dt: 7, texto: "" });
     await this.item.update({ "system.informacoes": informacoes });
   }
 

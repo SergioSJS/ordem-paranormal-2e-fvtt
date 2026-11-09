@@ -1,0 +1,79 @@
+<div class="op2-transmissao-config__corpo">
+  <p class="op2-ajuda">{{localize "OP2.Transmissao.Explica"}}</p>
+
+  <section class="op2-transmissao-config__secao">
+    <span class="op2-tag op2-tag--secao">{{localize "OP2.Transmissao.SecaoObs"}}</span>
+    <label class="op2-campo">
+      <span>{{localize "OP2.Transmissao.Usuario"}}</span>
+      <span class="op2-transmissao-config__linha">
+        <select name="usuario">
+          <option value="">{{localize "OP2.Transmissao.Nenhum"}}</option>
+          {{#each usuarios}}<option value="{{id}}" {{#if atual}}selected{{/if}}>{{nome}}</option>{{/each}}
+        </select>
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="criarUsuario">
+          <i class="fa-solid fa-user-plus" aria-hidden="true"></i> {{localize "OP2.Transmissao.CriarUsuario"}}
+        </button>
+      </span>
+    </label>
+    <ol class="op2-transmissao-config__passos">
+      <li>{{localize "OP2.Transmissao.Passo1"}}</li>
+      <li>{{localize "OP2.Transmissao.Passo2"}} <code>{{enderecoLogin}}</code></li>
+      <li>{{localize "OP2.Transmissao.Passo3"}}</li>
+    </ol>
+    <p class="op2-ajuda">{{localize "OP2.Transmissao.Direto"}} <code>{{enderecoDireto}}</code></p>
+    <button type="button" class="op2-botao op2-botao--pequeno" data-action="darAcesso">
+      <i class="fa-solid fa-eye" aria-hidden="true"></i> {{localize "OP2.Transmissao.DarAcesso"}}
+    </button>
+  </section>
+
+  <section class="op2-transmissao-config__secao">
+    <span class="op2-tag op2-tag--secao">{{localize "OP2.Transmissao.SecaoAparencia"}}</span>
+    <label class="op2-campo"><span>{{localize "OP2.Transmissao.EstiloRotulo"}}</span>
+      <select name="estilo">{{#each estilos}}<option value="{{valor}}" {{#if atual}}selected{{/if}}>{{rotulo}}</option>{{/each}}</select>
+      <span class="op2-ajuda">{{localize "OP2.Transmissao.EstiloAjuda"}} <code>{{enderecoLivre}}</code> <code>{{enderecoAmbos}}</code></span>
+    </label>
+    <label class="op2-campo"><span>{{localize "OP2.Transmissao.EnquadramentoRotulo"}}</span>
+      <select name="enquadramento">{{#each enquadramentos}}<option value="{{valor}}" {{#if atual}}selected{{/if}}>{{rotulo}}</option>{{/each}}</select>
+    </label>
+    <div class="op2-transmissao-config__grade">
+      <label class="op2-campo"><span>{{localize "OP2.Transmissao.PosicaoRotulo"}}</span>
+        <select name="posicao">{{#each posicoes}}<option value="{{valor}}" {{#if atual}}selected{{/if}}>{{rotulo}}</option>{{/each}}</select>
+      </label>
+      <label class="op2-campo"><span>{{localize "OP2.Transmissao.Direcao"}}</span>
+        <select name="direcao">
+          <option value="coluna" {{#unless direcaoLinha}}selected{{/unless}}>{{localize "OP2.Transmissao.Coluna"}}</option>
+          <option value="linha" {{#if direcaoLinha}}selected{{/if}}>{{localize "OP2.Transmissao.Linha"}}</option>
+        </select>
+      </label>
+      <label class="op2-campo"><span>{{localize "OP2.Transmissao.Escala"}}</span>
+        <input type="number" name="escala" value="{{cfg.escala}}" min="0.5" max="2" step="0.1">
+      </label>
+    </div>
+    <label class="op2-campo"><span>{{localize "OP2.Transmissao.CenaRotulo"}}</span>
+      <select name="cena">{{#each posicoesDaCena}}<option value="{{valor}}" {{#if atual}}selected{{/if}}>{{rotulo}}</option>{{/each}}</select>
+      <span class="op2-ajuda">{{localize "OP2.Transmissao.CenaAjuda"}} <code>{{enderecoCena}}</code></span>
+    </label>
+    <p class="op2-ajuda">{{localize "OP2.Transmissao.Fixo"}}</p>
+    <label class="op2-campo--inline"><input type="checkbox" name="condicoes" {{#if cfg.condicoes}}checked{{/if}}> {{localize "OP2.Transmissao.MostrarCondicoes"}}</label>
+    <label class="op2-campo--inline"><input type="checkbox" name="guias" {{#if cfg.guias}}checked{{/if}}> {{localize "OP2.Transmissao.Guias"}}</label>
+    <span class="op2-ajuda">{{localize "OP2.Transmissao.GuiasAjuda"}} <code>{{enderecoGuias}}</code></span>
+  </section>
+
+  <section class="op2-transmissao-config__secao">
+    <span class="op2-tag op2-tag--secao">{{localize "OP2.Transmissao.SecaoQuem"}}</span>
+    <p class="op2-ajuda">{{localize "OP2.Transmissao.QuemAjuda"}}</p>
+    <ul class="op2-transmissao-config__atores">
+      {{#each personagens}}
+        <li><label class="op2-campo--inline">
+          <input type="checkbox" name="atores.{{id}}" {{#if marcado}}checked{{/if}}> {{nome}}
+          {{#if jogadores}}<span class="op2-ajuda">· {{jogadores}}</span>{{/if}}
+          {{#if pasta}}<span class="op2-ajuda op2-transmissao-config__pasta">{{pasta}}</span>{{/if}}
+        </label></li>
+      {{/each}}
+    </ul>
+  </section>
+
+  <footer class="op2-transmissao-config__rodape">
+    <button type="submit" class="op2-botao"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> {{localize "OP2.Transmissao.Salvar"}}</button>
+  </footer>
+</div>

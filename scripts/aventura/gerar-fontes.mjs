@@ -12,7 +12,7 @@
  */
 import { writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { fontesDoAtoI, fontesDoAtoII } from "./fontes.mjs";
+import { fontesDoAtoI, fontesDoAtoII, fontesDaVigilia } from "./fontes.mjs";
 
 const DESTINO = "assets/aventura";
 
@@ -20,6 +20,7 @@ const fontes = {
   // Formato v14 da cena: é o cliente que cria o Adventure, e ele não migra o v13.
   "fontes-ato-i.json": fontesDoAtoI({ nivel: true }),
   "fontes-ato-ii.json": fontesDoAtoII({ nivel: true }),
+  "fontes-vigilia.json": fontesDaVigilia({ nivel: true }),
 };
 
 mkdirSync(DESTINO, { recursive: true });

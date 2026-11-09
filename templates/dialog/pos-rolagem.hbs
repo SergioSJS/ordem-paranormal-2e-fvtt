@@ -1,0 +1,28 @@
+<div class="op2-pos-rolagem__corpo">
+  <p class="op2-ajuda">{{localize "OP2.PosRolagem.Ajuda"}}</p>
+  <ol class="op2-teste__componentes">
+    {{#each dados}}
+      <li class="op2-teste__componente" data-indice="{{indice}}">
+        <span class="op2-teste__rotulo">{{componente.rotulo}}</span>
+        <span class="op2-teste__dado">{{{icone}}}</span>
+        <div class="op2-passo" role="group">
+          <button type="button" data-action="ajustar" data-indice="{{indice}}" data-delta="-1" aria-label="−1"
+            {{#unless podeBaixar}}disabled{{/unless}}>−</button>
+          <button type="button" data-action="ajustar" data-indice="{{indice}}" data-delta="1" aria-label="+1"
+            {{#unless podeSubir}}disabled{{/unless}}>+</button>
+        </div>
+        {{#if podeRerrolar}}
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="rerrolar" data-indice="{{indice}}"
+            data-tooltip="{{localize 'OP2.PosRolagem.ProntidaoDica' custo=@root.custoProntidao}}">
+            {{localize "OP2.PosRolagem.Prontidao"}}
+          </button>
+        {{/if}}
+      </li>
+    {{/each}}
+  </ol>
+  <p class="op2-pos-rolagem__total">
+    {{localize "OP2.PosRolagem.Total"}} <strong>{{resultado.total}}</strong>
+    {{#if marcadores}}· {{localize "OP2.PosRolagem.Marcadores" n=marcadores}}{{/if}}
+  </p>
+  <button type="button" class="op2-botao" data-action="concluir">{{localize "OP2.PosRolagem.Concluir"}}</button>
+</div>

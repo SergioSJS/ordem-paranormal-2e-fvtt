@@ -1,0 +1,35 @@
+{
+  "_id": "2e74b60387ddce7c",
+  "name": "Ímpeto",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+  "system": {
+    "origem": "perfil",
+    "perfil": "executor",
+    "custo": "",
+    "custoPD": 0,
+    "descricao": "<p>Uma barra de cinco espaços, que enche um a cada teste falho. Ação livre: 1 espaço dá +d4 num teste; 3 espaços sobem um atributo em um passo até o fim da cena; 3 espaços dão uma ação extra em cena de conflito. A barra esvazia no fim da cena.</p>",
+    "mecanica": "",
+    "efeito": {
+      "tipo": "nenhum",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [],
+      "permitirD20": false,
+      "pdAoDescobrir": 0
+    },
+    "impeto": {
+      "espacos": 5,
+      "preenchidos": 0
+    },
+    "usoEmInvestigacao": ""
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!items!2e74b60387ddce7c"
+}

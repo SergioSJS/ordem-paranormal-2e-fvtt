@@ -82,7 +82,7 @@ export function podeTentarHackNestaRodada(ultimaTentativaRodada, rodadaAtual) {
 /**
  * HACK SOCIAL (spec §7.3): "a cada 3 pontos de excedente sobre a DT, ganha 1 chance
  * adicional de errar" — o texto não dá a base; 1 é o mínimo que faz "adicional" fazer
- * sentido (docs/LACUNAS.md). Excedente negativo (falhou o teste) não soma nada.
+ * sentido (docs/regras/LACUNAS.md). Excedente negativo (falhou o teste) não soma nada.
  * @param {number} total do teste de Intuição
  * @param {number} dt do dispositivo
  */

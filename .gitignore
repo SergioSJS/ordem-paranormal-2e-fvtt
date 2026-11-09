@@ -9,9 +9,6 @@
 # assets/ato-i/ não existe mais.
 assets/ato-i/
 jambo-arquivos/
-docs/*.pdf
-docs/Arquivos para o público - Ato I/
-docs/Ordem-2-Playtest-Alpha-Ato-II-Extras/
 
 # A aventura montada é texto do livro: não vai versionada nem no pacote. Quem monta é
 # o mestre, com o PDF dele, dentro do Foundry (module/aventura/). Os scripts de

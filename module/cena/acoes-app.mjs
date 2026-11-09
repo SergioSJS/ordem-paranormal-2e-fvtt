@@ -16,7 +16,7 @@ import {
 import { temFerramenta } from "./ferramentas.mjs";
 import { alvosDaCenaAtiva, alvosMarcados } from "./encerrar-investigacao.mjs";
 import {
-  dialogoExaminar, examinar, interagir, recapitular, compartilhar,
+  dialogoExaminar, examinar, interagir, recapitular, compartilhar, observar,
 } from "./acoes-investigacao.mjs";
 import {
   arrombar, alcancar, sustentar, pararDeSustentar, hackTecnico, hackSocial, desafioGenerico,
@@ -24,11 +24,17 @@ import {
 import { usarFerramenta, usarLaser, usarRadio } from "./acoes-ferramenta.mjs";
 import { ajudar } from "./acoes-ajuda.mjs";
 import { atacar } from "./acoes-combate.mjs";
+import { usaCombateNovo, modoAtual } from "../modo.mjs";
+import { abrirPainelAcao } from "../vigilia/painel-acao.mjs";
+import { cenaAcaoAtiva } from "../vigilia/cena-acao.mjs";
+import { escalar, equilibrar } from "../vigilia/acoes-desafio.mjs";
 import { usarHabilidadeOuItem } from "./acoes-recurso.mjs";
 import { abrirDestrancar } from "./destrancar-app.mjs";
 import { guardarRolagem, restaurarRolagem, esquecerRolagem } from "../ui/rolagem.mjs";
-import { semPrefixoDoPonto, desafioResolvido } from "./desafios.mjs";
-import { chaveInfo } from "./investigacao.mjs";
+import { semPrefixoDoPonto, desafioResolvido, podeTentarHackNestaRodada } from "./desafios.mjs";
+import { rodadaAtual } from "./rodada.mjs";
+import { chaveInfo, periciasDoQuadro } from "./investigacao.mjs";
+import { chaveLeitura } from "./leitura-ferramenta.mjs";
 import { marcadoresDoPonto } from "./marcadores.mjs";
 import { filtrosVazios, filtrando } from "./filtros-painel.mjs";
 import {
@@ -66,6 +72,9 @@ function contextoDoDesafio(desafio, investigacao, indice) {
     destrancado: desafio.system.destrancado,
     hackTecnicoResolvido: desafio.system.hackTecnico.resolvido,
     hackSocialResolvido: desafio.system.hackSocial.resolvido,
+    // O gate de uma tentativa por rodada (spec §7.3), visível antes do clique.
+    hackTecnicoTravado: !podeTentarHackNestaRodada(desafio.system.hackTecnico.ultimaTentativaRodada, rodadaAtual(investigacao)),
+    hackSocialTravado: !podeTentarHackNestaRodada(desafio.system.hackSocial.ultimaTentativaRodada, rodadaAtual(investigacao)),
     genericoResolvido: desafio.system.generico.resolvido,
     sustentarDt: desafio.system.sustentar.dt,
     genericoRotulo: desafio.system.generico.rotulo?.trim() || game.i18n.localize("OP2.Desafio.Generico"),
@@ -73,6 +82,9 @@ function contextoDoDesafio(desafio, investigacao, indice) {
     temAlgumaAbordagem: Object.values(abordagens).some(Boolean),
   };
 }
+
+/** Observar é do modo Vigília (beta §5): no moderno, só Examinar e Interagir. */
+export const temObservar = () => modoAtual() === "vigilia";
 
 const CHAVE_ABA = "op2.acoes.aba";
 
@@ -119,6 +131,10 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
       usarLaser: fechaDepois(AcoesInvestigacaoApp.#usarLaser),
       examinar: fechaDepois(AcoesInvestigacaoApp.#examinar),
       interagir: fechaDepois(AcoesInvestigacaoApp.#interagir),
+      observar: fechaDepois(AcoesInvestigacaoApp.#observar),
+      escalar: fechaDepois(AcoesInvestigacaoApp.#escalar),
+      equilibrar: fechaDepois(AcoesInvestigacaoApp.#equilibrar),
+      alcancarDesafio: fechaDepois(AcoesInvestigacaoApp.#alcancarDesafio),
       irParaDesafios: AcoesInvestigacaoApp.#irParaDesafios,
       alternarChip: AcoesInvestigacaoApp.#alternarChip,
       limparFiltros: AcoesInvestigacaoApp.#limparFiltrosAcao,
@@ -321,11 +337,17 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
         // escondida até o uso (spec §9.3).
         ferramentas: FERRAMENTAS_POI
           .filter((chave) => temFerramenta(ator.items, chave))
-          .map((chave) => ({ chave, rotulo: game.i18n.localize(`OP2.Ferramenta.Subtipo.${chave}`) })),
+          .map((chave) => ({
+            chave,
+            rotulo: game.i18n.localize(`OP2.Ferramenta.Subtipo.${chave}`),
+            // Já leu aqui: o botão marca, e a leitura está no painel dele.
+            lida: ator.system.estado.ferramentasReveladas?.has(chaveLeitura(poi.uuid, chave)) ?? false,
+          })),
       }));
 
 
     return {
+      temObservar: temObservar(),
       atorNome: ator.name,
       temInvestigacao: Boolean(investigacao),
       nomeInvestigacao: investigacao?.name ?? "",
@@ -359,7 +381,20 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
   /* -- ações ---------------------------------------------------------------- */
 
   static async #ajudar() { return ajudar(this.ator); }
-  static async #atacar() { return atacar(this.ator); }
+  // Com o combate do beta, atacar é coisa do painel de fases. No moderno, sem cena de ação no
+  // ar, o ataque simplificado segue disponível: ninguém é obrigado a montar um combate.
+  static async #atacar() {
+    if (usaCombateNovo() && (cenaAcaoAtiva() || modoAtual() === "vigilia")) { abrirPainelAcao(); return false; }
+    return atacar(this.ator);
+  }
+  static async #observar(_evento, alvo) { return observar(this.ator, alvo.dataset.poiUuid); }
+  static async #escalar(_evento, alvo) { return escalar(this.ator, await fromUuid(alvo.dataset.desafioUuid), alvo.dataset.modo); }
+  static async #equilibrar(_evento, alvo) { return equilibrar(this.ator, await fromUuid(alvo.dataset.desafioUuid)); }
+  static async #alcancarDesafio(_evento, alvo) {
+    const desafio = await fromUuid(alvo.dataset.desafioUuid);
+    const { pericia, dt } = desafio.system.alcancar;
+    return alcancar(this.ator, { modo: alvo.dataset.modo, dt, pericia });
+  }
   static async #usarRecurso() { return usarHabilidadeOuItem(this.ator); }
   static async #recapitular() { return recapitular(this.ator); }
   static async #compartilhar() { return compartilhar(this.ator); }
@@ -394,6 +429,12 @@ export class AcoesInvestigacaoApp extends HandlebarsApplicationMixin(Application
   static async #usarLaboratorio(_evento, alvo) {
     const poi = alvo.dataset.poiUuid ? fromUuidSync(alvo.dataset.poiUuid) : null;
     const padrao = poi?.system?.laboratorioDados ?? 4;
+    // A "sequência mínima" é do ponto ("conforme instruções no ponto de interesse"):
+    // o jogador não escolhe quantos dados rola. O mestre ainda pode mudar na hora.
+    if (!game.user.isGM) {
+      await abrirLaboratorio(this.ator, padrao, alvo.dataset.poiUuid);
+      return true;
+    }
     const qtdDados = await foundry.applications.api.DialogV2.prompt({
       window: { title: game.i18n.localize("OP2.Ferramenta.Subtipo.laboratorio") },
       content: `
@@ -464,6 +505,6 @@ function resumoDoQuadro(poi, ator) {
     || ator.system.estado.infosReveladas.has(chaveInfo(poi.uuid, info.id)));
   return {
     progresso: visiveis.length > 0 ? "andamento" : "intocado",
-    pericias: [...new Set(visiveis.map((info) => info.pericia))].join(" "),
+    pericias: periciasDoQuadro(visiveis).join(" "),
   };
 }

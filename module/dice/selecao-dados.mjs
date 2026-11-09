@@ -55,13 +55,18 @@ export class SelecaoDados extends HandlebarsApplicationMixin(ApplicationV2) {
   async _prepareContext() {
     const dados = this.roll.dados;
     const previa = dados.map((d) => ({ ...d, contado: this.selecionados.has(d.indice) }));
-    const parcial = analise.analisar(previa, { dt: this.roll.dt, escopoCritico: this.roll.escopoCritico });
+    const parcial = analise.analisar(previa, {
+      dt: this.roll.dt, escopoCritico: this.roll.escopoCritico,
+      modificador: this.roll.options?.modificador ?? 0,
+      ...(this.roll.options?.minimoCritico ? { minimoCritico: this.roll.options.minimoCritico } : {}),
+    });
 
     return {
       dt: this.roll.dt,
       maxContados: MAX_DADOS_CONTADOS,
       completo: this.selecionados.size === MAX_DADOS_CONTADOS,
-      dados: previa.map((d) => ({
+      // O dado de pavor e os anulados não são escolha de ninguém.
+      dados: previa.filter((d) => !d.pavor && !d.anulado).map((d) => ({
         ...d,
         icone: iconeResultado({ dado: d.dado, resultado: d.resultado, contado: d.contado }),
       })),

@@ -1,0 +1,35 @@
+{
+  "_id": "32c25bf9c5efd59d",
+  "name": "Curandeiro",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+  "system": {
+    "origem": "ocupacao",
+    "perfil": "",
+    "custo": "",
+    "custoPD": 0,
+    "descricao": "<p>Ação e 2 PD: teste de Medicina DT 7 para curar o aliado em PV iguais à RA. Uma vez por alvo na cena.</p>",
+    "mecanica": "",
+    "efeito": {
+      "tipo": "nenhum",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [],
+      "permitirD20": false,
+      "pdAoDescobrir": 0
+    },
+    "impeto": {
+      "espacos": 0,
+      "preenchidos": 0
+    },
+    "usoEmInvestigacao": ""
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!items!32c25bf9c5efd59d"
+}

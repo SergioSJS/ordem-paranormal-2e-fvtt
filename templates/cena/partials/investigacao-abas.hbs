@@ -372,6 +372,55 @@
               </li>
             {{/each}}
           </ul>
+
+          {{!-- Setor de ferramentas (spec §9.3). O mestre: cada leitura, rascunho e
+                quem já fez. O jogador: só o que o personagem dele leu — reação ou
+                leitura normal. --}}
+          {{#if ferramentas.length}}
+            <div class="op2-poi-card__ferramentas">
+              <span class="op2-acoes__subtitulo">{{localize "OP2.Painel.FerramentasDoPonto"}}</span>
+              <ul class="op2-poi-card__leituras">
+                {{#each ferramentas}}
+                  <li class="op2-poi-card__leitura{{#if oculta}} op2-poi-card__info--oculta{{/if}}">
+                    <div class="op2-poi-card__leitura-topo">
+                      {{#if @root.ehGM}}
+                        <button type="button" class="op2-botao-icone op2-poi-card__visibilidade op2-poi-card__visibilidade--{{#if oculta}}rascunho{{else}}descobrivel{{/if}}"
+                          data-action="alternarFerramentaOculta" data-poi-uuid="{{../uuid}}" data-ferramenta="{{chave}}"
+                          aria-label="{{#if oculta}}{{localize 'OP2.POI.FerramentaVisibilidade.rascunho'}}{{else}}{{localize 'OP2.POI.FerramentaVisibilidade.liberada'}}{{/if}}"
+                          data-tooltip="{{#if oculta}}{{localize 'OP2.POI.FerramentaVisibilidade.rascunho'}}{{else}}{{localize 'OP2.POI.FerramentaVisibilidade.liberada'}}{{/if}}">
+                          <i class="fa-solid {{#if oculta}}fa-eye-slash{{else}}fa-screwdriver-wrench{{/if}}" aria-hidden="true"></i>
+                        </button>
+                      {{/if}}
+                      <span class="op2-poi-card__rotulo">{{rotulo}}</span>
+                      {{#if @root.ehGM}}{{#if lidaPor.length}}
+                        <span class="op2-poi-card__revelado-por" data-tooltip="{{lidaPor}}">
+                          <i class="fa-solid fa-user-check" aria-hidden="true"></i> {{lidaPor}}
+                        </span>
+                        <button type="button" class="op2-botao-icone" data-action="limparLeitura"
+                          data-poi-uuid="{{../uuid}}" data-ferramenta="{{chave}}"
+                          aria-label="{{localize 'OP2.Painel.LimparRevelacao'}}" data-tooltip="{{localize 'OP2.Painel.LimparRevelacao'}}">
+                          <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                        </button>
+                      {{/if}}{{/if}}
+                    </div>
+                    {{#if temReacao}}
+                      <div class="op2-poi-card__texto">{{{leitura}}}</div>
+                    {{else}}
+                      <p class="op2-ajuda">{{localize "OP2.Ferramenta.SemReacao"}}</p>
+                    {{/if}}
+                    {{#if @root.ehGM}}
+                      {{#if conjuntos.length}}
+                        <ul class="op2-poi-card__conjuntos">
+                          {{#each conjuntos}}<li class="{{#if verdadeiro}}op2-tag--ok{{else}}op2-poi-card__conjunto--falso{{/if}}">{{frase}}</li>{{/each}}
+                        </ul>
+                      {{/if}}
+                      {{#if nota}}<div class="op2-poi-card__contextual">{{{nota}}}</div>{{/if}}
+                    {{/if}}
+                  </li>
+                {{/each}}
+              </ul>
+            </div>
+          {{/if}}
         </div>
       </li>
     {{/each}}

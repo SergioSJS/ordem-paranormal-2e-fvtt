@@ -12,10 +12,31 @@ import { MAX_DADOS_CONTADOS, VALOR_MINIMO_CRITICO } from "../config.mjs";
  * @property {string} dado       "d8"
  * @property {number} resultado
  * @property {boolean} contado   entra na soma?
+ * @property {boolean} [pavor]    é o dado de pavor: rola junto, nunca soma (beta §9.1)
+ * @property {boolean} [anulado]  o pavor anulou este dado
  */
 
+/**
+ * Aplica o dado de pavor (beta §9.1): anula os dados com resultado MENOR que ele; empate
+ * não anula. Dado anulado não conta para soma, RA, RB nem crítico (docs/regras/LACUNAS.md).
+ * @param {DadoRolado[]} dados
+ * @returns {DadoRolado[]}
+ */
+export function marcarPavor(dados) {
+  const pavor = dados.find((d) => d.pavor);
+  if (!pavor) return dados;
+  return dados.map((d) => {
+    if (d.pavor) return { ...d, contado: false };
+    if (d.resultado < pavor.resultado) return { ...d, anulado: true, contado: false };
+    return d;
+  });
+}
+
+/** Os dados do teste em si, sem o de pavor. */
+const doTeste = (dados) => dados.filter((d) => !d.pavor);
+
 /** @param {DadoRolado[]} dados */
-export const contados = (dados) => dados.filter((d) => d.contado);
+export const contados = (dados) => dados.filter((d) => d.contado && !d.pavor && !d.anulado);
 
 /** @param {DadoRolado[]} dados */
 export const soma = (dados) => contados(dados).reduce((s, d) => s + d.resultado, 0);
@@ -45,32 +66,55 @@ export function rb(dados) {
  * @param {DadoRolado[]} dados
  * @param {"todos"|"contados"} [escopo] o playtest não define se descartados contam (spec §4.5)
  */
-export function valorCritico(dados, escopo = "todos") {
-  const alvo = escopo === "contados" ? contados(dados) : dados;
+export function valorCritico(dados, escopo = "todos", minimo = VALOR_MINIMO_CRITICO) {
+  const alvo = escopo === "contados" ? contados(dados) : doTeste(dados).filter((d) => !d.anulado);
   const contagem = new Map();
   for (const d of alvo) {
-    if (d.resultado < VALOR_MINIMO_CRITICO) continue;
+    if (d.resultado < minimo) continue;
     contagem.set(d.resultado, (contagem.get(d.resultado) ?? 0) + 1);
   }
   const repetidos = [...contagem.entries()].filter(([, n]) => n >= 2).map(([v]) => v);
   return repetidos.length ? Math.max(...repetidos) : null;
 }
 
-/** Falha crítica: *todos* os dados em 1 (spec §4.3). @param {DadoRolado[]} dados */
+/**
+ * Falha crítica: *todos* os dados em 1 (spec §4.3), ou todos anulados pelo pavor
+ * (beta §9.1). @param {DadoRolado[]} dados
+ */
 export function ehFalhaCritica(dados, escopo = "todos") {
-  const alvo = escopo === "contados" ? contados(dados) : dados;
+  const doTesteTodos = doTeste(dados);
+  if (doTesteTodos.length < dados.length && doTesteTodos.every((d) => d.anulado)) return true;
+  const alvo = escopo === "contados" ? contados(dados) : doTesteTodos;
   return alvo.length > 0 && alvo.every((d) => d.resultado === 1);
+}
+
+/**
+ * O que um teste estendido soma à pontuação: a RA ou a RB, conforme o desafio, e no crítico
+ * também a segunda maior (beta §3).
+ * @param {{ra: number, rb?: number, critico?: boolean, segunda?: number}} r
+ */
+export const pontosDoEstendido = (r, { base = r.ra, somaCritico = false } = {}) => base + (somaCritico && r.critico ? (r.segunda ?? 0) : 0);
+
+/** A segunda maior rolagem: é o que o crítico soma ao dano e à pontuação (beta §3). */
+export function segundaRolagem(dados) {
+  return contados(dados).map((d) => d.resultado).sort((a, b) => b - a)[1] ?? 0;
 }
 
 /**
  * Desfecho completo. Crítico e falha crítica têm precedência sobre a DT (spec §4.3).
  * @param {DadoRolado[]} dados
- * @param {{dt?: number|null, escopoCritico?: "todos"|"contados"}} [opcoes]
+ * @param {{dt?: number|null, escopoCritico?: "todos"|"contados", modificador?: number,
+ *   minimoCritico?: number}} [opcoes] `modificador`: o fixo do beta (`+1`, `–2`), que
+ *   só soma ao resultado (beta §3); `minimoCritico`: arma que critica com valores
+ *   menores (a espada de Cormac critica com par de 5).
  */
-export function analisar(dados, { dt = null, escopoCritico = "todos" } = {}) {
-  const critico = valorCritico(dados, escopoCritico);
+export function analisar(dados, {
+  dt = null, escopoCritico = "todos", modificador = 0, minimoCritico = VALOR_MINIMO_CRITICO,
+} = {}) {
+  const critico = valorCritico(dados, escopoCritico, minimoCritico);
   const falhaCritica = ehFalhaCritica(dados, escopoCritico);
-  const total = soma(dados);
+  // Tudo anulado pelo pavor vale 0, com ou sem modificador (beta §9.1).
+  const total = contados(dados).length ? soma(dados) + modificador : 0;
 
   let sucesso = null;
   if (critico !== null) sucesso = true;
@@ -83,11 +127,29 @@ export function analisar(dados, { dt = null, escopoCritico = "todos" } = {}) {
   else if (sucesso !== null) desfecho = sucesso ? "sucesso" : "falha";
 
   return {
-    total, dt,
+    total, dt, modificador,
     ra: ra(dados), rb: rb(dados),
+    segunda: segundaRolagem(dados),
     critico: critico !== null, valorCritico: critico,
     falhaCritica, sucesso, desfecho,
   };
+}
+
+/**
+ * Qual dado é a RA e qual é a RB, para desenhar (a transmissão pinta um de vermelho e o outro
+ * de azul). Um dado por papel: o primeiro com o maior valor e o primeiro com o menor; com dois
+ * dados iguais, cada um fica com um papel. Com um dado contado só, ele é os dois.
+ * @param {DadoRolado[]} dados
+ * @returns {{ra: number|null, rb: number|null}} os `indice`s
+ */
+export function papeisDosDados(dados) {
+  const vivos = contados(dados);
+  if (!vivos.length) return { ra: null, rb: null };
+  const maior = Math.max(...vivos.map((d) => d.resultado));
+  const menor = Math.min(...vivos.map((d) => d.resultado));
+  const ra = vivos.find((d) => d.resultado === maior);
+  const rb = vivos.find((d) => d.resultado === menor && d !== ra) ?? ra;
+  return { ra: ra.indice, rb: rb.indice };
 }
 
 /**
@@ -97,7 +159,7 @@ export function analisar(dados, { dt = null, escopoCritico = "todos" } = {}) {
  * @param {DadoRolado[]} dados
  */
 export function selecaoSugerida(dados) {
-  return [...dados]
+  return dados.filter((d) => !d.pavor && !d.anulado)
     .sort((a, b) => b.resultado - a.resultado)
     .slice(0, MAX_DADOS_CONTADOS)
     .map((d) => d.indice)

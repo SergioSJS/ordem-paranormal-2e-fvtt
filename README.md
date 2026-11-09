@@ -7,7 +7,8 @@
 > Feito por fã, sem afiliação com os detentores dos direitos; o conteúdo do livro
 > pertence a eles — e por isso nem o texto nem as artes do livro vêm no pacote.
 
-Sistema para **Foundry VTT** do playtest alpha de *Ordem Paranormal RPG 2*.
+Sistema para **Foundry VTT** dos playtests de *Ordem Paranormal RPG 2*: o alpha, no **modo moderno** (Atos I e II), e
+o beta, *Contos da Vigília*, no **[modo Vigília](#modo-vigília)** (Missões 1 e 2).
 
 > Projeto não-oficial, feito por fã. Sem afiliação, patrocínio ou endosso dos detentores
 > de direitos de Ordem Paranormal RPG. Não distribui textos, artes nem conteúdo protegido
@@ -18,6 +19,30 @@ Sistema para **Foundry VTT** do playtest alpha de *Ordem Paranormal RPG 2*.
 
 
 ![Ficha de personagem](docs/img/ficha-personagem.png)
+
+## Em uma olhada
+
+Um setting de mundo escolhe o modo; cada um traz as suas perícias, regras e aventuras, e a ficha guarda as duas.
+
+**Modo moderno: o alpha, Atos I e II.**
+
+- Ficha do livro com dados em escada (d4→d12), Rolagem Alta e Baixa, crítico e falha crítica.
+- [Investigação](#investigação) com painel do mestre, pontos de interesse e revelação por personagem.
+- [Desafios de acesso](#desafios) e as dez ferramentas da Ordo Realitas.
+
+**Modo Vigília: o beta, *Contos da Vigília*, Missões 1 e 2.**
+
+- [Combate por fases](#modo-vigília): suporte, distância, corpo a corpo e final. Tem card de confronto, manobras,
+  armadura, lesões e traumas.
+- Perseguição, furtividade, dado de pavor e relações.
+- O [palco](#modo-vigília) conduz a cena sem abrir janela.
+
+**Para as duas.**
+
+- As aventuras são montadas do PDF do mestre, e as artes vêm dos zips da editora.
+- Para mesa em live: [transmissão para OBS](#transmissão-obs) e [efeitos de mesa](#efeitos-de-mesa) com som e
+  luz.
+- Tudo se faz também à mão: a automação propõe, quem clica aplica.
 
 ## O que ele faz
 
@@ -136,6 +161,11 @@ Compartilhar continua sendo outra coisa, o teste do aliado por uma pista nova.
 O painel mostra ao mestre quem descobriu cada linha e um botão para **desfazer** a
 descoberta (e o "contado ao grupo" junto), sem precisar encerrar a cena.
 
+Uma linha pode ter **perícia alternativa** ("Pesquisar ou Tecnologia", o Computador):
+Examinar a acha com qualquer uma das duas. E o mestre que prefere narrar antes de a
+pista cair na tela liga **Revelação pelo mestre** nas configurações do mundo: o card de
+Examinar vai só a ele, com *Entregar ao jogador*; o jogador vê a rolagem e um aviso.
+
 ![Ficha de ponto de interesse](docs/img/ficha-poi.png)
 
 **Sobrecarga mental** (spec §7.6): ao fim de cada rodada, a tabela da cena cobra PD de
@@ -175,13 +205,16 @@ no braço.
   do mestre; a tela do jogador só tem o palpite.
 - **Hackear** (§7.3) — técnico: o jogador rola, só o mestre recebe a conta e a resposta,
   revela para a mesa com um contador grande na tela de todos e dá o veredito; social (banco de perguntas do
-  mestre), cada um com o próprio gate de rodada.
+  mestre), cada um com o próprio gate de rodada: falhou, só tenta de novo na rodada
+  seguinte da investigação. Mesa que não avança rodada? O botão avisa "nesta rodada"
+  antes do clique, a ficha do desafio tem *Liberar tentativa*, e o mestre que clica
+  pode tentar mesmo assim.
 - **Genérico** — qualquer outra situação: o mestre diz a perícia e o rótulo.
 
 ## Combate e ferimentos
 
-Versão simplificada e explicitamente temporária do playtest (§8), isolada para ser
-trocada inteira quando sair a definitiva.
+Esta é a versão simplificada do alpha (§8). O combate novo, por fases ([modo Vigília](#modo-vigília)), vem ligado
+por padrão também no modo moderno; esta aqui volta quando se desliga *Combate novo no modo moderno*.
 
 ![Card de ataque](docs/img/card-ataque.png)
 
@@ -192,6 +225,119 @@ playtest: vencendo, ninguém sofre nem causa dano.
 Zerar PV pede teste de **Vigor**; zerar PD pede **Disciplina**. A DT escala 7 → 10 → 13
 → 16 por teste já feito, e a consequência da falha no trauma é configurável, porque o
 próprio texto avisa que vai mudar.
+
+## Modo Vigília
+
+O playtest beta, *Contos da Vigília*, é outro jogo no mesmo sistema: passa-se no passado, com perícias, regras e
+missões próprias. O setting de mundo **Modo de jogo** escolhe entre **moderno** (Atos I e II) e **Vigília**
+(Missões 1 e 2). A ficha guarda as perícias dos dois, e o modo decide o que aparece.
+
+**O Vigília tem a cara do beta**: carvão com textura de giz, prata e osso no lugar do vermelho, rótulos em faixa de nó
+celta e os títulos em versalete. O modo moderno continua com o visual do alpha.
+
+![Ficha no modo Vigília](docs/img/ficha-vigilia.png)
+
+![Painel de ação](docs/img/painel-acao.png)
+
+**As missões saem do seu material**, como os atos: em *Aventuras do playtest*, escolha o PDF do mestre e, depois, o
+zip da editora. Cada missão vem com cena, marcadores, pontos, desafios, pré-gerados, roteiro e as cenas de ação.
+
+**Uma cena de ação** é um ator do tipo `cena-acao`: um combate, uma perseguição ou uma furtividade. O painel de ação
+(o botão de espadas) escolhe a cena no topo. **Parada, a cena se monta ali mesmo**: quantidade × ator (criatura entra
+quantas vezes você pedir, cada uma com os seus PV e um número no nome), os personagens dos jogadores, ou arrastar da
+barra lateral; o X em cada linha tira da cena, e o Iniciar fica por último. No ar, mostra a rodada, a fase e o que cada
+um pode fazer; **Parar** tira a cena do ar sem zerar nada (para um Iniciar sem querer) e **Encerrar** acaba a cena. **Montar a cena** abre a ficha dela, onde o mestre escolhe quem entra:
+personagens e criaturas, pela lista, pelos tokens selecionados no mapa, pelos personagens dos jogadores ou
+arrastando da barra lateral. Ali também ficam os modelos das ondas, que o painel põe no mapa em levas. As cenas das
+missões nascem sem personagens, porque cada mesa joga com os seus. **Nova cena** cria outra (combate, perseguição ou
+furtividade), parada, com os personagens dos jogadores ou os tokens selecionados, se você quiser; arrastar um ator da
+barra lateral para o painel também o põe na cena.
+
+**O guia da fase** diz o que dá para fazer agora: no suporte, as ações gerais; à distância e corpo a corpo, os ataques
+e as manobras; no final, mover-se, fugir, investigar. Cada personagem vê primeiro as ações da fase atual, e as outras
+continuam a um clique, em "outras ações".
+
+**O card de confronto** mostra no chat quem agiu em quem. Ataque, revide, defesa, manobra, atrapalhar e fintar saem
+num card só, com os dados dentro:
+
+- os dois retratos com a seta entre eles;
+- o veredito em letra grande ("Acertou", "Errou", "Crítico!", "Fulano se defende");
+- o dano em número grande, com o nome de quem leva.
+
+![Card de confronto](docs/img/card-confronto.png)
+
+Quem aplica o dano publica um card curto com o que entrou de fato, depois da proteção, e avisa se o alvo caiu. Se o
+alvo tem ponto de armadura, antes vem a escolha, em card, para quem joga com ele (e para o mestre): **absorver**
+(gasta 1 ponto e tira 10) ou **levar o dano**. Para o jogador decidir, o personagem precisa ser dele (permissão de
+dono); com observador, a escolha fica só com o mestre.
+
+**O palco** é a cena vista como teatro, não como grade: uma faixa no rodapé com quem está em cena, personagens de um
+lado e criaturas do outro, a fase e a rodada no meio. Quem age dá um passo à frente, com a legenda do card; quem já
+agiu recua, quem caiu apaga. Todo mundo vê o palco enquanto a cena está no ar, e cada um recolhe o seu.
+
+Dá para conduzir o combate inteiro pelo palco, sem abrir o painel:
+
+- **Clique na figura**: abre o menu dela, com a ficha, o alvo, "já agiu", PV −/+, as condições e as ações da fase
+  (e, para o mestre, tirar da cena). O jogador vê o menu completo no próprio personagem e mira as criaturas.
+- **Duplo clique**: abre a ficha, do personagem ou da criatura.
+- **T com o mouse sobre a figura**: mira nela, como sobre o token (Shift+T soma alvos). Se ela tem token no mapa, é
+  a mira do próprio Foundry. Se não tem, por exemplo numa cena sem mapa, a mira fica no palco. O ataque e a manobra
+  oferecem primeiro quem está na mira.
+- **Barra** (mestre): clique numa fase para ir até ela, − e + na rodada, avançar, parar (volta à montagem sem zerar)
+  e encerrar.
+- **Perseguição e furtividade** também: o menu da figura traz Avançar, Recuperar fôlego, Sacrifício, o teste de
+  esconderijo e as ações da área, e embaixo do nome aparecem os pontos de avanço e o fôlego, ou o esconderijo.
+
+![O palco da cena de ação](docs/img/palco.png)
+
+**Dá para jogar tudo à mão.** A automação propõe e quem clica aplica: condição, derrubar, descartar dado e dano são
+botões do card, nunca efeito sozinho. No painel e na aba Condição da ficha, tudo se edita: fase, rodada, "já agiu",
+PV, PD, pavor, marcadores, condições, avanço, fôlego, dados de esconderijo, lesões, traumas e relações. O ataque
+aceita ajuste de DT e de passos, e o dano aceita "Outro valor…".
+
+**O combate novo também vale no modo moderno**, ligado por padrão. Desligue *Combate novo no modo moderno* nos
+settings do mundo para voltar ao combate simplificado.
+
+Onde o beta se contradiz ou deixa regra de fora, a decisão está em [docs/regras/LACUNAS.md](docs/regras/LACUNAS.md).
+
+## Efeitos de mesa
+
+Som e luz quando algo acontece: o dado de pavor bate um coração e escurece a borda da tela (e clareia, se o pavor
+sai); crítico toca um sino e doura o card; falha crítica desafina e faz o card tremer; dano dá um baque e pisca em
+quem apanhou, no palco, no painel e na transmissão; iniciar a cena rufa um tambor, e cada fase nova toca um gongo e
+atravessa a tela com o nome dela. O som é sintetizado no navegador, sem arquivo nenhum. Cada pessoa liga, desliga e
+regula o volume nas configurações, só na tela dela; quem pede menos movimento no sistema vê a cor sem pulsar nem
+tremer. Rolagem secreta não dispara efeito para quem não pode ver o resultado.
+
+## Transmissão (OBS)
+
+Para quem joga em live: uma tela só com os cards dos personagens, sobre fundo transparente, para usar como fonte
+de navegador no OBS. Cada card traz o rosto, o nome do personagem, o nome de quem joga, PV e PD (em barra e em
+número), pavor e condições. Quando a pessoa rola, o card acende e a rolagem aparece na faixa de baixo, sem esconder
+nada: os dados na forma de cada um, com o valor dentro, a rolagem alta em vermelho e a baixa em azul, o total e o
+desfecho. Numa cena de ação, aparece quem já agiu, e o tipo, a fase e a rodada ficam numa faixa à parte, num canto
+só dela (por padrão, em cima à direita).
+
+**Nada se move.** O card tem tamanho fixo: começar a cena, mudar de fase, rolar, levar dano, ganhar pavor ou
+condição não mexem um pixel no lugar de card nenhum. Recorte o overlay uma vez. A faixa da cena escolhe o seu
+canto, ou sai desta fonte e vai para outra (`/game?op2-transmissao=cena`). Para montar o recorte, ligue **Mostrar
+contornos para montar o overlay** na configuração (ou abra com `&op2-guias` na URL): um tracejado marca cada card,
+a área onde a rolagem aparece e a faixa da cena, mesmo sem cena no ar. Desligue antes de ir ao ar.
+
+Em **Configurações → Ordem Paranormal 2 → Configurar a transmissão**: crie o usuário "Transmissão", dê a ele acesso
+de observador aos personagens e salve. No OBS, adicione uma fonte Navegador com o endereço `/join`, clique em
+Interagir e entre como esse usuário. Ou abra `/game?op2-transmissao` em qualquer sessão. Ali também se escolhem a
+posição, a direção, a escala e quem aparece. O usuário próprio não é capricho: o Foundry não deixa o mesmo usuário
+entrar duas vezes, então o mestre, já na mesa, não consegue entrar de novo pelo OBS.
+
+![Os cards da transmissão, um deles com a rolagem acesa](docs/img/transmissao.png)
+
+Dois estilos: **cartões** (fundo, borda, barras de PV e PD) e **sem fundo**, para quem usa o avatar com fundo
+transparente: o avatar fica solto, sem contorno, e PV e PD aparecem só em texto ("PV 22/22"), com contorno escuro
+para ler sobre o vídeo. A URL escolhe o estilo de cada fonte (`/game?op2-transmissao=livre`), então dá para ter as
+duas no OBS ao mesmo tempo.
+
+A transmissão só vê o que um jogador veria: sussurro e rolagem cega nunca aparecem.
 
 ## Compêndios do Ato I
 
@@ -307,6 +453,19 @@ desafios de acesso, o roteiro do ato com as instruções de mestre de cada ferra
 a maldição como evento já vinculado — parado, porque no Ato II o gatilho é danificar o
 Ídolo (p. 87) —, e a investigação com tudo vinculado.
 
+### As ferramentas na mesa
+
+Usar uma ferramenta num ponto é ação do jogador, na janela de ações, e funciona como
+Examinar: a **leitura fica com o personagem** e aparece no painel dele — com reação ou
+"leitura normal", que também é informação (§9.3). O botão da ferramenta marca o que ele
+já leu ali; reler é livre. O que o livro imprime junto para o mestre ("envie o handout",
+a condição, a solução do rádio) fica só no card do mestre. A Câmera entrega a foto; o
+Medidor EMF entrega dois links — ouvir só na própria tela ou tocar para a mesa; o Laboratório
+rola a escada com a sequência mínima do ponto, sem perguntar ao jogador. Leitura que só
+existe depois de uma condição ("apenas se o Ídolo for quebrado") entra em **rascunho**:
+até o mestre liberar — no painel ou na ficha do ponto —, a ferramenta devolve leitura
+normal. O setting *Revelação pelo mestre* vale para as ferramentas também.
+
 ### As artes vêm do seu zip
 
 ![Pedido do zip ao importar o Ato II](docs/img/importar-ato-ii.png)
@@ -337,7 +496,7 @@ que o livro imprime; as linhas do quadro do Molho de Chaves repetidas no Depósi
 no Armário de Roupas, e a da cadeira da Mesa de Poker repetida na Churrasqueira, entram
 como **rascunho** com a nota de onde são. Os quatro rótulos "Laboratório" do Freezer
 viram Laboratório, Lanterna UV, EMF e Termômetro pelo que a leitura diz — e a tabela do
-livro confirma. Tudo está em [docs/LACUNAS.md](docs/LACUNAS.md).
+livro confirma. Tudo está em [docs/regras/LACUNAS.md](docs/regras/LACUNAS.md).
 
 ### O Rádio Modificado, como no livro
 
@@ -409,6 +568,12 @@ basta para o Ato I.
 O **Ato II** vem pelo mesmo caminho, do PDF completo do playtest; as artes dele são
 exclusivas de assinante, e o sistema pede o zip da editora na hora de importar.
 
+As **Missões do modo Vigília** também. Troque o **Modo de jogo** para Vigília e abra **Aventuras do playtest**:
+
+- O **PDF do beta** monta as duas missões; o gratuito, só a Missão 1.
+- Depois, o sistema pede o zip da editora com mapas, tokens, handouts e músicas.
+- Cada missão vem com cena, pré-gerados, pontos, desafios, roteiro e as cenas de ação prontas para iniciar.
+
 Os marcadores dos pontos no mapa e os tokens na posição inicial da aventura vêm
 prontos quando `packs/sources/<ato>-cenas/posicoes.json` existe — é o que
 `npm run posicoes -- --ato ato-i --mundo <mundo>` captura de uma cena montada num
@@ -471,7 +636,8 @@ Detalhes do loop local, teste em duas versões do Foundry e convenções: [CLAUD
 
 ## Estado
 
-Em desenvolvimento, versão 0.0.1.
+Em desenvolvimento. A última versão publicada é a 0.9.7 (modo moderno); o modo Vigília está pronto na branch e
+entra na próxima, depois da rodada de mesa.
 
 | Fase | O que entrou | Situação |
 |---|---|---|
@@ -480,13 +646,14 @@ Em desenvolvimento, versão 0.0.1.
 | 3 | Desafios (Arrombar, Destrancar, Hackear, genérico), Alcançar, Sustentar, ferramentas da Ordo Realitas | pronta |
 | 4 | Testes opostos, Ajuda, usar habilidades e itens, combate simplificado, ferimentos e traumas | pronta |
 | Compêndios | Ato I e Ato II montados do PDF do mestre, dentro do Foundry; as artes dos dois atos pelos zips da editora | prontos |
+| 5 | Modo Vigília (playtest beta): combate por fases, perseguição, furtividade, relações, as duas missões | pronta para teste de mesa |
 
 O playtest é explicitamente parcial: NEX, progressão por nível e traumas permanentes
 ainda não foram publicados. Onde o texto é ambíguo ou se contradiz, o sistema expõe um
-**setting** com o default recomendado — a lista está em [docs/LACUNAS.md](docs/LACUNAS.md).
+**setting** com o default recomendado — a lista está em [docs/regras/LACUNAS.md](docs/regras/LACUNAS.md).
 
-O roadmap completo está em [docs/ROADMAP.md](docs/ROADMAP.md). Como o sistema vai para a
-listagem do Foundry e como cada versão é registrada: [docs/PUBLICACAO.md](docs/PUBLICACAO.md).
+O roadmap completo está em [docs/projeto/ROADMAP.md](docs/projeto/ROADMAP.md). Como o sistema vai para a
+listagem do Foundry e como cada versão é registrada: [docs/projeto/PUBLICACAO.md](docs/projeto/PUBLICACAO.md).
 
 ## Apoie
 

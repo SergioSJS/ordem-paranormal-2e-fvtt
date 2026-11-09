@@ -9,6 +9,36 @@
  * que são estado de sessão.
  */
 import { investigacaoAtiva } from "./investigacao-ativa.mjs";
+import { usaCombateNovo, modoAtual } from "../modo.mjs";
+import { esvaziarImpeto } from "./impeto.mjs";
+import { botoesDeRecuperacao } from "../vigilia/queda.mjs";
+import { cardVigilia } from "../vigilia/card.mjs";
+
+/**
+ * O que o beta manda acabar com a cena (beta §8, §9, §12): marcadores, condições, dados
+ * guardados e os contadores de teste. Lesão, trauma, pavor e armadura gasta ficam.
+ */
+export const ZERADO_DO_BETA = {
+  "system.estado.marcadores": 0,
+  "system.estado.condicoes": [],
+  "system.estado.agarre": { por: "", dano: "", passos: 0 },
+  "system.estado.bonus": [],
+  "system.estado.testesFerimento": 0,
+  "system.estado.testesTrauma": 0,
+  "system.estado.perseguicao": { avanco: 0, folego: 0, esforcos: 0, periciasUsadas: [], derrubado: false, obstaculo: false, avisado: false },
+  "system.estado.furtividade": { esconderijo: [], testou: false, avancos: 0, usosEsconder: 0, trilha: false, esperando: false },
+  "system.estado.equilibrio": 0,
+};
+
+/** Reduções de atributo (contusão) e o aumento do Ímpeto valem "até o fim da cena". */
+export const ZERADO_DA_CENA = {
+  "system.estado.reducoesTemporarias.fisico": 0,
+  "system.estado.reducoesTemporarias.mente": 0,
+  "system.estado.reducoesTemporarias.emocao": 0,
+  "system.estado.aumentosTemporarios.fisico": 0,
+  "system.estado.aumentosTemporarios.mente": 0,
+  "system.estado.aumentosTemporarios.emocao": 0,
+};
 
 /**
  * @param {object} [opcoes]
@@ -23,18 +53,15 @@ export async function encerrarCena({ atores, avisar = true, investigacao = inves
   }
 
   const zerado = {
-    "system.estado.reducoesTemporarias.fisico": 0,
-    "system.estado.reducoesTemporarias.mente": 0,
-    "system.estado.reducoesTemporarias.emocao": 0,
-    // O aumento do Ímpeto também vale "até o fim da cena".
-    "system.estado.aumentosTemporarios.fisico": 0,
-    "system.estado.aumentosTemporarios.mente": 0,
-    "system.estado.aumentosTemporarios.emocao": 0,
+    ...ZERADO_DA_CENA,
     "system.estado.acoesUsadasNaCena": [],
     // A revelação é por investigação: encerrada, o que foi descoberto nela é
     // conhecimento da mesa, não estado do sistema.
     "system.estado.poisInvestigados": [],
     "system.estado.infosReveladas": [],
+    "system.estado.ferramentasReveladas": [],
+    // O combate simplificado do alpha só zera os contadores com cura ou descanso (spec §8.2).
+    ...(usaCombateNovo() ? ZERADO_DO_BETA : {}),
   };
 
   const atualizacoes = alvos.map((ator) => ({ _id: ator.id, ...zerado }));
@@ -50,6 +77,25 @@ export async function encerrarCena({ atores, avisar = true, investigacao = inves
       "system.compartilharUsado": { usado: false, atorId: "", nome: "" },
       "system.ordemParticipantes": [],
     });
+    // O gate do hack (spec §7.3) é "rodada da última tentativa": com a rodada de volta
+    // a 0, uma tentativa na rodada 3 da sessão passada trancava o dispositivo até a
+    // rodada 4 da próxima. O progresso do desafio (pontuação, senha, resolvido) fica.
+    for (const uuid of investigacao.system.desafios ?? []) {
+      const desafio = await fromUuid(uuid);
+      if (desafio?.type !== "desafio-acesso") continue;
+      const dados = {};
+      for (const hack of ["hackTecnico", "hackSocial"]) {
+        if (desafio.system[hack].ultimaTentativaRodada >= 0) dados[`system.${hack}.ultimaTentativaRodada`] = -1;
+      }
+      if (Object.keys(dados).length) await desafio.update(dados);
+    }
+  }
+
+  // Encerrar pela investigação termina a cena como o painel de ação (beta §8.2, §12).
+  if (modoAtual() === "vigilia") for (const ator of alvos) await esvaziarImpeto(ator);
+  if (usaCombateNovo()) {
+    const botoes = botoesDeRecuperacao(alvos);
+    if (botoes.length) await cardVigilia(null, { titulo: game.i18n.localize("OP2.CenaAcao.Encerrada"), botoes });
   }
 
   if (avisar) {

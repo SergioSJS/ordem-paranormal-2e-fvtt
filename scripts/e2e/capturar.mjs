@@ -196,4 +196,135 @@ for (const [nome, html] of Object.entries(cardsHtml)) {
   console.log(`${SAIDA}/card-${nome}.png`);
 }
 
+// O modo Vigília veste o tema do beta (styles/parciais/_vigilia.scss): a ficha e o
+// painel de ação, que o README mostra na seção do modo, saem nele. Troca, fotografa e
+// volta ao moderno, que é o padrão do mundo de teste.
+const trocarModo = async (modo) => {
+  await Promise.all([
+    page.waitForEvent("load", { timeout: 60000 }),
+    page.evaluate((m) => game.op2.trocarModo(m), modo),
+  ]);
+  await page.waitForFunction((m) => globalThis.game?.ready === true
+    && game.settings.get("ordem-paranormal-2e", "modo") === m, modo, { timeout: 60000 });
+  await page.waitForTimeout(2000);
+  await page.evaluate(() => { for (const n of document.querySelectorAll("#notifications .notification")) n.remove(); });
+};
+await trocarModo("vigilia");
+const vigilia = await page.evaluate(async () => {
+  for (const a of foundry.applications.instances.values()) await a.close?.();
+  // Mesma regra dos pré-gerados do Ato I: sem a arte da editora no print.
+  const fontes = await (await fetch("systems/ordem-paranormal-2e/assets/aventura/fontes-vigilia.json")).json();
+  const ICONE = "icons/svg/mystery-man.svg";
+  const importar = (inicio) => {
+    const doc = foundry.utils.deepClone(fontes.pregerados.find((a) => a.name.startsWith(inicio)));
+    delete doc._id;
+    doc.img = ICONE;
+    foundry.utils.setProperty(doc, "prototypeToken.texture.src", ICONE);
+    foundry.utils.setProperty(doc, "system.biografia", "");
+    return Actor.create(doc);
+  };
+  const rhiona = await importar("Rhiona");
+  const rowan = await importar("Rowan");
+  const npc = await Actor.create({ name: "Afogado", type: "npc", system: {
+    recursos: { pv: { value: 10, max: 10 }, pd: { value: 0, max: 0 } }, ataques: [{ nome: "Garras", tipo: "corpo", dados: "d8+d6", bonusDano: 1 }],
+  } });
+  const cena = await Actor.create({ name: "Os Afogados", type: "cena-acao", system: { tipo: "combate", participantes: [rhiona.uuid, rowan.uuid, npc.uuid] } });
+  return { rhionaId: rhiona.id, rowanId: rowan.id, cenaId: cena.id };
+});
+
+Object.assign(dados, vigilia);
+await fotografar("ficha-vigilia", ".op2-ficha--personagem", {
+  antes: ({ rhionaId }) => game.actors.get(rhionaId).sheet.render(true),
+});
+await page.evaluate(() => [...foundry.applications.instances.values()].forEach((a) => a.close?.()));
+await fotografar("painel-acao", "#op2-painel-acao", {
+  antes: async ({ cenaId }) => {
+    const cena = game.actors.get(cenaId);
+    await game.op2.iniciarCena(cena);
+    game.op2.painelAcao(cena);
+  },
+});
+await page.evaluate(() => [...foundry.applications.instances.values()].forEach((a) => a.close?.()));
+// O palco: alguém age e dá um passo à frente com a legenda. Print com folga em cima, onde a legenda sobe.
+await page.evaluate(async ({ rhionaId, cenaId }) => {
+  const rhiona = game.actors.get(rhionaId);
+  const cena = game.actors.get(cenaId);
+  const alvo = cena.system.participantes.map((u) => fromUuidSync(u)).find((a) => a?.type === "npc");
+  await game.op2.vigilia.atacar(rhiona, game.op2.vigilia.ataquesDe(rhiona)[0], { cena, rapido: true, escolha: { alvo: alvo.uuid } });
+}, dados);
+await page.waitForTimeout(1500);
+// O card de confronto do ataque de cima, na mesma folha em branco dos cards do modo moderno,
+// com o tema do beta. `<base>` para os retratos dos atores carregarem do servidor.
+const confronto = await page.evaluate(() => game.messages.contents
+  .filter((m) => m.content.includes("op2-confronto")).at(-1)?.content ?? null);
+if (confronto) {
+  await folha.setContent(`
+    <base href="http://localhost:${PORTA}/">
+    <style>${css}</style>
+    <body class="op2 op2-vigilia theme-dark" style="margin:0;padding:16px;background:#0d0908">
+      <div style="max-width:400px">${confronto}</div>
+    </body>`);
+  await folha.waitForTimeout(600);
+  const el = await folha.$(".op2-card");
+  if (el) {
+    await el.screenshot({ path: `${SAIDA}/card-confronto.png` });
+    console.log(`${SAIDA}/card-confronto.png`);
+  } else console.log("(sem .op2-card) confronto");
+} else console.log("(sem card) confronto");
+// O palco conduz o combate: a criatura na mira e o menu da figura aberto (ficha, alvo, PV, ações).
+await page.evaluate(async ({ cenaId }) => {
+  const cena = game.actors.get(cenaId);
+  const alvo = cena.system.participantes.map((u) => fromUuidSync(u)).find((a) => a?.type === "npc");
+  const { alternarAlvo } = await import("/systems/ordem-paranormal-2e/module/vigilia/alvos.mjs");
+  alternarAlvo(alvo);
+}, dados);
+await page.waitForTimeout(600);
+await page.click(`#op2-palco .op2-palco__figura:not(.op2-palco__figura--criatura) [data-palco="figura"]`).catch(() => null);
+// Mouse fora do palco: a dica do retrato cobriria a barra de fases no print.
+await page.mouse.move(5, 5);
+await page.waitForTimeout(1200);
+const palco = await (await page.$("#op2-palco"))?.boundingBox();
+if (palco) {
+  const menu = await (await page.$("#op2-palco .op2-palco__figura--menu .op2-palco__menu"))?.boundingBox();
+  const topo = Math.max(0, Math.min(palco.y - 90, menu ? menu.y - 16 : Infinity));
+  const clip = { x: palco.x - 16, y: topo, width: palco.width + 32, height: palco.y + palco.height + 10 - topo };
+  await page.screenshot({ path: `${SAIDA}/palco.png`, clip });
+  console.log(`${SAIDA}/palco.png${menu ? "" : " (sem menu)"}`);
+} else console.log("(sem elemento) palco");
+await page.keyboard.press("Escape");
+// A transmissão (OBS): outra sessão com ?op2-transmissao, só os cards, fundo transparente.
+// Pelo usuário "Transmissão", como o README manda: o Foundry não deixa o mesmo usuário entrar
+// duas vezes (a opção dele fica desabilitada no /join enquanto a outra sessão está aberta).
+const camera = await page.evaluate(async ({ rhionaId, rowanId }) => {
+  const usuario = game.users.getName("Transmissão")
+    ?? await User.create({ name: "Transmissão", role: CONST.USER_ROLES.PLAYER });
+  for (const id of [rhionaId, rowanId]) {
+    await game.actors.get(id).update({ [`ownership.${usuario.id}`]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER });
+  }
+  await game.settings.set("ordem-paranormal-2e", "transmissao",
+    { posicao: "top-left", direcao: "coluna", escala: 1, condicoes: true, usuario: usuario.id, atores: [rhionaId, rowanId] });
+  return usuario.id;
+}, dados);
+const tx = await browser.newPage({ viewport: { width: 1200, height: 800 }, deviceScaleFactor: 2 });
+await tx.goto(`http://localhost:${PORTA}/join`, { waitUntil: "networkidle" });
+await tx.selectOption("select[name='userid']", { label: "Transmissão" });
+await tx.click("button[name='join'], button[type='submit']");
+await tx.waitForURL("**/game");
+await tx.goto(`http://localhost:${PORTA}/game?op2-transmissao`, { waitUntil: "networkidle" });
+await tx.waitForFunction(() => globalThis.game?.ready === true && document.querySelector("#op2-transmissao .op2-transmissao__card"), null, { timeout: 60000 });
+await page.evaluate(({ rhionaId }) => game.op2.rolarTeste(game.actors.get(rhionaId), { chavePericia: "percepcao", rapido: true, dt: 7 }), dados);
+await tx.waitForTimeout(1500);
+const caixaTx = await (await tx.$("#op2-transmissao"))?.boundingBox();
+if (caixaTx) {
+  await tx.screenshot({ path: `${SAIDA}/transmissao.png`, omitBackground: true,
+    clip: { x: Math.max(0, caixaTx.x - 12), y: Math.max(0, caixaTx.y - 12), width: caixaTx.width + 24, height: caixaTx.height + 24 } });
+  console.log(`${SAIDA}/transmissao.png`);
+} else console.log("(sem elemento) transmissao");
+await tx.close();
+await page.evaluate(async (id) => {
+  await game.settings.set("ordem-paranormal-2e", "transmissao", {});
+  await game.users.get(id)?.delete();
+}, camera);
+await trocarModo("moderno");
+
 await browser.close();

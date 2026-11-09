@@ -41,3 +41,9 @@ export async function preencherImpeto(ator) {
   await barra.update({ "system.impeto.preenchidos": preenchidos + 1 });
   return { preenchidos: preenchidos + 1, espacos };
 }
+
+/** Esvazia a barra: no beta, é o que o fim da cena faz (beta §12). */
+export async function esvaziarImpeto(ator) {
+  const barra = barraDeImpeto(ator);
+  if (barra?.system.impeto.preenchidos) await barra.update({ "system.impeto.preenchidos": 0 });
+}

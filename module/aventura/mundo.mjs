@@ -14,13 +14,17 @@ import { extrairAtoI } from "../extrator/ato-i.mjs";
 import { extrairAtoII } from "../extrator/ato-ii.mjs";
 import { montarAtoI } from "./ato-i.mjs";
 import { montarAtoII } from "./ato-ii.mjs";
+import { paginasDaMissao, extrairPontosDaMissao, roteiroDaMissao } from "../extrator/missoes.mjs";
+import { montarMissao1, montarMissao2, resumoDaMissao } from "./missoes.mjs";
 
 const PACK_DO_MUNDO = "op2-aventuras";
 
 /** Os atos que o sistema sabe montar. */
 export const ATOS = [
-  { nome: "ato-i", rotulo: "OP2.Aventuras.AtoI", aventura: "Ato I — O Porão" },
-  { nome: "ato-ii", rotulo: "OP2.Aventuras.AtoII", aventura: "Ato II — O Porão" },
+  { nome: "ato-i", modo: "moderno", rotulo: "OP2.Aventuras.AtoI", aventura: "Ato I — O Porão" },
+  { nome: "ato-ii", modo: "moderno", rotulo: "OP2.Aventuras.AtoII", aventura: "Ato II — O Porão" },
+  { nome: "missao-1", modo: "vigilia", rotulo: "OP2.Aventuras.Missao1", aventura: "Missão 1 — O Pântano dos Afogados" },
+  { nome: "missao-2", modo: "vigilia", rotulo: "OP2.Aventuras.Missao2", aventura: "Missão 2 — A Caverna de Cruachan" },
 ];
 
 /** O que cada ato precisa dos compêndios do sistema (`scripts/aventura/gerar-fontes.mjs`). */
@@ -48,7 +52,9 @@ export async function montarAventuras(linhas) {
     resultados.push({ ...ATOS[0], ok: true, aventura, resumo: resumoDoAtoI(atoI) });
   } catch (erro) {
     console.error(`${SYSTEM_ID} | aventuras: Ato I`, erro);
-    resultados.push({ ...ATOS[0], ok: false, motivo: "trecho", erro: erro.message });
+    // O PDF do beta no grupo errado: dizer isso, e não só que falta o Ato I.
+    const ehBeta = linhas.some((l) => /primeira missão do|segunda missão do/i.test(l));
+    resultados.push({ ...ATOS[0], ok: false, motivo: ehBeta ? "ehBeta" : "trecho", erro: ehBeta ? "" : erro.message });
   }
 
   try {
@@ -64,6 +70,39 @@ export async function montarAventuras(linhas) {
     const semAtoII = /não traz o Ato II|não achei/i.test(erro.message);
     if (!semAtoII) console.error(`${SYSTEM_ID} | aventuras: Ato II`, erro);
     resultados.push({ ...ATOS[1], ok: false, motivo: semAtoII ? "ausente" : "falha", erro: semAtoII ? "" : erro.message });
+  }
+  return resultados;
+}
+
+/**
+ * As missões do modo Vigília, das páginas do PDF. A Missão 1 está em todo PDF do beta; a
+ * Missão 2, só no de assinantes: sem ela, o resultado diz isso em vez de falhar.
+ * @param {Array<{numero: number, pedacos: object[]}>} paginas
+ */
+export async function montarMissoes(paginas) {
+  const fontes = await fontesDoSistema("vigilia");
+  const montadores = { "missao-1": montarMissao1, "missao-2": montarMissao2 };
+  const resultados = [];
+  for (const ato of ATOS.filter((a) => a.modo === "vigilia")) {
+    try {
+      const daMissao = paginasDaMissao(paginas, ato.nome);
+      if (!daMissao.length) {
+        resultados.push({ ...ato, ok: false, motivo: "ausenteMissao", erro: "" });
+        continue;
+      }
+      const { pontos, avisos } = extrairPontosDaMissao(daMissao, ato.nome);
+      const extraido = { pontos, avisos, roteiro: roteiroDaMissao(daMissao, pontos) };
+      if (!pontos.length) throw new Error("nenhum ponto de interesse no PDF");
+      const { aventura, avisos: daMontagem } = montadores[ato.nome](extraido, fontes);
+      resultados.push({ ...ato, ok: true, aventura, resumo: resumoDaMissao(extraido, aventura), problemas: daMontagem });
+    } catch (erro) {
+      console.error(`${SYSTEM_ID} | aventuras: ${ato.nome}`, erro);
+      resultados.push({ ...ato, ok: false, motivo: "falha", erro: erro.message });
+    }
+  }
+  // Nenhuma das duas: não é o PDF do beta (ou a editora mudou a abertura das missões).
+  if (resultados.every((r) => r.motivo === "ausenteMissao")) {
+    for (const r of resultados) r.motivo = "naoEhBeta";
   }
   return resultados;
 }
@@ -116,9 +155,13 @@ export async function guardarAventura(dados) {
   return documento;
 }
 
-/** Monta e já guarda no mundo; a importação em si é decisão do mestre. */
-export async function montarEGuardar(linhas) {
-  const resultados = await montarAventuras(linhas);
+/**
+ * Monta e já guarda no mundo; a importação em si é decisão do mestre.
+ * @param {string[]|object[]} entrada as linhas (moderno) ou as páginas (Vigília) do PDF
+ * @param {string} [modo]
+ */
+export async function montarEGuardar(entrada, modo = "moderno") {
+  const resultados = modo === "vigilia" ? await montarMissoes(entrada) : await montarAventuras(entrada);
   for (const resultado of resultados) {
     if (!resultado.ok) continue;
     resultado.documento = await guardarAventura(resultado.aventura);

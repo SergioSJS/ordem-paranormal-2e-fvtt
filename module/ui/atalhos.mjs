@@ -8,6 +8,8 @@
 import { SYSTEM_ID } from "../config.mjs";
 import { alternarPainelInvestigacao } from "../cena/painel-investigacao.mjs";
 import { alternarAcoesInvestigacao } from "../cena/acoes-app.mjs";
+import { atorSobOMouse } from "../vigilia/palco.mjs";
+import { alternarAlvo } from "../vigilia/alvos.mjs";
 
 /** Chamar no `init`: o core só aceita registro de atalho antes do `ready`. */
 export function registrarAtalhos() {
@@ -30,5 +32,19 @@ export function registrarAtalhos() {
       return true;
     },
     precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL,
+  });
+  // `T` sobre uma figura do palco mira nela, como o core faz sobre o token (Shift soma). Fora
+  // do palco devolve `false` e o `T` do core segue: mira o token sob o mouse no mapa.
+  game.keybindings.register(SYSTEM_ID, "alvoNoPalco", {
+    name: "OP2.Atalhos.AlvoPalco",
+    hint: "OP2.Atalhos.AlvoPalcoDica",
+    editable: [{ key: "KeyT" }],
+    onDown: (contexto) => {
+      const ator = atorSobOMouse();
+      if (!ator) return false;
+      alternarAlvo(ator, { somar: contexto.isShift });
+      return true;
+    },
+    precedence: CONST.KEYBINDING_PRECEDENCE.PRIORITY,
   });
 }

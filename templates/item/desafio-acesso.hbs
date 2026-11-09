@@ -38,6 +38,21 @@
         <span>{{localize "OP2.Desafio.Sustentar"}}</span>
       </label>
       <label class="op2-campo op2-campo--inline">
+        <input type="checkbox" name="system.abordagens.escalar" {{#if sistema.abordagens.escalar}}checked{{/if}}
+          {{#unless editavel}}disabled{{/unless}}>
+        <span>{{localize "OP2.Desafio.Escalar"}}</span>
+      </label>
+      <label class="op2-campo op2-campo--inline">
+        <input type="checkbox" name="system.abordagens.equilibrar" {{#if sistema.abordagens.equilibrar}}checked{{/if}}
+          {{#unless editavel}}disabled{{/unless}}>
+        <span>{{localize "OP2.Desafio.Equilibrar"}}</span>
+      </label>
+      <label class="op2-campo op2-campo--inline">
+        <input type="checkbox" name="system.abordagens.alcancar" {{#if sistema.abordagens.alcancar}}checked{{/if}}
+          {{#unless editavel}}disabled{{/unless}}>
+        <span>{{localize "OP2.Desafio.Alcancar"}}</span>
+      </label>
+      <label class="op2-campo op2-campo--inline">
         <input type="checkbox" name="system.abordagens.generico" {{#if sistema.abordagens.generico}}checked{{/if}}
           {{#unless editavel}}disabled{{/unless}}>
         <span>{{localize "OP2.Desafio.Generico"}}</span>
@@ -56,6 +71,35 @@
       <input type="number" name="system.dtObjeto" value="{{sistema.dtObjeto}}" min="0"
         {{#unless editavel}}disabled{{/unless}}>
     </label>
+  {{/if}}
+
+  {{#if sistema.abordagens.escalar}}
+    <fieldset class="op2-cargas">
+      <legend>{{localize "OP2.Desafio.Escalar"}}</legend>
+      <div class="op2-grade-campos">
+        <label class="op2-campo"><span>{{localize "OP2.Desafio.EscalarAlvo"}}</span><input type="number" name="system.escalar.alvo" value="{{sistema.escalar.alvo}}" min="1" {{#unless editavel}}disabled{{/unless}}></label>
+        <label class="op2-campo"><span>{{localize "OP2.Desafio.EscalarDtRapido"}}</span><input type="number" name="system.escalar.dtRapido" value="{{sistema.escalar.dtRapido}}" min="0" {{#unless editavel}}disabled{{/unless}}></label>
+        <label class="op2-campo"><span>{{localize "OP2.Desafio.EscalarDtCauteloso"}}</span><input type="number" name="system.escalar.dtCauteloso" value="{{sistema.escalar.dtCauteloso}}" min="0" {{#unless editavel}}disabled{{/unless}}></label>
+      </div>
+    </fieldset>
+  {{/if}}
+  {{#if sistema.abordagens.equilibrar}}
+    <fieldset class="op2-cargas">
+      <legend>{{localize "OP2.Desafio.Equilibrar"}}</legend>
+      <label class="op2-campo"><span>{{localize "OP2.Desafio.EquilibrarSucessos"}}</span><input type="number" name="system.equilibrar.sucessos" value="{{sistema.equilibrar.sucessos}}" min="1" {{#unless editavel}}disabled{{/unless}}></label>
+    </fieldset>
+  {{/if}}
+  {{#if sistema.abordagens.alcancar}}
+    <fieldset class="op2-cargas">
+      <legend>{{localize "OP2.Desafio.Alcancar"}}</legend>
+      <div class="op2-grade-campos">
+        <label class="op2-campo"><span>{{localize "OP2.DT"}}</span><input type="number" name="system.alcancar.dt" value="{{sistema.alcancar.dt}}" min="0" {{#unless editavel}}disabled{{/unless}}></label>
+        <label class="op2-campo"><span>{{localize "OP2.Desafio.AlcancarPericia"}}</span>
+          <select name="system.alcancar.pericia" {{#unless editavel}}disabled{{/unless}}>
+            {{#each opcoesPericia}}<option value="{{chave}}" {{#if (op2Eq chave @root.sistema.alcancar.pericia)}}selected{{/if}}>{{rotulo}}</option>{{/each}}
+          </select></label>
+      </div>
+    </fieldset>
   {{/if}}
 
   {{#if sistema.abordagens.arrombar}}
@@ -193,6 +237,18 @@
           {{#unless editavel}}disabled{{/unless}}>
         <span>{{localize "OP2.Desafio.HackSucesso"}}</span>
       </label>
+      {{!-- O gate "só na rodada seguinte" (spec §7.3) trava por rodada da investigação; se o
+            contador não anda, ou o mestre testou antes da sessão, ele fica preso — aqui
+            o mestre solta (achado em uso real). --}}
+      {{#if (op2Maior sistema.hackTecnico.ultimaTentativaRodada -1)}}
+        <div class="op2-campo op2-campo--inline">
+          <span class="op2-ajuda">{{localize "OP2.Desafio.HackTravadoNaRodada" rodada=sistema.hackTecnico.ultimaTentativaRodada}}</span>
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="liberarHack" data-hack="hackTecnico"
+            {{#unless editavel}}disabled{{/unless}} data-tooltip="{{localize 'OP2.Desafio.HackLiberarAjuda'}}">
+            <i class="fa-solid fa-unlock" aria-hidden="true"></i> {{localize "OP2.Desafio.HackLiberar"}}
+          </button>
+        </div>
+      {{/if}}
       {{!-- Painel que devolve um problema em vez de abrir: cada faixa de rolagem tem
             o seu (spec §7.3 não modela o problema; o livro imprime). --}}
       <div class="op2-desafio-hack__tabela">
@@ -244,6 +300,18 @@
           {{#unless editavel}}disabled{{/unless}}>
         <span>{{localize "OP2.Desafio.HackSucesso"}}</span>
       </label>
+      {{!-- O gate "só na rodada seguinte" (spec §7.3) trava por rodada da investigação; se o
+            contador não anda, ou o mestre testou antes da sessão, ele fica preso — aqui
+            o mestre solta (achado em uso real). --}}
+      {{#if (op2Maior sistema.hackSocial.ultimaTentativaRodada -1)}}
+        <div class="op2-campo op2-campo--inline">
+          <span class="op2-ajuda">{{localize "OP2.Desafio.HackTravadoNaRodada" rodada=sistema.hackSocial.ultimaTentativaRodada}}</span>
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="liberarHack" data-hack="hackSocial"
+            {{#unless editavel}}disabled{{/unless}} data-tooltip="{{localize 'OP2.Desafio.HackLiberarAjuda'}}">
+            <i class="fa-solid fa-unlock" aria-hidden="true"></i> {{localize "OP2.Desafio.HackLiberar"}}
+          </button>
+        </div>
+      {{/if}}
       <label class="op2-campo">
         <span>{{localize "OP2.Desafio.HackRespostasNecessarias"}}</span>
         <input type="number" name="system.hackSocial.respostasNecessarias"

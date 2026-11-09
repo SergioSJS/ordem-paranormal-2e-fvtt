@@ -1,0 +1,38 @@
+{
+  "_id": "673ea8f658bdd03d",
+  "name": "Sorrateiro",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+  "system": {
+    "origem": "ocupacao",
+    "perfil": "",
+    "custo": "3 PD",
+    "custoPD": 3,
+    "descricao": "<p>Em teste de Crime ou Furtividade, por 3 PD: +d8.</p>",
+    "mecanica": "",
+    "efeito": {
+      "tipo": "dado-extra",
+      "passos": 1,
+      "dado": "d8",
+      "chaves": [
+        "crime",
+        "furtividade"
+      ],
+      "permitirD20": false,
+      "pdAoDescobrir": 0
+    },
+    "impeto": {
+      "espacos": 0,
+      "preenchidos": 0
+    },
+    "usoEmInvestigacao": ""
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!items!673ea8f658bdd03d"
+}

@@ -6,7 +6,8 @@
  * de ajuda e habilidades, e os dados extras. O teto de 4 dados rolados é imposto aqui
  * (spec §4.5).
  */
-import { MAX_DADOS_ROLADOS, MAX_DADOS_CONTADOS, ATRIBUTOS } from "../config.mjs";
+import { MAX_DADOS_ROLADOS, MAX_DADOS_CONTADOS, ATRIBUTOS, CUSTO_CONTROLAR_PAVOR, CUSTO_ABRACAR_PAVOR } from "../config.mjs";
+import { usaCombateNovo } from "../modo.mjs";
 import { stepDie } from "./escada.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
 import { lerConfig } from "../settings/register.mjs";
@@ -14,6 +15,9 @@ import { impetoDisponivel } from "../cena/impeto.mjs";
 import { vestirPerfil } from "../ui/perfil.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+
+/** O campo de modificador fixo só existe onde a regra existe (beta §3). */
+const lerModoComModificador = () => usaCombateNovo();
 
 export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
@@ -27,6 +31,11 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       passo: TesteDialog.#ajustarPasso,
       alternarExtra: TesteDialog.#alternarExtra,
       alternarImpeto: TesteDialog.#alternarImpeto,
+      modificador: TesteDialog.#ajustarModificador,
+      controlarPavor: TesteDialog.#controlarPavor,
+      abracarPavor: TesteDialog.#abracarPavor,
+      ignorarPavor: TesteDialog.#ignorarPavor,
+      alternarBonus: TesteDialog.#alternarBonus,
     },
   };
 
@@ -55,10 +64,16 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       impetoDisponivel: impetoDisponivel(ator),
       gastarImpeto: false,
       passos: {
-        pericia: ajuda?.alvo === "pericia" ? ajuda.passos : 0,
+        pericia: (ajuda?.alvo === "pericia" ? ajuda.passos : 0) + (base.passos ?? 0),
         atributo: ajuda?.alvo === "atributo" ? ajuda.passos : 0,
       },
       extras: new Set(),
+      modificador: base.modificador ?? 0,
+      // Dado de pavor (beta §9.1): quantos passos o jogador baixou agora, e se abraçou.
+      pavor: base.pavor ?? "",
+      pavorPassos: 0,
+      pavorAbracado: false,
+      bonus: new Set(),
       dt: base.dt ?? lerConfig("dtPadrao"),
       oposto: base.oposto ?? false,
       // Examinar não tem DT única: cada informação do quadro tem a sua (spec §6.3.1).
@@ -105,7 +120,9 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /** PD que as habilidades marcadas vão cobrar nesta rolagem. */
   get custoDeExtras() {
-    let total = 0;
+    // Ignorar o pavor (mesa decidiu) leva junto o que estava marcado nele: não cobra.
+    let total = this.estado.pavorIgnorado ? 0 : this.estado.pavorPassos * CUSTO_CONTROLAR_PAVOR
+      + (this.estado.pavorAbracado ? CUSTO_ABRACAR_PAVOR : 0);
     for (const id of this.estado.extras) total += this.ator.items.get(id)?.system.custoEmPD ?? 0;
     return total;
   }
@@ -158,6 +175,16 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       });
     }
 
+    // Abraçar o pavor o troca por dado bônus, que conta para o teto como os outros (beta §3/§9.1).
+    if (this.estado.pavor && this.estado.pavorAbracado && !this.estado.pavorIgnorado) {
+      extras.push({ chave: "pavor-abracado", rotulo: game.i18n.localize("OP2.Pavor.Abracado"), tipo: "extra", dado: this.#dadoDePavor() });
+    }
+
+    // Dados guardados (relação, plano, crucifixo) que o jogador marcou para este teste.
+    (this.ator.system.estado?.bonus ?? []).forEach((b, i) => {
+      if (this.estado.bonus.has(i)) extras.push({ chave: `bonus.${i}`, rotulo: b.rotulo, tipo: "extra", dado: b.dado });
+    });
+
     // Dados que a ação já traz (o +d6 da esquiva, spec §8.1) entram antes dos
     // extras opcionais: eles são parte do teste, não uma escolha do jogador.
     lista.push(...(this.base.dadosExtras ?? []), ...extras);
@@ -194,6 +221,14 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       componentes: componentes.map((c) => ({ ...c, icone: iconeDado(c.dado) })),
       extras,
       temExtras: extras.length > 0,
+      temPavor: Boolean(this.estado.pavor),
+      pavorDado: this.#dadoDePavor(),
+      pavorIcone: this.estado.pavor ? iconeDado(this.#dadoDePavor()) : "",
+      podeControlar: Boolean(this.estado.pavor) && !this.estado.pavorAbracado && this.#dadoDePavor() !== "d4",
+      bonus: (this.ator.system.estado?.bonus ?? []).map((b, i) => ({
+        ...b, indice: i, ativo: this.estado.bonus.has(i),
+      })),
+      mostraModificador: lerModoComModificador(),
       // Rolar mais do que se soma obriga a escolher depois da rolagem (spec §4.5).
       excedeContagem: componentes.length > MAX_DADOS_CONTADOS,
       noTeto: componentes.length >= MAX_DADOS_ROLADOS,
@@ -209,6 +244,53 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const alvoPasso = alvo.dataset.alvo;
     const delta = Number(alvo.dataset.delta);
     this.estado.passos[alvoPasso] = Math.clamp(this.estado.passos[alvoPasso] + delta, -4, 4);
+    this.render();
+  }
+
+  #dadoDePavor() {
+    return this.estado.pavor ? stepDie(this.estado.pavor, -this.estado.pavorPassos) : "";
+  }
+
+  #pdSobrando() {
+    return (this.ator.system.recursos?.pd?.value ?? 0) - this.custoDeExtras;
+  }
+
+  static #ajustarModificador(_evento, alvo) {
+    this.estado.modificador += Number(alvo.dataset.delta);
+    this.render();
+  }
+
+  static #controlarPavor() {
+    if (this.#dadoDePavor() === "d4") return;
+    if (this.#pdSobrando() < CUSTO_CONTROLAR_PAVOR) {
+      return void ui.notifications.warn(game.i18n.format("OP2.Aviso.SemPD", { nome: game.i18n.localize("OP2.Pavor.Controlar"), custo: CUSTO_CONTROLAR_PAVOR }));
+    }
+    this.estado.pavorPassos += 1;
+    this.render();
+  }
+
+  /** A mesa pode dispensar o dado neste teste: o estado na ficha fica como está. */
+  static #ignorarPavor() {
+    this.estado.pavorIgnorado = !this.estado.pavorIgnorado;
+    this.render();
+  }
+
+  static #abracarPavor() {
+    if (this.estado.pavorAbracado) this.estado.pavorAbracado = false;
+    // No teto, o dado abraçado cairia fora e o PD iria embora de graça.
+    else if (this.componentes().length >= MAX_DADOS_ROLADOS) {
+      ui.notifications.warn(game.i18n.format("OP2.Aviso.TetoDeDados", { max: MAX_DADOS_ROLADOS }));
+    } else if (this.#pdSobrando() < CUSTO_ABRACAR_PAVOR) {
+      ui.notifications.warn(game.i18n.format("OP2.Aviso.SemPD", { nome: game.i18n.localize("OP2.Pavor.Abracar"), custo: CUSTO_ABRACAR_PAVOR }));
+    } else this.estado.pavorAbracado = true;
+    this.render();
+  }
+
+  static #alternarBonus(_evento, alvo) {
+    const i = Number(alvo.dataset.indice);
+    if (this.estado.bonus.has(i)) this.estado.bonus.delete(i);
+    else if (this.componentes().length < MAX_DADOS_ROLADOS) this.estado.bonus.add(i);
+    else ui.notifications.warn(game.i18n.format("OP2.Aviso.TetoDeDados", { max: MAX_DADOS_ROLADOS }));
     this.render();
   }
 
@@ -239,6 +321,10 @@ export class TesteDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       oposto: Boolean(oposto),
       gastarImpeto: this.estado.gastarImpeto,
       custoPD: this.custoDeExtras,
+      modificador: this.estado.modificador,
+      bonusUsados: [...this.estado.bonus],
+      pavor: this.estado.pavor && !this.estado.pavorIgnorado ? { dado: this.#dadoDePavor(), abracar: this.estado.pavorAbracado } : null,
+      semPavor: Boolean(this.estado.pavorIgnorado),
     });
     this.#resolver = null;
   }

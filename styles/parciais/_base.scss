@@ -80,7 +80,7 @@
   padding: 0.2em 0.7em 0.25em;
   background: var(--op2-vermelho);
   color: #fff !important; // sobre vermelho é sempre branco; o tema claro do core pinta button/select de escuro
-  font-family: var(--op2-fonte-display);
+  font-family: var(--op2-fonte-rotulo, var(--op2-fonte-display));
   font-weight: 700;
   font-size: 0.9rem;
   letter-spacing: 0.06em;

@@ -4,12 +4,14 @@
  * Não recebe as 20 perícias: o mestre declara só as que aquele NPC usa, porque no
  * playtest a maioria dos oponentes existe para um punhado de testes.
  */
-import { campoAtributos, campoRecurso, campoDado } from "./campos.mjs";
+import { campoAtributos, campoRecurso, campoDado, campoAgarre } from "./campos.mjs";
 import { faces } from "../dice/escada.mjs";
 
 export class NpcData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
-    const { SchemaField, StringField, HTMLField, TypedObjectField, ObjectField } = foundry.data.fields;
+    const {
+      SchemaField, StringField, HTMLField, TypedObjectField, ObjectField, ArrayField, NumberField, SetField,
+    } = foundry.data.fields;
 
     const pericia = new SchemaField({
       rotulo: new StringField({ required: true, initial: "", blank: true }),
@@ -22,6 +24,25 @@ export class NpcData extends foundry.abstract.TypeDataModel {
       pericias: TypedObjectField ? new TypedObjectField(pericia) : new ObjectField(),
       recursos: new SchemaField({ pv: campoRecurso(0), pd: campoRecurso(0) }),
       notas: new HTMLField({ required: true, initial: "", blank: true }),
+      // Combate do beta (beta §7/§8.5). `dados`: a fórmula do teste, como a ficha imprime
+      // ("d8+d6", "2d10"). O dano é RA + `bonusDano`.
+      rd: new NumberField({ required: true, initial: 0, min: 0, integer: true, nullable: false }),
+      ataques: new ArrayField(new SchemaField({
+        nome: new StringField({ required: true, initial: "", blank: true }),
+        tipo: new StringField({ required: true, initial: "corpo", choices: ["corpo", "distancia"], blank: false }),
+        dados: new StringField({ required: true, initial: "d6+d6", blank: false }),
+        bonusDano: new NumberField({ required: true, initial: 0, integer: true, nullable: false }),
+        // Ataque que agarra em vez de ferir: o Afogar do afogado (p. 33). Acertou, a vítima fica
+        // agarrada; o dano vem no fim de cada rodada (`danoPorRodada`), e `passosSoltar` é o que
+        // a vítima perde no teste de se soltar. Vazio, é ataque de dano comum.
+        efeito: new StringField({ required: true, initial: "", blank: true, choices: ["", "agarrar"] }),
+        danoPorRodada: new StringField({ required: true, initial: "", blank: true }),
+        passosSoltar: new NumberField({ required: true, initial: 0, integer: true, nullable: false }),
+      }), { initial: [] }),
+      estado: new SchemaField({
+        condicoes: new SetField(new StringField(), { initial: [] }),
+        agarre: campoAgarre(),
+      }),
     };
   }
 

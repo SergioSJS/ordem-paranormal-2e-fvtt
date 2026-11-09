@@ -1,0 +1,35 @@
+{
+  "_id": "c99976ee45e80d5b",
+  "name": "Arsenal de Herborista",
+  "type": "habilidade",
+  "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+  "system": {
+    "origem": "ocupacao",
+    "perfil": "",
+    "custo": "",
+    "custoPD": 0,
+    "descricao": "<p>Bolsa de preparados de uso único; aplicar gasta uma ação.</p><ul><li><strong>Tônico:</strong> o alvo sobe Físico um passo por uma cena.</li><li><strong>Bálsamo:</strong> recupera 2d4 PV (outro ser precisa ficar parado na rodada).</li><li><strong>Pote de vespas:</strong> ataque à distância com Sobrevivência, dano RA+1; o alvo vivo perde a próxima ação.</li></ul>",
+    "mecanica": "",
+    "efeito": {
+      "tipo": "nenhum",
+      "passos": 1,
+      "dado": "d6",
+      "chaves": [],
+      "permitirD20": false,
+      "pdAoDescobrir": 0
+    },
+    "impeto": {
+      "espacos": 0,
+      "preenchidos": 0
+    },
+    "usoEmInvestigacao": ""
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!items!c99976ee45e80d5b"
+}

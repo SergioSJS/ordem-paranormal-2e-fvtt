@@ -16,7 +16,7 @@
  * lado do jogador.
  */
 import { SYSTEM_ID } from "../config.mjs";
-import { periciasDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs";
+import { periciasDoQuadro, gruposDoQuadro, chaveInfo, danoSobrecarga } from "./investigacao.mjs";
 import { semPrefixoDoPonto, desafioResolvido } from "./desafios.mjs";
 import { rodadaRelativa, proximaRodadaDaCena, linhaDaRodada } from "./eventos.mjs";
 import { marcarNoMapa, desmarcarDoMapa, marcadoresDoPonto } from "./marcadores.mjs";
@@ -29,6 +29,8 @@ import {
 } from "./investigacao-ativa.mjs";
 import { rodadaAtual, sobrecargaDaCena, definirSobrecarga, avancarRodada, publicarLinhaDoEvento } from "./rodada.mjs";
 import { cicloVisibilidadeInfo, limparRevelacao, contarAoGrupo } from "./acoes-investigacao.mjs";
+import { alternarFerramentaOculta, limparLeitura } from "./acoes-ferramenta.mjs";
+import { setorDeFerramentas } from "./setor-ferramentas.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
 import { filtrosVazios, filtrando, progressoDoPonto } from "./filtros-painel.mjs";
 import {
@@ -92,6 +94,8 @@ export function PainelInvestigacaoMixin(Base) {
         alternarOculto: PainelInvestigacaoComum.#alternarOculto,
         cicloVisibilidadeInfo: PainelInvestigacaoComum.#cicloVisibilidadeInfo,
         limparRevelacao: PainelInvestigacaoComum.#limparRevelacao,
+        alternarFerramentaOculta: PainelInvestigacaoComum.#alternarFerramentaOculta,
+        limparLeitura: PainelInvestigacaoComum.#limparLeitura,
         contarAoGrupo: PainelInvestigacaoComum.#contarAoGrupo,
         moverParticipante: PainelInvestigacaoComum.#moverParticipante,
         alternarRecolhido: PainelInvestigacaoComum.#alternarRecolhido,
@@ -291,6 +295,11 @@ export function PainelInvestigacaoMixin(Base) {
             ? await editor.enrichHTML(poi.system.descricaoContextual, { relativeTo: poi })
             : "",
           reveladoPorLaser: poi.system.reveladoPorLaser,
+          // O setor de ferramentas (spec §9.3): o mestre vê cada leitura, quem já a
+          // fez e o rascunho; o jogador vê só as leituras que o personagem dele fez.
+          ferramentas: await setorDeFerramentas(poi, {
+            ehGM, personagens, ator: this.atorDaVisao, editor,
+          }),
           // Os desafios deste ponto que estão na investigação (e visíveis para quem vê).
           desafios: (poi.system.desafios ?? []).map((d) => desafioPorUuid.get(d)).filter(Boolean),
           // O mestre controla visibilidade direto pelo olho — deste POI e de cada
@@ -299,17 +308,17 @@ export function PainelInvestigacaoMixin(Base) {
           // o gate de `poisInvestigados` competia com o toggle e escondia o que
           // devia mostrar).
           descricaoBasica: await editor.enrichHTML(poi.system.descricaoBasica, { relativeTo: poi }),
-          quadro: periciasDoQuadro(poi.system.informacoes).map((chave) => ({
-            chave,
-            rotulo: rotuloDePericia(chave),
-            infos: poi.system.informacoes
+          // "Pesquisar ou Tecnologia" é um grupo só, com as duas no título.
+          quadro: gruposDoQuadro(poi.system.informacoes).map((grupo) => ({
+            chave: grupo.chave,
+            rotulo: grupo.chaves.map(rotuloDePericia).join(` ${game.i18n.localize("OP2.POI.Ou")} `),
+            infos: grupo.infos
               // O jogador lê o que o mestre abriu e o que o personagem DELE
               // descobriu — nada mais. Antes bastava não ser rascunho pra linha
               // aparecer pronta na tela, e aí não sobrava nada pra procurar
               // (achado em uso real).
               // …e o que alguém contou ao grupo, que é da mesa inteira.
-              .filter((info) => info.pericia === chave
-                && (ehGM || info.aberta || contada(info) || this.#jaDescobriu(uuid, info.id)))
+              .filter((info) => ehGM || info.aberta || contada(info) || this.#jaDescobriu(uuid, info.id))
               .map((info) => ({
                 ...info,
                 // O mestre vê a DT e quem já descobriu cada informação.
@@ -913,6 +922,22 @@ export function PainelInvestigacaoMixin(Base) {
     static async #limparRevelacao(_evento, alvo) {
       if (!game.user.isGM) return;
       const nomes = await limparRevelacao(alvo.dataset.poiUuid, alvo.dataset.infoId);
+      if (nomes.length) {
+        ui.notifications.info(game.i18n.format("OP2.Painel.RevelacaoLimpa", { nomes: nomes.join(", ") }));
+      }
+      this.render();
+    }
+
+    /** Rascunho ↔ liberada, para uma leitura de ferramenta — o olho do setor. */
+    static async #alternarFerramentaOculta(_evento, alvo) {
+      if (!game.user.isGM) return;
+      await alternarFerramentaOculta(alvo.dataset.poiUuid, alvo.dataset.ferramenta);
+    }
+
+    /** Desfaz a leitura de uma ferramenta para todo mundo, como a das linhas. */
+    static async #limparLeitura(_evento, alvo) {
+      if (!game.user.isGM) return;
+      const nomes = await limparLeitura(alvo.dataset.poiUuid, alvo.dataset.ferramenta);
       if (nomes.length) {
         ui.notifications.info(game.i18n.format("OP2.Painel.RevelacaoLimpa", { nomes: nomes.join(", ") }));
       }

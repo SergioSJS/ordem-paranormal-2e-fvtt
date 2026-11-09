@@ -10,6 +10,8 @@ const TEMPLATES = [
   `${RAIZ}/actor/personagem-inventario.hbs`,
   `${RAIZ}/actor/personagem-notas.hbs`,
   `${RAIZ}/actor/personagem-pericias.hbs`,
+  `${RAIZ}/actor/personagem-condicao.hbs`,
+  `${RAIZ}/actor/cena-acao.hbs`,
   `${RAIZ}/actor/npc.hbs`,
   `${RAIZ}/actor/investigacao.hbs`,
   `${RAIZ}/item/habilidade.hbs`,
@@ -24,6 +26,9 @@ const TEMPLATES = [
   `${RAIZ}/partials/abrir-dialogo.hbs`,
   `${RAIZ}/partials/falha-critica.hbs`,
   `${RAIZ}/dialog/teste.hbs`,
+  `${RAIZ}/dialog/pos-rolagem.hbs`,
+  `${RAIZ}/vigilia/card.hbs`,
+  `${RAIZ}/vigilia/painel-acao.hbs`,
   `${RAIZ}/dialog/pericia.hbs`,
   `${RAIZ}/dialog/selecao-dados.hbs`,
   `${RAIZ}/dialog/npc-pericia.hbs`,
@@ -69,6 +74,7 @@ export function registrarHelpers() {
   Handlebars.registerHelper("op2Concat", (...args) => args.slice(0, -1).join(""));
 
   Handlebars.registerHelper("op2Eq", (a, b) => a === b);
+  Handlebars.registerHelper("op2Sinal", (n) => (Number(n) > 0 ? `+${n}` : `${n}`));
   Handlebars.registerHelper("op2Ou", (...args) => args.slice(0, -1).some(Boolean));
   Handlebars.registerHelper("op2Maior", (a, b) => Number(a) > Number(b));
 

@@ -8,7 +8,7 @@ import json, pathlib, hashlib, sys
 from collections import deque
 from PIL import Image, ImageDraw, ImageFilter
 
-MAPAS = pathlib.Path("docs/Arquivos para o público - Ato I/Mapas")
+MAPAS = pathlib.Path("jambo-arquivos/playtest1/v2/2-agenteelite-completo/Arquivos para o público - Ato I/Mapas")
 SAIDA = pathlib.Path("packs/sources/ato-i-cenas")
 ESCALA = 16         # px do original por célula da análise: ±16px de precisão,
                     # e a borda sai com dezenas de segmentos em vez de milhares

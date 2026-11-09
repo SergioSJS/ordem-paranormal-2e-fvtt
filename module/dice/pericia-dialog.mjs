@@ -10,7 +10,8 @@
  * o mestre listar as perícias do quadro antes da escolha (spec §6.3, passo 2). Fora
  * desse caso, filtrar entregaria de graça o que vale a pena no POI.
  */
-import { PERICIAS } from "../config.mjs";
+import { PERICIAS, periciasDoModo, aptidaoVisivel } from "../config.mjs";
+import { modoAtual } from "../modo.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
 import { rotuloDePericia } from "./teste.mjs";
 import { vestirPerfil } from "../ui/perfil.mjs";
@@ -97,14 +98,15 @@ export class PericiaDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       // O par só faz sentido quando a ação rola; Investigar compara o tamanho do
       // dado sem rolar (spec §6.3), e aí atributo nenhum entra na conta.
       mostrarAtributo: this.mostrarAtributo,
-      // A lista completa, sempre: 19 perícias + as Aptidões que ESTE personagem tem.
-      pericias: Object.keys(PERICIAS)
+      // A lista do modo + as Aptidões que ESTE personagem tem. Quem restringe as chaves
+      // (o quadro de um ponto) manda: um ato do outro modo continua investigável.
+      pericias: (this.chaves ? Object.keys(PERICIAS) : periciasDoModo(modoAtual()))
         .filter((chave) => !PERICIAS[chave].especializada && permitida(chave))
         .map((chave) => linha(chave)),
       // Dentro do grupo "Aptidão" a linha mostra só o campo — repetir "Aptidão
       // (Artes)" embaixo do título "APTIDÃO" é redundante (achado em uso real).
       aptidoes: Object.entries(sistema.aptidoes ?? {})
-        .filter(([sub]) => permitida(`aptidao.${sub}`))
+        .filter(([sub]) => (this.chaves ? permitida(`aptidao.${sub}`) : aptidaoVisivel(sub, modoAtual(), sistema.aptidoes[sub]?.rotulo)))
         .map(([sub, dados]) => linha(
           `aptidao.${sub}`,
           dados?.rotulo?.trim() || game.i18n.localize(`OP2.Aptidao.${sub}`),

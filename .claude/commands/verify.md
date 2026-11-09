@@ -3,7 +3,7 @@ description: Roda o checklist da fase atual do roadmap
 argument-hint: [numero-da-fase]
 ---
 
-Verifique a fase $1 (ou a fase ativa do `docs/ROADMAP.md`, se nada for passado).
+Verifique a fase $1 (ou a fase ativa do `docs/projeto/ROADMAP.md`, se nada for passado).
 
 1. `npm run check` — lint, testes e build do CSS. Mostre a saída real, não resuma.
 2. Para cada item marcado da fase no roadmap, aponte o arquivo que o implementa. Item

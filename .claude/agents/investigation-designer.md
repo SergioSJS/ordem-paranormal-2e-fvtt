@@ -32,5 +32,5 @@ O tracker de rodadas **não usa iniciativa rolada**: os jogadores decidem a orde
 e os NPCs agem por último. Não reaproveite o Combat Tracker padrão sem desligar a
 rolagem.
 
-Consulte `docs/op2-playtest-spec-foundry.md` §6 e §7 antes de decidir qualquer coisa, e
-`docs/LACUNAS.md` para as ambiguidades já resolvidas.
+Consulte `docs/regras/spec-alpha.md` §6 e §7 antes de decidir qualquer coisa, e
+`docs/regras/LACUNAS.md` para as ambiguidades já resolvidas.

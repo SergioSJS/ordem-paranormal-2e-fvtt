@@ -1,0 +1,125 @@
+{
+  "_id": "a11d0a0000000002",
+  "name": "A Ilhota (outro ângulo)",
+  "width": 4096,
+  "height": 3415,
+  "padding": 0,
+  "grid": {
+    "type": 0,
+    "size": 100,
+    "distance": 1.5,
+    "units": "m",
+    "alpha": 0.15,
+    "style": "solidLines",
+    "thickness": 1,
+    "color": "#000000"
+  },
+  "tokenVision": false,
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "shiftX": 0,
+  "shiftY": 0,
+  "initial": {
+    "x": null,
+    "y": null,
+    "scale": null
+  },
+  "transition": {
+    "type": null,
+    "duration": 1500,
+    "activeOnly": false
+  },
+  "weather": "fog",
+  "sort": 0,
+  "folder": null,
+  "background": {
+    "src": "systems/ordem-paranormal-2e/assets/vigilia/mapas/mapa-1-ilhota-1.webp",
+    "color": "#000000",
+    "tint": "#ffffff",
+    "alphaThreshold": 0.75
+  },
+  "fog": {
+    "exploration": false
+  },
+  "environment": {
+    "globalLight": {
+      "enabled": false,
+      "luminosity": 0,
+      "alpha": 0.5,
+      "bright": false,
+      "color": null,
+      "coloration": 1,
+      "saturation": 0,
+      "contrast": 0,
+      "shadows": 0,
+      "darkness": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    "darknessLevel": 0.55,
+    "darknessLock": false,
+    "cycle": true,
+    "base": {
+      "hue": 0,
+      "intensity": 0,
+      "luminosity": 0,
+      "saturation": 0,
+      "shadows": 0
+    },
+    "dark": {
+      "hue": 0.53,
+      "intensity": 0.4,
+      "luminosity": -0.25,
+      "saturation": 0,
+      "shadows": 0
+    }
+  },
+  "lights": [
+    {
+      "_id": "175f5c9b840c047a",
+      "name": "Tocha paranormal (apague quando destruída)",
+      "x": 2019,
+      "y": 936,
+      "elevation": 0,
+      "rotation": 0,
+      "walls": true,
+      "vision": false,
+      "hidden": false,
+      "locked": false,
+      "config": {
+        "negative": false,
+        "priority": 0,
+        "alpha": 0.4,
+        "angle": 360,
+        "color": "#ffb547",
+        "coloration": 1,
+        "attenuation": 0.8,
+        "luminosity": 0.4,
+        "saturation": 0,
+        "contrast": 0,
+        "shadows": 0,
+        "animation": {
+          "type": "torch",
+          "speed": 2,
+          "intensity": 4,
+          "reverse": false
+        },
+        "darkness": {
+          "min": 0,
+          "max": 1
+        },
+        "bright": 1.5,
+        "dim": 12
+      },
+      "flags": {
+        "ordem-paranormal-2e": {
+          "luz": "tocha-paranormal"
+        }
+      }
+    }
+  ],
+  "_key": "!scenes!a11d0a0000000002"
+}

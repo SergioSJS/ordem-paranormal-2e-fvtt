@@ -1,0 +1,47 @@
+{{#*inline "card"}}
+  <li class="op2-transmissao__card{{#if caido}} op2-transmissao__card--caido{{/if}}{{#if agiu}} op2-transmissao__card--agiu{{/if}}" data-ator-id="{{id}}">
+    {{!-- A moldura recorta o avatar: no busto, cabeça e tronco; inteiro, a figura toda. --}}
+    <span class="op2-transmissao__retrato"><img src="{{img}}" alt=""></span>
+    {{!-- Gabarito: cada informação tem a sua vaga, sempre no mesmo lugar em todos os cards, com ou
+         sem conteúdo (quem joga, PD). É o que o OBS recorta: nada pode subir quando falta algo. --}}
+    <div class="op2-transmissao__dados">
+      <span class="op2-transmissao__nome">{{nome}}</span>
+      <span class="op2-transmissao__jogador">{{jogadores}}</span>
+      {{#if livre}}
+        {{!-- Sem fundo: só o valor, sem barra. --}}
+        <span class="op2-transmissao__texto op2-transmissao__recurso--pv"><span class="op2-transmissao__rotulo">PV</span> <span class="op2-transmissao__numero">{{pv.value}}<span class="op2-transmissao__max">/{{pv.max}}</span></span></span>
+        <span class="op2-transmissao__texto op2-transmissao__recurso--pd{{#unless pd.max}} op2-transmissao__recurso--vazio{{/unless}}"><span class="op2-transmissao__rotulo">PD</span> <span class="op2-transmissao__numero">{{pd.value}}<span class="op2-transmissao__max">/{{pd.max}}</span></span></span>
+      {{else}}
+        <span class="op2-transmissao__recurso op2-transmissao__recurso--pv">
+          <span class="op2-transmissao__rotulo">PV</span>
+          <span class="op2-transmissao__barra"><span style="width: {{pv.pct}}%"></span></span>
+          <span class="op2-transmissao__numero">{{pv.value}}/{{pv.max}}</span>
+        </span>
+        <span class="op2-transmissao__recurso op2-transmissao__recurso--pd{{#unless pd.max}} op2-transmissao__recurso--vazio{{/unless}}">
+          <span class="op2-transmissao__rotulo">PD</span>
+          <span class="op2-transmissao__barra"><span style="width: {{pd.pct}}%"></span></span>
+          <span class="op2-transmissao__numero">{{pd.value}}/{{pd.max}}</span>
+        </span>
+      {{/if}}
+      {{!-- A linha do estado fica reservada mesmo vazia. --}}
+      <span class="op2-transmissao__estado">
+        {{#if pavor}}<span class="op2-transmissao__pavor">{{localize "OP2.Pavor.Titulo"}} {{pavor}}</span>{{/if}}
+        {{#each condicoes}}<span>{{this}}</span>{{/each}}
+      </span>
+    </div>
+    {{!-- A rolagem entra na frente das informações, nesta camada: o card nunca muda de tamanho.
+         Com as guias ligadas, ela aparece contornada, com o nome, para o recorte do overlay. --}}
+    <div class="op2-transmissao__vaga" data-guia="{{localize 'OP2.Transmissao.GuiaRolagem'}}"></div>
+    {{#if agiu}}<i class="fa-solid fa-check op2-transmissao__agiu" aria-label="{{localize 'OP2.CenaAcao.JaAgiu'}}"></i>{{/if}}
+  </li>
+{{/inline}}
+
+{{!-- A cena de ação não mora aqui: é o #op2-transmissao-cena, num canto só dela. --}}
+{{!-- Uma coluna por estilo: cartões, sem fundo, ou as duas lado a lado. --}}
+<div class="op2-transmissao__colunas">
+  {{#each colunas}}
+    <ol class="op2-transmissao__cards op2-transmissao__cards--{{estilo}} op2-transmissao__cards--{{../enquadramento}}">
+      {{#each ../cards}}{{> card livre=../livre}}{{/each}}
+    </ol>
+  {{/each}}
+</div>

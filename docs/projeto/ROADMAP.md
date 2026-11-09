@@ -30,7 +30,7 @@ um clique — em v13 e v14.
 
 **Habilidades.** O playtest não publica uma lista fechada: elas aparecem nas fichas dos
 pré-gerados. O tipo de Item `habilidade` é funcional e o compêndio traz as do Ato I com
-a origem (perfil ou ocupação); a mesa cria o resto. Ver `docs/LACUNAS.md`.
+a origem (perfil ou ocupação); a mesa cria o resto. Ver `docs/regras/LACUNAS.md`.
 
 ## Fase 2 — Investigação → `0.2.0` ✅
 
@@ -88,7 +88,7 @@ de pagamento no chat.
 - [x] App do Laboratório Portátil (`module/cena/laboratorio-app.mjs`) — a checkbox
   estava desatualizada, o app já existia e tem cobertura em `scripts/e2e/verificar.mjs`
 - [x] App do Rádio Modificado (`module/cena/radio-app.mjs`) — schema próprio pro POI
-  (`conjuntos` verdadeiro/falso + frase, docs/LACUNAS.md), teto de falsos removidos
+  (`conjuntos` verdadeiro/falso + frase, docs/regras/LACUNAS.md), teto de falsos removidos
   pelo teste de Tecnologia, ordenação por setinhas. Verificado ao vivo: 220
   checks, 0 erros de console, screenshot real do app rodando.
 - [ ] Validação em Foundry v13 (adiada por decisão do projeto)
@@ -154,8 +154,39 @@ do zip da editora, que o mestre entrega na hora de importar.
 - [x] Os cinco agentes de nível 6 e as oito habilidades novas no compêndio
 - [x] Rádio Modificado no modelo do livro: peças em blocos, um monte só, descarte
 - [x] Laser com a lista explícita do livro; número de dados do Laboratório por ponto
-- [x] Erros de diagramação do livro tratados sem apagar texto (docs/LACUNAS.md)
+- [x] Erros de diagramação do livro tratados sem apagar texto (docs/regras/LACUNAS.md)
 - [ ] Validação em Foundry v13 (adiada por decisão do projeto)
+
+## Fase 5 — Modo Vigília (playtest beta, *Contos da Vigília*)
+
+Regras: `docs/regras/spec-beta.md`. Impacto: `docs/regras/alpha-para-beta.md`.
+Entra em paralelo: o modo moderno (Atos I e II) não perde nada. **Requisito que atravessa tudo:** automação é
+bem-vinda, nunca o único caminho. Todo estado se edita à mão e efeito na ficha vem por clique (`docs/projeto/ARQUITETURA.md`).
+
+- [x] **Fontes.** PDF e fichas extraídos e conferidos, spec, lacunas, catálogo das missões
+- [x] **Decisão:** dois modos em paralelo, moderno e Vigília, com importação de PDF e zip dos dois
+- [x] **M1 — Modos:** setting `modo`; perícias em união, Aptidões e rótulos por modo; janela de aventuras agrupada por modo, com a pergunta ao importar aventura de outro modo
+- [x] **M2 — Motor:** modificador fixo, crítico no dano, dado de pavor, marcadores de Análise
+- [x] **M3 — Ficha e itens:** relações, armadura, equipamento com mecânica, NPC com RD e ações
+- [x] **M4 — Combate:** tracker por fases, ações, manobras, condições, lesão e trauma; no modo moderno, opção de mundo ligada por padrão (desligada, volta o combate simplificado)
+- [x] **M5 — Cenas de ação:** perseguição, furtividade, equilíbrio, escalar; Investigar com Observar
+- [x] **M6 — Missão 1:** extrator, montagem, extras, e2e. **Dá para jogar aqui:** gratuita, usa tudo menos furtividade
+- [x] **M7 — Missão 2:** extrator, montagem, extras, e2e nas duas versões
+
+**Falta, para fechar:** a rodada de mesa de verdade, do início ao epílogo das duas missões. O e2e importa as duas e
+joga um trecho de cada cena; o roteiro de dois clientes joga combate e furtividade do lado do jogador, não a
+perseguição nem a Missão 2 inteira. Nenhum teste vê se o ritmo do combate por fases funciona na mesa. O PDF gratuito do beta (só a Missão 1) está
+conferido: o e2e lê pela janela, a Missão 1 sai igual à do completo e a 2 é dada como ausente; o zip é o mesmo.
+
+**Apontado na revisão do M1 e ainda aberto:**
+
+- "Ocupação" ainda fixa em `Habilidade.Origem.ocupacao` e em `OP2.Ocupacao.*`; `oficio` sem campo para a
+  especialização (`Ofício (metalurgia)`); NPC grava o rótulo traduzido, então não acompanha o modo.
+- `game.ready` chega antes dos partials (`precarregarTemplates` sai no `init`, sem quem aguarde), e
+  uma janela aberta nesse intervalo falha. Preexistente, janela de cerca de 1 s.
+
+**Pronto quando:** as duas missões jogam do início ao epílogo com dois clientes, em v13 e v14, a
+partir do PDF e do zip do mestre, e os Atos I e II continuam passando no e2e.
 
 ## Depois
 

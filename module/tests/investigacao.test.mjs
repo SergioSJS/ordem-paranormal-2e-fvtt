@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  chaveInfo, periciasDoQuadro, resolverInvestigacao, resolverExaminar, danoSobrecarga,
+  chaveInfo, periciasDoQuadro, gruposDoQuadro, resolverInvestigacao, resolverExaminar, motivoSemRevelacao,
+  danoSobrecarga,
 } from "../cena/investigacao.mjs";
 import { TABELA_SOBRECARGA_PADRAO } from "../config.mjs";
 
@@ -59,6 +60,32 @@ test("revelação vem em DT crescente", () => {
 
 test("periciasDoQuadro lista sem repetição, na ordem do quadro", () => {
   assert.deepEqual(periciasDoQuadro(QUADRO), ["percepcao", "ocultismo"]);
+});
+
+// O Computador do Ato I: "Pesquisar ou Tecnologia" — a linha sai com qualquer uma.
+// Antes a segunda ficava só no texto, e Examinar com Tecnologia não achava nada e
+// cobrava o PD (achado em uso real: "deu 10 mas deu falho").
+const COMPUTADOR = [
+  { id: "i1", pericia: "pesquisar", dt: 6, texto: "papéis de contabilidade" },
+  { id: "i2", pericia: "pesquisar", periciaAlternativa: "tecnologia", dt: 10, texto: "e-mail de 12 de março" },
+];
+
+test("perícia alternativa: examinar com a segunda perícia acha a linha (Computador, Ato I)", () => {
+  assert.deepEqual(resolverExaminar(COMPUTADOR, "tecnologia", 10).revelaveis, ["i2"]);
+  assert.deepEqual(resolverExaminar(COMPUTADOR, "pesquisar", 10).revelaveis, ["i1", "i2"]);
+  assert.equal(resolverExaminar(COMPUTADOR, "tecnologia", 10).perdePD, false);
+  // A alternativa também vale para o passo sem rolar e para o motivo do custo.
+  assert.deepEqual(resolverInvestigacao(COMPUTADOR, "tecnologia", 10), ["i2"]);
+  assert.deepEqual(motivoSemRevelacao(COMPUTADOR, "tecnologia", 8), { motivo: "dado-pequeno", dtMinima: 10 });
+  assert.deepEqual(motivoSemRevelacao(COMPUTADOR, "medicina", 8), { motivo: "sem-pericia", dtMinima: null });
+});
+
+test("perícia alternativa entra nas perícias do quadro e agrupa a linha uma vez só", () => {
+  assert.deepEqual(periciasDoQuadro(COMPUTADOR), ["pesquisar", "tecnologia"]);
+  const grupos = gruposDoQuadro(COMPUTADOR);
+  assert.deepEqual(grupos.map((g) => g.chave), ["pesquisar", "pesquisar|tecnologia"]);
+  assert.deepEqual(grupos[1].chaves, ["pesquisar", "tecnologia"]);
+  assert.deepEqual(grupos[1].infos.map((i) => i.id), ["i2"]);
 });
 
 test("chaveInfo amarra a info ao POI", () => {

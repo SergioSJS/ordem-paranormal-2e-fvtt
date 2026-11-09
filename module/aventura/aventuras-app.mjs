@@ -6,10 +6,12 @@
  * é texto do livro, que a Licença da Comunidade não deixa redistribuir. O pacote
  * leva o extrator; o texto vem do PDF de quem já tem o material.
  */
-import { SYSTEM_ID } from "../config.mjs";
+import { REVISAO_DA_MONTAGEM } from "./missoes.mjs";
+import { SYSTEM_ID, MODOS } from "../config.mjs";
+import { modoAtual, trocarModo } from "../modo.mjs";
 import { LICENCA, SELO } from "../ui/licenca.mjs";
-import { ExtrasApp, extrasDaAventura, arquivosPresentes, pastaDosExtras } from "../ui/extras-aventura.mjs";
-import { linhasDoPdf } from "./pdf.mjs";
+import { ExtrasApp, extrasDaAventura, arquivosPresentes, pastaDosExtras, importarAventura } from "../ui/extras-aventura.mjs";
+import { linhasDoPdf, paginasDoArquivo } from "./pdf.mjs";
 import { ATOS, montarEGuardar, aventuraNoMundo, documentoDaAventura } from "./mundo.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -33,7 +35,7 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   /** Estado da tela: o que aconteceu com o último PDF escolhido. */
-  #estado = { lendo: false, progresso: "", resultados: null };
+  #estado = { lendo: false, progresso: "", resultados: null, modoLendo: null };
 
   async _prepareContext(opcoes) {
     const contexto = await super._prepareContext(opcoes);
@@ -49,7 +51,7 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
         rotulo: game.i18n.localize(ato.rotulo),
         noMundo,
         montado: Boolean(resultado?.ok),
-        falhou: Boolean(resultado && !resultado.ok && resultado.motivo !== "ausente"),
+        falhou: Boolean(resultado && !resultado.ok && !["ausente", "ausenteMissao"].includes(resultado.motivo)),
         motivo: resultado && !resultado.ok ? resultado.motivo : null,
         erro: resultado?.erro ?? "",
         resumo,
@@ -59,19 +61,35 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
         // As artes vêm do zip da editora: dizer aqui o que já está na pasta do mundo
         // e oferecer o envio, em vez de só pedir na hora de importar.
         artes: noMundo ? await this.#artesDe(ato) : null,
+        // Guardada por uma montagem anterior: o que só a montagem traz (luzes) pede o PDF de novo.
+        desatualizada: noMundo && ato.modo === "vigilia" && !resultado?.ok
+          && ((await documentoDaAventura(ato.aventura))?.getFlag(SYSTEM_ID, "revisaoDaMontagem") ?? 0) < REVISAO_DA_MONTAGEM,
       };
     }));
-    return { ...contexto, atos, ...this.#estado, licenca: LICENCA, selo: SELO };
+    // Cada modo com o próprio PDF e os próprios zips. Modo sem aventura ainda não aparece.
+    const modoDoMundo = modoAtual();
+    const grupos = MODOS
+      .map((modo) => ({
+        modo,
+        rotulo: game.i18n.localize(`OP2.Modo.${modo}`),
+        doMundo: modo === modoDoMundo,
+        lendo: this.#estado.lendo && this.#estado.modoLendo === modo,
+        progresso: this.#estado.modoLendo === modo ? this.#estado.progresso : "",
+        atos: atos.filter((ato) => ato.modo === modo),
+      }))
+      .filter((grupo) => grupo.atos.length);
+    return { ...contexto, grupos, ...this.#estado, licenca: LICENCA, selo: SELO };
   }
 
   _onRender(contexto, opcoes) {
     super._onRender(contexto, opcoes);
-    const campo = this.element.querySelector("[data-pdf]");
-    campo?.addEventListener("change", () => this.#lerPdf(campo.files?.[0]));
+    for (const campo of this.element.querySelectorAll("[data-pdf]")) {
+      campo.addEventListener("change", () => this.#lerPdf(campo.files?.[0], campo.closest("[data-modo]")?.dataset.modo));
+    }
   }
 
-  static #escolherPdf() {
-    this.element.querySelector("[data-pdf]")?.click();
+  static #escolherPdf(_evento, alvo) {
+    alvo.closest("[data-modo]")?.querySelector("[data-pdf]")?.click();
   }
 
   /** O que a aventura espera do zip, e o que já está na pasta do mundo. */
@@ -97,31 +115,30 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /** Lê o PDF, monta o que ele traz e guarda no compêndio do mundo. */
-  async #lerPdf(arquivo) {
+  async #lerPdf(arquivo, modo = "moderno") {
     if (!arquivo) return;
-    this.#estado = { lendo: true, progresso: game.i18n.localize("OP2.Aventuras.Lendo"), resultados: null };
+    this.#estado = { lendo: true, progresso: game.i18n.localize("OP2.Aventuras.Lendo"), resultados: null, modoLendo: modo };
     await this.render();
 
     try {
-      const linhas = await linhasDoPdf(arquivo, (pagina, total) => {
-        // Um PDF de cem páginas leva alguns segundos: a janela conta em voz alta.
-        this.#dizer(game.i18n.format("OP2.Aventuras.Progresso", { pagina, total }));
-      });
-      this.#dizer(game.i18n.localize("OP2.Aventuras.Montando"));
-      this.#estado = { lendo: false, progresso: "", resultados: await montarEGuardar(linhas) };
+      // Um PDF de cem páginas leva alguns segundos: a janela conta em voz alta.
+      const aoProgredir = (pagina, total) => this.#dizer(game.i18n.format("OP2.Aventuras.Progresso", { pagina, total }), modo);
+      const entrada = modo === "vigilia" ? await paginasDoArquivo(arquivo, aoProgredir) : await linhasDoPdf(arquivo, aoProgredir);
+      this.#dizer(game.i18n.localize("OP2.Aventuras.Montando"), modo);
+      this.#estado = { lendo: false, progresso: "", resultados: await montarEGuardar(entrada, modo), modoLendo: null };
       // Quem mais mostra o estado das aventuras (a tela de boas-vindas, aberta atrás)
       // se refaz — senão fica com o que viu ao entrar no mundo.
       Hooks.callAll("op2.aventurasMudaram");
     } catch (erro) {
       console.error(`${SYSTEM_ID} | aventuras`, erro);
       ui.notifications.error(game.i18n.localize("OP2.Aventuras.ErroLeitura"));
-      this.#estado = { lendo: false, progresso: "", resultados: null };
+      this.#estado = { lendo: false, progresso: "", resultados: null, modoLendo: null };
     }
     await this.render();
   }
 
-  #dizer(texto) {
-    const barra = this.element?.querySelector("[data-progresso]");
+  #dizer(texto, modo) {
+    const barra = this.element?.querySelector(`[data-modo="${modo}"] [data-progresso]`);
     if (barra) barra.textContent = texto;
   }
 
@@ -132,9 +149,26 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
     if (!aventura) return;
     // Sem o diálogo do core: quem clicou aqui já disse que quer o ato no mundo, e o
     // aviso de sobrescrita do core só aparece quando há o que sobrescrever.
-    await aventura.import({ dialog: false });
+    // Aventura de outro modo: pergunta antes, porque a ficha dela usa outras perícias.
+    // Fechar o diálogo cancela. A troca vem por último: ela recarrega o mundo.
+    const trocarPara = ato.modo === modoAtual() ? null : ato.modo;
+    let trocar = false;
+    if (trocarPara) {
+      const rotulo = game.i18n.localize(`OP2.Modo.${trocarPara}`);
+      trocar = await foundry.applications.api.DialogV2.confirm({
+        window: { title: "OP2.Aventuras.OutroModoTitulo" },
+        content: `<p>${game.i18n.format("OP2.Aventuras.OutroModo", { modo: rotulo })}</p>`,
+        yes: { label: game.i18n.format("OP2.Aventuras.OutroModoTrocar", { modo: rotulo }) },
+        no: { label: "OP2.Aventuras.OutroModoManter" },
+      });
+      if (trocar === null) return;
+    }
+    // Espera o zip e a importação: a troca de modo recarrega a página e cortaria os dois.
+    const resultado = await importarAventura(aventura, { dialog: false });
+    if (!resultado) return void await this.render();
     ui.notifications.info(game.i18n.format("OP2.Aventuras.Importado", { nome: aventura.name }));
     Hooks.callAll("op2.aventurasMudaram");
+    if (trocar) return void await trocarModo(trocarPara);
     await this.render();
   }
 

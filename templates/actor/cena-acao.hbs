@@ -1,0 +1,114 @@
+<div class="op2-ficha-cena">
+  <header class="op2-item-ficha__topo">
+    <img src="{{actor.img}}" alt="" data-action="editImage" data-edit="img">
+    <input type="text" class="op2-nome" name="name" value="{{actor.name}}" {{#unless editavel}}disabled{{/unless}}>
+  </header>
+  <label class="op2-campo">
+    <span>{{localize "OP2.CenaAcao.TipoRotulo"}}</span>
+    <select name="system.tipo" {{#unless editavel}}disabled{{/unless}}>
+      {{#each tipos}}<option value="{{chave}}" {{#if atual}}selected{{/if}}>{{rotulo}}</option>{{/each}}
+    </select>
+  </label>
+
+  {{!-- Quem está na cena: personagens e criaturas, cada um com retrato, ficha e saída. --}}
+  <section class="op2-ficha-cena__secao">
+    <span class="op2-tag op2-tag--secao">{{localize "OP2.CenaAcao.QuemEsta"}}</span>
+    {{#unless temParticipantes}}
+      <p class="op2-ajuda op2-ficha-cena__vazia">{{localize "OP2.CenaAcao.Vazia"}}</p>
+    {{/unless}}
+    {{#each grupos}}
+      {{#if linhas.length}}
+        <h4 class="op2-ficha-cena__grupo">{{titulo}} <span>{{linhas.length}}</span></h4>
+        <ul class="op2-ficha-cena__lista">
+          {{#each linhas}}
+            <li class="op2-ficha-cena__linha{{#if ausente}} op2-ficha-cena__linha--ausente{{/if}}">
+              <img src="{{img}}" alt="" data-action="abrirAtor" data-uuid="{{uuid}}">
+              <button type="button" class="op2-ficha-cena__nome" data-action="abrirAtor" data-uuid="{{uuid}}">{{nome}}</button>
+              {{#if token}}<span class="op2-ficha-cena__tipo">{{localize "OP2.CenaAcao.Token"}}</span>{{/if}}
+              {{#if @root.editavel}}
+                <button type="button" class="op2-botao op2-botao--fantasma op2-botao--icone" data-action="tirar" data-uuid="{{uuid}}"
+                  data-tooltip="{{localize 'OP2.CenaAcao.Tirar'}}" aria-label="{{localize 'OP2.CenaAcao.Tirar'}}"><i class="fa-solid fa-xmark"></i></button>
+              {{/if}}
+            </li>
+          {{/each}}
+        </ul>
+      {{/if}}
+    {{/each}}
+
+    {{#if editavel}}
+      <div class="op2-ficha-cena__por">
+        <div class="op2-ficha-cena__escolha" data-escolha>
+          <input type="number" name="quantos" value="1" min="1" max="20" class="op2-ficha-cena__quantos"
+            aria-label="{{localize 'OP2.CenaAcao.Quantos'}}" data-tooltip="{{localize 'OP2.CenaAcao.QuantosAjuda'}}">
+          <span aria-hidden="true">×</span>
+          <select aria-label="{{localize 'OP2.CenaAcao.Escolher'}}">
+            <option value="">{{localize "OP2.CenaAcao.Escolher"}}</option>
+            {{#if candidatosPc.length}}
+              <optgroup label="{{localize 'OP2.CenaAcao.Personagens'}}">
+                {{#each candidatosPc}}<option value="{{uuid}}">{{nome}}</option>{{/each}}
+              </optgroup>
+            {{/if}}
+            {{#if candidatosNpc.length}}
+              <optgroup label="{{localize 'OP2.CenaAcao.Criaturas'}}">
+                {{#each candidatosNpc}}<option value="{{uuid}}">{{nome}}</option>{{/each}}
+              </optgroup>
+            {{/if}}
+          </select>
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="porEscolhido">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "OP2.CenaAcao.Adicionar"}}
+          </button>
+        </div>
+        <div class="op2-ficha-cena__atalhos">
+          <button type="button" class="op2-botao op2-botao--pequeno" data-action="porJogadores">
+            <i class="fa-solid fa-users" aria-hidden="true"></i> {{localize "OP2.CenaAcao.DosJogadores"}}
+          </button>
+          {{#if temSelecionados}}
+            <button type="button" class="op2-botao op2-botao--pequeno" data-action="porSelecionados">
+              <i class="fa-solid fa-object-group" aria-hidden="true"></i> {{localize "OP2.CenaAcao.Selecionados"}}
+            </button>
+          {{/if}}
+        </div>
+        <p class="op2-ajuda">{{localize "OP2.CenaAcao.QuantosAjuda"}} {{localize "OP2.CenaAcao.ParticipantesAjuda"}}</p>
+      </div>
+    {{/if}}
+  </section>
+
+  {{!-- Modelos das ondas: o painel põe N tokens de um deles no mapa, cada um com PV próprio. --}}
+  <section class="op2-ficha-cena__secao">
+    <span class="op2-tag op2-tag--secao">{{localize "OP2.CenaAcao.Ondas"}}</span>
+    <p class="op2-ajuda">{{localize "OP2.CenaAcao.OndasAjuda"}}</p>
+    {{#if modelos.length}}
+      <ul class="op2-ficha-cena__lista">
+        {{#each modelos}}
+          <li class="op2-ficha-cena__linha">
+            <img src="{{img}}" alt="" data-action="abrirAtor" data-uuid="{{uuid}}">
+            <button type="button" class="op2-ficha-cena__nome" data-action="abrirAtor" data-uuid="{{uuid}}">{{nome}}</button>
+            {{#if @root.editavel}}
+              <button type="button" class="op2-botao op2-botao--fantasma op2-botao--icone" data-action="tirarModelo" data-uuid="{{uuid}}"
+                data-tooltip="{{localize 'OP2.CenaAcao.TirarModelo'}}" aria-label="{{localize 'OP2.CenaAcao.TirarModelo'}}"><i class="fa-solid fa-xmark"></i></button>
+            {{/if}}
+          </li>
+        {{/each}}
+      </ul>
+    {{/if}}
+    {{#if editavel}}{{#if candidatosModelo.length}}
+      <div class="op2-ficha-cena__escolha" data-escolha>
+        <select aria-label="{{localize 'OP2.CenaAcao.EscolherModelo'}}">
+          {{#each candidatosModelo}}<option value="{{uuid}}">{{nome}}</option>{{/each}}
+        </select>
+        <button type="button" class="op2-botao op2-botao--pequeno" data-action="porModelo">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> {{localize "OP2.CenaAcao.AdicionarModelo"}}
+        </button>
+      </div>
+    {{/if}}{{/if}}
+  </section>
+
+  {{#if temParametros}}
+    <label class="op2-campo">
+      <span>{{localize "OP2.CenaAcao.Parametros"}}</span>
+      <textarea data-parametros rows="10" {{#unless editavel}}disabled{{/unless}}>{{parametros}}</textarea>
+      <span class="op2-ajuda">{{localize "OP2.CenaAcao.ParametrosAjuda"}}</span>
+    </label>
+  {{/if}}
+  <button type="button" class="op2-botao" data-action="abrirPainel">{{localize "OP2.CenaAcao.AbrirPainel"}}</button>
+</div>

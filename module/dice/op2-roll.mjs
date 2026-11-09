@@ -40,6 +40,13 @@ export class OP2Roll extends Roll {
     return this.options.componentes ?? [];
   }
 
+  /** O total do core soma todo dado da fórmula; o nosso desconta pavor e anulados. */
+  async evaluate(opcoes) {
+    await super.evaluate(opcoes);
+    this._total = this.resultado.total;
+    return this;
+  }
+
   /** @returns {number|null} null num teste oposto */
   get dt() {
     return this.options.dt ?? null;
@@ -55,13 +62,14 @@ export class OP2Roll extends Roll {
    */
   get dados() {
     if (!this._evaluated) return [];
-    return this.dice.map((termo, i) => ({
+    return analise.marcarPavor(this.dice.map((termo, i) => ({
       indice: i,
       dado: `d${termo.faces}`,
       resultado: termo.results[0].result,
       contado: termo.results[0].active !== false,
+      pavor: this.componentes[i]?.tipo === "pavor",
       componente: this.componentes[i] ?? { rotulo: `d${termo.faces}`, tipo: "extra" },
-    }));
+    })));
   }
 
   get contados() {
@@ -70,12 +78,23 @@ export class OP2Roll extends Roll {
 
   /** Rolou mais dados do que pode somar? Então o jogador precisa escolher (spec §4.5). */
   get precisaSelecao() {
-    return this.dados.length > MAX_DADOS_CONTADOS && this.contados.length === this.dados.length;
+    const elegiveis = this.dados.filter((d) => !d.pavor && !d.anulado);
+    return elegiveis.length > MAX_DADOS_CONTADOS && elegiveis.every((d) => d.contado);
   }
 
   /** @returns {ReturnType<typeof analise.analisar>} */
   get resultado() {
-    return analise.analisar(this.dados, { dt: this.dt, escopoCritico: this.escopoCritico });
+    return analise.analisar(this.dados, {
+      dt: this.dt,
+      escopoCritico: this.escopoCritico,
+      modificador: this.options.modificador ?? 0,
+      ...(this.options.minimoCritico ? { minimoCritico: this.options.minimoCritico } : {}),
+    });
+  }
+
+  /** O dado de pavor saiu 1: o efeito acaba (beta §9.1). */
+  get pavorVencido() {
+    return this.dados.find((d) => d.pavor)?.resultado === 1;
   }
 
   get ra() { return this.resultado.ra; }
@@ -93,13 +112,37 @@ export class OP2Roll extends Roll {
   aplicarSelecao(indices) {
     const escolhidos = new Set(indices.slice(0, MAX_DADOS_CONTADOS));
     this.dice.forEach((termo, i) => {
+      if (this.componentes[i]?.tipo === "pavor") return;
       const ativo = escolhidos.has(i);
       for (const r of termo.results) {
         r.active = ativo;
         r.discarded = !ativo;
       }
     });
-    this._total = analise.soma(this.dados);
+    this._total = this.resultado.total;
+    return this;
+  }
+
+  /**
+   * Muda o valor de um dado já rolado: os marcadores da Análise (beta §12), em ±1 e até
+   * o máximo do dado.
+   * @param {number} indice
+   * @param {number} delta
+   */
+  ajustarDado(indice, delta) {
+    const termo = this.dice[indice];
+    const r = termo.results[0];
+    r.result = Math.min(termo.faces, Math.max(1, r.result + delta));
+    this._total = this.resultado.total;
+    return this;
+  }
+
+  /** Rola um dado de novo: Prontidão (beta §12). Só vale para dado que não deu 1. */
+  async rerrolarDado(indice) {
+    const termo = this.dice[indice];
+    const novo = await new Roll(`1d${termo.faces}`).evaluate();
+    termo.results[0].result = novo.total;
+    this._total = this.resultado.total;
     return this;
   }
 

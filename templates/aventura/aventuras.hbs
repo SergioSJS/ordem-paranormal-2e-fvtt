@@ -1,15 +1,22 @@
 <div class="op2-aventuras__corpo">
   <p class="op2-ajuda">{{localize "OP2.Aventuras.Explicacao"}}</p>
 
+  {{#each grupos}}
+  <section class="op2-aventuras__grupo" data-modo="{{modo}}">
+    <header class="op2-aventuras__modo">
+      <span class="op2-tag op2-tag--secao">{{rotulo}}</span>
+      {{#if doMundo}}<span class="op2-aventuras__modo-mundo">{{localize "OP2.Modo.DoMundo"}}</span>{{/if}}
+    </header>
+
   {{!-- O arquivo nunca sai da máquina de quem escolhe: o PDF é lido no navegador. --}}
-  <section class="op2-aventuras__escolha">
+  <div class="op2-aventuras__escolha">
     <input type="file" accept="application/pdf,.pdf" data-pdf hidden>
-    <button type="button" class="op2-botao" data-action="escolherPdf" {{#if lendo}}disabled{{/if}}>
+    <button type="button" class="op2-botao" data-action="escolherPdf" {{#if @root.lendo}}disabled{{/if}}>
       <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
       {{#if lendo}}{{localize "OP2.Aventuras.Lendo"}}{{else}}{{localize "OP2.Aventuras.Escolher"}}{{/if}}
     </button>
     <span class="op2-aventuras__progresso" data-progresso>{{progresso}}</span>
-  </section>
+  </div>
 
   <ol class="op2-aventuras__atos">
     {{#each atos}}
@@ -31,6 +38,9 @@
           {{#if motivo}}
             <span class="op2-aventuras__erro">{{localize (op2Concat "OP2.Aventuras.Motivo." motivo)}}</span>
             {{#if erro}}<code class="op2-aventuras__erro-detalhe">{{erro}}</code>{{/if}}
+          {{/if}}
+          {{#if desatualizada}}
+            <span class="op2-aventuras__erro">{{localize "OP2.Aventuras.Desatualizada"}}</span>
           {{/if}}
           {{#if artes}}
             <span class="op2-aventuras__artes{{#if artes.faltam}} op2-aventuras__artes--faltam{{/if}}">
@@ -69,6 +79,8 @@
       </li>
     {{/each}}
   </ol>
+  </section>
+  {{/each}}
 
   {{!-- O aviso que a Licença da Comunidade exige em conteúdo de texto. --}}
   <footer class="op2-aventuras__licenca">

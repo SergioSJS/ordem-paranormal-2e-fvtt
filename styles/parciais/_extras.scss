@@ -95,6 +95,22 @@
       padding: var(--op2-e1) 0;
     }
 
+    .op2-aventuras__grupo {
+      display: flex;
+      flex-direction: column;
+      gap: var(--op2-e2);
+    }
+
+    .op2-aventuras__modo {
+      display: flex;
+      align-items: center;
+      gap: var(--op2-e2);
+    }
+
+    .op2-aventuras__modo-mundo {
+      color: var(--op2-texto-fraco);
+    }
+
     .op2-aventuras__escolha {
       display: flex;
       align-items: center;
@@ -305,4 +321,200 @@
       font-size: 0.85rem;
     }
   }
+}
+
+// O painel da cena de ação e a aba Condição (beta §7–§11).
+@layer system {
+  .op2-painel-acao {
+    .op2-painel-acao__corpo { display: flex; flex-direction: column; gap: var(--op2-e2); }
+    .op2-painel-acao__topo { display: flex; align-items: center; justify-content: space-between; gap: var(--op2-e2); }
+    .op2-painel-acao__mestre { display: flex; flex-wrap: wrap; align-items: center; gap: var(--op2-e2); }
+    .op2-painel-acao__mestre input[type="number"] { width: 3.5em; }
+    .op2-painel-acao__linhas { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; gap: var(--op2-e2); }
+    .op2-fases { display: flex; margin: 0; padding: 0; list-style: none; gap: var(--op2-e1); }
+    .op2-fase { flex: 1; padding: var(--op2-e1) var(--op2-e2); border: 1px solid var(--op2-texto-fraco); color: var(--op2-texto-fraco); text-align: center; }
+    .op2-fase--atual { border-color: var(--op2-acento, currentColor); color: inherit; font-weight: bold; }
+    .op2-linha-acao { display: flex; flex-direction: column; padding: var(--op2-e2); border: 1px solid var(--op2-texto-fraco); gap: var(--op2-e1); }
+    .op2-linha-acao--agiu { opacity: 0.75; }
+    // Retrato, nome e números numa linha; "já agiu" na ponta direita, onde o olho procura.
+    .op2-linha-acao__identidade { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: var(--op2-e2); }
+    // Retrato é gente em pé: corta pelo topo, senão sobra o tronco.
+    .op2-linha-acao__identidade img {
+      width: 48px; height: 48px; border: 1px solid var(--op2-linha-forte); border-radius: var(--op2-raio);
+      object-fit: cover; object-position: center top; cursor: pointer;
+    }
+    .op2-linha-acao__dados { display: flex; min-width: 0; flex-direction: column; gap: 0.15rem; }
+    .op2-linha-acao__nome { cursor: pointer; font-size: 1.02rem; }
+    .op2-linha-acao__recursos { display: flex; flex-wrap: wrap; align-items: center; color: var(--op2-texto-fraco); gap: 0.1rem var(--op2-e3); }
+    .op2-linha-acao__recursos label { display: inline-flex; align-items: center; margin: 0; gap: 0.3em; }
+    .op2-linha-acao__condicoes, .op2-linha-acao__agiu { color: var(--op2-texto-fraco); }
+    .op2-linha-acao--derrotado { border-style: dashed; opacity: 0.7; }
+
+    // A barra do mestre: qual cena, montar, novo combate.
+    .op2-painel-acao__escolha {
+      display: flex; flex-wrap: wrap; align-items: center; padding-bottom: var(--op2-e2);
+      border-bottom: 1px solid var(--op2-linha); gap: var(--op2-e2);
+    }
+    .op2-painel-acao__cena { display: flex; flex: 1 1 16rem; align-items: center; margin: 0; gap: var(--op2-e2); }
+    .op2-painel-acao__cena select { flex: 1; max-width: none; }
+    .op2-painel-acao__cena > span { color: var(--op2-texto-fraco); }
+    .op2-painel-acao__titulo { display: flex; align-items: center; gap: var(--op2-e2); }
+    .op2-painel-acao__titulo strong { font-size: 1.1rem; }
+    .op2-painel-acao__parada-rotulo { color: var(--op2-texto-fraco); font-style: italic; }
+    // Cena parada: o resumo e o botão de começar, em destaque.
+    .op2-painel-acao__parada {
+      display: flex; flex-direction: column; padding: var(--op2-e3);
+      border: 1px dashed var(--op2-linha-forte); gap: var(--op2-e2);
+      p { margin: 0; }
+    }
+    .op2-painel-acao__iniciar { padding-inline: 1.4em; font-weight: 700; }
+    .op2-painel-acao__saidas { display: inline-flex; margin-inline-start: auto; gap: var(--op2-e1); }
+    .op2-painel-acao__encerrar { border-color: color-mix(in srgb, var(--op2-perigo) 60%, transparent); }
+    .op2-painel-acao__montagem { display: flex; flex-wrap: wrap; align-items: center; gap: var(--op2-e2); }
+    .op2-painel-acao__montagem input[type="number"] { width: 3.5em; }
+    .op2-painel-acao__montagem select { flex: 1 1 12rem; max-width: none; }
+    .op2-painel-acao__comecar { padding-top: var(--op2-e2); border-top: 1px solid var(--op2-linha); }
+    .op2-linha-acao__tirar { width: 2rem; padding: 0; }
+    .op2-linha-acao__identidade { grid-template-columns: 48px 1fr auto auto; }
+    .op2-painel-acao__grupo { display: inline-flex; align-items: center; gap: var(--op2-e1); }
+    .op2-painel-acao__ondas {
+      padding: var(--op2-e1) var(--op2-e2); border: 1px solid var(--op2-linha);
+      background: var(--op2-superficie);
+    }
+    .op2-painel-acao__ondas-rotulo { color: var(--op2-texto-fraco); }
+
+    // O elenco: quem está em cena, de relance. Retrato cortado pelo topo, PV numa barrinha,
+    // um visto em quem já agiu. Personagens, um ×, criaturas. Também é onde soltar atores.
+    .op2-elenco {
+      display: flex; flex-wrap: wrap; align-items: flex-start; padding: var(--op2-e2);
+      border: 1px solid var(--op2-linha); background: var(--op2-superficie); gap: var(--op2-e2);
+    }
+    .op2-elenco__item {
+      position: relative; display: flex; width: 64px; flex-direction: column; align-items: center;
+      padding: 0; border: 0; background: transparent; color: var(--op2-texto); cursor: pointer; gap: 2px;
+      img {
+        width: 56px; height: 56px; border: 2px solid var(--op2-linha-forte); border-radius: 50%;
+        object-fit: cover; object-position: center top;
+      }
+      &:hover img { border-color: var(--op2-vermelho-claro); }
+    }
+    .op2-elenco__item--criatura img { border-radius: var(--op2-raio); }
+    .op2-elenco__item--agiu img { opacity: 0.55; }
+    .op2-elenco__item--derrotado img { filter: grayscale(1); opacity: 0.4; }
+    .op2-elenco__nome {
+      overflow: hidden; width: 100%; font-size: 0.72rem; line-height: 1.1; text-align: center;
+      text-overflow: ellipsis; white-space: nowrap;
+    }
+    .op2-elenco__pv {
+      overflow: hidden; width: 48px; height: 4px; background: color-mix(in srgb, var(--op2-texto-fraco) 35%, transparent);
+      > span { display: block; height: 100%; background: var(--op2-sucesso); }
+    }
+    .op2-elenco__agiu {
+      position: absolute; top: 2px; right: 4px; padding: 3px; border-radius: 50%;
+      background: var(--op2-fundo); color: var(--op2-sucesso); font-size: 0.7rem;
+    }
+    .op2-elenco__contra { align-self: center; color: var(--op2-texto-fraco); font-size: 1.3rem; }
+    .op2-elenco__soltar {
+      display: flex; flex: 1 1 10rem; align-items: center; align-self: stretch; justify-content: center; min-height: 56px;
+      padding: var(--op2-e1) var(--op2-e2); border: 1px dashed var(--op2-linha-forte); color: var(--op2-texto-fraco);
+      font-size: 0.8rem; text-align: center; gap: var(--op2-e1);
+    }
+
+    // O guia da fase: o que dá para fazer agora, sem abrir o livro.
+    .op2-guia-fase {
+      padding: var(--op2-e2) var(--op2-e3); border-left: 3px solid var(--op2-acento, currentColor);
+      background: var(--op2-superficie);
+      > strong { display: block; margin-bottom: 0.15rem; }
+      p { margin: 0; line-height: 1.4; }
+    }
+    .op2-guia-fase__rodada {
+      margin-top: var(--op2-e1);
+      > summary { cursor: pointer; color: var(--op2-texto-fraco); }
+      > p { margin: var(--op2-e1) 0; }
+      dl { display: grid; grid-template-columns: max-content 1fr; margin: 0; gap: var(--op2-e1) var(--op2-e3); }
+      dt { font-weight: 700; }
+      dd { margin: 0; }
+    }
+    .op2-guia-fase__atual { color: var(--op2-vermelho-claro); }
+
+    .op2-linha-acao__fase-rotulo { color: var(--op2-texto-fraco); font-size: 0.8rem; }
+    .op2-linha-acao--foco { outline: 2px solid var(--op2-vermelho-claro); outline-offset: 2px; }
+    .op2-botao--destaque { border-color: var(--op2-vermelho-claro); font-weight: 700; }
+    .op2-linha-acao__botoes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--op2-e1); }
+    .op2-linha-acao__mais { flex-basis: 100%; }
+    .op2-linha-acao__mais > summary { cursor: pointer; color: var(--op2-texto-fraco); }
+    // `<details>` não vira flex no Chrome: a grade é um filho.
+    .op2-linha-acao__grade { display: flex; flex-wrap: wrap; margin-block-start: var(--op2-e1); gap: var(--op2-e1); }
+    .op2-painel-acao__contagem { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--op2-e1); white-space: nowrap; }
+    .op2-painel-acao__contagem > span { min-width: 5.5em; text-align: center; }
+    .op2-painel-acao__contagem button { width: auto; min-width: 1.75em; }
+    .op2-painel-acao__mestre select, .op2-linha-acao select { width: auto; max-width: 22em; }
+    .op2-linha-acao label { margin-inline-end: var(--op2-e1); white-space: nowrap; }
+    [data-novo-dado] { display: inline-flex; align-items: center; gap: var(--op2-e1); }
+    .op2-linha-acao__agiu { width: auto; white-space: nowrap; }
+    .op2-linha-acao__placar { display: flex; flex-basis: 100%; flex-wrap: wrap; align-items: center; gap: var(--op2-e2); }
+    .op2-linha-acao input[type="number"] { width: 3.25em; }
+    .op2-linha-acao__condicoes-chips > summary { cursor: pointer; color: var(--op2-texto-fraco); }
+    .op2-linha-acao__condicoes-chips .ativo, .op2-linha-acao__agiu.ativo { border-color: var(--op2-acento, currentColor); font-weight: bold; }
+    .op2-fase[data-action] { cursor: pointer; }
+  }
+
+  .op2-painel--condicao {
+    .op2-condicao__linha { display: flex; flex-wrap: wrap; align-items: center; margin-block: var(--op2-e2); gap: var(--op2-e2); }
+    .op2-condicao__chips { display: flex; flex-wrap: wrap; margin-block: var(--op2-e2); gap: var(--op2-e1); }
+    .op2-condicao__chips .ativo { border-color: var(--op2-acento, currentColor); font-weight: bold; }
+    .op2-condicao__lista, .op2-condicao__relacoes { margin: var(--op2-e1) 0 var(--op2-e2); padding: 0; list-style: none; }
+    .op2-condicao__linha input[type="number"] { width: 3.25em; }
+    .op2-condicao__linha select { width: auto; }
+    .op2-relacao input[type="text"] { width: 7em; }
+    .op2-relacao select { width: 3.5em; }
+    .op2-relacao { display: flex; flex-wrap: wrap; align-items: center; padding-block: 2px; gap: var(--op2-e2); }
+    .op2-relacao__grau { display: inline-flex; font-size: 0.7em; gap: 2px; }
+  }
+
+  // Logo abaixo do botão do painel de investigação.
+  .op2-botao-flutuante--acao { margin-top: 3.25rem; }
+  .op2-teste__pavor, .op2-teste__modificador { display: flex; flex-wrap: wrap; align-items: center; gap: var(--op2-e2); }
+  .op2-npc-ataque { display: flex; flex-wrap: wrap; align-items: center; margin-block: var(--op2-e1); gap: var(--op2-e1); }
+  .op2-npc-ataque input[type="number"] { width: 3.5em; }
+  // Segunda linha do ataque: o que ele faz além do dano (agarrar, o Afogar do afogado).
+  .op2-npc-ataque__efeito {
+    display: flex; flex-basis: 100%; flex-wrap: wrap; align-items: center; padding-left: var(--op2-e2);
+    color: var(--op2-texto-fraco); font-size: 0.85rem; gap: var(--op2-e1) var(--op2-e2);
+    label { display: inline-flex; align-items: center; gap: var(--op2-e1); }
+    input[type="text"] { width: 4.5em; }
+  }
+  .op2-card__lista { margin: var(--op2-e1) 0; padding-inline-start: 1.1em; }
+  .op2-card__modificador { font-weight: bold; }
+  .op2-ficha-cena { display: flex; flex-direction: column; gap: var(--op2-e2); }
+  // A ficha da cena de ação é a tela de montar a cena: quem está, as ondas, o painel.
+  .op2-ficha-cena__secao { display: flex; flex-direction: column; padding: var(--op2-e2); border: 1px solid var(--op2-linha); gap: var(--op2-e2); }
+  .op2-ficha-cena__grupo {
+    display: flex; align-items: baseline; margin: var(--op2-e1) 0 0; border: 0;
+    color: var(--op2-texto-fraco); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; gap: var(--op2-e1);
+  }
+  .op2-ficha-cena__lista { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; gap: var(--op2-e1); }
+  .op2-ficha-cena__linha {
+    display: grid; grid-template-columns: 36px 1fr auto auto; align-items: center; padding: 0.2rem var(--op2-e1);
+    border: 1px solid var(--op2-linha); background: var(--op2-superficie); gap: var(--op2-e2);
+    img { width: 36px; height: 36px; border: 0; border-radius: var(--op2-raio); object-fit: cover; object-position: center top; cursor: pointer; }
+  }
+  .op2-ficha-cena__linha--ausente { opacity: 0.55; }
+  .op2-ficha-cena__nome {
+    justify-content: flex-start; padding: 0; border: 0; background: transparent; color: var(--op2-texto);
+    text-align: left; cursor: pointer;
+    &:hover { color: var(--op2-vermelho-claro); }
+  }
+  .op2-ficha-cena__tipo { color: var(--op2-texto-fraco); font-size: 0.8rem; }
+  .op2-ficha-cena__por { display: flex; flex-direction: column; padding-top: var(--op2-e2); border-top: 1px dashed var(--op2-linha); gap: var(--op2-e2); }
+  .op2-ficha-cena__escolha { display: flex; align-items: center; gap: var(--op2-e2); select { flex: 1; } }
+  .op2-ficha-cena__quantos { width: 3.5em; flex: 0 0 auto; }
+  .op2-ficha-cena__atalhos { display: flex; flex-wrap: wrap; gap: var(--op2-e2); }
+  .op2-ficha-cena .op2-ajuda { margin: 0; }
+  .op2-nova-cena { display: flex; flex-direction: column; gap: var(--op2-e2); }
+  .op2-nova-cena .op2-campo--inline { display: flex; align-items: center; gap: var(--op2-e1); }
+  .op2-pos-rolagem__corpo { display: flex; flex-direction: column; gap: var(--op2-e2); }
+
+  /* Botão de card que já fez o que tinha de fazer: ainda clica, mas pergunta antes. */
+  .op2-botao--usado { opacity: 0.55; }
 }

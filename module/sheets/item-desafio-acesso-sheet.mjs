@@ -2,7 +2,8 @@
  * Ficha do desafio de acesso — o objeto que Arrombar, Destrancar ou Hackear
  * tentam vencer (spec §7.1/§7.2/§7.3).
  */
-import { PERICIAS } from "../config.mjs";
+import { PERICIAS, periciasDoModo } from "../config.mjs";
+import { modoAtual } from "../modo.mjs";
 import { rotuloDePericia } from "../dice/teste.mjs";
 import { OP2ItemSheet } from "./item-sheet.mjs";
 import { gerarSenhaDestrancar, posicoesDoPalpite } from "../cena/acoes-desafio.mjs";
@@ -25,8 +26,20 @@ export class DesafioAcessoSheet extends OP2ItemSheet {
       adicionarLinhaHack: DesafioAcessoSheet.#adicionarLinhaHack,
       gerarSenha: DesafioAcessoSheet.#gerarSenha,
       limparSenha: DesafioAcessoSheet.#limparSenha,
+      liberarHack: DesafioAcessoSheet.#liberarHack,
     },
   };
+
+  /**
+   * Solta o gate de "uma tentativa por rodada" de um hack (spec §7.3) sem avançar a
+   * rodada: o contador parado em 0 — ou um teste do mestre antes da sessão — deixava
+   * o dispositivo preso para a mesa inteira (achado em uso real).
+   */
+  static async #liberarHack(_evento, alvo) {
+    if (!this.isEditable) return;
+    const hack = alvo.dataset.hack === "hackSocial" ? "hackSocial" : "hackTecnico";
+    await this.item.update({ [`system.${hack}.ultimaTentativaRodada`]: -1 });
+  }
 
   /** Sorteia a senha com o tamanho e as faces do cadastro; zera o histórico. */
   static async #gerarSenha() {
@@ -64,8 +77,9 @@ export class DesafioAcessoSheet extends OP2ItemSheet {
       // substitui os blocos em vez de mostrar campos que não valem para nada.
       temAlgumaAbordagem: Object.values(this.item.system.abordagens).some(Boolean),
       // Qualquer perícia serve para a abordagem genérica — é justamente o ponto.
-      opcoesPericia: Object.keys(PERICIAS)
-        .filter((chave) => !PERICIAS[chave].especializada)
+      // A já escolhida fica na lista mesmo fora do modo: senão o select a trocaria em silêncio.
+      opcoesPericia: [...new Set([...periciasDoModo(modoAtual()), this.item.system.generico.pericia])]
+        .filter((chave) => !PERICIAS[chave]?.especializada)
         .map((chave) => ({ chave, rotulo: rotuloDePericia(chave) })),
     };
   }

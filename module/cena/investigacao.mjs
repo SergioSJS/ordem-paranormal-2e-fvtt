@@ -27,9 +27,41 @@ export function contadaAoGrupo(info) {
   return (info.contadaPor?.length ?? 0) > 0;
 }
 
-/** Perícias presentes no quadro, sem repetição, na ordem em que aparecem. */
+/**
+ * As perícias que abrem uma linha: a principal e, se houver, a alternativa
+ * ("Pesquisar ou Tecnologia", o Computador do Ato I). Tudo que compara a perícia do
+ * teste com a da linha passa por aqui — antes a segunda ficava só no texto, e
+ * Examinar com ela não achava nada (achado em uso real).
+ * @returns {string[]}
+ */
+export function periciasDaLinha(info) {
+  return info.periciaAlternativa ? [info.pericia, info.periciaAlternativa] : [info.pericia];
+}
+
+/** A linha sai com esta perícia? */
+export function linhaAceita(info, chavePericia) {
+  return periciasDaLinha(info).includes(chavePericia);
+}
+
+/** Perícias presentes no quadro (principais e alternativas), sem repetição, na ordem em que aparecem. */
 export function periciasDoQuadro(informacoes) {
-  return [...new Set(informacoes.map((info) => info.pericia))];
+  return [...new Set(informacoes.flatMap(periciasDaLinha))];
+}
+
+/**
+ * O quadro agrupado como o painel mostra: uma linha "Pesquisar ou Tecnologia" fica
+ * num grupo só, com as duas no título, em vez de aparecer duas vezes.
+ * @returns {{chave: string, chaves: string[], infos: object[]}[]}
+ */
+export function gruposDoQuadro(informacoes) {
+  const grupos = new Map();
+  for (const info of informacoes) {
+    const chaves = periciasDaLinha(info);
+    const chave = chaves.join("|");
+    if (!grupos.has(chave)) grupos.set(chave, { chave, chaves, infos: [] });
+    grupos.get(chave).infos.push(info);
+  }
+  return [...grupos.values()];
 }
 
 /**
@@ -44,7 +76,7 @@ export function periciasDoQuadro(informacoes) {
  */
 export function resolverInvestigacao(informacoes, chavePericia, valorPericia, idsJaRevelados = new Set()) {
   return informacoes
-    .filter((info) => descobrivel(info) && info.pericia === chavePericia
+    .filter((info) => descobrivel(info) && linhaAceita(info, chavePericia)
       && info.dt <= valorPericia && !idsJaRevelados.has(info.id))
     .sort((a, b) => a.dt - b.dt)
     .map((info) => info.id);
@@ -62,7 +94,7 @@ export function resolverInvestigacao(informacoes, chavePericia, valorPericia, id
  *   `dtMinima` só existe em "dado-pequeno" — é o que faltaria alcançar.
  */
 export function motivoSemRevelacao(informacoes, chavePericia, valorPericia, idsJaRevelados = new Set()) {
-  const daPericia = informacoes.filter((info) => descobrivel(info) && info.pericia === chavePericia);
+  const daPericia = informacoes.filter((info) => descobrivel(info) && linhaAceita(info, chavePericia));
   if (!daPericia.length) return { motivo: "sem-pericia", dtMinima: null };
 
   const naoRevelados = daPericia.filter((info) => !idsJaRevelados.has(info.id));
@@ -87,7 +119,7 @@ export function motivoSemRevelacao(informacoes, chavePericia, valorPericia, idsJ
  */
 export function resolverExaminar(informacoes, chavePericia, total, idsJaRevelados = new Set(), { ignorarDT = false } = {}) {
   const revelaveis = informacoes
-    .filter((info) => descobrivel(info) && info.pericia === chavePericia
+    .filter((info) => descobrivel(info) && linhaAceita(info, chavePericia)
       && !idsJaRevelados.has(info.id)
       && (ignorarDT || info.dt <= total))
     .sort((a, b) => a.dt - b.dt)

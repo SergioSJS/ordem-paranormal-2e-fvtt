@@ -1,5 +1,6 @@
 /** Ficha reduzida de NPC: só os atributos e as perícias que o mestre declarou. */
-import { ATRIBUTOS, SYSTEM_ID, PERICIAS, APTIDOES_PADRAO, ESCADA } from "../config.mjs";
+import { ATRIBUTOS, SYSTEM_ID, ESCADA, periciasDoModo, chaveDoRotuloDePericia, aptidoesDoModo } from "../config.mjs";
+import { modoAtual, usaCombateNovo } from "../modo.mjs";
 import { stepDie } from "../dice/escada.mjs";
 import { iconeDado } from "../ui/dice-icons.mjs";
 import { ligarRodaDoMouse } from "../ui/controle-dado.mjs";
@@ -17,6 +18,8 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     window: { resizable: true, icon: "fa-solid fa-ghost" },
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
+      adicionarAtaque: NpcSheet.#adicionarAtaque,
+      removerAtaque: NpcSheet.#removerAtaque,
       rolar: NpcSheet.#rolar,
       escolherDado: NpcSheet.#escolherDado,
       abrirSeletor: NpcSheet.#abrirSeletor,
@@ -28,6 +31,14 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static PARTS = {
     corpo: { template: "systems/ordem-paranormal-2e/templates/actor/npc.hbs" },
   };
+
+  static #adicionarAtaque() {
+    return this.actor.update({ "system.ataques": [...this.actor.system.ataques, { nome: "", tipo: "corpo", dados: "d6+d6", bonusDano: 0 }] });
+  }
+
+  static #removerAtaque(_evento, alvo) {
+    return this.actor.update({ "system.ataques": this.actor.system.ataques.filter((_a, i) => i !== Number(alvo.dataset.indice)) });
+  }
 
   async _prepareContext(opcoes) {
     const contexto = await super._prepareContext(opcoes);
@@ -43,6 +54,8 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       // `enriched`, o texto salvava e a ficha aparecia vazia (achado em uso real).
       notasEnriquecidas: await enriquecerHtml(sistema.notas, this.actor),
       editavel: this.isEditable,
+      combateNovo: usaCombateNovo(),
+      ataques: sistema.ataques,
       recursos: {
         pv: this.#recurso(sistema.recursos.pv),
         pd: this.#recurso(sistema.recursos.pd),
@@ -146,10 +159,11 @@ export class NpcSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
 /** As opções do diálogo: perícias do playtest, Aptidões com o campo, e os dados da escada. */
 export function opcoesDePericiaNpc() {
-  const pericias = Object.keys(PERICIAS).filter((c) => c !== "aptidao")
-    .map((chave) => ({ chave, rotulo: game.i18n.localize(`OP2.Pericia.${chave}`) }))
+  const modo = modoAtual();
+  const pericias = periciasDoModo(modo).filter((c) => c !== "aptidao")
+    .map((chave) => ({ chave, rotulo: game.i18n.localize(chaveDoRotuloDePericia(chave, modo)) }))
     .sort((a, b) => a.rotulo.localeCompare(b.rotulo, game.i18n.lang));
-  const aptidoes = APTIDOES_PADRAO.map((sub) => ({
+  const aptidoes = aptidoesDoModo(modo).map((sub) => ({
     chave: `aptidao-${sub}`,
     rotulo: `${game.i18n.localize("OP2.Pericia.aptidao")} (${game.i18n.localize(`OP2.Aptidao.${sub}`)})`,
   }));

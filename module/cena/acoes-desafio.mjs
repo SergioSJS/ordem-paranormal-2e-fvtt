@@ -8,7 +8,7 @@
  * é aplicado por `avancarRodada()` (module/cena/rodada.mjs). Hackear automatiza só
  * o teste e o gate de rodada — o problema matemático (técnico) e conferir as
  * respostas (social) exigem input humano, a spec é explícita sobre isso
- * (docs/LACUNAS.md).
+ * (docs/regras/LACUNAS.md).
  */
 import { SYSTEM_ID, CUSTO_PV_ARROMBAR, CUSTO_PV_SUSTENTAR, BONUS_DT_ALCANCAR_ARRISCADO } from "../config.mjs";
 import {
@@ -20,6 +20,8 @@ import { rolarTeste, renderizar, enviarParaChat, rotuloDePericia } from "../dice
 import { enviarCardAoMestre } from "../ui/card-mestre.mjs";
 import { aplicarDano } from "../dice/falha-critica.mjs";
 import { stepDie } from "../dice/escada.mjs";
+import { pontosDoEstendido } from "../dice/analise.mjs";
+import { modoAtual } from "../modo.mjs";
 import { OP2Roll } from "../dice/op2-roll.mjs";
 import { lerConfig } from "../settings/register.mjs";
 import { rodadaAtual } from "./rodada.mjs";
@@ -100,7 +102,7 @@ export async function arrombar(ator, desafioUuid, { rapido = false } = {}) {
 
   const tentativasUsadas = desafio.system.tentativasUsadas + 1;
   const pontuacaoAtual = roll.sucesso
-    ? acumularArrombar(desafio.system, roll.ra)
+    ? acumularArrombar(desafio.system, pontosDoEstendido(roll.resultado, { somaCritico: modoAtual() === "vigilia" }))
     : desafio.system.pontuacaoAtual;
   const estadoAtualizado = { ...desafio.system, pontuacaoAtual, tentativasUsadas };
 
@@ -146,7 +148,7 @@ export async function arrombar(ator, desafioUuid, { rapido = false } = {}) {
  * @param {"seguro"|"arriscado"} modo
  * @returns {Promise<{modo: string, sucesso: boolean, dano: number|null}|null>}
  */
-export async function alcancar(ator, { modo, dt, rapido = false } = {}) {
+export async function alcancar(ator, { modo, dt, rapido = false, pericia = "acrobacia" } = {}) {
   if (dt === undefined || dt === null) {
     dt = await pedirDtAmbiente();
     if (dt === null) return null;
@@ -155,17 +157,17 @@ export async function alcancar(ator, { modo, dt, rapido = false } = {}) {
   const contexto = `${game.i18n.localize("OP2.Desafio.Alcancar")} — ${game.i18n.localize(`OP2.Desafio.Modo.${modo}`)}`;
 
   if (modo === "arriscado") {
-    const roll = await rolarTeste(ator, { chavePericia: "acrobacia", dt: dt + BONUS_DT_ALCANCAR_ARRISCADO, rapido, contexto });
+    const roll = await rolarTeste(ator, { chavePericia: pericia, dt: dt + BONUS_DT_ALCANCAR_ARRISCADO, rapido, contexto });
     if (!roll) return null;
     return publicarAlcancar(ator, modo, roll.sucesso ? [roll] : [roll], roll.sucesso);
   }
 
   // Seguro: duas ações em sequência imediata; a segunda só roda se a primeira passar.
-  const primeira = await rolarTeste(ator, { chavePericia: "acrobacia", dt, rapido, contexto: `${contexto} (1/2)` });
+  const primeira = await rolarTeste(ator, { chavePericia: pericia, dt, rapido, contexto: `${contexto} (1/2)` });
   if (!primeira) return null;
   if (!primeira.sucesso) return publicarAlcancar(ator, modo, [primeira], false);
 
-  const segunda = await rolarTeste(ator, { chavePericia: "acrobacia", dt, rapido, contexto: `${contexto} (2/2)` });
+  const segunda = await rolarTeste(ator, { chavePericia: pericia, dt, rapido, contexto: `${contexto} (2/2)` });
   if (!segunda) return null;
   return publicarAlcancar(ator, modo, [primeira, segunda], segunda.sucesso);
 }
@@ -399,7 +401,7 @@ export async function tentarDestrancar(ator, desafioUuid, palpite) {
 
 /**
  * HACK TÉCNICO (spec §7.3): Tecnologia vs DT do objeto. Sem curva automática pro
- * problema matemático em si (docs/LACUNAS.md) — o card mostra o resultado (quanto
+ * problema matemático em si (docs/regras/LACUNAS.md) — o card mostra o resultado (quanto
  * maior, mais fácil deveria ser o problema que o mestre escolhe) e um timer visual
  * de 10s fica disponível na ficha do desafio para o mestre iniciar. Falha só libera
  * nova tentativa na rodada seguinte.
@@ -416,6 +418,29 @@ export function posicoesDoPalpite(palpite, resultado) {
   }));
 }
 
+/**
+ * O gate "falha só libera nova tentativa na rodada seguinte" (spec §7.3), com saída.
+ * Ele conta pela rodada da investigação: com o contador parado (mesa que não avança
+ * rodada) ou depois de um teste do mestre antes da sessão, o dispositivo ficava preso
+ * para todo mundo, e "espere a próxima" não dizia como (achado em uso real). O aviso
+ * agora aponta as duas saídas — avançar a rodada ou liberar na ficha do desafio — e o
+ * mestre, que julga se a rodada de fato passou, pode passar por cima na hora.
+ */
+async function hackLiberado(desafio, hack, rodada, { rapido = false } = {}) {
+  const ultima = desafio.system[hack].ultimaTentativaRodada;
+  if (podeTentarHackNestaRodada(ultima, rodada)) return true;
+  // `rapido` é "sem diálogo": aí a resposta é a mesma do jogador.
+  if (!game.user.isGM || rapido) {
+    ui.notifications.warn(game.i18n.localize("OP2.Desafio.HackEsperaRodada"));
+    return false;
+  }
+  return foundry.applications.api.DialogV2.confirm({
+    window: { title: desafio.name },
+    content: `<p>${game.i18n.format("OP2.Desafio.HackEsperaRodadaMestre", { rodada: ultima })}</p>`,
+    rejectClose: false,
+  });
+}
+
 export async function hackTecnico(ator, desafioUuid, { rapido = false } = {}) {
   const desafio = await carregarDesafio(desafioUuid);
   if (!desafio) return null;
@@ -424,10 +449,7 @@ export async function hackTecnico(ator, desafioUuid, { rapido = false } = {}) {
     return null;
   }
   const rodada = rodadaAtual();
-  if (!podeTentarHackNestaRodada(desafio.system.hackTecnico.ultimaTentativaRodada, rodada)) {
-    ui.notifications.warn(game.i18n.localize("OP2.Desafio.HackEsperaRodada"));
-    return null;
-  }
+  if (!(await hackLiberado(desafio, "hackTecnico", rodada, { rapido }))) return null;
 
   const roll = await rolarTeste(ator, {
     chavePericia: "tecnologia",
@@ -511,10 +533,7 @@ export async function hackSocial(ator, desafioUuid, { rapido = false } = {}) {
     return null;
   }
   const rodada = rodadaAtual();
-  if (!podeTentarHackNestaRodada(desafio.system.hackSocial.ultimaTentativaRodada, rodada)) {
-    ui.notifications.warn(game.i18n.localize("OP2.Desafio.HackEsperaRodada"));
-    return null;
-  }
+  if (!(await hackLiberado(desafio, "hackSocial", rodada, { rapido }))) return null;
 
   const roll = await rolarTeste(ator, {
     chavePericia: "intuicao",

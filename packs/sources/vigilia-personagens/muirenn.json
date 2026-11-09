@@ -1,0 +1,378 @@
+{
+  "_id": "2192c02d156321f9",
+  "name": "Muirenn da Lua Pálida",
+  "type": "personagem",
+  "img": "systems/ordem-paranormal-2e/assets/vigilia/tokens/personagem-muirenn.webp",
+  "system": {
+    "tipo": "sobrevivente",
+    "perfil": "executor",
+    "ocupacao": "Herborista",
+    "nivel": 3,
+    "nex": 0,
+    "atributos": {
+      "fisico": {
+        "die": "d8"
+      },
+      "mente": {
+        "die": "d8"
+      },
+      "emocao": {
+        "die": "d8"
+      }
+    },
+    "pericias": {
+      "acrobacia": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "animais": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "aptidao": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "atletismo": {
+        "die": "d6",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "crime": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "disciplina": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "enganacao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "furtividade": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "intimidar": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "intuicao": {
+        "die": "d6",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "luta": {
+        "die": "d4",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "maquinas": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "medicina": {
+        "die": "d8",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "ocultismo": {
+        "die": "d8",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "oficio": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "percepcao": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "persuasao": {
+        "die": "d4",
+        "atributo": "emocao",
+        "stepMod": 0
+      },
+      "pesquisar": {
+        "die": "d6",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "pontaria": {
+        "die": "d6",
+        "atributo": "fisico",
+        "stepMod": 0
+      },
+      "sobrevivencia": {
+        "die": "d8",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "tecnologia": {
+        "die": "d4",
+        "atributo": "mente",
+        "stepMod": 0
+      },
+      "vigor": {
+        "die": "d6",
+        "atributo": "fisico",
+        "stepMod": 0
+      }
+    },
+    "aptidoes": {
+      "artes": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "erudicao": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "folclore": {
+        "rotulo": "",
+        "die": "d8"
+      },
+      "guerra": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "nobreza": {
+        "rotulo": "",
+        "die": "d4"
+      },
+      "religiao": {
+        "rotulo": "",
+        "die": "d4"
+      }
+    },
+    "recursos": {
+      "pv": {
+        "value": 15,
+        "max": 15
+      },
+      "pd": {
+        "value": 17,
+        "max": 17
+      }
+    },
+    "patamar": "iniciante",
+    "relacoes": [
+      {
+        "com": "Rhiona",
+        "grau": 0,
+        "rotulo": "NEUTRO",
+        "invocada": false
+      },
+      {
+        "com": "Rowan",
+        "grau": 2,
+        "rotulo": "AMIZADE",
+        "invocada": false
+      },
+      {
+        "com": "Cavan",
+        "grau": 0,
+        "rotulo": "NEUTRO",
+        "invocada": false
+      },
+      {
+        "com": "Malik",
+        "grau": 0,
+        "rotulo": "NEUTRO",
+        "invocada": false
+      },
+      {
+        "com": "Sira",
+        "grau": 0,
+        "rotulo": "NEUTRO",
+        "invocada": false
+      },
+      {
+        "com": "Sorcha",
+        "grau": 0,
+        "rotulo": "NEUTRO",
+        "invocada": false
+      },
+      {
+        "com": "Cormac",
+        "grau": 0,
+        "rotulo": "NEUTRO",
+        "invocada": false
+      }
+    ],
+    "biografia": ""
+  },
+  "items": [
+    {
+      "_id": "2e74b60387ddce7c",
+      "name": "Ímpeto",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+      "system": {
+        "origem": "perfil",
+        "perfil": "executor",
+        "custo": "",
+        "custoPD": 0,
+        "descricao": "<p>Uma barra de cinco espaços, que enche um a cada teste falho. Ação livre: 1 espaço dá +d4 num teste; 3 espaços sobem um atributo em um passo até o fim da cena; 3 espaços dão uma ação extra em cena de conflito. A barra esvazia no fim da cena.</p>",
+        "mecanica": "",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false,
+          "pdAoDescobrir": 0
+        },
+        "impeto": {
+          "espacos": 5,
+          "preenchidos": 0
+        },
+        "usoEmInvestigacao": ""
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "c99976ee45e80d5b",
+      "name": "Arsenal de Herborista",
+      "type": "habilidade",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/habilidade.svg",
+      "system": {
+        "origem": "ocupacao",
+        "perfil": "",
+        "custo": "",
+        "custoPD": 0,
+        "descricao": "<p>Bolsa de preparados de uso único; aplicar gasta uma ação.</p><ul><li><strong>Tônico:</strong> o alvo sobe Físico um passo por uma cena.</li><li><strong>Bálsamo:</strong> recupera 2d4 PV (outro ser precisa ficar parado na rodada).</li><li><strong>Pote de vespas:</strong> ataque à distância com Sobrevivência, dano RA+1; o alvo vivo perde a próxima ação.</li></ul>",
+        "mecanica": "",
+        "efeito": {
+          "tipo": "nenhum",
+          "passos": 1,
+          "dado": "d6",
+          "chaves": [],
+          "permitirD20": false,
+          "pdAoDescobrir": 0
+        },
+        "impeto": {
+          "espacos": 0,
+          "preenchidos": 0
+        },
+        "usoEmInvestigacao": ""
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "6ef383865539d9f7",
+      "name": "Faca ritualística",
+      "type": "equipamento",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/equipamento.svg",
+      "system": {
+        "quantidade": 1,
+        "equipado": true,
+        "arma": true,
+        "descricao": "",
+        "ataque": {
+          "tipo": "corpo",
+          "bonusDano": 0,
+          "bonusTeste": 0,
+          "minimoCritico": 0,
+          "ignoraRd": 0,
+          "pequena": true
+        },
+        "marcial": false,
+        "armadura": 0,
+        "passos": "",
+        "cargas": {
+          "usa": false,
+          "value": 0,
+          "max": 0
+        }
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "d0666e891bb5f5f9",
+      "name": "Maleta de medicamentos",
+      "type": "equipamento",
+      "img": "systems/ordem-paranormal-2e/assets/icons/tipos/equipamento.svg",
+      "system": {
+        "quantidade": 1,
+        "equipado": true,
+        "arma": false,
+        "descricao": "",
+        "ataque": {
+          "tipo": "",
+          "bonusDano": 0,
+          "bonusTeste": 0,
+          "minimoCritico": 0,
+          "ignoraRd": 0,
+          "pequena": false
+        },
+        "marcial": false,
+        "armadura": 0,
+        "passos": "",
+        "cargas": {
+          "usa": false,
+          "value": 0,
+          "max": 0
+        }
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "ownership": {
+        "default": 0
+      },
+      "flags": {}
+    }
+  ],
+  "prototypeToken": {
+    "name": "Muirenn da Lua Pálida",
+    "texture": {
+      "src": "systems/ordem-paranormal-2e/assets/vigilia/tokens/personagem-muirenn.webp"
+    },
+    "depth": 1,
+    "actorLink": true,
+    "disposition": 1,
+    "sight": {
+      "enabled": false
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_key": "!actors!2192c02d156321f9"
+}

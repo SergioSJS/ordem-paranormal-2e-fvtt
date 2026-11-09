@@ -109,6 +109,16 @@ curva do problema matemático nem o formato do timer nem onde mora o banco de pe
 padrão de Arrombar) e o gate "falha só libera nova tentativa na rodada seguinte" (regra
 explícita, spec §7.3). O resto é manual, no espírito do que a spec pede:
 
+- **O gate é do dispositivo e conta pela rodada da investigação** — e por isso prende a
+  mesa que não avança rodada (o contador fica em 0 e a primeira tentativa tranca o
+  painel para todo mundo), ou o mestre que testou o hack antes da sessão (achado em uso
+  real: "já tentou nesta rodada", com o mestre sem saber o porquê). Saídas: o aviso diz
+  como destravar; o botão do hack na janela de ações mostra "nesta rodada" antes do
+  clique; a ficha do desafio tem *Liberar tentativa*; o mestre que clica no hack
+  travado recebe "tentar mesmo assim?"; e encerrar a investigação zera o gate junto com
+  a rodada (uma tentativa na rodada 3 da sessão passada trancava até a rodada 4 da
+  seguinte).
+
 - **Hack técnico:** sem curva automática — o card mostra o resultado do teste (quanto
   maior, mais fácil deveria ser o problema que o mestre escolhe) e um timer visual de
   10s que o mestre inicia na ficha do desafio, cliente-only, sem persistência.
@@ -140,15 +150,39 @@ cumulativa do teste.
 **Decisão:** `estado.sustentando` guarda só `ativo` e `fadiga` no ator. O card de chat
 avisa quando alguém solta; o que isso significa na cena é narrativo, decidido pela mesa.
 
-### Resultado do uso de ferramenta não fica gravado no personagem (spec §9)
+### Leitura de ferramenta é revelação, como a linha do quadro (spec §9.3)
 
-Investigar/Examinar gravam `infosReveladas` no ator porque a revelação é por
-informação, reaproveitável entre cenas. Uma ferramenta não tem "informações"
-discretas — só um texto de reação por POI.
+A primeira versão mandava a leitura só para o chat: "uma ferramenta não tem
+informações discretas". Em mesa, o jogador ficou sem ter onde reler o que o
+termômetro disse, e o setor de ferramentas só existia na aba do mestre — parecia
+que a informação era dele (achado em uso real, Ato II).
 
-**Decisão:** o resultado só vai para o chat (sussurro dono + mestre), igual
-Interagir. Usar a mesma ferramenta duas vezes no mesmo POI manda o card de novo,
-sem controle de repetição — nada na spec pede isso.
+**Decisão:** a leitura é uma revelação por personagem, `<poi>:<ferramenta>` em
+`estado.ferramentasReveladas` — normal ou com reação, porque "uma leitura normal
+também é informação" (§9.3). O painel do jogador mostra o que o personagem dele leu;
+o do mestre mostra cada leitura, quem a fez e o limpar. Reler é livre e não repete
+a gravação. Encerrar a investigação zera junto com as linhas. Três coisas vêm junto:
+
+- **A parte do mestre não vai ao jogador.** O livro imprime no mesmo setor a leitura
+  e a instrução de mesa ("envie o handout: X", "apenas se…", a solução do rádio, o
+  padrão de bipes por extenso). O montador marca a instrução com
+  `<p class="op2-mestre">`; `leituraParaJogador()` a tira do card e do painel do
+  jogador, e ela sai num card só do mestre. Na ficha do ponto, a mesma classe vale
+  para texto escrito à mão.
+- **Rascunho por ferramenta** (`ferramentasOcultas`): "apenas se o Ídolo for
+  quebrado" (o Laboratório no Ídolo) é o `oculta` da linha do quadro. Até o mestre
+  liberar, a ferramenta devolve leitura normal, e o mestre vê o rascunho no card
+  dele. O montador põe em rascunho toda leitura com condição.
+- **Revelação pelo mestre** (setting) vale para as ferramentas: o card fica com ele,
+  com *Entregar ao jogador*.
+
+O Medidor EMF entrega ao jogador dois links (`[data-op2-audio]`): ouvir só no
+cliente dele, como se segurasse o medidor, ou tocar para a mesa inteira — o
+servidor relaia `playAudio` de qualquer usuário; o link da playlist e o padrão
+ditado ficam com o mestre. O Laboratório rola a sequência mínima do ponto sem
+perguntar ao jogador (só o mestre pode mudar na hora) e entrega a leitura pelo
+mesmo caminho das outras ferramentas. O rádio sem enigma — ou sem nada — também
+responde: "sem conjuntos" avisava que ali não há enigma.
 
 ### EMF e Compêndio não têm mecânica automatizável (spec §9)
 
@@ -362,6 +396,14 @@ Todas as caixas de acesso do porão têm campo no `desafio-acesso`:
 
   A decisão de mesa que fica de fora: o sistema não adivinha o gatilho. Ninguém marca
   "o grupo viu o Ídolo" para o sistema — é o mestre que aperta o botão quando acontece.
+- **O mestre que quer narrar antes de a pista cair na tela.** Examinar entrega a linha
+  na hora, no card sussurrado ao jogador — e há mesa em que o mestre proibiu rolar pelo
+  sistema por isso ("tem uma descrição que vai aparecer se você passar"; achado em uso
+  real). **Decisão:** setting de mundo *Revelação pelo mestre* (desligado por padrão).
+  Ligado, Examinar não grava nem entrega nada: o jogador recebe só os dados e "o mestre
+  recebeu o que você achou"; o card inteiro nasce no cliente do mestre, com *Entregar ao
+  jogador*, que grava a revelação e manda o card de sempre. O custo de 1 PD, que não
+  tem pista dentro, sai como antes.
 - **"Fica a cargo dele compartilhar a informação com os outros ou não."** A pista é
   de quem achou (spec §6.2, revelação por personagem). O livro deixa ao jogador
   decidir se conta; o sistema dá o botão *Contar ao grupo* na linha (card de Examinar
@@ -369,10 +411,21 @@ Todas as caixas de acesso do porão têm campo no `desafio-acesso`:
   contou e a tira do que Examinar acha de novo — como uma linha aberta pelo mestre.
   **Decisão:** é diferente da ação Compartilhar (§6.5), que continua sendo o teste do
   aliado por uma pista NOVA. Desfazer é o mesmo "limpar revelação" do mestre.
-- **Linhas condicionais** ("apenas Victor", "se o ídolo for quebrado") entram como
-  rascunho: Examinar não as alcança, o mestre libera quando a condição acontece. "ou
-  Tecnologia" é perícia alternativa e segue descobrível — o sistema testa uma perícia
-  por linha, a alternativa fica no texto.
+- **"Mostre o handout: HANDOUT 02 - SÍMBOLO NO TETO."** numa linha do quadro é instrução
+  de mesa dentro do texto que o jogador lê ao descobrir a linha. Vira "(handout: Símbolo
+  no Teto)" — ele sabe que há um handout a pedir; a imagem continua na nota do mestre.
+  Só códigos viram "(handouts 05A, 05B e 06C)" (o "06C" é do livro). Nada mais muda.
+- **A sexta linha do Computador (Ato I).** "Intuição 6: Pela linguagem…", com a contagem
+  de jogadores, vem depois de três linhas em branco na p. 56 — o leitor (e o gabarito
+  Python) tomava por fim da tabela e a linha ia para as notas. O leitor agora segue
+  quando há rótulo e DT logo adiante; 88 linhas no Ato I, nas três edições do PDF.
+- **Linhas condicionais** ("apenas Victor", "se o ídolo for quebrado", e o "(Requer ter
+  feito o hack social…)" escrito no começo do texto — o Computador nos dois atos) entram
+  como rascunho: Examinar não as alcança, o mestre libera quando a condição acontece. "ou
+  Tecnologia" é perícia alternativa e segue descobrível: vai para o campo
+  `periciaAlternativa` da linha, e Examinar acha a linha com qualquer uma das duas.
+  (Antes a alternativa ficava só no texto, e Examinar com Tecnologia no Computador
+  não achava nada — e cobrava o PD. Achado em uso real.)
 
 ## O extrator do PDF e as revisões do livro
 
@@ -461,3 +514,74 @@ lado.
   versão "para impressão" do Compêndio da Ordem — a preenchível entra como página PDF.
 - **Sobrecarga.** A tabela do porão é a padrão do sistema (spec §7.6), ligada na
   investigação; a caixa do livro se repete no roteiro como nota.
+
+---
+
+# Playtest beta
+
+Levantado na leitura integral do PDF v1.0 (`docs/regras/spec-beta.md`). Os defaults abaixo estão
+implementados (Fase 5). Vale a regra da casa: texto normativo acima de tabela-resumo, e erro do livro
+entra sem apagar nada.
+
+## Beta: contradições de regra
+
+| Assunto | O livro diz | Default proposto |
+|---|---|---|
+| **Fases do combate** | Carta (p. 2) e regras (p. 18): três — geral, distância, corpo a corpo. Missões (p. 32, p. 69) e `Personagens Caídos` (p. 24): quatro — suporte, distância, corpo a corpo, final. A p. 18 ainda cita "fase tática". | **Quatro.** É a única versão em que investigar durante a luta e fugir têm lugar, e as duas missões foram escritas nela. Geral = Tática = Suporte. Setting. |
+| **Perícia do conhecimento paranormal** | Lista (p. 9): Bruxaria. Fichas e quadros (p. 63): Ocultismo. | Uma chave só, `ocultismo`; rótulo "Bruxaria" no modo Vigília. |
+| **Perícia de ofício** | Lista (p. 9): Metalurgia. Fichas: Ofício (Metalurgia) e Ofício sem especialização. Quadros: Ofício, Ofício (metalurgia). | Chave `oficio`, com especialização livre. |
+| **Compartilhar** | Texto (p. 15): Pesquisar, perícia que saiu da lista. Tabela: Intuição. | Inspecionar, que é a chave `pesquisar` com outro rótulo no modo Vigília. O setting `compartilharPericia` continua valendo. |
+| **Pesquisar em quadro** | A árvore da Missão 1 (p. 38) lista Pesquisar. | Mesma chave `pesquisar`; o extrator avisa. |
+| **Vocação ou Ocupação** | A p. 7 troca o termo e a p. 8 ainda diz "ocupação". | Vocação. |
+| **Teste de morte, ferimento grave** | Tabela (p. 21) define teste de lesão; moribundo (p. 22) e não letal (p. 23) falam em "teste de morte" e "ferimento grave". | Teste de morte = teste de lesão. Ferimento grave = lesão. |
+| **Caído** | p. 21: só corpo a corpo ganha +1 passo; à distância, DT +3. p. 24: "ataques" ganham +1 passo. | p. 21, mais detalhada. |
+| **Rodadas sem combate** | A p. 12 ainda diz que a ordem do combate sai "em um playtest futuro". | Ignorar, sobra do alpha. |
+| **Alcançar** | Regra (p. 17): Acrobacia. Plataforma (p. 64): Atletismo. | Perícia no desafio: vale o da missão. |
+| **Fôlego** | Missão 1: só em avançar. Missão 2: qualquer ação de perseguição. | Parâmetro da cena. |
+| **Sigla PA** | Pontuação alvo (p. 16, p. 65), pontos de avanço (p. 73), e os pontos de armadura. | Sem sigla na interface. |
+
+## Beta: regra que falta
+
+| Assunto | O que falta | Default proposto |
+|---|---|---|
+| **Atordoado** | Usado em chefe e armas; sem definição. | Perde a ação pelo tempo indicado. Conferir no feedback. |
+| **Sobrecarregado, imóvel** | Citados em Agarrar. | Só rótulo no estado, o mestre arbitra. |
+| **Dano de impacto, absorção, frio** | Citados, sem tipos definidos. | Dano físico; o tipo é só texto. |
+| **RD do aughisk** | A criatura "perde sua redução de dano" (p. 38, p. 43), mas a ficha não imprime valor. As armas ignoram 5. | **3, decisão da mesa** (2026-11-08; antes, 5 por inferência). Campo editável; balista e tocha passam inteiras. |
+| **Afogar** | A ficha lista Afogar como ação de corpo a corpo `d8+d6`, sem dano: agarra, a vítima perde d6 no fim de cada rodada e só tenta escapar (Acrobacia ou Luta à escolha, −1 passo, contra a Luta do afogado); aliado faz o mesmo teste, sem a redução. Não diz se o d6 passa por armadura, nem o que fazer com "agarrado" sem saber quem segura. | Ataque com efeito "Agarra": o acerto (e, para o mestre, mesmo o erro) agarra; card de fim de rodada com o dano, que segue o caminho normal (RD e escolha da armadura). Soltar-se e Soltar um aliado contra a Luta de quem segura; empate segura. "Agarrado" ligado à mão não sabe quem segura: soltar é contra DT 7 e não há dano de fim de rodada. |
+| **Patamar** | Iniciante a lenda são citados sem tabela de nível. Guardiã dá "+1 PV por patamar". | Campo manual, default iniciante para nível 3. |
+| **NEX** | "NEX 35%+ evita" no aughisk; fichas sem NEX. | Mantém o texto; ninguém evita. |
+| **Pavor com RA, RB e crítico** | Só define o valor do teste. | Dado anulado não conta para RA, RB nem crítico; o pavor não conta no limite de 4. |
+| **Cura de lesão, trauma e pavor** | "Até serem curados", sem como. | Remoção manual pelo mestre. |
+| **Destrancar o baú** | Quatro d12 com senha impressa, sem máximo de tentativas (p. 65); a regra (p. 16) diz que a missão define. | Campo editável, começa sem limite, com aviso. Senha fixa, não rolada. |
+| **Alcance curto e longo, zonas** | Sem distância; zona só citada (p. 69). | Mestre arbitra; sem medição. |
+| **Trilha sonora** | Duas faixas nos zips, sem indicação de uso. | Playlist com as duas, disparo manual. |
+| **Prontidão em teste alheio** | A habilidade vale para o teste de outro ser, e nada diz como se anuncia na mesa. | Sem automação: o jogador avisa, e o mestre rola com o ajuste do diálogo. |
+| **Dano não letal** | A p. 23 define, sem dizer como acumula com o letal. | Sem contador próprio: o card avisa, e o mestre decide. Os PV se editam à mão. |
+| **Abraçar o pavor** | A p. 24 troca o dado por bônus e não diz se o medo acaba de vez ou só naquele teste. | Acaba de vez, como controlar baixa de vez. O dado abraçado conta para o teto de dados. Conferir no feedback. |
+| **Marcador e Prontidão em dado anulado** | Nada exclui. | Podem: mudar o valor pode tirar o dado de baixo do pavor. |
+| **Prontidão, 1× por rodada** | Sem como guardar a rodada fora do combate. | O sistema conta por teste; a mesa cuida da rodada. |
+| **Fôlego na vala (Missão 2)** | "Qualquer ação de perseguição" inclui o teste da vala. | O teste da vala não oferece Fôlego; ajuste de passos no diálogo cobre. |
+| **Esquiva (pré-gerado)** | Ação livre oposta ao ataque, uma vez por rodada. | Só o texto na habilidade: a mesa usa Defender-se no card, sem custo de ação. |
+| **Fintar e Mirar, contra quem** | Valem contra um alvo. | A condição não guarda o alvo: o diálogo do ataque traz a caixa marcada, e quem joga desmarca se for outro. |
+
+## Beta: erros de diagramação e cópia
+
+Texto original preservado na extração. Linha claramente trocada nasce **rascunho**, com nota.
+
+| Onde | Erro | Tratamento |
+|---|---|---|
+| Altar das Vinhas, Percepção DT 4 (p. 62) | Texto do virote de ferro, copiado do Esqueleto da Missão 1 | Rascunho + nota |
+| Buraco das Raízes, Percepção DT 8 (p. 63) | Texto das mercadorias, copiado da Carroça; a linha seguinte pressupõe um "entalhe" que a original revelaria | Rascunho + nota. Sem ela o puzzle perde a pista: o mestre escreve a linha |
+| Inscrição Antiga 5.1 (p. 66) | Descrição e desafio repetem a Escadaria | Nota; desafio não duplica |
+| Tocha 4.2 (p. 41) | Dois blocos de Percepção, um provavelmente Inspecionar | Mantém; aviso |
+| Ponto 7, Nichos na Parede | Listado (p. 61) e sem quadro próprio; o enigma está na abertura da cena (p. 60) | Ponto criado sem linhas |
+| Mapa da caverna (p. 61) | Rótulo 5.1 duas vezes, sem 5.2 | Marcador usa 5.2 |
+| Escadaria (p. 61) | "Cesto de vime"; o ponto traz potes de argila | Mantém; nota |
+| Ilhota (p. 36–37) | Legenda numera Esqueleto 5 e Tocha 6; quadros, 4.1 e 4.2. Texto diz "quatro pontos" e lista seis | Vale o quadro |
+| Referência de página | Sumário: ficha 8→6, regras 12→10, caverna 51→50. Passo "p. 20"→12; afogado "p. 35"→33; pavor "p. 26"→24; aughisk "p. 46"→43; cria "p. 73"→71; caídos "p. 22"→24; arbusto "p. 39"→37 | Nunca usar número impresso em referência automática |
+| Cavan (ficha) | Rótulos e dados de atributo fora de lugar em 6 linhas, de Inspecionar a Sobrevivência: `Inspecionar d8+d10 EMOÇÃO`, `Luta d8+d6 MENTE`, `Pontaria d4+d10 FÍSICO` | Vale o dado da perícia; o atributo vem da p. 9 e o dado dele, do bloco de atributos. O impresso fica preservado em `fichas.json` |
+| Cormac (ficha) | Acrobacia `d4+d6` e Animais `d4+d8`: dados de atributo trocados. Herança cita "Diarmaid" | Mesma regra do Cavan; nota |
+| Nomes | Rhiona (fichas) × Rhionna (token); Branna (p. 51) × Brenna; Ellén × Ellen (token); aughisky (p. 34); `SORCHA: SORCHA:` em duas relações; Enxurrada de/da Morte | Grafia dominante; o importador mapeia o arquivo |
+| Texto | "chama ouro", "os os mortos", "poça grotesca que lodo", "Você uma interação", "ao à elevação" | Fica como está |
+

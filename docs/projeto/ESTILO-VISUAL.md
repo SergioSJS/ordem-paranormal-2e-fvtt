@@ -87,9 +87,9 @@ lado carrega a mesma informação e comunica muito menos.
 ## Extraindo mais do PDF
 
 ```bash
-pdftoppm -f 15 -l 15 -r 300 -png docs/Ordem-*.pdf saida        # página inteira
-pdftoppm -f 15 -l 15 -r 300 -x 100 -y 480 -W 620 -H 1400 -png docs/Ordem-*.pdf recorte
-pdffonts docs/Ordem-*.pdf                                       # fontes usadas
+pdftoppm -f 15 -l 15 -r 300 -png jambo-arquivos/playtest1/v1/2-agenteelite-completo/Ordem-*.pdf saida        # página inteira
+pdftoppm -f 15 -l 15 -r 300 -x 100 -y 480 -W 620 -H 1400 -png jambo-arquivos/playtest1/v1/2-agenteelite-completo/Ordem-*.pdf recorte
+pdffonts jambo-arquivos/playtest1/v1/2-agenteelite-completo/Ordem-*.pdf                                       # fontes usadas
 ```
 
 Páginas úteis: **15** (ficha diagramada com legendas), **16** (escalas de atributo e
@@ -117,3 +117,36 @@ tema, nunca força um:
   do tema, sem JS.
 - **Conferir nos dois**: `OP2_TEMA=light OP2_SAIDA=/tmp/claro node scripts/e2e/capturar.mjs`
   fotografa as telas no claro. Os prints do README são no escuro.
+
+## Modo Vigília
+
+O beta tem outra gramática, e o mundo no modo Vigília veste ela: `marcarModoNaTela()`
+(`module/modo.mjs`) põe `op2-vigilia` no `<body>` no `init`, e `styles/parciais/_vigilia.scss`
+redefine os tokens. O modo moderno não muda em nada. A fonte é a ficha de personagem do zip da
+editora e as páginas de regra do beta (p. 16 é boa para o tema claro).
+
+| | Alpha (moderno) | Beta (Vigília) |
+|---|---|---|
+| Fundo | preto liso `#0d0908` | carvão esverdeado `#0e1315`, com textura de giz |
+| Acento (`--op2-vermelho`) | vermelho `#c8321e` | osso `#a6a395`; no claro, azul-petróleo `#2f5866` |
+| Perfil | pinta a ficha (vermelho, azul, verde) | não pinta: tudo é prata |
+| Rótulo | tag vermelha rasgada | faixa `#5f5e57` com nó celta nas pontas, que some atrás do texto |
+| Moldura | linha vermelha só nos cantos | linha dupla de osso pela borda toda |
+| Dado | vermelho, número branco | osso, número escuro (`--op2-sobre-acento`) |
+| Título | Big Shoulders | IM Fell English SC, sem caixa alta (versalete) |
+| Corpo, rótulo, perícia | Bitter, Cutive Mono | Barlow 400/700/800 |
+| Tema claro | papel `#ece7df` | papel azul-acinzentado `#dde4e8` |
+
+- **O nó, a moldura e o giz são desenhados no SCSS** (SVG em data URI): nada da arte do livro.
+  O giz é só ruído fino em ladrilho; ruído largo em ladrilho mostra a emenda, então as manchas
+  são `radial-gradient`.
+- **Especificidade.** `body.op2-vigilia .op2` (0,2,1) ganha de `.op2[data-perfil]` (0,2,0); o
+  bloco claro (`:root[data-theme="light"] body.op2-vigilia .op2`, 0,4,1) redefine tudo o que o
+  claro do moderno redefine, senão o vermelho do alpha vaza.
+- **Ícones do sistema** (`assets/icons`) viram prata por `filter: grayscale`; retrato e arte de
+  quem joga ficam como estão.
+- **Nome e atributos:** `.op2 input`/`button` herdam a fonte do corpo com mais especificidade
+  que `.op2-nome`. No moderno isso sempre foi assim (o nome sai em Bitter); no Vigília o tema
+  força a fonte de título nesses dois lugares.
+- **Conferir:** o e2e confere a classe, o acento, a faixa e a fonte nos dois modos;
+  `OP2_MODO=vigilia node scripts/e2e/capturar.mjs` fotografa a ficha do Vigília.

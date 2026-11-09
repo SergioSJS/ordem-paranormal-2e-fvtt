@@ -17,8 +17,9 @@ import { montarAtoI } from "../../module/aventura/ato-i.mjs";
 import { montarAtoII } from "../../module/aventura/ato-ii.mjs";
 import { fontesDoAtoI, fontesDoAtoII } from "../aventura/fontes.mjs";
 
-const PDFJS = process.env.OP2_PDFJS
-  ?? "/Applications/Foundry Virtual Tabletop.app/Contents/Resources/app/node_modules/@foundryvtt/pdfjs/build/pdf.mjs";
+const PDFJS = process.env.OP2_PDFJS ?? [
+  "Foundry Virtual Tabletop.app", "Foundry Virtual Tabletop-14.app", "Foundry Virtual Tabletop-13.app",
+].map((app) => `/Applications/${app}/Contents/Resources/app/node_modules/@foundryvtt/pdfjs/build/pdf.mjs`).find(existsSync);
 const SAIDA = "build/js";
 
 const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
@@ -103,7 +104,10 @@ const IGNORAR = new Set(["descricao_cruas"]);
 const ACEITAS = new Set([
   "ato-i-pontos[23].descricao",
   // …e essa DT solta é a quinta linha do quadro do Computador ("Pesquisar ou
-  // Tecnologia, DT 10: o e-mail de 12 de março…"), que o JS lê inteira.
+  // Tecnologia, DT 10: o e-mail de 12 de março…"), que o JS lê inteira. A sexta
+  // ("Intuição 6: Pela linguagem…", com a contagem de jogadores) vem depois de três
+  // linhas em branco, que o Python tomava por fim da tabela; o JS segue quando há
+  // rótulo e DT logo adiante.
   "ato-i-pontos[28].informacoes",
   "ato-i-pontos[28].notas",
   // O Armário de Ferramentas tem uma linha de "DT 6 ou 10": o pdftotext partiu em

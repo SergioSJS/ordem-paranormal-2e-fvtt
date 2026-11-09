@@ -8,7 +8,7 @@
 /**
  * Teste oposto (spec §4.6): quem tirou mais vence, sem DT. Empate não é definido
  * pelo texto — tratamos como "ninguém vence", que preserva o status quo e é o que
- * a mesa costuma narrar (docs/LACUNAS.md).
+ * a mesa costuma narrar (docs/regras/LACUNAS.md).
  * @returns {"atacante"|"defensor"|"empate"}
  */
 export function vencedorDoOposto(totalAtacante, totalDefensor) {

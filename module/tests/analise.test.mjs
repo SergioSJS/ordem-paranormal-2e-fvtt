@@ -87,3 +87,15 @@ test("teste oposto não tem DT e fica indefinido", () => {
 test("seleção sugerida devolve os três maiores em ordem de índice", () => {
   assert.deepEqual(a.selecaoSugerida(d("d4:2", "d8:7", "d6:5", "d12:9")), [1, 2, 3]);
 });
+
+test("papéis dos dados: RA no maior, RB no menor, um dado por papel", () => {
+  assert.deepEqual(a.papeisDosDados(d("d8:3", "d6:6")), { ra: 1, rb: 0 });
+  // Dois iguais: cada um com um papel, não os dois no mesmo dado.
+  assert.deepEqual(a.papeisDosDados(d("d8:5", "d6:5")), { ra: 0, rb: 1 });
+  // Descartado não entra; com um contado só, ele é RA e RB.
+  assert.deepEqual(a.papeisDosDados(d("d8:2", "d6:6:off")), { ra: 0, rb: 0 });
+  assert.deepEqual(a.papeisDosDados(d("d8:2:off")), { ra: null, rb: null });
+  // Anulado pelo pavor também sai.
+  const comPavor = a.marcarPavor([...d("d8:7", "d6:2"), { indice: 2, dado: "d6", resultado: 4, contado: true, pavor: true }]);
+  assert.deepEqual(a.papeisDosDados(comPavor), { ra: 0, rb: 0 });
+});

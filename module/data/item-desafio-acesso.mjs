@@ -30,6 +30,25 @@ export class DesafioAcessoData extends foundry.abstract.TypeDataModel {
         // (Atletismo), um portão enferrujado (Máquinas), uma janela alta
         // (Acrobacia). O mestre diz qual perícia e como se chama.
         generico: new BooleanField({ required: true, initial: false }),
+        // Os do beta (beta §6).
+        escalar: new BooleanField({ required: true, initial: false }),
+        equilibrar: new BooleanField({ required: true, initial: false }),
+        alcancar: new BooleanField({ required: true, initial: false }),
+      }),
+
+      escalar: new SchemaField({
+        pericia: new StringField({ required: true, initial: "atletismo", blank: false }),
+        alvo: new NumberField({ required: true, initial: 10, min: 1, integer: true, nullable: false }),
+        dtRapido: new NumberField({ required: true, initial: 8, min: 0, integer: true, nullable: false }),
+        dtCauteloso: new NumberField({ required: true, initial: 6, min: 0, integer: true, nullable: false }),
+      }),
+      equilibrar: new SchemaField({
+        sucessos: new NumberField({ required: true, initial: 3, min: 1, integer: true, nullable: false }),
+        danoFalha: new StringField({ required: true, initial: "1d4", blank: false }),
+      }),
+      alcancar: new SchemaField({
+        pericia: new StringField({ required: true, initial: "acrobacia", blank: false }),
+        dt: new NumberField({ required: true, initial: 7, min: 0, integer: true, nullable: false }),
       }),
 
       /** Abordagem genérica: a perícia testada e o rótulo que aparece no botão. */
@@ -48,7 +67,7 @@ export class DesafioAcessoData extends foundry.abstract.TypeDataModel {
 
       // DESTRANCAR (spec §7.1): Mastermind — senha oculta em posições 1..facesSenha,
       // resposta por posição (exato/alto/baixo). A spec não define o tamanho do dado
-      // da senha; default d6 clássico de Mastermind (docs/LACUNAS.md).
+      // da senha; default d6 clássico de Mastermind (docs/regras/LACUNAS.md).
       tamanhoSenha: new NumberField({ required: true, initial: 4, min: 1, max: 8, integer: true, nullable: false }),
       facesSenha: new NumberField({ required: true, initial: 6, min: 2, max: 12, integer: true, nullable: false }),
       senha: new ArrayField(new NumberField({ required: true, min: 1, integer: true, nullable: false }), { initial: [] }),
@@ -65,7 +84,7 @@ export class DesafioAcessoData extends foundry.abstract.TypeDataModel {
 
       // HACKEAR (spec §7.3): duas abordagens independentes, cada uma com o próprio
       // estado — mesmo espírito de Arrombar/Destrancar não consumirem tentativa uma
-      // da outra. Sem curva/automação do problema em si (docs/LACUNAS.md): só o
+      // da outra. Sem curva/automação do problema em si (docs/regras/LACUNAS.md): só o
       // teste, o gate de rodada, e — no social — o banco de perguntas do mestre.
       hackTecnico: new SchemaField({
         // Alguns painéis não abrem com o teste: o resultado escolhe UMA linha de uma

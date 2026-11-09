@@ -5,15 +5,18 @@
 
 ## Leitura antes de trabalhar
 
-1. `docs/op2-playtest-spec-foundry.md` — **a fonte da verdade das regras.** Toda decisão
-   mecânica cita uma seção dela (`spec §4.2`).
-2. `docs/ROADMAP.md` — fase ativa e critério de pronto.
-3. `docs/ARQUITETURA.md` — antes de criar arquivo novo.
-4. `docs/LACUNAS.md` — antes de implementar regra ambígua.
-5. `docs/ESTILO-VISUAL.md` — antes de mexer em CSS ou template.
+1. `docs/regras/spec-alpha.md` (modo moderno) e `docs/regras/spec-beta.md` (modo Vigília) —
+   **a fonte da verdade das regras.** Toda decisão mecânica cita uma seção delas (`spec §4.2`, `beta §7.3`). O
+   índice é `docs/README.md`; o impacto do beta, `docs/regras/alpha-para-beta.md`.
+2. `docs/projeto/ROADMAP.md` — fase ativa e critério de pronto.
+3. `docs/projeto/ARQUITETURA.md` — antes de criar arquivo novo.
+4. `docs/regras/LACUNAS.md` — antes de implementar regra ambígua.
+5. `docs/projeto/ESTILO-VISUAL.md` — antes de mexer em CSS ou template.
 
-O PDF do playtest fica em `docs/` mas **não é commitado** (`.gitignore`). Ele é a fonte
-da spec e das amostras visuais; extraia dele em vez de adivinhar.
+Os PDFs e zips da editora ficam em `jambo-arquivos/`, **fora do git** (`.gitignore`): são
+a fonte das specs e das amostras visuais; extraia deles em vez de adivinhar. A leitura
+integral do beta, texto e catálogos, está em `jambo-arquivos/playtest2/v1/extraido/`
+(`LEIAME.md`): consulte lá antes de reabrir o PDF. `docs/` só leva texto nosso.
 
 ## Estado
 
@@ -22,7 +25,7 @@ O texto do livro não entra no pacote (Licença da Comunidade): o sistema leva o
 **extrator** (`module/extrator/`) e a janela *Aventuras do playtest*
 (`module/aventura/`) lê o PDF do mestre no navegador, monta cada ato como um único
 `Adventure` e guarda no compêndio do mundo `world.op2-aventuras`. Ato I (`Ato I — O
-Porão`): cena murada, trilha, pré-gerados, handouts, 31 pontos com 87 linhas de quadro,
+Porão`): cena murada, trilha, pré-gerados, handouts, 31 pontos com 88 linhas de quadro,
 10 desafios, itens de mesa, roteiro e maldição rodada a rodada. Ato II (`Ato II — O
 Porão`, só do PDF completo): cena com as paredes transportadas, os cinco agentes,
 handouts e Compêndio em PDF, áudios EMF, as dez ferramentas, 25 pontos com 63 linhas e
@@ -38,16 +41,31 @@ pré-gerados, cena, handouts e trilha vão em `assets/aventura/fontes-ato-*.json
 dentro da aventura. O selo da licença (`assets/licenca/`) é o único arquivo da editora
 no pacote. Pronto para a rodada de teste manual que fecha a v1.
 **Versão:** 0.0.1 (a v1 é decisão de release).
-**Próximo:** o que o playtest ainda não publicou (NEX, progressão, traumas
-permanentes). **v13 e v14 exercitados pelo e2e** (13.351: 532 verificações; 14.363:
-570) — o bundle da cena leva os dois formatos de fundo, e o que só existe no v14 (níveis,
-`Collection#every`, `Note.author`) é tratado com guarda dos dois lados.
+**Fase 5 (modo Vigília):** M1 a M7 feitos. O playtest beta (combate por fases, perseguição,
+furtividade, medo, relações, duas missões medievais) corre em paralelo ao **modo moderno** (alpha, Atos I e
+II), que não perde nada; o combate novo vale nos dois, opcional e ligado por padrão no moderno. As missões
+saem do PDF e dos zips do mestre, como os atos (`module/extrator/missoes.mjs`, `module/aventura/missoes.mjs`).
+O PDF gratuito do beta (só a Missão 1) monta igual ao completo, e o e2e lê os dois.
+**Próximo:** a rodada de mesa de verdade. **v13 e v14 exercitados pelo e2e** (13.351 e 14.363, com o PDF e
+os zips reais: 813 verificações cada; `dois-clientes.mjs`, 46, confere a visão do jogador) — o bundle da cena leva os dois formatos de
+fundo, e o que só existe no v14 (níveis, `Collection#every`, `Note.author`) é tratado com guarda dos dois lados.
 
 ## Convenções
 
 - **Identificadores em pt-BR**: tipos, chaves, funções (`personagem`, `pericias`, `stepDie`
   é exceção por ser termo técnico consolidado). Comentários e docs em pt-BR.
 - **Sem `template.json`** — sempre `TypeDataModel`.
+- **Dois modos de jogo:** `moderno` (alpha) e `vigilia` (beta), setting de mundo. Tela nunca lista
+  `Object.keys(PERICIAS)` nem monta `OP2.Pericia.<chave>` à mão: `periciasDoModo()` e
+  `rotuloDePericia()`. A ficha guarda as perícias dos dois, e o modo só decide o que aparece.
+- **Documento que entra em duas aventuras precisa de id por aventura.** O import é `keepId`: a Missão 2
+  com os mesmos ids dos pré-gerados da Missão 1 atualizava os atores dela e os levava para a pasta dela
+  (a Missão 1 "chegou sem pré-gerados"). Cópia por aventura, com `ident()` da missão + o id do compêndio.
+- **`adventure.import()` não espera:** com extras, o hook cancela e segue em segundo plano. Quem
+  precisa do resultado (a troca de modo recarrega a página) usa `importarAventura()`.
+- **Automação nunca é o único caminho.** Efeito na ficha vem por clique, todo estado se edita, toda
+  rolagem aceita ajuste, e nenhuma janela abre ou cena encerra sozinha (`docs/projeto/ARQUITETURA.md`). Vale
+  para tudo que entrar daqui em diante.
 - **Sem Active Effects** — a escada de dados não é aditiva. Passos vão para `stepMod` e
   são resolvidos em `prepareDerivedData()`. É também o que mantém v13 e v14 compatíveis.
 - **ApplicationV2 / DocumentSheetV2** em tudo. Nada de AppV1.
@@ -59,8 +77,8 @@ permanentes). **v13 e v14 exercitados pelo e2e** (13.351: 532 verificações; 14
   mexer no default do setting: o core só registra `core.language` *depois* do hook
   `init` e resolve o idioma logo em seguida, sem hook no meio. A interface do próprio
   Foundry só fica em português com o módulo `pt-BR`, que o manifesto recomenda.
-- **Não existe ação "Investigar".** Investigar um ponto é Examinar ou Interagir (spec
-  §6.3). `examinar()` faz os dois passos: entrega de graça o que o tamanho do dado
+- **No alpha, não existe ação "Investigar".** Investigar um ponto é Examinar ou Interagir
+  (spec §6.3); o beta muda isso (`beta §5`). `examinar()` faz os dois passos: entrega de graça o que o tamanho do dado
   alcança e rola pelo resto; só custa 1 PD quando os dois vêm vazios.
 - **Três estados por linha do quadro:** rascunho (`oculta`), descobrível (padrão, o
   único que Examinar acha) e aberta (`aberta`, o jogador vê sem gastar ação). A pista é
@@ -169,7 +187,8 @@ precisa passar nas duas.
   no mesmo `packs/` disputam o LevelDB.
 - O que quebrou no v13 e agora tem teste: `Playlist.fade` precisa ser positivo, a cena
   lê o fundo por `background` (não `levels`), `Collection` não tem `every`, `Note` não
-  tem `author`, packs compilados por um v14 não abrem ("core version newer").
+  tem `author`, `AmbientLight` não tem `name` (o papel da luz vai numa flag), packs
+  compilados por um v14 não abrem ("core version newer").
 
 **Nunca abra o mesmo mundo nas duas versões.** A migração do v14 é irreversível: um mundo
 aberto no v14 não volta para o v13. Mantenha mundos de teste separados.
@@ -198,6 +217,10 @@ O servidor do Foundry v14 exige **Node 24**. O `npm test` do projeto roda em Nod
 - `npc.test.mjs` — a perícia do NPC a partir do diálogo: chave do sistema, Aptidão sem
   ponto na chave, "Outra" em slug.
 - `acoes-app.test.mjs` — a janela de ações fecha depois da ação e fica quando cancelada.
+- `modo.test.mjs` — perícias, Aptidões e rótulos por modo.
+- `motor-vigilia.test.mjs` — modificador fixo, pavor, crítico, dano, RD, armadura, relações, condições.
+- `cenas-acao.test.mjs` — perseguição (cortes, fôlego), furtividade (esconderijo, procura), equilíbrio, escalar.
+- `missoes.test.mjs` — extrator por geometria e `montarMissao1`/`montarMissao2` com páginas sintéticas.
 - `filtros-painel.test.mjs` — os chips do painel (visibilidade, progresso, mapa, perícia,
   abordagem), a ordem e o progresso do ponto.
 
@@ -238,8 +261,8 @@ módulos fora do Foundry. Não simula comportamento: lógica de regra fica em m�
 
 ## Regras em uma tela
 
-Dois dados somados (perícia + atributo), DT padrão 7. Escada d4→d12; tudo é passo, nunca
-`+N`. RA/RB = maior/menor valor rolado. Crítico = dois dados iguais ≥ 6, ignora DT. Falha
+Dois dados somados (perícia + atributo), DT padrão 7. Escada d4→d12; no alpha tudo é passo,
+nunca `+N` (o beta imprime modificador fixo: `beta §3`). RA/RB = maior/menor valor rolado. Crítico = dois dados iguais ≥ 6, ignora DT. Falha
 crítica = todos em 1, ignora DT, rola 1d8 na tabela. Até 4 dados rolados, 3 somados.
 Investigação compara o *tamanho* do dado contra a DT, sem rolar; Examinar rola e custa
 1 PD se não trouxer informação nova.

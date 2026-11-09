@@ -1,8 +1,8 @@
 {
   "id": "ordem-paranormal-2e",
   "title": "Ordem Paranormal 2 — Playtest (Não-Oficial)",
-  "description": "Sistema não-oficial para Foundry VTT do playtest alpha de Ordem Paranormal RPG 2. Dados em escada (d4→d12), testes com Rolagem Alta/Baixa, cenas de investigação e ferramentas da Ordo Realitas. Monta as aventuras do playtest (Ato I e Ato II) a partir do PDF que o mestre já tem: o texto é lido no navegador e vira cena, pré-gerados, handouts, pontos de interesse, desafios e roteiro — nenhum texto nem arte do livro vem no pacote; as artes entram pelos zips da editora, pedidos na importação. Feito por fã, sem afiliação com os detentores dos direitos de Ordem Paranormal RPG; o conteúdo do livro pertence a eles. Contém material gerado por inteligência artificial: o código é escrito com auxílio de IA e mantido pelo autor; os textos são do autor.",
-  "version": "0.9.6",
+  "description": "Sistema NÃO-OFICIAL dos playtests de Ordem Paranormal RPG 2, sob a Licença da Comunidade. Dois modos: moderno (alpha, Atos I e II), com investigação, desafios de acesso e as ferramentas da Ordo Realitas; e Vigília (beta, Contos da Vigília), com combate por fases, perseguição, furtividade, medo e relações. As aventuras saem do PDF que o mestre já tem e as artes, dos zips da editora: nenhum texto nem arte do livro no pacote. Palco de cena, overlay para OBS e efeitos de mesa. Feito por fã, sem afiliação com os detentores dos direitos de Ordem Paranormal RPG; o conteúdo do livro pertence a eles. Contém material gerado por inteligência artificial: o código é escrito com auxílio de IA e mantido pelo autor; os textos são do autor.",
+  "version": "0.9.7",
   "socket": true,
   "compatibility": {
     "minimum": "13",
@@ -35,7 +35,8 @@
     "Actor": {
       "personagem": {},
       "npc": {},
-      "investigacao": {}
+      "investigacao": {},
+      "cena-acao": {}
     },
     "Item": {
       "habilidade": {},
@@ -170,6 +171,17 @@
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
       }
+    },
+    {
+      "name": "habilidades-vigilia",
+      "label": "Habilidades — Modo Vigília",
+      "path": "packs/habilidades-vigilia",
+      "type": "Item",
+      "system": "ordem-paranormal-2e",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
     }
   ],
   "packFolders": [
@@ -186,7 +198,8 @@
           "packs": [
             "habilidades",
             "ocupacoes",
-            "ferramentas"
+            "ferramentas",
+            "habilidades-vigilia"
           ]
         },
         {

@@ -1,0 +1,328 @@
+// O palco da cena de ação: teatro no rodapé, não grade (module/vigilia/palco.mjs).
+// Mora dentro de #ui-bottom, acima da hotbar, e acompanha a interface do core.
+@layer system {
+.op2-palco {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  max-width: min(96vw, 1400px);
+  margin: 0 auto var(--op2-e2);
+  padding: var(--op2-e1) var(--op2-e3) var(--op2-e2);
+  border: 1px solid var(--op2-linha-forte);
+  border-radius: var(--op2-raio);
+  // A textura de giz do Vigília por cima (sem ela, `none`), o fundo do tema por baixo.
+  background-color: color-mix(in srgb, var(--op2-fundo) 90%, transparent);
+  background-image: var(--op2-textura, none);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.55);
+  color: var(--op2-texto);
+  font-family: var(--op2-fonte-corpo);
+  pointer-events: auto;
+  gap: var(--op2-e1);
+}
+
+.op2-palco__barra {
+  // Embaixo das figuras: o que sobe (passo à frente, legenda, menu) vai por cima do mapa.
+  display: flex;
+  padding-top: var(--op2-e1);
+  border-top: 1px solid var(--op2-linha);
+  align-items: center;
+  gap: var(--op2-e2);
+}
+
+// As fases em fila: a atual em destaque; o mestre clica para ir a outra.
+.op2-palco__fases {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  align-items: baseline;
+  list-style: none;
+  gap: var(--op2-e2);
+}
+
+.op2-palco__fase {
+  color: var(--op2-texto-fraco);
+  font-size: 0.85rem;
+
+  &[data-palco] { cursor: pointer; }
+  &[data-palco]:hover { color: var(--op2-texto); }
+}
+
+.op2-palco__fase--atual {
+  color: var(--op2-texto);
+  font-family: var(--op2-fonte-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+}
+
+.op2-palco__rodada,
+.op2-palco__guia { color: var(--op2-texto-fraco); }
+.op2-palco__guia { cursor: help; }
+
+.op2-palco__botao {
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  border: 1px solid var(--op2-linha);
+  border-radius: 0;
+  background: transparent;
+  color: var(--op2-texto-fraco);
+  cursor: pointer;
+
+  &:hover { color: var(--op2-texto); border-color: var(--op2-vermelho-claro); }
+  &.ativo { border-color: var(--op2-vermelho-claro); background: color-mix(in srgb, var(--op2-vermelho-claro) 25%, transparent); color: var(--op2-texto); }
+}
+
+.op2-palco__botao--mini { width: 1.3rem; height: 1.3rem; line-height: 1; }
+.op2-palco__botao--destaque { border-color: var(--op2-vermelho-claro); color: var(--op2-texto); }
+.op2-palco__botao--perigo:hover { background: color-mix(in srgb, var(--op2-vermelho-claro) 30%, transparent); }
+
+.op2-palco__rodada { display: inline-flex; align-items: center; gap: 4px; }
+
+.op2-palco--recolhido {
+  .op2-palco__elenco { display: none; }
+  [data-palco="recolher"] i { transform: rotate(180deg); }
+}
+
+.op2-palco__elenco {
+  display: flex;
+  align-items: flex-end;
+  // Espaço para o passo à frente de quem age.
+  margin-top: 12px;
+  gap: var(--op2-e3);
+}
+
+.op2-palco__lado {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--op2-e2);
+}
+
+.op2-palco__contra {
+  align-self: center;
+  color: var(--op2-texto-fraco);
+  font-family: var(--op2-fonte-display);
+  font-size: 1.6rem;
+}
+
+// Uma figura: retrato em pé (cortado pelo topo), nome, PV, condições.
+.op2-palco__figura {
+  position: relative;
+  display: flex;
+  width: 96px;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  gap: 2px;
+
+  figcaption {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+}
+
+.op2-palco__retrato {
+  position: relative;
+  width: 88px;
+  height: 112px;
+  overflow: hidden;
+  border: 2px solid var(--op2-linha-forte);
+  border-radius: 44px 44px var(--op2-raio) var(--op2-raio);
+  background: var(--op2-superficie);
+
+  img {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  cursor: pointer;
+  &:hover, &:focus-visible { border-color: var(--op2-vermelho-claro); }
+}
+
+// Alvo deste usuário: moldura dourada e a mira no canto.
+.op2-palco__figura--alvo .op2-palco__retrato {
+  border-color: #e8b53a;
+  box-shadow: 0 0 10px rgba(232, 181, 58, 0.6);
+}
+
+.op2-palco__mira {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  padding: 4px;
+  border-radius: 50%;
+  background: var(--op2-fundo);
+  color: #e8b53a;
+  font-size: 0.75rem;
+}
+
+.op2-palco__figura--criatura .op2-palco__retrato { border-radius: var(--op2-raio); }
+.op2-palco__figura--minha .op2-palco__retrato { border-color: color-mix(in srgb, var(--op2-vermelho-claro) 70%, transparent); }
+
+.op2-palco__nome {
+  overflow: hidden;
+  width: 100%;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op2-palco__pv {
+  overflow: hidden;
+  width: 80px;
+  height: 5px;
+  background: color-mix(in srgb, var(--op2-texto-fraco) 35%, transparent);
+
+  > span { display: block; height: 100%; background: var(--op2-sucesso); }
+}
+
+.op2-palco__caido { color: var(--op2-texto-fraco); font-size: 0.72rem; font-style: italic; }
+// Perseguição e furtividade: avanço e fôlego, ou o esconderijo, numa linha só.
+.op2-palco__placar { color: var(--op2-texto); font-size: 0.72rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.op2-palco__condicoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
+
+  > span {
+    padding: 0 0.3em;
+    border: 1px solid var(--op2-linha-forte);
+    color: var(--op2-texto-fraco);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+  }
+}
+
+.op2-palco__visto {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 4px;
+  border-radius: 50%;
+  background: var(--op2-fundo);
+  color: var(--op2-sucesso);
+  font-size: 0.75rem;
+}
+
+// Já agiu: um passo atrás. Caído: no chão, apagado. A opacidade vai nos filhos, não na
+// figura: o menu mora dentro dela e herdaria a transparência, ilegível sobre o mapa.
+.op2-palco__figura > :not(.op2-palco__menu) { transition: opacity 0.25s ease; }
+.op2-palco__figura--agiu {
+  transform: translateY(6px);
+  > :not(.op2-palco__menu) { opacity: 0.6; }
+}
+.op2-palco__figura--derrotado {
+  > :not(.op2-palco__menu) { opacity: 0.45; }
+  .op2-palco__retrato img { filter: grayscale(1); }
+}
+
+// Quem age: um passo à frente, aceso, com a legenda por cima.
+.op2-palco__figura--age {
+  z-index: 2;
+  > :not(.op2-palco__menu) { opacity: 1; }
+  transform: translateY(-14px) scale(1.08);
+
+  .op2-palco__retrato {
+    border-color: var(--op2-vermelho-claro);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--op2-vermelho-claro) 60%, transparent);
+  }
+}
+
+.op2-palco__legenda {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  width: max-content;
+  max-width: 220px;
+  padding: 0.3em 0.6em;
+  border: 1px solid var(--op2-vermelho-claro);
+  background: var(--op2-fundo);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  font-size: 0.8rem;
+  line-height: 1.3;
+  text-align: center;
+  transform: translateX(-50%);
+  animation: op2-palco-legenda 0.25s ease-out;
+}
+
+@keyframes op2-palco-legenda {
+  from { opacity: 0; transform: translate(-50%, 6px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+// O menu de ações da fase, sobre a figura do próprio personagem.
+.op2-palco__menu {
+  position: absolute;
+  z-index: 3;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  display: none;
+  overflow-y: auto;
+  width: 260px;
+  max-height: 60vh;
+  flex-wrap: wrap;
+  padding: var(--op2-e2);
+  border: 1px solid var(--op2-linha-forte);
+  background: var(--op2-fundo);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  transform: translateX(-50%);
+  gap: var(--op2-e1);
+
+  > strong { overflow: hidden; width: 100%; font-family: var(--op2-fonte-display); font-size: 1rem; text-overflow: ellipsis; white-space: nowrap; }
+  em { color: var(--op2-texto-fraco); font-size: 0.8rem; }
+
+  details {
+    display: block;
+    width: 100%;
+
+    > summary { color: var(--op2-texto-fraco); cursor: pointer; font-size: 0.8rem; }
+    > button { margin: 2px; }
+  }
+}
+
+.op2-palco__figura--menu .op2-palco__menu { display: flex; }
+
+.op2-palco__ferramentas,
+.op2-palco__pv-editar,
+.op2-palco__acoes {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--op2-e1);
+}
+
+.op2-palco__pv-editar > strong { min-width: 3.5em; font-variant-numeric: tabular-nums; text-align: center; }
+
+.op2-palco__menu-titulo { width: 100%; color: var(--op2-texto-fraco); font-size: 0.75rem; text-transform: uppercase; }
+
+// Nas pontas, legenda e menu abrem para dentro do palco, em vez de vazar pela borda da tela.
+.op2-palco__lado--pcs .op2-palco__figura:first-child,
+.op2-palco__lado--pcs .op2-palco__figura:nth-child(2) {
+  .op2-palco__legenda, .op2-palco__menu { left: 0; transform: none; }
+  .op2-palco__legenda { animation-name: op2-palco-legenda-solta; }
+}
+.op2-palco__lado--criaturas .op2-palco__figura:last-child,
+.op2-palco__lado--criaturas .op2-palco__figura:nth-last-child(2) {
+  .op2-palco__legenda, .op2-palco__menu { right: 0; left: auto; transform: none; }
+  .op2-palco__legenda { animation-name: op2-palco-legenda-solta; }
+}
+
+@keyframes op2-palco-legenda-solta {
+  from { opacity: 0; translate: 0 6px; }
+  to { opacity: 1; translate: 0 0; }
+}
+}
