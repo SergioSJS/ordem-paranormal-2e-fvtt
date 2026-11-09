@@ -395,20 +395,22 @@ const tx3 = await jog.evaluate((id) => {
     corRa: getComputedStyle(card?.querySelector(".op2-transmissao__dado--ra .op2-dado") ?? document.body).backgroundColor,
     corRb: getComputedStyle(card?.querySelector(".op2-transmissao__dado--rb .op2-dado") ?? document.body).backgroundColor,
     etiquetas: [...(card?.querySelectorAll(".op2-transmissao__dado small") ?? [])].map((s) => s.textContent).join(" "),
-    // A rolagem fica NA FRENTE das informações: a camada cobre o nome e os PV, que somem por baixo.
-    infoSome: getComputedStyle(card?.querySelector(".op2-transmissao__dados") ?? document.body).opacity === "0",
-    naFrente: (() => {
+    // A rolagem aparece por cima do card sem esconder nada: nome e PV seguem à vista, e a faixa
+    // da rolagem fica abaixo deles.
+    infoVisivel: getComputedStyle(card?.querySelector(".op2-transmissao__dados") ?? document.body).opacity === "1",
+    semCobrir: (() => {
       const vaga = card?.querySelector(".op2-transmissao__vaga")?.getBoundingClientRect();
-      const nome = card?.querySelector(".op2-transmissao__nome")?.getBoundingClientRect();
-      return Boolean(vaga && nome && vaga.top <= nome.top && vaga.bottom >= nome.bottom && vaga.left <= nome.left);
+      const pv = card?.querySelector(".op2-transmissao__recurso--pv")?.getBoundingClientRect();
+      return Boolean(vaga && pv && vaga.top >= pv.bottom);
     })(),
+    dadoGrande: (card?.querySelector(".op2-transmissao__dado .op2-dado")?.getBoundingClientRect().width ?? 0) >= 30,
   };
 }, tx1.id);
 console.log(JSON.stringify(tx3));
 ok("transmissão: a rolagem pública acende o card, com os dados desenhados e o total", tx3.acendeu && tx3.dados >= 2 && /^\s*\d+\s*$/.test(tx3.total) && tx3.titulo.length > 0);
 ok("transmissão: a RA sai em vermelho e a RB em azul, um dado cada, com a etiqueta embaixo",
   tx3.ra === 1 && tx3.rb === 1 && tx3.corRa !== tx3.corRb && /RA/.test(tx3.etiquetas) && /RB/.test(tx3.etiquetas));
-ok("transmissão: a rolagem entra na frente do nome e dos PV, sem mudar o card", tx3.naFrente && tx3.infoSome);
+ok("transmissão: a rolagem aparece sem cobrir o nome nem os PV, com os dados grandes", tx3.semCobrir && tx3.infoVisivel && tx3.dadoGrande);
 if (process.env.FOTO_ROLAGEM) {
   const caixa = await (await jog.$("#op2-transmissao"))?.boundingBox();
   if (caixa) await jog.screenshot({ path: process.env.FOTO_ROLAGEM, clip: { x: Math.max(0, caixa.x - 12), y: Math.max(0, caixa.y - 12), width: caixa.width + 24, height: caixa.height + 24 } });

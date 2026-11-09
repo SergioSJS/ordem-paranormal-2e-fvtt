@@ -313,8 +313,8 @@ tremer. Rolagem secreta não dispara efeito para quem não pode ver o resultado.
 
 Para quem joga em live: uma tela só com os cards dos personagens, sobre fundo transparente, para usar como fonte
 de navegador no OBS. Cada card traz o rosto, o nome do personagem, o nome de quem joga, PV e PD (em barra e em
-número), pavor e condições. Quando a pessoa rola, o card acende e a rolagem entra na frente do nome e dos PV: os
-dados grandes, na forma de cada um, com o valor dentro, a rolagem alta em vermelho e a baixa em azul, o total e o
+número), pavor e condições. Quando a pessoa rola, o card acende e a rolagem aparece na faixa de baixo, sem esconder
+nada: os dados na forma de cada um, com o valor dentro, a rolagem alta em vermelho e a baixa em azul, o total e o
 desfecho. Numa cena de ação, aparece quem já agiu, e o tipo, a fase e a rodada ficam numa faixa à parte, num canto
 só dela (por padrão, em cima à direita).
 

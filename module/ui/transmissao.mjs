@@ -1,9 +1,9 @@
 /**
  * Modo transmissão: uma tela só com os cards dos personagens, sobre fundo transparente,
  * para usar como fonte de navegador no OBS. Rosto, nome do personagem e de quem joga, PV,
- * PD, pavor e condições; quando a pessoa rola, o card acende e a rolagem entra na frente
- * dessas informações: os dados na forma de cada um, com o valor dentro, a RA em vermelho, a
- * RB em azul, o total e o desfecho.
+ * PD, pavor e condições; quando a pessoa rola, o card acende e a rolagem aparece na faixa de
+ * baixo, por cima, sem esconder nada: os dados na forma de cada um, com o valor dentro, a RA
+ * em vermelho, a RB em azul, o total e o desfecho.
  *
  * Nada se move: o card tem tamanho fixo, com a vaga da rolagem e a linha do estado reservadas
  * mesmo vazias, e a cena de ação mora num elemento à parte, com posição própria. Quem monta o

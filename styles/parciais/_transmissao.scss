@@ -228,69 +228,72 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
   opacity: 1;
 }
 
-// A rolagem entra NA FRENTE do que o card mostra: uma camada por cima do nome, PV, PD e estado,
-// do topo ao pé do card, ao lado do retrato. A camada é absoluta, então o card não muda nem
-// um pixel, acesa ou apagada (a linha de baixo do grid continua reservada como era).
+// A rolagem aparece na faixa de baixo do card, que fica vazia: por cima dela, sem fundo, sem
+// esconder nome, PV, PD nem estado. A camada é absoluta e do tamanho da faixa reservada, então
+// o card não muda nem um pixel, acesa ou apagada.
 .op2-transmissao__vaga {
   position: absolute;
   z-index: 2;
   overflow: hidden;
   min-width: 0;
-  inset: 8px 8px 8px calc(8px + 76px + 10px);
+  height: var(--op2-transmissao-vaga);
+  inset: auto 8px 8px 8px;
   pointer-events: none;
 }
 
-.op2-transmissao__card--rolou {
-  .op2-transmissao__vaga { background: color-mix(in srgb, var(--op2-fundo) 97%, transparent); }
-  .op2-transmissao__dados { opacity: 0; }
-}
-
-.op2-transmissao__dados { transition: opacity 0.25s ease; }
-
+// Uma linha: os dados | o que foi rolado e o desfecho | o total, grande.
 .op2-transmissao__rolagem {
   display: grid;
   box-sizing: border-box;
   height: 100%;
-  align-content: space-between;
+  align-items: center;
   animation: op2-transmissao-rolagem 0.3s ease-out;
-  gap: 4px;
-  grid-template-rows: auto 1fr auto;
+  column-gap: 10px;
+  grid-template-areas: "dados titulo total" "dados desfecho total";
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: 1fr 1fr;
   white-space: nowrap;
 }
 
+.op2-transmissao__rolagem-fim { display: contents; }
+
 .op2-transmissao__rolagem-titulo {
   overflow: hidden;
+  align-self: end;
+  grid-area: titulo;
   color: var(--op2-texto-fraco);
-  font-size: 0.85rem;
-  line-height: 1.15;
+  font-family: var(--op2-fonte-corpo);
+  font-size: 0.78rem;
+  line-height: 1.1;
   text-overflow: ellipsis;
 }
 
-// Os dados na forma de cada um, grandes, com o valor dentro. Base neutra; a RA acende em
-// vermelho e a RB em azul, com a etiqueta embaixo, para ler de longe na live.
+// Os dados na forma de cada um, com o valor dentro. Base neutra; a RA acende em vermelho e a RB
+// em azul, com a etiqueta embaixo, para ler de longe na live. Número em fonte de corpo: na
+// versalete do Vigília o 11 vira "II".
 .op2-transmissao {
   --op2-transmissao-ra: #d63a2a;
   --op2-transmissao-rb: #2f74d0;
-  --op2-transmissao-dado: #d9d2c2;
+  --op2-transmissao-dado: #e4ddcc;
   --op2-transmissao-pavor: #4b2a5e;
 }
 
 .op2-transmissao__rolagem-dados {
   display: flex;
-  overflow: hidden;
   align-items: flex-start;
-  align-self: center;
-  gap: 6px;
+  grid-area: dados;
+  gap: 5px;
 }
 
-// Grandes, mas encolhem juntos se vierem muitos (quatro do teste e o pavor): nunca vazam do card.
+// Tamanho fixo: cinco (quatro do teste e o pavor) cabem na faixa, e o título é que encolhe.
 .op2-transmissao__dado {
   display: flex;
-  min-width: 0;
-  flex: 0 1 2.75rem;
+  width: 2.3rem;
+  flex: none;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
 
   .op2-dado {
     width: 100%;
@@ -299,21 +302,24 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
     flex: none;
     background: var(--op2-transmissao-dado);
     color: #1b1714 !important;
-    font-size: 1.25rem;
+    font-family: var(--op2-fonte-corpo);
+    font-size: 1.1rem;
+    font-weight: 800;
 
-    &.op2-dado--d4 { font-size: 1.05rem; }
-    &.op2-dado--d8, &.op2-dado--d10, &.op2-dado--d12 { font-size: 1.12rem; }
+    &.op2-dado--d4 { font-size: 0.9rem; }
+    &.op2-dado--d8, &.op2-dado--d10, &.op2-dado--d12 { font-size: 0.98rem; }
   }
 
   .op2-dado--descartado { opacity: 0.35; }
 
   small {
-    min-height: 0.8rem;
+    min-height: 0.7rem;
     color: var(--op2-texto-fraco);
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    line-height: 0.8rem;
+    font-family: var(--op2-fonte-corpo);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    line-height: 0.7rem;
   }
 
   &--ra .op2-dado { background: var(--op2-transmissao-ra); color: #fff !important; }
@@ -323,16 +329,28 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
   &--pavor .op2-dado { background: var(--op2-transmissao-pavor); color: #f3e6ff !important; }
 }
 
-.op2-transmissao__rolagem-fim {
-  display: flex;
-  min-width: 0;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
+.op2-transmissao__total {
+  grid-area: total;
+  font-family: var(--op2-fonte-corpo);
+  font-size: 2.1rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 1;
 }
 
-.op2-transmissao__total { font-family: var(--op2-fonte-display); font-size: 1.9rem; font-weight: 700; line-height: 1; }
-.op2-transmissao__desfecho { overflow: hidden; font-family: var(--op2-fonte-display); font-size: 1.15rem; text-overflow: ellipsis; }
+.op2-transmissao__desfecho {
+  overflow: hidden;
+  align-self: start;
+  grid-area: desfecho;
+  font-family: var(--op2-fonte-corpo);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
 .op2-transmissao__rolagem--critico .op2-transmissao__desfecho { color: var(--op2-critico); }
 .op2-transmissao__rolagem--sucesso .op2-transmissao__desfecho { color: var(--op2-sucesso); }
 .op2-transmissao__rolagem--falhacritica .op2-transmissao__desfecho,
@@ -432,9 +450,8 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
     .op2-transmissao__retrato { filter: drop-shadow(0 0 10px var(--op2-transmissao-nome)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)); }
   }
 
-  // Sem fundo: a camada da rolagem cobre o texto ao lado do avatar e não pinta nada atrás.
-  .op2-transmissao__vaga { inset: 0 0 0 calc(104px + 10px); }
-  .op2-transmissao__card--rolou .op2-transmissao__vaga { background: none; }
+  // Sem fundo: a mesma faixa de baixo, embaixo do avatar e do texto, sem pintar nada atrás.
+  .op2-transmissao__vaga { inset: auto 0 0 0; }
   .op2-transmissao__dado { filter: drop-shadow(0 0 2px #000) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.8)); }
   .op2-transmissao__dado small { text-shadow: var(--op2-transmissao-contorno); }
   .op2-transmissao__dado--ra small { color: #ff7a6a; }
