@@ -4786,6 +4786,44 @@ const relato = await page.evaluate(async (boasVindas) => {
     await fx.analisar(pc);
     ok("analisar dá 2 marcadores", pc.system.estado.marcadores === 2);
 
+    // Afogar (p. 33): o acerto agarra em vez de ferir, o dano vem no fim da rodada, e soltar-se é
+    // Acrobacia ou Luta com um passo a menos contra a Luta de quem segura.
+    {
+      const { mudarCondicao } = await import("/systems/ordem-paranormal-2e/module/vigilia/cena-acao.mjs");
+      await pc.update({ "system.estado.condicoes": [...pc.system.estado.condicoes].filter((c) => c !== "defendendo") });
+      await npc.update({ "system.ataques": [...npc.system.ataques.map((x) => x.toObject?.() ?? x),
+        { nome: "Afogar", tipo: "corpo", dados: "d12+d12", bonusDano: 0, efeito: "agarrar", danoPorRodada: "1d6", passosSoltar: -1 }] });
+      const afogar = fx.ataquesDe(npc).find((x) => x.nome === "Afogar");
+      ok("o ataque do NPC carrega o efeito de agarrar", afogar?.efeito === "agarrar" && afogar.danoPorRodada === "1d6" && afogar.passosSoltar === -1);
+      const golpeAfogar = await fx.atacar(npc, afogar, { cena, rapido: true, escolha: { alvo: pc.uuid, ajusteDt: -50 } });
+      await esperar(500);
+      const cardAfogar = ultimoCard();
+      ok("Afogar acertou: o card oferece agarrar, não aplicar dano (e o dano manual continua)",
+        (!golpeAfogar.roll.resultado.sucesso || /vigilia-agarrar/.test(cardAfogar))
+        && !/data-op2-acao="vigilia-dano"/.test(cardAfogar) && /vigilia-dano-manual/.test(cardAfogar));
+      await fx.agarrar(pc, { por: npc.uuid, dano: "1d6", passos: -1 });
+      await esperar(400);
+      ok("agarrar liga a condição e guarda quem segura, o dano e os passos",
+        pc.system.estado.condicoes.has("agarrado") && pc.system.estado.agarre.por === npc.uuid && pc.system.estado.agarre.dano === "1d6" && pc.system.estado.agarre.passos === -1);
+      await painel.render({ force: true });
+      await esperar(600);
+      ok("quem está agarrado tem Soltar-se; quem está livre, Soltar um aliado",
+        painel.element.querySelector(`.op2-linha-acao[data-ator="${pc.uuid}"] [data-qual="soltar"]`)
+        && painel.element.querySelector(`.op2-linha-acao[data-ator="${outro.uuid}"] [data-qual="soltar"]`));
+      const rodadaAntes = cena.system.rodada;
+      for (let i = 0; i < 4 && cena.system.rodada === rodadaAntes; i++) await game.op2.avancarCena(cena);
+      await esperar(500);
+      ok("no fim da rodada, o agarrado perde o dano do agarre: card com o botão, nada aplicado sozinho",
+        game.messages.contents.slice(-4).some((m) => /vigilia-rolar-dano/.test(m.content) && m.content.includes(pc.uuid) && /1d6/.test(m.content)));
+      const solta = await fx.soltar(pc, { cena, rapido: true });
+      await esperar(400);
+      ok("soltar-se é teste oposto contra quem segura, e o card propõe soltar",
+        solta && /vigilia-condicao/.test(ultimoCard()) && /data-ligar="0"/.test(ultimoCard()));
+      await mudarCondicao(pc, "agarrado", false);
+      await esperar(400);
+      ok("tirar a condição solta de vez: quem segurava e o dano somem", !pc.system.estado.condicoes.has("agarrado") && !pc.system.estado.agarre.por && !pc.system.estado.agarre.dano);
+    }
+
     await game.op2.encerrarCenaAcao(cena);
     await esperar(500);
     ok("sair com 0 PV vira botão do mestre, não PV de graça", /vigilia-recupera-pv/.test(ultimoCard()) || outro.system.recursos.pv.value > 0);
@@ -4803,6 +4841,14 @@ const relato = await page.evaluate(async (boasVindas) => {
     await esperar(500);
     ok("iniciar a cena não abre janela sozinha", !painel.rendered);
     ok("perseguição dá fôlego pela metade do Vigor", pc.system.estado.perseguicao.folego === 4);
+    // O palco: avançar no menu da figura, sem abrir o painel, e o placar embaixo do nome.
+    await esperar(400);
+    {
+      const figura = document.querySelector(`#op2-palco .op2-palco__figura[data-ator="${CSS.escape(pc.uuid)}"]`);
+      ok("na perseguição, o menu da figura no palco tem Avançar e Recuperar fôlego",
+        figura?.querySelector('[data-palco="agir"][data-qual="avancar"]') && figura.querySelector('[data-palco="agir"][data-qual="recuperar"]'));
+      ok("na perseguição, a figura mostra os pontos de avanço e o fôlego", /0 PA · fôlego 4/.test(figura?.querySelector(".op2-palco__placar")?.textContent ?? ""));
+    }
     const avanco = await fx.avancar(pc, corrida, { rapido: true, escolha: { pericia: "atletismo", folego: 1, esforco: true, carregar: "" } });
     ok("avançar soma pontos e gasta fôlego e esforço", avanco.avanco === avanco.pontos && pc.system.estado.perseguicao.folego === 3 && pc.system.estado.perseguicao.esforcos === 1);
     await fx.recuperarFolego(pc, corrida);
@@ -5158,7 +5204,8 @@ const relato = await page.evaluate(async (boasVindas) => {
 
       const bau = game.items.find((i) => i.name === "Baú romano");
       ok("a senha do baú sai do PDF", bau.system.senha.length === 4 && bau.system.abordagens.arrombar && bau.system.abordagens.destrancar);
-      ok("o Aughisk tem RD 5, com a nota de que é inferida na aventura", game.actors.getName("Aughisk").system.rd === 5);
+      ok("o Aughisk tem RD 3, a decisão da mesa (o livro não imprime)", game.actors.getName("Aughisk").system.rd === 3);
+      ok("o Afogado da missão agarra com o Afogar", game.actors.getName("Afogado").system.ataques.some((x) => x.nome === "Afogar" && x.efeito === "agarrar" && x.danoPorRodada === "1d6"));
       await painel.close();
       return passos;
     });

@@ -225,7 +225,13 @@
       "Ataques": "Attacks",
       "AdicionarAtaque": "New attack",
       "AtaqueNome": "Attack name",
-      "RemoverAtaque": "Remove attack"
+      "RemoverAtaque": "Remove attack",
+      "Efeito": "Effect",
+      "EfeitoAjuda": "Grabs: a hit holds the victim instead of hurting; the damage comes at the end of each round, and the victim can only try to break free (the drowned one's Drown).",
+      "EfeitoDano": "Damage",
+      "EfeitoAgarrar": "Grabs",
+      "DanoPorRodada": "Damage per round",
+      "PassosSoltar": "Steps to break free (−1 = one fewer)"
     },
     "POI": {
       "Aba": {
@@ -1541,7 +1547,9 @@
       "Agiu": "Already acted this round",
       "PvMenos": "Remove 1 HP",
       "PvMais": "Add 1 HP",
-      "AcoesNoPainel": "Actions in the panel"
+      "AcoesNoPainel": "Actions in the panel",
+      "PlacarPerseguicao": "{avanco} AP · breath {folego}",
+      "PlacarFurtividade": "hiding {dados}"
     },
     "Transmissao": {
       "Titulo": "Stream",
@@ -1598,7 +1606,12 @@
       },
       "CenaRotulo": "Action scene (type, phase, round)",
       "CenaAjuda": "It sits in its own corner and never pushes the cards. To put it in a separate OBS source, pick \"Off this screen\" and use:",
-      "Fixo": "Cards have a fixed size: starting a scene, rolling dice, gaining dread or a condition and taking damage never move anything by a pixel. Crop the overlay once."
+      "Fixo": "Cards have a fixed size: starting a scene, rolling dice, gaining dread or a condition and taking damage never move anything by a pixel. Crop the overlay once.",
+      "Pavor": "dread",
+      "Guias": "Show outlines to set up the overlay",
+      "GuiasAjuda": "Dashed outline around each card, the area where rolls appear and the scene strip, to crop in OBS. Turn it off before going live. For this source only, without changing the settings:",
+      "GuiaRolagem": "roll",
+      "GuiaCena": "Action scene (round and phase)"
     },
     "Efeitos": {
       "efeitosVisuais": {
@@ -1634,6 +1647,22 @@
       "Protecao": "{bruto} before protection, {final} after.",
       "Caiu": "{nome} is down.",
       "Enlouqueceu": "{nome} reached 0 SP."
+    },
+    "Agarre": {
+      "Explica": "This attack does not hurt on a hit: it grabs. A grabbed victim can only try to break free and loses {dano} at the end of each round.",
+      "Aplicar": "Grab {alvo}",
+      "Soltar": "Break free",
+      "SoltarSe": "Break free",
+      "SoltarAliado": "Free an ally",
+      "NinguemPreso": "Nobody is grabbed in this scene.",
+      "TentouSoltar": "{ator} tries to break free (Acrobatics or Fighting, {passos} step).",
+      "TentouSoltarOutro": "{ator} tries to free {vitima} (Acrobatics or Fighting, no penalty).",
+      "Solto": "{nome} breaks free",
+      "Preso": "{nome} is still held",
+      "BotaoSoltar": "Free {alvo}",
+      "FimDaRodada": "End of round: grabbed",
+      "PerdeNoFim": "{ator} is still grabbed and loses {dano}.",
+      "TentouSoltarLivre": "{ator} tries to break free (Acrobatics or Fighting)."
     }
   }
 }

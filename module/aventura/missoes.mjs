@@ -124,6 +124,12 @@ const DESAFIO = (missao, nome, sistema) => ({
   effects: [], folder: null, sort: 0, ownership: { default: 0 }, flags: {},
 });
 
+/** O Afogar (p. 33): agarra em vez de ferir; 1d6 no fim de cada rodada; um passo a menos para se soltar. */
+export const AFOGAR = { efeito: "agarrar", danoPorRodada: "1d6", passosSoltar: -1 };
+
+/** A RD do aughisk: o livro não imprime; a mesa fixou 3 (docs/regras/LACUNAS.md). */
+export const RD_DO_AUGHISK = 3;
+
 /** Parâmetros que o livro imprime por missão (beta §10, §11). */
 export const PARAMETROS = {
   enxurrada: {
@@ -391,12 +397,15 @@ export function montarMissao1(extraido, fontes) {
     pericias: { atletismo: PERICIA_NPC("Atletismo", "d8"), luta: PERICIA_NPC("Luta", "d6") },
     ataques: [
       { nome: "Garras", tipo: "corpo", dados: "d8+d6", bonusDano: 1 },
-      { nome: "Afogar", tipo: "corpo", dados: "d8+d6", bonusDano: 0 },
+      // Afogar não fere ao acertar: agarra, e a vítima perde 1d6 no fim de cada rodada; para se
+      // soltar, Acrobacia ou Luta com um passo a menos contra a Luta dele (p. 33).
+      { nome: "Afogar", tipo: "corpo", dados: "d8+d6", bonusDano: 0, ...AFOGAR },
     ],
   });
-  // O livro não imprime a RD do aughisk; as armas especiais ignoram 5 (docs/regras/LACUNAS.md).
+  // O livro não imprime a RD do aughisk; a mesa decidiu 3 (docs/regras/LACUNAS.md). As armas
+  // especiais (balista, tocha) ignoram 5, então passam inteiras.
   const aughisk = NPC("aughisk", "Aughisk", destinoDe(m, "aughisk"), {
-    pv: 40, rd: 5, atributos: { fisico: "d10", mente: "d6", emocao: "d8" },
+    pv: 40, rd: RD_DO_AUGHISK, atributos: { fisico: "d10", mente: "d6", emocao: "d8" },
     pericias: { atletismo: PERICIA_NPC("Atletismo", "d10"), luta: PERICIA_NPC("Luta", "d10"), percepcao: PERICIA_NPC("Percepção", "d10") },
     ataques: [
       { nome: "Espada", tipo: "corpo", dados: "2d10", bonusDano: 4 },
@@ -404,6 +413,9 @@ export function montarMissao1(extraido, fontes) {
       { nome: "Investida equina", tipo: "corpo", dados: "2d10", bonusDano: 3 },
     ],
   });
+
+  // Já nascem com as decisões da mesa: a correção de mundos antigos (importacao.mjs) não as toca.
+  for (const criatura of [afogado, aughisk]) criatura.flags = { [SYSTEM_ID]: { criaturaCorrigida: true } };
 
   const roteiroCena1 = EVENTO(m, "Cena 1, rodada a rodada", "Os afogados chegam.", [
     [1, "Todos sofrem 1d6 de dano emocional e testam Disciplina (DT 10): quem falhar recebe dado de pavor. Na fase corpo a corpo, cada afogado usa Garras."],
@@ -472,7 +484,7 @@ export function montarMissao1(extraido, fontes) {
     ],
     descricao: "<p>Missão gratuita do playtest beta: o combate contra os afogados, a fuga da enxurrada, a ilhota e o confronto com o aughisk.</p>"
       + "<p>O texto sai do seu PDF. Mapas, tokens, handouts e trilha estão no zip da editora, que o sistema pede ao importar.</p>"
-      + "<p><strong>Por onde começar:</strong> abra o diário de roteiro e ligue as cenas no painel de ação, na ordem. A RD do aughisk é 5 por inferência: o livro não imprime o valor.</p>"
+      + "<p><strong>Por onde começar:</strong> abra o diário de roteiro e ligue as cenas no painel de ação, na ordem. A RD do aughisk é 3, decisão da mesa: o livro não imprime o valor.</p>"
       + "<p><strong>Luz:</strong> a ilhota nasce escura e na névoa, só com a tocha paranormal acesa no topo da pilha. Quando o grupo destruir a tocha, apague a luz dela na camada de iluminação. A escuridão e a névoa se ajustam na configuração da cena.</p>",
   });
 }

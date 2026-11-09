@@ -9,7 +9,9 @@
  *     fase e, para o mestre, tirar da cena; o duplo clique abre a ficha;
  *   - `T` com o mouse sobre a figura mira nela, como sobre o token (`Shift+T` soma alvos).
  *     Com token no mapa, é a mira do Foundry; sem, a do palco (`alvos.mjs`). O ataque lê as duas.
- * O painel continua lá, com o que não cabe aqui (montagem, perseguição, furtividade).
+ * Na perseguição e na furtividade o menu traz as ações delas (avançar, esconder-se…), e a figura
+ * mostra o placar (pontos de avanço e fôlego, ou o esconderijo).
+ * O painel continua lá, com o que não cabe aqui (montagem, editar os números da cena).
  */
 import { SYSTEM_ID } from "../config.mjs";
 import { usaCombateNovo } from "../modo.mjs";
@@ -33,6 +35,18 @@ const recolhido = () => {
   try { return localStorage.getItem(CHAVE_RECOLHIDO) === "1"; } catch { return false; }
 };
 
+/** A linha curta embaixo do nome fora do combate: pontos de avanço e fôlego, ou o esconderijo. */
+function placarDe(linha) {
+  if (linha.perseguicao) {
+    return game.i18n.format("OP2.Palco.PlacarPerseguicao", { avanco: linha.perseguicao.avanco, folego: linha.perseguicao.folego });
+  }
+  if (linha.furtividade?.testou) {
+    const valores = linha.furtividade.lista.map((d) => d.valor).join(" · ");
+    return valores ? game.i18n.format("OP2.Palco.PlacarFurtividade", { dados: valores }) : game.i18n.localize("OP2.Furtividade.EncontradoCurto");
+  }
+  return "";
+}
+
 /** O que o template precisa: a cena no ar, as fases, e uma figura por participante. */
 function contextoDoPalco(cena) {
   const { tipo, fase, rodada } = cena.system;
@@ -43,9 +57,11 @@ function contextoDoPalco(cena) {
       condicoesAtivas: linha.condicoes.filter((c) => c.ativa).map((c) => c.rotulo),
       alvo: ehAlvo(ator),
       podeFicha: ator.testUserPermission(game.user, "OBSERVER"),
-      // Combate: as ações da fase moram no menu. Fora dele, um atalho para a linha no painel.
-      temAcoes: linha.dono && tipo === "combate",
+      // As ações moram no menu: as da fase no combate; avançar, esconder-se… nas outras cenas.
+      // Fora do combate fica também o atalho para a linha no painel, onde se editam os números.
+      temAcoes: linha.dono && (tipo === "combate" || linha.nestaFase.length > 0),
       acoesNoPainel: linha.dono && tipo !== "combate",
+      placar: placarDe(linha),
     };
   });
   const fases = tipo === "combate" ? FASES : (tipo === "furtividade" ? ["personagens", "criaturas"] : []);
@@ -56,6 +72,7 @@ function contextoDoPalco(cena) {
     fases: fases.map((f) => ({ chave: f, rotulo: game.i18n.localize(`OP2.Fase.${f}`), atual: f === fase })),
     proximo: game.i18n.localize(tipo === "perseguicao" ? "OP2.CenaAcao.ProximaRodada" : "OP2.CenaAcao.ProximaFase"),
     guia: guiaDaCena(tipo, fase),
+    tituloAcoes: game.i18n.localize(tipo === "combate" ? "OP2.Guia.NestaFase" : `OP2.CenaAcao.Tipo.${tipo}`),
     pcs: figuras.filter((f) => f.ehPc),
     criaturas: figuras.filter((f) => !f.ehPc),
     ehGM: game.user.isGM,

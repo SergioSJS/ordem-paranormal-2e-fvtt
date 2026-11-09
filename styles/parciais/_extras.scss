@@ -475,8 +475,15 @@
   // Logo abaixo do botão do painel de investigação.
   .op2-botao-flutuante--acao { margin-top: 3.25rem; }
   .op2-teste__pavor, .op2-teste__modificador { display: flex; flex-wrap: wrap; align-items: center; gap: var(--op2-e2); }
-  .op2-npc-ataque { display: flex; align-items: center; margin-block: var(--op2-e1); gap: var(--op2-e1); }
+  .op2-npc-ataque { display: flex; flex-wrap: wrap; align-items: center; margin-block: var(--op2-e1); gap: var(--op2-e1); }
   .op2-npc-ataque input[type="number"] { width: 3.5em; }
+  // Segunda linha do ataque: o que ele faz além do dano (agarrar, o Afogar do afogado).
+  .op2-npc-ataque__efeito {
+    display: flex; flex-basis: 100%; flex-wrap: wrap; align-items: center; padding-left: var(--op2-e2);
+    color: var(--op2-texto-fraco); font-size: 0.85rem; gap: var(--op2-e1) var(--op2-e2);
+    label { display: inline-flex; align-items: center; gap: var(--op2-e1); }
+    input[type="text"] { width: 4.5em; }
+  }
   .op2-card__lista { margin: var(--op2-e1) 0; padding-inline-start: 1.1em; }
   .op2-card__modificador { font-weight: bold; }
   .op2-ficha-cena { display: flex; flex-direction: column; gap: var(--op2-e2); }

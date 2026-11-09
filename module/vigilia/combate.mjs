@@ -5,7 +5,7 @@
  * em que investigar durante a luta e fugir têm lugar (docs/regras/LACUNAS.md).
  */
 import {
-  DT_ATAQUE, BONUS_DT_SITUACAO, DT_FERIMENTO_BASE, DT_FERIMENTO_INCREMENTO,
+  DT_ATAQUE, BONUS_DT_SITUACAO, DT_FERIMENTO_BASE, DT_FERIMENTO_INCREMENTO, DT_PADRAO,
 } from "../config.mjs";
 
 export const FASES = ["suporte", "distancia", "corpo", "final"];
@@ -52,6 +52,16 @@ export function virarRodada(atores, vistas = []) {
   }
   return { testam, saem, vistas: novas };
 }
+
+/**
+ * Soltar-se de um agarre (beta §7.4; Afogar, p. 33): contra quem segura, só vencendo (empate
+ * segura); sem quem segura conhecido (agarrado ligado à mão), a DT padrão.
+ * @param {number} meu @param {number|undefined} [dele]
+ */
+export const venceuSoltura = (meu, dele) => (dele === undefined ? meu >= DT_PADRAO : meu > dele);
+
+/** Passos de quem tenta soltar: a vítima sofre os do agarre (–1 no Afogar); quem ajuda, não. */
+export const passosDaSoltura = (ehAVitima, passosDoAgarre) => (ehAVitima ? Number(passosDoAgarre) || 0 : 0);
 
 /** A próxima fase, ou null se esta era a última da rodada. */
 export function proximaFase(fase) {

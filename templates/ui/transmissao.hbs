@@ -29,8 +29,9 @@
         {{#each condicoes}}<span>{{this}}</span>{{/each}}
       </span>
     </div>
-    {{!-- A vaga da rolagem existe sempre, vazia ou não: o card nunca muda de tamanho. --}}
-    <div class="op2-transmissao__vaga"></div>
+    {{!-- A rolagem entra na frente das informações, nesta camada: o card nunca muda de tamanho.
+         Com as guias ligadas, ela aparece contornada, com o nome, para o recorte do overlay. --}}
+    <div class="op2-transmissao__vaga" data-guia="{{localize 'OP2.Transmissao.GuiaRolagem'}}"></div>
     {{#if agiu}}<i class="fa-solid fa-check op2-transmissao__agiu" aria-label="{{localize 'OP2.CenaAcao.JaAgiu'}}"></i>{{/if}}
   </li>
 {{/inline}}

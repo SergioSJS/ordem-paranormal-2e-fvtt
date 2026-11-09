@@ -215,7 +215,9 @@ export class PersonagemSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const atuais = new Set(this.actor.system.estado.condicoes);
     if (atuais.has(alvo.dataset.condicao)) atuais.delete(alvo.dataset.condicao);
     else atuais.add(alvo.dataset.condicao);
-    return this.actor.update({ "system.estado.condicoes": [...atuais] });
+    // "Agarrado" ligado ou desligado à mão começa limpo: um agarre velho não volta sozinho.
+    const agarre = alvo.dataset.condicao === "agarrado" ? { "system.estado.agarre": { por: "", dano: "", passos: 0 } } : {};
+    return this.actor.update({ "system.estado.condicoes": [...atuais], ...agarre });
   }
 
   static #tirarBonus(_evento, alvo) {

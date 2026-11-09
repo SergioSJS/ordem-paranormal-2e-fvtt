@@ -49,6 +49,19 @@
           <span>RA+</span>
           <input type="number" name="system.ataques.{{@index}}.bonusDano" value="{{bonusDano}}" {{#unless ../editavel}}disabled{{/unless}}>
           {{#if ../editavel}}<button type="button" class="op2-botao op2-botao--fantasma" data-action="removerAtaque" data-indice="{{@index}}" aria-label="{{localize 'OP2.Npc.RemoverAtaque'}}"><i class="fa-solid fa-xmark"></i></button>{{/if}}
+          {{!-- O formulário manda o ataque inteiro: campo que não está aqui volta ao padrão. --}}
+          <input type="hidden" name="system.ataques.{{@index}}.tipo" value="{{tipo}}">
+          <div class="op2-npc-ataque__efeito">
+            <label data-tooltip="{{localize 'OP2.Npc.EfeitoAjuda'}}"><span>{{localize "OP2.Npc.Efeito"}}</span>
+              <select name="system.ataques.{{@index}}.efeito" {{#unless ../editavel}}disabled{{/unless}}>
+                <option value="" {{#unless efeito}}selected{{/unless}}>{{localize "OP2.Npc.EfeitoDano"}}</option>
+                <option value="agarrar" {{#if (op2Eq efeito "agarrar")}}selected{{/if}}>{{localize "OP2.Npc.EfeitoAgarrar"}}</option>
+              </select></label>
+            <label><span>{{localize "OP2.Npc.DanoPorRodada"}}</span>
+              <input type="text" name="system.ataques.{{@index}}.danoPorRodada" value="{{danoPorRodada}}" placeholder="1d6" {{#unless ../editavel}}disabled{{/unless}}></label>
+            <label><span>{{localize "OP2.Npc.PassosSoltar"}}</span>
+              <input type="number" name="system.ataques.{{@index}}.passosSoltar" value="{{passosSoltar}}" {{#unless ../editavel}}disabled{{/unless}}></label>
+          </div>
         </div>
       {{/each}}
     </section>

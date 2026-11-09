@@ -67,6 +67,21 @@ o modo; os Atos I e II continuam como estavam.
 - **Prints novos no README:** o card de confronto, o palco com o menu aberto e, pela primeira vez, a
   transmissão. O script de prints entrava como mestre duas vezes, e o Foundry não deixa: agora entra pelo
   usuário "Transmissão", como o README manda.
+- **Afogar agarra, não fere** (p. 33). Ataque de NPC ganha efeito "Agarra", com dano por rodada e passos para se
+  soltar, editáveis na ficha. O acerto oferece "Agarrar" no lugar do dano (também no revide e na defesa); quem
+  está agarrado tem "Soltar-se" (Acrobacia ou Luta contra a Luta de quem segura, com o passo a menos), quem está
+  livre tem "Soltar um aliado", e no fim da rodada sai um card com o dano de cada agarrado. A manobra Agarrar
+  guarda quem segura. O dano manual continua no card, e a condição se tira à mão.
+- **RD do aughisk é 3**, decisão da mesa (o livro não imprime). Mundos com a Missão 1 já importada recebem o
+  Afogar novo e a RD 3 ao abrir; o que o mestre já editou fica.
+- **Perseguição e furtividade pelo palco.** O menu da figura traz Avançar, Recuperar fôlego, Sacrifício, Avisar
+  da vala, o teste de esconderijo e as ações da área; embaixo do nome, os pontos de avanço e o fôlego, ou os dados
+  de esconderijo. Antes, fora do combate, o menu só levava ao painel.
+- **Rolagem na frente, na transmissão.** Os dados saem grandes, na forma de cada um, com o valor dentro, a RA em
+  vermelho e a RB em azul (com a etiqueta embaixo), o total e o desfecho, numa camada sobre o nome, PV e PD: o card
+  não muda de tamanho. A faixa da rodada passa a ficar no canto de cima à direita por padrão. **Contornos para
+  montar o overlay**: tracejado no card, na área da rolagem e na faixa da cena, ligado na configuração ou por
+  `&op2-guias` na URL.
 - **Efeitos de mesa**: coração e borda escura no dado de pavor, sino e brilho no crítico, tremor na falha
   crítica, baque e pisca no dano, tambor ao iniciar a cena, gongo e faixa a cada fase. Som sintetizado (Web
   Audio, sem arquivo). Liga, desliga e volume por pessoa; respeita "menos movimento" do sistema.

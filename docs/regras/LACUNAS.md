@@ -547,7 +547,8 @@ entra sem apagar nada.
 | **Atordoado** | Usado em chefe e armas; sem definição. | Perde a ação pelo tempo indicado. Conferir no feedback. |
 | **Sobrecarregado, imóvel** | Citados em Agarrar. | Só rótulo no estado, o mestre arbitra. |
 | **Dano de impacto, absorção, frio** | Citados, sem tipos definidos. | Dano físico; o tipo é só texto. |
-| **RD do aughisk** | A criatura "perde sua redução de dano" (p. 38, p. 43), mas a ficha não imprime valor. As armas ignoram 5. | Campo editável, default 5 por inferência, com aviso na ficha. |
+| **RD do aughisk** | A criatura "perde sua redução de dano" (p. 38, p. 43), mas a ficha não imprime valor. As armas ignoram 5. | **3, decisão da mesa** (2026-11-08; antes, 5 por inferência). Campo editável; balista e tocha passam inteiras. |
+| **Afogar** | A ficha lista Afogar como ação de corpo a corpo `d8+d6`, sem dano: agarra, a vítima perde d6 no fim de cada rodada e só tenta escapar (Acrobacia ou Luta à escolha, −1 passo, contra a Luta do afogado); aliado faz o mesmo teste, sem a redução. Não diz se o d6 passa por armadura, nem o que fazer com "agarrado" sem saber quem segura. | Ataque com efeito "Agarra": o acerto (e, para o mestre, mesmo o erro) agarra; card de fim de rodada com o dano, que segue o caminho normal (RD e escolha da armadura). Soltar-se e Soltar um aliado contra a Luta de quem segura; empate segura. "Agarrado" ligado à mão não sabe quem segura: soltar é contra DT 7 e não há dano de fim de rodada. |
 | **Patamar** | Iniciante a lenda são citados sem tabela de nível. Guardiã dá "+1 PV por patamar". | Campo manual, default iniciante para nível 3. |
 | **NEX** | "NEX 35%+ evita" no aughisk; fichas sem NEX. | Mantém o texto; ninguém evita. |
 | **Pavor com RA, RB e crítico** | Só define o valor do teste. | Dado anulado não conta para RA, RB nem crítico; o pavor não conta no limite de 4. |

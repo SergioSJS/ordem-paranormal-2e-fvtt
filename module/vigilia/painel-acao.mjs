@@ -13,7 +13,7 @@ import {
   definirRodada, definirFase, alternarAgiu, mudarCondicao, sortearCabecas, porNaCena, personagensDosJogadores,
   tirarDaCena, pararCena, candidatosParaCena,
 } from "./cena-acao.mjs";
-import { atacar, ataquesDe, acaoOposta, acaoGeral, manobra } from "./acoes-combate.mjs";
+import { atacar, ataquesDe, acaoOposta, acaoGeral, manobra, soltar } from "./acoes-combate.mjs";
 import { avancar, recuperarFolego, sacrificio, avisarDaVala } from "./acoes-perseguicao.mjs";
 import {
   testeDeEsconderijo, esconderSe, distrair, chamarAtencaoPara, acaoChamativa, acaoDeArea, faseDasCriaturas, usarRuna, testeDeEquilibrio,
@@ -33,9 +33,15 @@ const LIVRES = new Set(["erguerLivre", "sacarLivre", "jogarSe"]);
  * final para investigar. O painel mostra primeiro os da fase atual; os outros ficam em
  * "outras ações", sem sumir — a mesa decide (manual sempre possível).
  */
-function acoesDeCombate(ator, { temAnalise, ehPc }) {
+function acoesDeCombate(ator, { temAnalise, ehPc, outrosPresos }) {
   const t = (chave) => game.i18n.localize(chave);
+  // Agarrado só tenta se soltar (Afogar, p. 33); quem está livre pode soltar um aliado.
+  const preso = ator.system.estado?.condicoes?.has("agarrado");
+  const soltar = preso
+    ? [{ qual: "soltar", rotulo: t("OP2.Agarre.SoltarSe"), fase: "corpo", destaque: true }]
+    : (outrosPresos ? [{ qual: "soltar", rotulo: t("OP2.Agarre.SoltarAliado"), fase: "corpo" }] : []);
   return [
+    ...soltar,
     ...ataquesDe(ator).map((a) => ({ qual: "ataque", ataque: a.id, rotulo: a.nome, fase: a.tipo === "distancia" ? "distancia" : "corpo", destaque: true })),
     { qual: "atrapalhar", rotulo: t("OP2.Combate2.atrapalhar"), fase: "suporte" },
     { qual: "fintar", rotulo: t("OP2.Combate2.fintar"), fase: "suporte" },
@@ -44,6 +50,41 @@ function acoesDeCombate(ator, { temAnalise, ehPc }) {
     ...MANOBRAS.map((m) => ({ qual: "manobra", manobra: m, rotulo: t(`OP2.Manobra.${m}.nome`), fase: "corpo" })),
     ...(ehPc ? [{ qual: "investigar", rotulo: t("OP2.CenaAcao.Investigar"), fase: "final" }] : []),
   ];
+}
+
+/**
+ * Os botões da perseguição e da furtividade (beta §10/§11), os mesmos do painel: o palco os
+ * mostra no menu da figura, para ninguém precisar abrir o painel para avançar.
+ */
+function acoesDaCena(cena, ator, { ehPc, area, params, furtiva }) {
+  if (!ehPc) return [];
+  const t = (chave) => game.i18n.localize(chave);
+  const estado = ator.system.estado ?? {};
+  if (cena.system.tipo === "perseguicao") {
+    const per = estado.perseguicao;
+    if (!per || per.derrubado) return [];
+    return [
+      { qual: "avancar", rotulo: t("OP2.Perseguicao.Avancar"), destaque: true },
+      ...(params.recuperar ? [{ qual: "recuperar", rotulo: t("OP2.Perseguicao.Recuperar") }] : []),
+      ...(params.sacrificio ? [{ qual: "sacrificio", rotulo: t("OP2.Perseguicao.Sacrificio") }] : []),
+      ...(params.obstaculo && per.obstaculo ? [{ qual: "avisar", rotulo: t("OP2.Perseguicao.Avisar") }] : []),
+    ];
+  }
+  if (cena.system.tipo === "furtividade") {
+    const fur = estado.furtividade;
+    if (!fur) return [];
+    if (!fur.testou) return [{ qual: "esconderijo", rotulo: t("OP2.Furtividade.Teste"), destaque: true }];
+    return [
+      // Índice em texto: o "0" precisa sobreviver ao {{#if}} do template.
+      ...(area?.acoes ?? []).map((a, i) => ({ qual: "area", indice: String(i), rotulo: a.nome, dica: a.dica, destaque: true })),
+      { qual: "esconder", rotulo: t("OP2.Furtividade.Esconder") },
+      { qual: "distrair", rotulo: t("OP2.Furtividade.Distrair") },
+      { qual: "chamar", rotulo: t("OP2.Furtividade.Chamar") },
+      { qual: "chamativa", rotulo: t("OP2.Furtividade.Chamativa") },
+      ...(furtiva.runa && !estado.runaUsada ? [{ qual: "runa", rotulo: t("OP2.Furtividade.Runa") }] : []),
+    ];
+  }
+  return [];
 }
 
 export function linhaDe(cena, ator) {
@@ -62,7 +103,10 @@ export function linhaDe(cena, ator) {
   const temAnalise = ator.items?.some((i) => i.type === "habilidade" && i.system.mecanica === "analise");
   // Fase atual primeiro; sem fase (cena parada) tudo vale.
   const faseAtual = cena.system.fase;
-  const acoes = tipo === "combate" ? acoesDeCombate(ator, { temAnalise, ehPc }) : [];
+  const outrosPresos = participantesDe(cena).some((a) => a.uuid !== ator.uuid && a.type === ator.type && a.system.estado?.condicoes?.has("agarrado"));
+  // Perseguição e furtividade não têm fase de ação: tudo que a pessoa pode fazer vale agora.
+  const acoes = tipo === "combate" ? acoesDeCombate(ator, { temAnalise, ehPc, outrosPresos })
+    : acoesDaCena(cena, ator, { ehPc, area, params, furtiva }).map((a) => ({ ...a, fase: faseAtual }));
   const daFase = (a) => !faseAtual || a.fase === faseAtual;
   const pv = ator.system.recursos.pv;
   return {
@@ -429,6 +473,7 @@ export async function agirNaCena(cena, ator, dados) {
     case "geral": return acaoGeral(ator, dados.geral, { cena });
     case "manobra": return manobra(ator, dados.manobra, { cena });
     case "analisar": return analisar(ator);
+    case "soltar": return soltar(ator, { cena });
     case "investigar": return abrirAcoesInvestigacao(ator);
     case "avancar": return avancar(ator, cena);
     case "recuperar": return recuperarFolego(ator, cena);

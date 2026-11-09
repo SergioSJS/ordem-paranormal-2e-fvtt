@@ -261,6 +261,8 @@ Dá para conduzir o combate inteiro pelo palco, sem abrir o painel:
   oferecem primeiro quem está na mira.
 - **Barra** (mestre): clique numa fase para ir até ela, − e + na rodada, avançar, parar (volta à montagem sem zerar)
   e encerrar.
+- **Perseguição e furtividade** também: o menu da figura traz Avançar, Recuperar fôlego, Sacrifício, o teste de
+  esconderijo e as ações da área, e embaixo do nome aparecem os pontos de avanço e o fôlego, ou o esconderijo.
 
 ![O palco da cena de ação](docs/img/palco.png)
 
@@ -287,12 +289,16 @@ tremer. Rolagem secreta não dispara efeito para quem não pode ver o resultado.
 
 Para quem joga em live: uma tela só com os cards dos personagens, sobre fundo transparente, para usar como fonte
 de navegador no OBS. Cada card traz o rosto, o nome do personagem, o nome de quem joga, PV e PD (em barra e em
-número), pavor e condições; quando a pessoa rola, o card acende com os dados desenhados, o total e o desfecho. Numa
-cena de ação, aparece quem já agiu, e o tipo, a fase e a rodada ficam numa faixa à parte, num canto só dela.
+número), pavor e condições. Quando a pessoa rola, o card acende e a rolagem entra na frente do nome e dos PV: os
+dados grandes, na forma de cada um, com o valor dentro, a rolagem alta em vermelho e a baixa em azul, o total e o
+desfecho. Numa cena de ação, aparece quem já agiu, e o tipo, a fase e a rodada ficam numa faixa à parte, num canto
+só dela (por padrão, em cima à direita).
 
 **Nada se move.** O card tem tamanho fixo: começar a cena, mudar de fase, rolar, levar dano, ganhar pavor ou
 condição não mexem um pixel no lugar de card nenhum. Recorte o overlay uma vez. A faixa da cena escolhe o seu
-canto, ou sai desta fonte e vai para outra (`/game?op2-transmissao=cena`).
+canto, ou sai desta fonte e vai para outra (`/game?op2-transmissao=cena`). Para montar o recorte, ligue **Mostrar
+contornos para montar o overlay** na configuração (ou abra com `&op2-guias` na URL): um tracejado marca cada card,
+a área onde a rolagem aparece e a faixa da cena, mesmo sem cena no ar. Desligue antes de ir ao ar.
 
 Em **Configurações → Ordem Paranormal 2 → Configurar a transmissão**: crie o usuário "Transmissão", dê a ele acesso
 de observador aos personagens e salve. No OBS, adicione uma fonte Navegador com o endereço `/join`, clique em

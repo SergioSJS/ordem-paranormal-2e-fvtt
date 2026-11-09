@@ -10,7 +10,7 @@ import { modoAtual } from "../modo.mjs";
 import { stepDie, faces } from "../dice/escada.mjs";
 import { PATAMARES } from "../vigilia/dano.mjs";
 import { lerPassos } from "../vigilia/combate.mjs";
-import { campoAtributos, campoPericias, campoAptidoes, campoRecurso, campoContador } from "./campos.mjs";
+import { campoAtributos, campoPericias, campoAptidoes, campoRecurso, campoContador, campoAgarre } from "./campos.mjs";
 
 export class PersonagemData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
@@ -76,6 +76,7 @@ export class PersonagemData extends foundry.abstract.TypeDataModel {
         marcadores: campoContador(),
         // Caído, agarrado, atordoado… (beta §7.5). Sem Active Effects: quem lê é o motor.
         condicoes: new foundry.data.fields.SetField(new StringField(), { initial: [] }),
+        agarre: campoAgarre(),
         // Permanentes até o mestre curar (beta §8). Lista, não Set: Laceração acumula.
         lesoes: new ArrayField(new StringField({ required: true, blank: false }), { initial: [] }),
         traumas: new ArrayField(new StringField({ required: true, blank: false }), { initial: [] }),

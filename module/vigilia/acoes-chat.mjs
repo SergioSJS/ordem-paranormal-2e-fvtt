@@ -4,7 +4,7 @@ import { cardDeDano } from "../cena/rodada.mjs";
 import { rolarTesteBeta, rolarTabelaBeta, aplicarLinhaPorChave } from "./queda.mjs";
 import { revidar, defender, aplicarDanoDeCombate, pedirDanoManual } from "./acoes-combate.mjs";
 import { acaoChamativa, dizerNumeros, descartarIguais } from "./acoes-furtividade.mjs";
-import { mudarCondicao, marcarDerrubado } from "./cena-acao.mjs";
+import { mudarCondicao, marcarDerrubado, agarrar } from "./cena-acao.mjs";
 
 /**
  * A decisão é de quem joga com o personagem (ou do mestre): o card é público, o clique não.
@@ -33,6 +33,8 @@ export function registrarAcoesDeChatDaVigilia() {
   registrarAcaoDeChat("vigilia-numeros", async (_ator, d) => dizerNumeros(await fromUuid(d.cena)));
   // A regra propõe, quem clica aplica: nada disso acontece sozinho (feedback de mesa).
   registrarAcaoDeChat("vigilia-condicao", (ator, d) => mudarCondicao(ator, d.condicao, d.ligar !== "0"));
+  // Acertou quem agarra (manobra, Afogar): prende e guarda quem segura. O dano é no fim da rodada.
+  registrarAcaoDeChat("vigilia-agarrar", (ator, d) => agarrar(ator, { por: d.por, dano: d.dano, passos: d.passos }));
   // Digitar um valor é decisão da mesa: mestre ou quem joga com o alvo.
   registrarAcaoDeChat("vigilia-dano-manual", soDono((ator, d) => pedirDanoManual(ator, d)));
   registrarAcaoDeChat("vigilia-descartar", (ator, d) => descartarIguais(ator, d));

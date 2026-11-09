@@ -390,10 +390,29 @@ const tx3 = await jog.evaluate((id) => {
     dados: card?.querySelectorAll(".op2-transmissao__rolagem .op2-dado").length ?? 0,
     total: card?.querySelector(".op2-transmissao__total")?.textContent ?? "",
     titulo: card?.querySelector(".op2-transmissao__rolagem-titulo")?.textContent ?? "",
+    ra: card?.querySelectorAll(".op2-transmissao__dado--ra").length ?? 0,
+    rb: card?.querySelectorAll(".op2-transmissao__dado--rb").length ?? 0,
+    corRa: getComputedStyle(card?.querySelector(".op2-transmissao__dado--ra .op2-dado") ?? document.body).backgroundColor,
+    corRb: getComputedStyle(card?.querySelector(".op2-transmissao__dado--rb .op2-dado") ?? document.body).backgroundColor,
+    etiquetas: [...(card?.querySelectorAll(".op2-transmissao__dado small") ?? [])].map((s) => s.textContent).join(" "),
+    // A rolagem fica NA FRENTE das informações: a camada cobre o nome e os PV, que somem por baixo.
+    infoSome: getComputedStyle(card?.querySelector(".op2-transmissao__dados") ?? document.body).opacity === "0",
+    naFrente: (() => {
+      const vaga = card?.querySelector(".op2-transmissao__vaga")?.getBoundingClientRect();
+      const nome = card?.querySelector(".op2-transmissao__nome")?.getBoundingClientRect();
+      return Boolean(vaga && nome && vaga.top <= nome.top && vaga.bottom >= nome.bottom && vaga.left <= nome.left);
+    })(),
   };
 }, tx1.id);
 console.log(JSON.stringify(tx3));
-ok("transmissão: a rolagem pública acende o card, com os dados desenhados e o total", tx3.acendeu && tx3.dados >= 2 && /= \d+/.test(tx3.total) && tx3.titulo.length > 0);
+ok("transmissão: a rolagem pública acende o card, com os dados desenhados e o total", tx3.acendeu && tx3.dados >= 2 && /^\s*\d+\s*$/.test(tx3.total) && tx3.titulo.length > 0);
+ok("transmissão: a RA sai em vermelho e a RB em azul, um dado cada, com a etiqueta embaixo",
+  tx3.ra === 1 && tx3.rb === 1 && tx3.corRa !== tx3.corRb && /RA/.test(tx3.etiquetas) && /RB/.test(tx3.etiquetas));
+ok("transmissão: a rolagem entra na frente do nome e dos PV, sem mudar o card", tx3.naFrente && tx3.infoSome);
+if (process.env.FOTO_ROLAGEM) {
+  const caixa = await (await jog.$("#op2-transmissao"))?.boundingBox();
+  if (caixa) await jog.screenshot({ path: process.env.FOTO_ROLAGEM, clip: { x: Math.max(0, caixa.x - 12), y: Math.max(0, caixa.y - 12), width: caixa.width + 24, height: caixa.height + 24 } });
+}
 // Estilo sem fundo pela URL: avatar solto, PV e PD em texto, sem barra.
 await jog.goto(`http://localhost:${PORTA}/game?op2-transmissao=livre`, { waitUntil: "networkidle" });
 await jog.waitForFunction(() => globalThis.game?.ready === true && document.querySelector("#op2-transmissao .op2-transmissao__card"), null, { timeout: 60000 });
@@ -489,6 +508,27 @@ if (process.env.FOTO_TRANSMISSAO) {
   if (caixa) await jog.screenshot({ path: process.env.FOTO_TRANSMISSAO, clip: { x: Math.max(0, caixa.x - 12), y: Math.max(0, caixa.y - 12), width: caixa.width + 24, height: caixa.height + 24 }, omitBackground: true });
 }
 
+// Guias de recorte: contorno no card, na área da rolagem e na faixa da cena (mesmo sem cena),
+// e nada se move por isso.
+await jog.goto(`http://localhost:${PORTA}/game?op2-transmissao=ambos&op2-guias`, { waitUntil: "networkidle" });
+await jog.waitForFunction(() => globalThis.game?.ready === true && document.querySelector("#op2-transmissao .op2-transmissao__card"), null, { timeout: 60000 });
+await jog.waitForTimeout(800);
+const guias = await jog.evaluate(() => {
+  const vaga = document.querySelector("#op2-transmissao .op2-transmissao__vaga");
+  const cena = document.getElementById("op2-transmissao-cena");
+  return {
+    ligado: document.getElementById("op2-transmissao")?.dataset.guias === "1",
+    contornoCard: getComputedStyle(document.querySelector("#op2-transmissao .op2-transmissao__card")).outlineStyle,
+    contornoVaga: getComputedStyle(vaga).outlineStyle,
+    rotulo: getComputedStyle(vaga, "::before").content,
+    cenaVisivel: Boolean(cena && !cena.hidden && cena.getBoundingClientRect().height > 0),
+  };
+});
+console.log(JSON.stringify(guias));
+ok("transmissão com guias: tracejado no card, na área da rolagem (com o nome) e na faixa da cena",
+  guias.ligado && guias.contornoCard === "dashed" && guias.contornoVaga === "dashed" && /rolagem/i.test(guias.rotulo) && guias.cenaVisivel);
+ok("transmissão com guias: os cards ficam onde estavam", await caixas() === parado);
+if (process.env.FOTO_GUIAS) await jog.screenshot({ path: process.env.FOTO_GUIAS });
 if (process.env.FOTO) await jog.screenshot({ path: process.env.FOTO });
 const falhas = globalThis.__falhas ?? 0;
 await browser.close();

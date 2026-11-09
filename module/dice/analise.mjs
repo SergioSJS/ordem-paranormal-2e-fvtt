@@ -136,6 +136,23 @@ export function analisar(dados, {
 }
 
 /**
+ * Qual dado é a RA e qual é a RB, para desenhar (a transmissão pinta um de vermelho e o outro
+ * de azul). Um dado por papel: o primeiro com o maior valor e o primeiro com o menor; com dois
+ * dados iguais, cada um fica com um papel. Com um dado contado só, ele é os dois.
+ * @param {DadoRolado[]} dados
+ * @returns {{ra: number|null, rb: number|null}} os `indice`s
+ */
+export function papeisDosDados(dados) {
+  const vivos = contados(dados);
+  if (!vivos.length) return { ra: null, rb: null };
+  const maior = Math.max(...vivos.map((d) => d.resultado));
+  const menor = Math.min(...vivos.map((d) => d.resultado));
+  const ra = vivos.find((d) => d.resultado === maior);
+  const rb = vivos.find((d) => d.resultado === menor && d !== ra) ?? ra;
+  return { ra: ra.indice, rb: rb.indice };
+}
+
+/**
  * Atalho de seleção quando se rola mais dados do que se soma: os maiores valores.
  * É só um default — a escolha ótima nem sempre é a soma máxima, porque RA e RB
  * alimentam efeitos posteriores (spec §4.5).

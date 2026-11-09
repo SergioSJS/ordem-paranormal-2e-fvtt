@@ -225,7 +225,13 @@
       "Ataques": "Ataques",
       "AdicionarAtaque": "Novo ataque",
       "AtaqueNome": "Nome do ataque",
-      "RemoverAtaque": "Remover ataque"
+      "RemoverAtaque": "Remover ataque",
+      "Efeito": "Efeito",
+      "EfeitoAjuda": "Agarra: acertar prende a vítima em vez de ferir; o dano vem no fim de cada rodada, e quem está preso só tenta se soltar (o Afogar do afogado).",
+      "EfeitoDano": "Dano",
+      "EfeitoAgarrar": "Agarra",
+      "DanoPorRodada": "Dano por rodada",
+      "PassosSoltar": "Passos para se soltar (−1 = um a menos)"
     },
     "POI": {
       "Aba": {
@@ -1541,7 +1547,9 @@
       "Agiu": "Já agiu nesta rodada",
       "PvMenos": "Tirar 1 PV",
       "PvMais": "Dar 1 PV",
-      "AcoesNoPainel": "Ações no painel"
+      "AcoesNoPainel": "Ações no painel",
+      "PlacarPerseguicao": "{avanco} PA · fôlego {folego}",
+      "PlacarFurtividade": "esconderijo {dados}"
     },
     "Transmissao": {
       "Titulo": "Transmissão",
@@ -1598,7 +1606,12 @@
       },
       "CenaRotulo": "Cena de ação (tipo, fase, rodada)",
       "CenaAjuda": "Fica num canto só dela e nunca empurra os cards. Para pôr numa fonte separada do OBS, escolha \"Fora desta tela\" e use:",
-      "Fixo": "Os cards têm tamanho fixo: começar a cena, rolar dados, ganhar pavor ou condição e levar dano não mexem um pixel no lugar de nada. Recorte o overlay uma vez."
+      "Fixo": "Os cards têm tamanho fixo: começar a cena, rolar dados, ganhar pavor ou condição e levar dano não mexem um pixel no lugar de nada. Recorte o overlay uma vez.",
+      "Pavor": "pavor",
+      "Guias": "Mostrar contornos para montar o overlay",
+      "GuiasAjuda": "Tracejado em volta de cada card, da área onde a rolagem aparece e da faixa da cena, para recortar no OBS. Desligue antes de ir ao ar. Só nesta fonte, sem mudar a configuração:",
+      "GuiaRolagem": "rolagem",
+      "GuiaCena": "Cena de ação (rodada e fase)"
     },
     "Efeitos": {
       "efeitosVisuais": {
@@ -1634,6 +1647,22 @@
       "Protecao": "{bruto} antes da proteção, {final} depois.",
       "Caiu": "{nome} caiu.",
       "Enlouqueceu": "{nome} chegou a 0 PD."
+    },
+    "Agarre": {
+      "Explica": "Este ataque não fere ao acertar: agarra. Quem está agarrado só tenta se soltar e perde {dano} no fim de cada rodada.",
+      "Aplicar": "Agarrar {alvo}",
+      "Soltar": "Soltar-se",
+      "SoltarSe": "Soltar-se",
+      "SoltarAliado": "Soltar um aliado",
+      "NinguemPreso": "Ninguém está agarrado nesta cena.",
+      "TentouSoltar": "{ator} tenta se soltar (Acrobacia ou Luta, {passos} de passo).",
+      "TentouSoltarOutro": "{ator} tenta soltar {vitima} (Acrobacia ou Luta, sem penalidade).",
+      "Solto": "{nome} se solta",
+      "Preso": "{nome} continua preso",
+      "BotaoSoltar": "Soltar {alvo}",
+      "FimDaRodada": "Fim da rodada: agarrados",
+      "PerdeNoFim": "{ator} continua agarrado e perde {dano}.",
+      "TentouSoltarLivre": "{ator} tenta se soltar (Acrobacia ou Luta)."
     }
   }
 }

@@ -210,3 +210,14 @@ test("teste estendido: crítico soma a segunda maior, só no beta (beta §3)", (
   assert.equal(pontosDoEstendido(r, { somaCritico: true }), 14);
   assert.equal(pontosDoEstendido({ ra: 8, critico: false, segunda: 6 }, { somaCritico: true }), 8);
 });
+
+test("soltar-se: contra quem segura só vencendo; sem quem segura, DT padrão; o passo é da vítima", async () => {
+  const { venceuSoltura, passosDaSoltura } = await import("../vigilia/combate.mjs");
+  assert.equal(venceuSoltura(9, 8), true);
+  assert.equal(venceuSoltura(8, 8), false); // empate segura
+  assert.equal(venceuSoltura(7), true);
+  assert.equal(venceuSoltura(6), false);
+  assert.equal(passosDaSoltura(true, -1), -1);
+  assert.equal(passosDaSoltura(false, -1), 0); // quem ajuda testa sem a penalidade (p. 33)
+  assert.equal(passosDaSoltura(true, ""), 0);
+});

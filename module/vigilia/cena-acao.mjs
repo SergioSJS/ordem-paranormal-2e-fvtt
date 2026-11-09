@@ -155,6 +155,7 @@ export async function avancarCena(cena) {
   if (tipo === "combate") {
     const proxima = proximaFase(fase);
     if (proxima) return cena.update({ "system.fase": proxima });
+    await fimDaRodadaDoCombate(cena);
     return novaRodada(cena, rodada + 1, FASES[0]);
   }
   if (tipo === "furtividade") {
@@ -236,6 +237,34 @@ export function mudarCondicao(ator, condicao, ligar) {
   return comoMestre("vigilia-condicao", { atorUuid: ator.uuid, condicao, ligar });
 }
 
+/**
+ * Prende alguém (manobra Agarrar, ou ataque que agarra, como o Afogar): liga a condição e guarda
+ * quem segura, o dano do fim da rodada e os passos de se soltar. Tirar a condição solta.
+ */
+export function agarrar(ator, { por = "", dano = "", passos = 0 } = {}) {
+  return comoMestre("vigilia-agarre", { atorUuid: ator.uuid, por, dano, passos: Number(passos) || 0 });
+}
+
+/**
+ * Fim da rodada de combate: quem segue agarrado por um agarre que fere (o Afogar) perde o dano
+ * dele (p. 33). Vira card com um botão por vítima; quem aplica é quem clica.
+ */
+async function fimDaRodadaDoCombate(cena) {
+  const presos = participantesDe(cena).filter((a) => a.system.estado?.condicoes?.has("agarrado") && a.system.estado.agarre?.dano);
+  if (!presos.length) return null;
+  const nome = (a) => foundry.utils.escapeHTML(a.name);
+  return cardVigilia(null, {
+    titulo: game.i18n.localize("OP2.Agarre.FimDaRodada"),
+    selo: cena.name,
+    linhas: presos.map((a) => game.i18n.format("OP2.Agarre.PerdeNoFim", { ator: nome(a), dano: foundry.utils.escapeHTML(a.system.estado.agarre.dano) })),
+    botoes: presos.map((a) => ({
+      rotulo: game.i18n.format("OP2.Perseguicao.DanoFisico", { ator: a.name, dano: a.system.estado.agarre.dano }),
+      acao: "vigilia-rolar-dano",
+      dados: { atorUuid: a.uuid, formula: a.system.estado.agarre.dano, recurso: "pv" },
+    })),
+  });
+}
+
 /** O ator-modelo por trás de uma instância: o do token sem vínculo, ou o da cópia. */
 function modeloDe(ator) {
   if (!ator) return null;
@@ -306,13 +335,23 @@ export function registrarCenaAcao() {
     const atuais = new Set(ator.system.estado.condicoes);
     if (ligar) atuais.add(condicao);
     else atuais.delete(condicao);
-    await ator.update({ "system.estado.condicoes": [...atuais] });
+    // "Agarrado" mexido à mão (soltou, ou ligou pelo chip) começa limpo: quem segurava e o dano
+    // do fim da rodada só existem quando vêm do card do agarre (`vigilia-agarre`).
+    const solto = condicao === "agarrado" && "agarre" in ator.system.estado
+      ? { "system.estado.agarre": { por: "", dano: "", passos: 0 } } : {};
+    await ator.update({ "system.estado.condicoes": [...atuais], ...solto });
     // Fintar ou Mirar de novo renova: a contagem de duas rodadas recomeça.
     const cena = cenaAcaoAtiva();
     const chave = `${atorUuid}|${condicao}`;
     if (ligar && cena?.system.vistas.includes(chave) && CONDICOES_DE_DUAS_RODADAS.includes(condicao)) {
       await cena.update({ "system.vistas": cena.system.vistas.filter((v) => v !== chave) });
     }
+  });
+  registrarAcaoDeMestre("vigilia-agarre", async ({ atorUuid, por, dano, passos }) => {
+    const ator = atorDe(atorUuid);
+    if (!ator?.system.estado) return;
+    const condicoes = [...new Set([...ator.system.estado.condicoes, "agarrado"])];
+    await ator.update({ "system.estado.condicoes": condicoes, "system.estado.agarre": { por: por ?? "", dano: dano ?? "", passos: Number(passos) || 0 } });
   });
   registrarAcaoDeMestre("vigilia-dano", async ({ atorUuid, quantidade, recurso }) => {
     const ator = atorDe(atorUuid);

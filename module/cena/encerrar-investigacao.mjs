@@ -21,6 +21,7 @@ import { cardVigilia } from "../vigilia/card.mjs";
 export const ZERADO_DO_BETA = {
   "system.estado.marcadores": 0,
   "system.estado.condicoes": [],
+  "system.estado.agarre": { por: "", dano: "", passos: 0 },
   "system.estado.bonus": [],
   "system.estado.testesFerimento": 0,
   "system.estado.testesTrauma": 0,

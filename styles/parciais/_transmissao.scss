@@ -228,51 +228,142 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
   opacity: 1;
 }
 
-// A vaga da rolagem: reservada embaixo do card, do mesmo tamanho acesa ou apagada.
+// A rolagem entra NA FRENTE do que o card mostra: uma camada por cima do nome, PV, PD e estado,
+// do topo ao pé do card, ao lado do retrato. A camada é absoluta, então o card não muda nem
+// um pixel, acesa ou apagada (a linha de baixo do grid continua reservada como era).
 .op2-transmissao__vaga {
+  position: absolute;
+  z-index: 2;
   overflow: hidden;
   min-width: 0;
-  height: var(--op2-transmissao-vaga);
-  grid-column: 1 / -1;
+  inset: 8px 8px 8px calc(8px + 76px + 10px);
+  pointer-events: none;
 }
+
+.op2-transmissao__card--rolou {
+  .op2-transmissao__vaga { background: color-mix(in srgb, var(--op2-fundo) 97%, transparent); }
+  .op2-transmissao__dados { opacity: 0; }
+}
+
+.op2-transmissao__dados { transition: opacity 0.25s ease; }
 
 .op2-transmissao__rolagem {
   display: grid;
   box-sizing: border-box;
   height: 100%;
-  align-items: center;
-  padding-top: 4px;
-  border-top: 1px solid var(--op2-linha);
+  align-content: space-between;
   animation: op2-transmissao-rolagem 0.3s ease-out;
-  gap: 2px 10px;
-  grid-template-columns: auto minmax(0, 1fr);
-  grid-template-rows: auto 1fr;
+  gap: 4px;
+  grid-template-rows: auto 1fr auto;
   white-space: nowrap;
 }
 
 .op2-transmissao__rolagem-titulo {
   overflow: hidden;
-  grid-column: 1 / -1;
   color: var(--op2-texto-fraco);
-  font-size: 0.8rem;
-  line-height: 1.1;
+  font-size: 0.85rem;
+  line-height: 1.15;
   text-overflow: ellipsis;
+}
+
+// Os dados na forma de cada um, grandes, com o valor dentro. Base neutra; a RA acende em
+// vermelho e a RB em azul, com a etiqueta embaixo, para ler de longe na live.
+.op2-transmissao {
+  --op2-transmissao-ra: #d63a2a;
+  --op2-transmissao-rb: #2f74d0;
+  --op2-transmissao-dado: #d9d2c2;
+  --op2-transmissao-pavor: #4b2a5e;
 }
 
 .op2-transmissao__rolagem-dados {
   display: flex;
-  align-items: center;
-  gap: 4px;
-
-  .op2-dado { width: 1.75rem; height: 1.75rem; flex: none; font-size: 0.9rem; }
+  overflow: hidden;
+  align-items: flex-start;
+  align-self: center;
+  gap: 6px;
 }
 
-.op2-transmissao__total { margin-left: 4px; font-family: var(--op2-fonte-display); font-size: 1.4rem; font-weight: 700; line-height: 1; }
-.op2-transmissao__desfecho { overflow: hidden; justify-self: end; font-family: var(--op2-fonte-display); font-size: 1.1rem; text-overflow: ellipsis; }
+// Grandes, mas encolhem juntos se vierem muitos (quatro do teste e o pavor): nunca vazam do card.
+.op2-transmissao__dado {
+  display: flex;
+  min-width: 0;
+  flex: 0 1 2.75rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+
+  .op2-dado {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    flex: none;
+    background: var(--op2-transmissao-dado);
+    color: #1b1714 !important;
+    font-size: 1.25rem;
+
+    &.op2-dado--d4 { font-size: 1.05rem; }
+    &.op2-dado--d8, &.op2-dado--d10, &.op2-dado--d12 { font-size: 1.12rem; }
+  }
+
+  .op2-dado--descartado { opacity: 0.35; }
+
+  small {
+    min-height: 0.8rem;
+    color: var(--op2-texto-fraco);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 0.8rem;
+  }
+
+  &--ra .op2-dado { background: var(--op2-transmissao-ra); color: #fff !important; }
+  &--ra small { color: var(--op2-transmissao-ra); }
+  &--rb .op2-dado { background: var(--op2-transmissao-rb); color: #fff !important; }
+  &--rb small { color: var(--op2-transmissao-rb); }
+  &--pavor .op2-dado { background: var(--op2-transmissao-pavor); color: #f3e6ff !important; }
+}
+
+.op2-transmissao__rolagem-fim {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.op2-transmissao__total { font-family: var(--op2-fonte-display); font-size: 1.9rem; font-weight: 700; line-height: 1; }
+.op2-transmissao__desfecho { overflow: hidden; font-family: var(--op2-fonte-display); font-size: 1.15rem; text-overflow: ellipsis; }
 .op2-transmissao__rolagem--critico .op2-transmissao__desfecho { color: var(--op2-critico); }
 .op2-transmissao__rolagem--sucesso .op2-transmissao__desfecho { color: var(--op2-sucesso); }
 .op2-transmissao__rolagem--falhacritica .op2-transmissao__desfecho,
 .op2-transmissao__rolagem--falha .op2-transmissao__desfecho { color: var(--op2-texto-fraco); }
+
+// Guias de recorte (configuração "contornos para montar o overlay"): tracejado em volta de cada
+// card, da área onde a rolagem aparece e da faixa da cena, com o nome. É `outline`, não borda:
+// não ocupa espaço, então ligar e desligar não move nada.
+.op2-transmissao[data-guias="1"] {
+  .op2-transmissao__card { outline: 2px dashed #34e0ff; outline-offset: 2px; }
+  .op2-transmissao__vaga {
+    outline: 2px dashed #ff4fd8;
+    outline-offset: -2px;
+
+    &::before {
+      position: absolute;
+      top: 2px;
+      right: 4px;
+      padding: 0 4px;
+      background: #ff4fd8;
+      color: #000;
+      content: attr(data-guia);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+  }
+}
+
+.op2-transmissao-cena[data-guias="1"] { outline: 2px dashed #ffd400; outline-offset: 2px; }
 
 // Só opacidade: nada desliza.
 @keyframes op2-transmissao-rolagem {
@@ -341,7 +432,13 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
     .op2-transmissao__retrato { filter: drop-shadow(0 0 10px var(--op2-transmissao-nome)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)); }
   }
 
-  .op2-transmissao__rolagem { border-top: 0; }
+  // Sem fundo: a camada da rolagem cobre o texto ao lado do avatar e não pinta nada atrás.
+  .op2-transmissao__vaga { inset: 0 0 0 calc(104px + 10px); }
+  .op2-transmissao__card--rolou .op2-transmissao__vaga { background: none; }
+  .op2-transmissao__dado { filter: drop-shadow(0 0 2px #000) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.8)); }
+  .op2-transmissao__dado small { text-shadow: var(--op2-transmissao-contorno); }
+  .op2-transmissao__dado--ra small { color: #ff7a6a; }
+  .op2-transmissao__dado--rb small { color: #7fb2ff; }
   .op2-transmissao__rolagem-titulo { color: var(--op2-transmissao-jogador); }
   .op2-transmissao__total { color: #fff; }
   .op2-transmissao__rolagem--sucesso .op2-transmissao__desfecho { color: #7dde6a; }

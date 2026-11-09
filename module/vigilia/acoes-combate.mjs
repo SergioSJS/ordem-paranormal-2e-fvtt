@@ -8,18 +8,18 @@
  * Toda ação contra alguém sai num card de confronto só (`confronto.mjs`), com os dados dentro:
  * as rolagens são `semCard`.
  */
-import { rolarTeste } from "../dice/teste.mjs";
+import { rolarTeste, rotuloDePericia } from "../dice/teste.mjs";
 import { rolarDadosDeNpc } from "./npc.mjs";
 import { comoMestre } from "../ui/socket.mjs";
 import { aplicarDano } from "../dice/falha-critica.mjs";
 import { cardVigilia, donosDe } from "./card.mjs";
 import { escolherPericia } from "../dice/pericia-dialog.mjs";
 import {
-  montarAtaque, resolverCruzado, danoDoAcerto, defesaVenceu, resolverManobra, faseDoAtaque,
+  montarAtaque, resolverCruzado, danoDoAcerto, defesaVenceu, resolverManobra, faseDoAtaque, venceuSoltura, passosDaSoltura,
 } from "./combate.mjs";
 import { danoDepoisDaProtecao } from "./dano.mjs";
 import { atorDe, cenaAcaoAtiva, participantesDe, registrarAcao, mudarCondicao } from "./cena-acao.mjs";
-import { MAX_MARCADORES, PASSOS_FINTA } from "../config.mjs";
+import { MAX_MARCADORES, PASSOS_FINTA, DT_PADRAO } from "../config.mjs";
 import { alvosMarcados } from "./alvos.mjs";
 import { cardConfronto, lado, golpe, vereditoDoTeste } from "./confronto.mjs";
 
@@ -33,6 +33,7 @@ export function ataquesDe(ator) {
     return ator.system.ataques.map((a, i) => ({
       id: `npc-${i}`, nome: a.nome, tipo: a.tipo, bonusDano: a.bonusDano, bonusTeste: 0, minimoCritico: 0,
       ignoraRd: 0, dados: a.dados,
+      efeito: a.efeito ?? "", danoPorRodada: a.danoPorRodada ?? "", passosSoltar: a.passosSoltar ?? 0,
     }));
   }
   const armas = ator.items.filter((i) => i.type === "equipamento" && i.system.ataque.tipo);
@@ -142,18 +143,27 @@ export async function atacar(ator, ataque, { cena = cenaAcaoAtiva(), escolha, ra
   }
   if (dados.naoLetal) linhas.push(game.i18n.localize("OP2.Combate2.GolpeNaoLetal"));
 
+  const agarra = ataque.efeito === "agarrar";
   const contexto = {
     atacanteUuid: ator.uuid, alvoUuid: alvo.uuid, total: roll.total, ra: r.ra, segunda: r.segunda,
     critico: r.critico ? 1 : 0, bonusDano: ataque.bonusDano, ignoraRd: ataque.ignoraRd ?? 0, nomeAtaque: ataque.nome,
     sucesso: r.sucesso ? 1 : 0,
+    // O revide e a defesa precisam saber que este golpe agarra em vez de ferir.
+    ...(agarra ? { efeito: "agarrar", danoPorRodada: ataque.danoPorRodada, passosSoltar: ataque.passosSoltar } : {}),
   };
+  if (agarra) linhas.push(game.i18n.format("OP2.Agarre.Explica", { dano: foundry.utils.escapeHTML(ataque.danoPorRodada || "—") }));
   const defendendo = condicoesDe(alvo).includes("defendendo");
   // Corpo a corpo, aplicar o dano e revidar são saídas alternativas: o revide vira teste oposto e
   // traz o dano deste golpe de novo (beta §7.3). Usada uma, a outra pergunta antes (`grupo`).
   const grupo = ataque.tipo === "corpo" && !defendendo ? "desfecho" : undefined;
   const botoes = [];
   if (r.sucesso && !defendendo) {
-    botoes.push({ rotulo: game.i18n.format("OP2.Combate2.AplicarDano", { dano }), acao: "vigilia-dano", dados: { atorUuid: alvo.uuid, quantidade: dano, ignoraRd: contexto.ignoraRd, grupo } });
+    botoes.push(agarra
+      ? botaoDeAgarre(alvo, ator, contexto, { grupo })
+      : { rotulo: game.i18n.format("OP2.Combate2.AplicarDano", { dano }), acao: "vigilia-dano", dados: { atorUuid: alvo.uuid, quantidade: dano, ignoraRd: contexto.ignoraRd, grupo } });
+  } else if (agarra && !defendendo) {
+    // Errou, mas a mesa pode decidir que pegou: o mestre ainda tem o agarre, com quem segura e o dano.
+    botoes.push({ ...botaoDeAgarre(alvo, ator, contexto), soMestre: true });
   }
   // Sempre há como pôr outro valor, ou ferir mesmo com a regra dizendo que errou.
   botoes.push({ rotulo: game.i18n.localize("OP2.Combate2.DanoManual"), acao: "vigilia-dano-manual", dados: { atorUuid: alvo.uuid, quantidade: dano, ignoraRd: contexto.ignoraRd } });
@@ -168,7 +178,7 @@ export async function atacar(ator, ataque, { cena = cenaAcaoAtiva(), escolha, ra
     esquerda: lado(ator, roll, { venceu: r.sucesso }),
     direita: lado(alvo),
     veredito: vereditoDoTeste(roll, { acertou: r.sucesso }),
-    golpes: r.sucesso ? [golpe(dano, alvo)] : [],
+    golpes: r.sucesso && !agarra ? [golpe(dano, alvo)] : [],
     distancia: ataque.tipo === "distancia",
     linhas,
     botoes,
@@ -193,9 +203,18 @@ export async function revidar(alvo, dataset, { rapido = false } = {}) {
   const { acertaA, acertaB } = resolverCruzado(totalA, roll.total);
   const danoA = danoDoAcerto({ ra: Number(dataset.ra), segunda: Number(dataset.segunda), critico: Number(dataset.critico) === 1 }, Number(dataset.bonusDano));
   const danoB = danoDoAcerto(roll.resultado, ataque.bonusDano);
+  // Quem agarra (o Afogar) acerta prendendo, não ferindo: o botão é o do agarre (p. 33).
+  const agarraA = dataset.efeito === "agarrar";
+  const agarraB = ataque.efeito === "agarrar";
   const botoes = [];
-  if (acertaA) botoes.push({ rotulo: game.i18n.format("OP2.Combate2.DanoEm", { dano: danoA, alvo: alvo.name }), acao: "vigilia-dano", dados: { atorUuid: alvo.uuid, quantidade: danoA, ignoraRd: dataset.ignoraRd } });
-  if (acertaB) botoes.push({ rotulo: game.i18n.format("OP2.Combate2.DanoEm", { dano: danoB, alvo: atacante.name }), acao: "vigilia-dano", dados: { atorUuid: atacante.uuid, quantidade: danoB, ignoraRd: ataque.ignoraRd ?? 0 } });
+  if (acertaA) {
+    botoes.push(agarraA ? botaoDeAgarre(alvo, atacante, dataset)
+      : { rotulo: game.i18n.format("OP2.Combate2.DanoEm", { dano: danoA, alvo: alvo.name }), acao: "vigilia-dano", dados: { atorUuid: alvo.uuid, quantidade: danoA, ignoraRd: dataset.ignoraRd } });
+  }
+  if (acertaB) {
+    botoes.push(agarraB ? botaoDeAgarre(atacante, alvo, ataque)
+      : { rotulo: game.i18n.format("OP2.Combate2.DanoEm", { dano: danoB, alvo: atacante.name }), acao: "vigilia-dano", dados: { atorUuid: atacante.uuid, quantidade: danoB, ignoraRd: ataque.ignoraRd ?? 0 } });
+  }
   const t = (chave, dados) => game.i18n.format(`OP2.Confronto.${chave}`, dados);
   let veredito = { classe: "erro", rotulo: t("DoisErram") };
   if (acertaA && acertaB) veredito = { classe: "acerto", rotulo: t("DoisAcertam") };
@@ -207,7 +226,7 @@ export async function revidar(alvo, dataset, { rapido = false } = {}) {
     esquerda: { ...lado(atacante, null, { venceu: acertaA }), total: totalA },
     direita: lado(alvo, roll, { venceu: acertaB }),
     veredito,
-    golpes: [...(acertaA ? [golpe(danoA, alvo)] : []), ...(acertaB ? [golpe(danoB, atacante)] : [])],
+    golpes: [...(acertaA && !agarraA ? [golpe(danoA, alvo)] : []), ...(acertaB && !agarraB ? [golpe(danoB, atacante)] : [])],
     linhas: [game.i18n.localize(!acertaA && !acertaB ? "OP2.Combate2.NinguemAcertou" : (acertaA && acertaB ? "OP2.Combate2.DoisAcertaram" : "OP2.Combate2.UmAcertou"))],
     botoes,
     rolls: [roll],
@@ -230,6 +249,7 @@ export async function defender(alvo, dataset, { rapido = false } = {}) {
   await mudarCondicao(alvo, "defendendo", false);
   // Perder a defesa não faz acertar quem já não tinha alcançado a DT.
   const entra = !venceu && dataset.sucesso !== "0";
+  const agarra = dataset.efeito === "agarrar";
   await cardConfronto(alvo, {
     titulo: game.i18n.localize("OP2.Combate2.DefesaTitulo"),
     selo: game.i18n.localize("OP2.Confronto.Oposto"),
@@ -238,12 +258,102 @@ export async function defender(alvo, dataset, { rapido = false } = {}) {
     veredito: venceu
       ? { classe: "defesa", rotulo: game.i18n.format("OP2.Confronto.Defendeu", { nome: alvo.name }) }
       : { classe: "acerto", rotulo: game.i18n.format("OP2.Confronto.NaoDefendeu", { nome: alvo.name }) },
-    golpes: entra ? [golpe(dano, alvo)] : [],
+    golpes: entra && !agarra ? [golpe(dano, alvo)] : [],
     linhas: [game.i18n.format(venceu ? "OP2.Combate2.DefesaVenceu" : "OP2.Combate2.DefesaPerdeu", { alvo: nome(alvo), defesa: roll.total, ataque: dataset.total })],
-    botoes: entra ? [{ rotulo: game.i18n.format("OP2.Combate2.AplicarDano", { dano }), acao: "vigilia-dano", dados: { atorUuid: alvo.uuid, quantidade: dano, ignoraRd: dataset.ignoraRd } }] : [],
+    botoes: !entra ? [] : [agarra ? botaoDeAgarre(alvo, atacante, dataset)
+      : { rotulo: game.i18n.format("OP2.Combate2.AplicarDano", { dano }), acao: "vigilia-dano", dados: { atorUuid: alvo.uuid, quantidade: dano, ignoraRd: dataset.ignoraRd } }],
     rolls: [roll],
   });
   return { roll, venceu };
+}
+
+/**
+ * O botão que prende a vítima, no lugar do de dano (o Afogar, p. 33). `origem` traz a fórmula do
+ * fim da rodada e os passos de se soltar: é o ataque, ou o dataset do card que o carregou.
+ */
+function botaoDeAgarre(vitima, quemAgarra, origem, { grupo } = {}) {
+  return {
+    rotulo: game.i18n.format("OP2.Agarre.Aplicar", { alvo: vitima.name }),
+    acao: "vigilia-agarrar",
+    dados: {
+      atorUuid: vitima.uuid, por: quemAgarra.uuid,
+      dano: origem.danoPorRodada ?? "", passos: Number(origem.passosSoltar) || 0, grupo,
+    },
+  };
+}
+
+/** Escolha de perícia entre poucas, com a de dado maior marcada; `rapido` fica com ela. */
+async function escolherEntre(ator, chaves, { rapido, titulo }) {
+  const ordem = [...chaves].sort((a, b) => (ator.system.pericias[b]?.valor ?? 0) - (ator.system.pericias[a]?.valor ?? 0));
+  if (rapido) return ordem[0];
+  const opcoes = ordem.map((k) => `<option value="${k}">${foundry.utils.escapeHTML(rotuloDePericia(k))}</option>`).join("");
+  return foundry.applications.api.DialogV2.prompt({
+    window: { title: `${titulo} — ${ator.name}` },
+    content: `<div class="form-group"><select name="pericia">${opcoes}</select></div>`,
+    ok: { callback: (_e, b) => b.form.elements.pericia.value },
+    rejectClose: false,
+  });
+}
+
+/** Quem está agarrado nesta cena (e não por si mesmo). */
+const agarrados = (cena) => (cena ? participantesDe(cena) : []).filter((a) => condicoesDe(a).includes("agarrado"));
+
+/**
+ * SOLTAR-SE, ou soltar um aliado (beta §7.4; Afogar, p. 33): Acrobacia ou Luta, a melhor, contra
+ * a Luta de quem segura. A vítima sofre os passos do agarre (–1 no Afogar); quem ajuda, não.
+ * Sem quem segura conhecido, é contra DT 7. O card propõe soltar; quem venceu clica.
+ */
+export async function soltar(ator, { cena = cenaAcaoAtiva(), vitimaUuid, pericia, rapido = false } = {}) {
+  let vitima = vitimaUuid ? atorDe(vitimaUuid) : null;
+  if (!vitima && condicoesDe(ator).includes("agarrado")) vitima = ator;
+  if (!vitima) {
+    // Do mesmo lado: personagem solta personagem, criatura solta criatura.
+    const presos = agarrados(cena).filter((a) => a.uuid !== ator.uuid && a.type === ator.type);
+    if (!presos.length) {
+      ui.notifications.warn(game.i18n.localize("OP2.Agarre.NinguemPreso"));
+      return null;
+    }
+    const uuid = presos.length === 1 ? presos[0].uuid : await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("OP2.Agarre.Soltar") },
+      content: `<div class="form-group"><select name="vitima">${presos.map((a) => `<option value="${a.uuid}">${nome(a)}</option>`).join("")}</select></div>`,
+      ok: { callback: (_e, b) => b.form.elements.vitima.value },
+      rejectClose: false,
+    });
+    vitima = uuid ? atorDe(uuid) : null;
+    if (!vitima) return null;
+  }
+  const agarre = vitima.system.estado?.agarre ?? {};
+  const quemSegura = agarre.por ? atorDe(agarre.por) : null;
+  const passos = passosDaSoltura(vitima === ator, agarre.passos);
+  const contexto = game.i18n.localize("OP2.Agarre.Soltar");
+  // Acrobacia ou Luta, à escolha de quem tenta (p. 33); a sugestão é a de dado maior.
+  const periciaUsada = ehNpc(ator) ? "luta" : (pericia ?? await escolherEntre(ator, ["luta", "acrobacia"], { rapido, titulo: contexto }));
+  if (!periciaUsada) return null;
+  const dt = quemSegura ? undefined : DT_PADRAO;
+  const meu = ehNpc(ator)
+    ? await rolarDadosDeNpc(ator, dadosDoNpcPara(ator, "luta", "fisico"), { oposto: Boolean(quemSegura), dt, passos, contexto, semCard: true })
+    : await rolarTeste(ator, { chavePericia: periciaUsada, oposto: Boolean(quemSegura), dt, passos, rapido, contexto, semCard: true });
+  if (!meu) return null;
+  const dele = quemSegura ? await rolarResposta(quemSegura, "luta", "fisico", contexto) : null;
+  const venceu = venceuSoltura(meu.total, dele?.total);
+  if (cena) await registrarAcao(cena, ator, "corpo");
+  const texto = vitima !== ator ? "OP2.Agarre.TentouSoltarOutro" : (passos ? "OP2.Agarre.TentouSoltar" : "OP2.Agarre.TentouSoltarLivre");
+  await cardConfronto(ator, {
+    titulo: contexto,
+    selo: dele ? game.i18n.localize("OP2.Confronto.Oposto") : `${game.i18n.localize("OP2.DT")} ${DT_PADRAO}`,
+    esquerda: lado(ator, meu, { venceu }),
+    direita: quemSegura ? lado(quemSegura, dele, { venceu: !venceu }) : lado(vitima),
+    veredito: venceu
+      ? { classe: "acerto", rotulo: game.i18n.format("OP2.Agarre.Solto", { nome: vitima.name }) }
+      : { classe: "erro", rotulo: game.i18n.format("OP2.Agarre.Preso", { nome: vitima.name }) },
+    linhas: [game.i18n.format(texto, { ator: nome(ator), vitima: nome(vitima), passos })],
+    botoes: [{
+      rotulo: game.i18n.format("OP2.Agarre.BotaoSoltar", { alvo: vitima.name }),
+      acao: "vigilia-condicao", soMestre: !venceu, dados: { atorUuid: vitima.uuid, condicao: "agarrado", ligar: "0" },
+    }],
+    rolls: [meu, ...(dele ? [dele] : [])],
+  });
+  return { venceu };
 }
 
 async function escolherAtaque(ator, lista) {
@@ -449,8 +559,9 @@ export async function manobra(ator, qual, { cena = cenaAcaoAtiva(), alvoUuid: pe
   const { venceu, porCinco } = resolverManobra(meu.total, dele.total);
   if (cena) await registrarAcao(cena, ator, "corpo");
   const botoes = [];
-  const CONDICAO_DA_MANOBRA = { derrubar: "caido", agarrar: "agarrado" };
-  if (CONDICAO_DA_MANOBRA[qual]) botoes.push(botaoDeCondicao(alvo, CONDICAO_DA_MANOBRA[qual], venceu));
+  if (qual === "derrubar") botoes.push(botaoDeCondicao(alvo, "caido", venceu));
+  // Agarrar guarda quem segura: é contra ele que a vítima testa para se soltar.
+  if (qual === "agarrar") botoes.push({ ...botaoDeAgarre(alvo, ator, {}), soMestre: !venceu });
   // Vencer por 5 deixa –1 passo só no próximo teste, até o fim da próxima rodada (beta §7.4).
   if (qual === "empurrar") botoes.push(botaoDeCondicao(alvo, "empurrado", venceu && porCinco));
   if (venceu && porCinco && qual === "derrubar") {

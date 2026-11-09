@@ -8,14 +8,19 @@
  *   - a cor das pastas segue o playtest: vermelho nos Atos, verde nas Missões;
  *   - numa Missão guardada antes das cópias, cada pré-gerado vira a cópia da missão (o mesmo
  *     id que a montagem nova dá), os vínculos de investigação e cenas acompanham, e as cenas de
- *     ação chegam vazias. Sem isso, importar a segunda Missão levava os pré-gerados da primeira.
+ *     ação chegam vazias. Sem isso, importar a segunda Missão levava os pré-gerados da primeira;
+ *   - as criaturas da Missão 1 chegam com o Afogar que agarra e a RD 3 do aughisk.
  *
- * E, ao abrir o mundo, as pastas das Missões que ainda estão vermelhas ficam verdes.
+ * E, ao abrir o mundo, as pastas das Missões que ainda estão vermelhas ficam verdes e as
+ * criaturas já importadas recebem a mesma correção.
  */
 import { SYSTEM_ID } from "../config.mjs";
 import { COR_DAS_PASTAS } from "./comum.mjs";
 import { ATOS } from "./mundo.mjs";
-import { idDaCopia } from "./missoes.mjs";
+import { idDaCopia, RD_DO_AUGHISK, AFOGAR } from "./missoes.mjs";
+
+/** Marca no ator de que a correção das criaturas já passou: depois dela, vale o que o mestre editar. */
+const MARCA_DA_CORRECAO = "criaturaCorrigida";
 
 /** O modo de uma aventura pelo nome (o da lista de atos), ou pela pasta dos extras. */
 export function modoDaAventura(adventure) {
@@ -80,6 +85,50 @@ export function separarPregeradosDaImportacao(adventure, toCreate, toUpdate, exi
   return mapa.size;
 }
 
+/**
+ * As criaturas da Missão 1 guardadas antes de duas decisões: o Afogar agarra em vez de ferir
+ * (p. 33) e a RD do aughisk é 3 (LACUNAS). Devolve as mudanças (`system.ataques`, `system.rd`)
+ * ou `null`. Só mexe no afogado e no aughisk (pelo nome, numerado ou não), só no que ainda está
+ * como a montagem antiga deixou (o Afogar sem efeito, a RD 5 exata) e só uma vez por ator: quem
+ * já tem a marca fica como o mestre deixou, mesmo que ele volte o Afogar para dano.
+ * @param {{type?: string, name?: string, system?: {ataques?: object[], rd?: number}, flags?: object}} ator
+ */
+export function correcaoDaCriatura(ator) {
+  if (ator?.type !== "npc" || !ator.system || ator.flags?.[SYSTEM_ID]?.[MARCA_DA_CORRECAO]) return null;
+  const mudancas = {};
+  const ataques = ator.system.ataques ?? [];
+  if (/^Afogado( \d+)?$/.test(ator.name ?? "") && ataques.some((a) => a.nome === "Afogar" && !a.efeito)) {
+    mudancas["system.ataques"] = ataques.map((a) => (a.nome === "Afogar" && !a.efeito ? { ...a, ...AFOGAR } : a));
+  }
+  if (/^Aughisk( \d+)?$/.test(ator.name ?? "") && ator.system.rd === 5) mudancas["system.rd"] = RD_DO_AUGHISK;
+  return Object.keys(mudancas).length ? mudancas : null;
+}
+
+/** Na importação: aplica a correção no próprio documento que vai entrar. Devolve quantos mudou. */
+export function corrigirCriaturasDaImportacao(toCreate, toUpdate) {
+  let n = 0;
+  for (const ator of [...(toCreate?.Actor ?? []), ...(toUpdate?.Actor ?? [])]) {
+    const mudancas = correcaoDaCriatura(ator);
+    if (!mudancas) continue;
+    if (mudancas["system.ataques"]) ator.system.ataques = mudancas["system.ataques"];
+    if (mudancas["system.rd"] !== undefined) ator.system.rd = mudancas["system.rd"];
+    ator.flags = { ...(ator.flags ?? {}), [SYSTEM_ID]: { ...(ator.flags?.[SYSTEM_ID] ?? {}), [MARCA_DA_CORRECAO]: true } };
+    n += 1;
+  }
+  return n;
+}
+
+/** Ao abrir o mundo: as criaturas já importadas (modelos e cópias em cena) recebem a correção. */
+export async function corrigirCriaturasDoMundo() {
+  if (!game.user?.isGM) return 0;
+  const atualizacoes = game.actors.filter((a) => a.type === "npc")
+    .map((a) => ({ a, mudancas: correcaoDaCriatura({ type: a.type, name: a.name, system: a._source.system, flags: a._source.flags }) }))
+    .filter(({ mudancas }) => mudancas)
+    .map(({ a, mudancas }) => ({ _id: a.id, ...mudancas, [`flags.${SYSTEM_ID}.${MARCA_DA_CORRECAO}`]: true }));
+  if (atualizacoes.length) await CONFIG.Actor.documentClass.updateDocuments(atualizacoes);
+  return atualizacoes.length;
+}
+
 /** As pastas de uma Missão já no mundo: a raiz tem o nome da aventura, e tudo abaixo dela. */
 function pastasDasMissoes() {
   const raizes = new Set(ATOS.filter((a) => a.modo === "vigilia").map((a) => a.aventura));
@@ -106,9 +155,13 @@ export function registrarAjustesDeImportacao() {
     const separados = separarPregeradosDaImportacao(adventure, toCreate, toUpdate);
     if (separados) console.log(`${SYSTEM_ID} | importação: ${separados} pré-gerado(s) viraram a cópia desta missão`);
     pintarPastasDaImportacao(adventure, toCreate, toUpdate);
+    if (modoDaAventura(adventure) === "vigilia") corrigirCriaturasDaImportacao(toCreate, toUpdate);
     return true;
   });
   Hooks.once("ready", () => {
     pintarPastasDasMissoes().catch((erro) => console.error(`${SYSTEM_ID} | cores das pastas`, erro));
+    corrigirCriaturasDoMundo()
+      .then((n) => { if (n) console.log(`${SYSTEM_ID} | ${n} criatura(s) da Missão 1 corrigida(s): Afogar agarra, RD do aughisk 3`); })
+      .catch((erro) => console.error(`${SYSTEM_ID} | criaturas da missão`, erro));
   });
 }

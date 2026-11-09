@@ -113,8 +113,11 @@ test("Missão 1: tudo amarrado, sem caminho fora do prefixo dos extras", () => {
   const enxurrada = aventura.actors.find((a) => a.name === "Fase 1: A Enxurrada");
   assert.deepEqual(enxurrada.system.perseguicao, PARAMETROS.enxurrada);
   const aughisk = aventura.actors.find((a) => a.name === "Aughisk");
-  assert.equal(aughisk.system.rd, 5);
+  assert.equal(aughisk.system.rd, 3);
   assert.equal(aughisk.system.recursos.pv.max, 40);
+  // Afogar agarra em vez de ferir: dano no fim da rodada, um passo a menos para se soltar (p. 33).
+  const afogar = aventura.actors.find((a) => a.name === "Afogado").system.ataques.find((a) => a.nome === "Afogar");
+  assert.deepEqual([afogar.efeito, afogar.danoPorRodada, afogar.passosSoltar], ["agarrar", "1d6", -1]);
   // Vínculos: tudo que a investigação e as cenas citam existe na aventura.
   const idsItens = new Set(aventura.items.map((i) => `Item.${i._id}`));
   const idsAtores = new Set(aventura.actors.map((a) => `Actor.${a._id}`));
@@ -247,5 +250,33 @@ test("Missão 2 sem senha na caixa avisa", () => {
     assert.equal(pintarPastasDaImportacao(aventura, toCreate, toUpdate), 2);
     assert.ok(toCreate.Folder.every((f) => f.color === COR_DAS_PASTAS.vigilia));
     assert.equal(COR_DAS_PASTAS.vigilia, "#2f6b3a");
+  });
+}
+
+// Criaturas guardadas antes das decisões da mesa: o Afogar agarra, a RD do aughisk é 3.
+{
+  const { correcaoDaCriatura, corrigirCriaturasDaImportacao } = await import("../aventura/importacao.mjs");
+  const afogadoVelho = () => ({ type: "npc", name: "Afogado 2", system: { rd: 0, ataques: [{ nome: "Garras", bonusDano: 1 }, { nome: "Afogar", bonusDano: 0 }] } });
+  test("criatura velha: o Afogar ganha o agarre, o aughisk passa a RD 3", () => {
+    const m = correcaoDaCriatura(afogadoVelho());
+    assert.equal(m["system.ataques"][1].efeito, "agarrar");
+    assert.equal(m["system.ataques"][0].efeito, undefined);
+    assert.deepEqual(correcaoDaCriatura({ type: "npc", name: "Aughisk", system: { rd: 5, ataques: [] } }), { "system.rd": 3 });
+  });
+  test("criatura já corrigida ou editada à mão fica como está", () => {
+    assert.equal(correcaoDaCriatura({ type: "npc", name: "Aughisk", system: { rd: 8, ataques: [] } }), null);
+    assert.equal(correcaoDaCriatura({ type: "npc", name: "Afogado", system: { rd: 0, ataques: [{ nome: "Afogar", efeito: "agarrar" }] } }), null);
+    assert.equal(correcaoDaCriatura({ type: "personagem", name: "Aughisk", system: { rd: 5 } }), null);
+    // Uma vez só: com a marca, o mestre pode voltar a RD a 5 ou o Afogar a dano, e fica.
+    assert.equal(correcaoDaCriatura({ type: "npc", name: "Aughisk", system: { rd: 5, ataques: [] }, flags: { "ordem-paranormal-2e": { criaturaCorrigida: true } } }), null);
+    // Outro NPC com um ataque chamado Afogar não é o afogado da missão.
+    assert.equal(correcaoDaCriatura({ type: "npc", name: "Kelpie", system: { rd: 0, ataques: [{ nome: "Afogar" }] } }), null);
+  });
+  test("na importação, a correção entra no documento que vai ser criado", () => {
+    const toCreate = { Actor: [afogadoVelho(), { type: "npc", name: "Aughisk", system: { rd: 5, ataques: [] } }] };
+    assert.equal(corrigirCriaturasDaImportacao(toCreate, {}), 2);
+    assert.equal(toCreate.Actor[0].system.ataques[1].danoPorRodada, "1d6");
+    assert.equal(toCreate.Actor[1].system.rd, 3);
+    assert.equal(toCreate.Actor[1].flags["ordem-paranormal-2e"].criaturaCorrigida, true);
   });
 }

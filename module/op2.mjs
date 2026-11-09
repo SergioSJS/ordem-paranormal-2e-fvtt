@@ -32,6 +32,7 @@ import { CenaAcaoSheet } from "./sheets/actor-cena-acao-sheet.mjs";
 import { registrarAcaoDeMestre } from "./ui/socket.mjs";
 import {
   registrarCenaAcao, cenaAcaoAtiva, iniciarCena, avancarCena, encerrarCenaAcao, adicionarCriaturas, porNaCena, tirarDaCena,
+  agarrar,
 } from "./vigilia/cena-acao.mjs";
 import { registrarPerseguicao, avancar, recuperarFolego, sacrificio } from "./vigilia/acoes-perseguicao.mjs";
 import { registrarAcoesDeChatDaVigilia } from "./vigilia/acoes-chat.mjs";
@@ -42,6 +43,7 @@ import { registrarEfeitos } from "./ui/efeitos.mjs";
 import { registrarAjustesDeImportacao } from "./aventura/importacao.mjs";
 import {
   atacar as atacarVigilia, revidar, defender as defenderVigilia, aplicarDanoDeCombate, acaoOposta, acaoGeral, manobra, ataquesDe,
+  soltar,
 } from "./vigilia/acoes-combate.mjs";
 import {
   testeDeEsconderijo, esconderSe, distrair, chamarAtencaoPara, acaoDeArea, faseDasCriaturas, testeDeEquilibrio,
@@ -172,6 +174,7 @@ Hooks.once("init", () => {
       ataquesDe, avancar, recuperarFolego, sacrificio, testeDeEsconderijo, esconderSe, distrair, chamarAtencaoPara,
       acaoDeArea, faseDasCriaturas, testeDeEquilibrio, rolarTesteBeta, rolarTabelaBeta, aplicarLinha,
       invocarRelacao, analisar: analisarVigilia, receberPavor, escalar, equilibrar, usarRuna, descartarIguais,
+      agarrar, soltar,
     },
   };
 });

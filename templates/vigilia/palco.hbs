@@ -1,6 +1,7 @@
 {{#*inline "botaoDeAcao"}}
   <button type="button" class="op2-botao op2-botao--pequeno{{#if destaque}} op2-botao--destaque{{/if}}" data-palco="agir" data-qual="{{qual}}"
-    {{#if ataque}}data-ataque="{{ataque}}"{{/if}}{{#if geral}}data-geral="{{geral}}"{{/if}}{{#if manobra}}data-manobra="{{manobra}}"{{/if}}>{{rotulo}}</button>
+    {{#if ataque}}data-ataque="{{ataque}}"{{/if}}{{#if geral}}data-geral="{{geral}}"{{/if}}{{#if manobra}}data-manobra="{{manobra}}"{{/if}}
+    {{#if indice}}data-indice="{{indice}}"{{/if}}{{#if dica}}data-tooltip="{{dica}}"{{/if}}>{{rotulo}}</button>
 {{/inline}}
 
 {{#*inline "figura"}}
@@ -19,6 +20,7 @@
       {{else if derrotado}}
         <span class="op2-palco__caido">{{localize "OP2.Palco.Caido"}}</span>
       {{/if}}
+      {{#if placar}}<span class="op2-palco__placar">{{placar}}</span>{{/if}}
       {{#if condicoesAtivas.length}}
         <span class="op2-palco__condicoes">{{#each condicoesAtivas}}<span>{{this}}</span>{{/each}}</span>
       {{/if}}
@@ -53,7 +55,7 @@
         </div>
       {{/if}}
       {{#if temAcoes}}
-        <span class="op2-palco__menu-titulo">{{localize "OP2.Guia.NestaFase"}}</span>
+        <span class="op2-palco__menu-titulo">{{@root.tituloAcoes}}</span>
         <div class="op2-palco__acoes">
           {{#each nestaFase}}{{> botaoDeAcao}}{{else}}<em>{{localize "OP2.Guia.NadaNestaFase"}}</em>{{/each}}
         </div>

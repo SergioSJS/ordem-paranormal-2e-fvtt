@@ -184,7 +184,7 @@ export function tocarAudio(src, { todos = false } = {}) {
 const ACOES_UNICAS = new Set([
   "vigilia-teste-queda", "vigilia-tabela-queda", "vigilia-aplicar-linha", "vigilia-dano", "vigilia-dano-dono",
   "vigilia-rolar-dano", "vigilia-revidar", "vigilia-defender", "vigilia-descartar", "vigilia-recupera-pv",
-  "vigilia-perder-dado",
+  "vigilia-perder-dado", "vigilia-agarrar",
 ]);
 
 /** Identifica o botão na mensagem. Não pelo índice: o jogador não recebe os botões do mestre. */

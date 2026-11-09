@@ -4,7 +4,7 @@
  * Não recebe as 20 perícias: o mestre declara só as que aquele NPC usa, porque no
  * playtest a maioria dos oponentes existe para um punhado de testes.
  */
-import { campoAtributos, campoRecurso, campoDado } from "./campos.mjs";
+import { campoAtributos, campoRecurso, campoDado, campoAgarre } from "./campos.mjs";
 import { faces } from "../dice/escada.mjs";
 
 export class NpcData extends foundry.abstract.TypeDataModel {
@@ -32,9 +32,16 @@ export class NpcData extends foundry.abstract.TypeDataModel {
         tipo: new StringField({ required: true, initial: "corpo", choices: ["corpo", "distancia"], blank: false }),
         dados: new StringField({ required: true, initial: "d6+d6", blank: false }),
         bonusDano: new NumberField({ required: true, initial: 0, integer: true, nullable: false }),
+        // Ataque que agarra em vez de ferir: o Afogar do afogado (p. 33). Acertou, a vítima fica
+        // agarrada; o dano vem no fim de cada rodada (`danoPorRodada`), e `passosSoltar` é o que
+        // a vítima perde no teste de se soltar. Vazio, é ataque de dano comum.
+        efeito: new StringField({ required: true, initial: "", blank: true, choices: ["", "agarrar"] }),
+        danoPorRodada: new StringField({ required: true, initial: "", blank: true }),
+        passosSoltar: new NumberField({ required: true, initial: 0, integer: true, nullable: false }),
       }), { initial: [] }),
       estado: new SchemaField({
         condicoes: new SetField(new StringField(), { initial: [] }),
+        agarre: campoAgarre(),
       }),
     };
   }

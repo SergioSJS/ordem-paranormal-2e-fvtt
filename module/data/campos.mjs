@@ -16,6 +16,20 @@ export function campoContador(inicial = 0) {
   return new NumberField({ required: true, initial: inicial, min: 0, integer: true, nullable: false });
 }
 
+/**
+ * Quem agarra este ator e o que isso custa (beta §7.4; o Afogar, p. 33): `por` é o uuid de
+ * quem segura, `dano` a fórmula que ele perde no fim de cada rodada, `passos` o que perde no
+ * teste de se soltar. Vale enquanto a condição "agarrado" estiver ligada.
+ */
+export function campoAgarre() {
+  const { SchemaField, StringField, NumberField } = f();
+  return new SchemaField({
+    por: new StringField({ required: true, initial: "", blank: true }),
+    dano: new StringField({ required: true, initial: "", blank: true }),
+    passos: new NumberField({ required: true, initial: 0, integer: true, nullable: false }),
+  });
+}
+
 /** Recurso value/max, como PV e PD. */
 export function campoRecurso(inicial = 0) {
   const { SchemaField, NumberField } = f();

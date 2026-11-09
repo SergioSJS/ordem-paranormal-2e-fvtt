@@ -1,8 +1,9 @@
 /**
  * Modo transmissão: uma tela só com os cards dos personagens, sobre fundo transparente,
  * para usar como fonte de navegador no OBS. Rosto, nome do personagem e de quem joga, PV,
- * PD, pavor e condições; quando a pessoa rola, o card acende com os dados desenhados, o
- * total e o desfecho.
+ * PD, pavor e condições; quando a pessoa rola, o card acende e a rolagem entra na frente
+ * dessas informações: os dados na forma de cada um, com o valor dentro, a RA em vermelho, a
+ * RB em azul, o total e o desfecho.
  *
  * Nada se move: o card tem tamanho fixo, com a vaga da rolagem e a linha do estado reservadas
  * mesmo vazias, e a cena de ação mora num elemento à parte, com posição própria. Quem monta o
@@ -16,6 +17,7 @@
  */
 import { SYSTEM_ID } from "../config.mjs";
 import { iconeResultado } from "./dice-icons.mjs";
+import { papeisDosDados } from "../dice/analise.mjs";
 import { cenaAcaoAtiva, personagensDosJogadores } from "../vigilia/cena-acao.mjs";
 import { jaAgiu } from "../vigilia/combate.mjs";
 
@@ -34,7 +36,11 @@ const ENQUADRAMENTOS = ["busto", "inteiro"];
 const POSICOES_DA_CENA = [...POSICOES, "oculta"];
 const PADRAO = {
   usuario: "", posicao: "top-left", direcao: "coluna", escala: 1, condicoes: true, estilo: "cartao", enquadramento: "busto",
-  cena: "top-center", atores: [],
+  // A faixa da rodada fica num canto: o centro de cima é onde a câmera e o overlay disputam espaço.
+  cena: "top-right", atores: [],
+  // Contorno tracejado em volta de cada card, da área da rolagem e da faixa da cena: é para quem
+  // monta o overlay no OBS ver onde recortar. Desliga antes de ir ao ar.
+  guias: false,
 };
 
 export const configDaTransmissao = () => ({ ...PADRAO, ...(game.settings.get(SYSTEM_ID, CHAVE) ?? {}) });
@@ -59,6 +65,9 @@ export function ehTransmissao() {
  *   ambos  — as duas colunas lado a lado: quem monta o overlay recorta a que quiser no OBS.
  */
 const daUrl = () => new URLSearchParams(globalThis.location?.search ?? "").get(PARAMETRO);
+
+/** Guias de recorte nesta tela: pela configuração ou por `&op2-guias` na URL. */
+const comGuias = (cfg) => Boolean(cfg.guias) || new URLSearchParams(globalThis.location?.search ?? "").has("op2-guias");
 
 /** `?op2-transmissao=cena`: esta fonte mostra só a cena de ação, sem cards. */
 const soCena = () => daUrl() === "cena";
@@ -134,11 +143,17 @@ function desenharCena(cfg) {
   if (!elementoCena) return;
   const pos = posicaoDaCena(cfg);
   const noAr = cenaNoAr();
-  elementoCena.hidden = !pos || !noAr;
+  const guias = comGuias(cfg);
+  // Com guias, a faixa aparece mesmo sem cena, vazia e contornada: é o lugar dela no recorte.
+  elementoCena.hidden = !pos || (!noAr && !guias);
   if (!pos) return;
   elementoCena.dataset.posicao = pos;
+  elementoCena.dataset.guias = guias ? "1" : "0";
   elementoCena.style.setProperty("--op2-transmissao-escala", String(Number(cfg.escala) || 1));
-  if (!noAr) { elementoCena.replaceChildren(); return; }
+  if (!noAr) {
+    elementoCena.textContent = guias ? game.i18n.localize("OP2.Transmissao.GuiaCena") : "";
+    return;
+  }
   const escapar = (t) => foundry.utils.escapeHTML(String(t ?? ""));
   const fase = noAr.system.fase ? game.i18n.localize(`OP2.Fase.${noAr.system.fase}`) : "";
   elementoCena.innerHTML = `<span class="op2-tag op2-tag--pequena">${escapar(game.i18n.localize(`OP2.CenaAcao.Tipo.${noAr.system.tipo}`))}</span>
@@ -150,6 +165,7 @@ function aplicarLayout(el, cfg) {
   el.dataset.posicao = POSICOES.includes(cfg.posicao) ? cfg.posicao : PADRAO.posicao;
   el.dataset.direcao = cfg.direcao === "linha" ? "linha" : "coluna";
   el.dataset.estilo = estiloDaTela(cfg);
+  el.dataset.guias = comGuias(cfg) ? "1" : "0";
   el.style.setProperty("--op2-transmissao-escala", String(Number(cfg.escala) || 1));
 }
 
@@ -168,14 +184,42 @@ export function atualizarTransmissao() {
   }, 80);
 }
 
-/** Uma linha da rolagem: os dados desenhados, o total e o desfecho. Montada da rolagem, não do HTML do chat. */
+/**
+ * Os dados da rolagem, um registro por dado: forma, valor, se conta, se é o pavor. Do OP2Roll
+ * vem pronto; de uma rolagem comum do core (`/r 2d6`), monta-se dos resultados.
+ */
+function dadosDaRolagem(roll) {
+  if (Array.isArray(roll.dados) && roll.dados.length) return roll.dados;
+  let indice = 0;
+  return roll.dice.flatMap((termo) => termo.results.map((r) => ({
+    indice: indice++, dado: `d${termo.faces}`, resultado: r.result, contado: r.active !== false,
+  })));
+}
+
+/** Um dado desenhado, com a etiqueta embaixo: RA (vermelho), RB (azul), pavor. */
+function dadoEmHtml(d, papeis) {
+  const ehRa = papeis.ra === d.indice;
+  const ehRb = papeis.rb === d.indice;
+  const classes = ["op2-transmissao__dado"];
+  if (ehRa) classes.push("op2-transmissao__dado--ra");
+  if (ehRb && !ehRa) classes.push("op2-transmissao__dado--rb");
+  if (d.pavor) classes.push("op2-transmissao__dado--pavor");
+  const etiqueta = [ehRa && "RA", ehRb && "RB", d.pavor && game.i18n.localize("OP2.Transmissao.Pavor")].filter(Boolean).join("·");
+  const icone = iconeResultado({ dado: d.dado, resultado: d.resultado, contado: d.pavor || (d.contado && !d.anulado) });
+  return `<span class="${classes.join(" ")}">${icone}<small>${foundry.utils.escapeHTML(etiqueta)}</small></span>`;
+}
+
+/**
+ * A rolagem no card: os dados na forma de cada um, com o valor dentro e a RA e a RB marcadas,
+ * o total e o desfecho. Montada da rolagem, não do HTML do chat.
+ */
 export function rolagemEmHtml(mensagem) {
   const roll = mensagem.rolls?.[0];
   if (!roll?._evaluated && roll?.total === undefined) return "";
   const escapar = (t) => foundry.utils.escapeHTML(String(t ?? ""));
-  const dados = Array.isArray(roll.dados) && roll.dados.length
-    ? roll.dados.map((d) => iconeResultado({ dado: d.dado, resultado: d.resultado, contado: d.contado && !d.anulado }))
-    : roll.dice.flatMap((termo) => termo.results.map((r) => iconeResultado({ dado: `d${termo.faces}`, resultado: r.result, contado: r.active !== false })));
+  const lista = dadosDaRolagem(roll);
+  const papeis = papeisDosDados(lista);
+  const dados = lista.map((d) => dadoEmHtml(d, papeis));
   let desfecho = "";
   if (roll.critico) desfecho = "Critico";
   else if (roll.falhaCritica) desfecho = "FalhaCritica";
@@ -186,8 +230,11 @@ export function rolagemEmHtml(mensagem) {
     .querySelector(".op2-tag")?.textContent.replace(/\s+/g, " ").trim() || mensagem.flavor || roll.formula;
   return `<div class="op2-transmissao__rolagem${desfecho ? ` op2-transmissao__rolagem--${desfecho.toLowerCase()}` : ""}">
     <span class="op2-transmissao__rolagem-titulo">${escapar(titulo)}</span>
-    <span class="op2-transmissao__rolagem-dados">${dados.join("")}<span class="op2-transmissao__total">= ${escapar(roll.total)}</span></span>
-    ${desfecho ? `<strong class="op2-transmissao__desfecho">${escapar(game.i18n.localize(`OP2.Transmissao.${desfecho}`))}</strong>` : ""}
+    <span class="op2-transmissao__rolagem-dados">${dados.join("")}</span>
+    <span class="op2-transmissao__rolagem-fim">
+      <span class="op2-transmissao__total">${escapar(roll.total)}</span>
+      ${desfecho ? `<strong class="op2-transmissao__desfecho">${escapar(game.i18n.localize(`OP2.Transmissao.${desfecho}`))}</strong>` : ""}
+    </span>
   </div>`;
 }
 
@@ -289,6 +336,7 @@ export class TransmissaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
       posicoes: POSICOES.map((p) => ({ valor: p, rotulo: game.i18n.localize(`OP2.Transmissao.Posicao.${p}`), atual: p === cfg.posicao })),
       posicoesDaCena: POSICOES_DA_CENA.map((p) => ({ valor: p, rotulo: game.i18n.localize(`OP2.Transmissao.Posicao.${p}`), atual: p === cfg.cena })),
       enderecoCena: `${enderecoBase}/game?${PARAMETRO}=cena`,
+      enderecoGuias: `${enderecoBase}/game?${PARAMETRO}&op2-guias`,
       personagens: game.actors.filter((a) => a.type === "personagem")
         .map((a) => ({ id: a.id, nome: a.name, marcado: marcados.has(a.id), jogadores: jogadoresDe(a, cfg).join(", ") }))
         .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")),
@@ -306,6 +354,7 @@ export class TransmissaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
       estilo: ESTILOS.includes(d.estilo) ? d.estilo : PADRAO.estilo,
       enquadramento: ENQUADRAMENTOS.includes(d.enquadramento) ? d.enquadramento : PADRAO.enquadramento,
       cena: POSICOES_DA_CENA.includes(d.cena) ? d.cena : PADRAO.cena,
+      guias: Boolean(d.guias),
     });
     ui.notifications.info(game.i18n.localize("OP2.Transmissao.Salvo"));
     this.render();
