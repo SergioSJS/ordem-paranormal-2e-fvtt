@@ -521,14 +521,21 @@ const guias = await jog.evaluate(() => {
   return {
     ligado: document.getElementById("op2-transmissao")?.dataset.guias === "1",
     contornoCard: getComputedStyle(document.querySelector("#op2-transmissao .op2-transmissao__card")).outlineStyle,
+    // A guia da rolagem é pintada no fundo da faixa, e o nome fica atrás do conteúdo.
+    fundoVaga: getComputedStyle(vaga).backgroundImage,
     contornoVaga: getComputedStyle(vaga).outlineStyle,
     rotulo: getComputedStyle(vaga, "::before").content,
+    rotuloAtras: getComputedStyle(vaga, "::before").zIndex === "-1",
+    sombraLivre: getComputedStyle(document.querySelector("#op2-transmissao .op2-transmissao__cards--livre .op2-transmissao__card") ?? document.body).overflow === "visible"
+      && getComputedStyle(vaga).overflow === "visible",
     cenaVisivel: Boolean(cena && !cena.hidden && cena.getBoundingClientRect().height > 0),
   };
 });
 console.log(JSON.stringify(guias));
 ok("transmissão com guias: tracejado no card, na área da rolagem (com o nome) e na faixa da cena",
-  guias.ligado && guias.contornoCard === "dashed" && guias.contornoVaga === "dashed" && /rolagem/i.test(guias.rotulo) && guias.cenaVisivel);
+  guias.ligado && guias.contornoCard === "dashed" && /repeating-linear-gradient/.test(guias.fundoVaga) && guias.contornoVaga === "none"
+  && /rolagem/i.test(guias.rotulo) && guias.rotuloAtras && guias.cenaVisivel);
+ok("transmissão: a faixa da rolagem não corta a sombra dos dados", guias.sombraLivre);
 ok("transmissão com guias: os cards ficam onde estavam", await caixas() === parado);
 if (process.env.FOTO_GUIAS) await jog.screenshot({ path: process.env.FOTO_GUIAS });
 if (process.env.FOTO) await jog.screenshot({ path: process.env.FOTO });
