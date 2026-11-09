@@ -20,6 +20,30 @@ o beta, *Contos da Vigília*, no **[modo Vigília](#modo-vigília)** (Missões 1
 
 ![Ficha de personagem](docs/img/ficha-personagem.png)
 
+## Em uma olhada
+
+Um setting de mundo escolhe o modo; cada um traz as suas perícias, regras e aventuras, e a ficha guarda as duas.
+
+**Modo moderno: o alpha, Atos I e II.**
+
+- Ficha do livro com dados em escada (d4→d12), Rolagem Alta e Baixa, crítico e falha crítica.
+- [Investigação](#investigação) com painel do mestre, pontos de interesse e revelação por personagem.
+- [Desafios de acesso](#desafios) e as dez ferramentas da Ordo Realitas.
+
+**Modo Vigília: o beta, *Contos da Vigília*, Missões 1 e 2.**
+
+- [Combate por fases](#modo-vigília): suporte, distância, corpo a corpo e final. Tem card de confronto, manobras,
+  armadura, lesões e traumas.
+- Perseguição, furtividade, dado de pavor e relações.
+- O [palco](#modo-vigília) conduz a cena sem abrir janela.
+
+**Para as duas.**
+
+- As aventuras são montadas do PDF do mestre, e as artes vêm dos zips da editora.
+- Para mesa em live: [transmissão para OBS](#transmissão-obs) e [efeitos de mesa](#efeitos-de-mesa) com som e
+  luz.
+- Tudo se faz também à mão: a automação propõe, quem clica aplica.
+
 ## O que ele faz
 
 **Dados em escada, não modificadores.** Atributos e perícias são *tamanho de dado*
@@ -544,6 +568,12 @@ basta para o Ato I.
 O **Ato II** vem pelo mesmo caminho, do PDF completo do playtest; as artes dele são
 exclusivas de assinante, e o sistema pede o zip da editora na hora de importar.
 
+As **Missões do modo Vigília** também. Troque o **Modo de jogo** para Vigília e abra **Aventuras do playtest**:
+
+- O **PDF do beta** monta as duas missões; o gratuito, só a Missão 1.
+- Depois, o sistema pede o zip da editora com mapas, tokens, handouts e músicas.
+- Cada missão vem com cena, pré-gerados, pontos, desafios, roteiro e as cenas de ação prontas para iniciar.
+
 Os marcadores dos pontos no mapa e os tokens na posição inicial da aventura vêm
 prontos quando `packs/sources/<ato>-cenas/posicoes.json` existe — é o que
 `npm run posicoes -- --ato ato-i --mundo <mundo>` captura de uma cena montada num
@@ -606,7 +636,8 @@ Detalhes do loop local, teste em duas versões do Foundry e convenções: [CLAUD
 
 ## Estado
 
-Em desenvolvimento, versão 0.0.1.
+Em desenvolvimento. A última versão publicada é a 0.9.7 (modo moderno); o modo Vigília está pronto na branch e
+entra na próxima, depois da rodada de mesa.
 
 | Fase | O que entrou | Situação |
 |---|---|---|
