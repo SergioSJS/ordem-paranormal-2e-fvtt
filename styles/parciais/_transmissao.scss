@@ -338,6 +338,15 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
   line-height: 1;
 }
 
+// O título e o desfecho cortam com reticências (`overflow: hidden`), e isso cortava o contorno
+// escuro das letras no estilo sem fundo. A folga de 3 px por dentro, desfeita na margem, dá espaço
+// ao contorno sem mudar onde o texto fica.
+.op2-transmissao__rolagem-titulo,
+.op2-transmissao__desfecho {
+  margin: -3px;
+  padding: 3px;
+}
+
 .op2-transmissao__desfecho {
   overflow: hidden;
   align-self: start;
@@ -440,6 +449,10 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
   .op2-transmissao__estado > span,
   .op2-transmissao__rolagem { text-shadow: var(--op2-transmissao-contorno); }
 
+  // Mesma folga do título da rolagem: o corte com reticências comia o contorno e a perna do "g".
+  .op2-transmissao__nome,
+  .op2-transmissao__jogador { margin: -3px; padding: 3px; }
+  .op2-transmissao__jogador { margin-top: -5px; }
   .op2-transmissao__nome { color: var(--op2-transmissao-nome); font-size: 1.3rem; }
   .op2-transmissao__jogador { color: var(--op2-transmissao-jogador); font-style: italic; }
   .op2-transmissao__texto { font-size: 1.1rem; font-weight: 700; }
