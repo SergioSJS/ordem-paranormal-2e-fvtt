@@ -298,6 +298,13 @@ async function criarUsuario() {
   return existente ?? CONFIG.User.documentClass.create({ name: nome, role: CONST.USER_ROLES.PLAYER });
 }
 
+/** "Missão 1 — O Pântano dos Afogados / Pré-gerados": a pasta inteira, da raiz até o ator. */
+function caminhoDaPasta(pasta) {
+  const nomes = [];
+  for (let p = pasta; p; p = p.folder) nomes.unshift(p.name);
+  return nomes.join(" / ");
+}
+
 /** Dá à transmissão permissão de observador nos personagens que ela mostra. */
 async function darAcesso(cfg) {
   const usuario = game.users.get(cfg.usuario);
@@ -337,9 +344,11 @@ export class TransmissaoApp extends HandlebarsApplicationMixin(ApplicationV2) {
       posicoesDaCena: POSICOES_DA_CENA.map((p) => ({ valor: p, rotulo: game.i18n.localize(`OP2.Transmissao.Posicao.${p}`), atual: p === cfg.cena })),
       enderecoCena: `${enderecoBase}/game?${PARAMETRO}=cena`,
       enderecoGuias: `${enderecoBase}/game?${PARAMETRO}&op2-guias`,
+      // Com a pasta: os pré-gerados existem uma vez por aventura (Missão 1, Missão 2, Ato I), com o mesmo
+      // nome. Escolher a cópia errada deixa o card parado (os PV são da outra) e a rolagem não acende.
       personagens: game.actors.filter((a) => a.type === "personagem")
-        .map((a) => ({ id: a.id, nome: a.name, marcado: marcados.has(a.id), jogadores: jogadoresDe(a, cfg).join(", ") }))
-        .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")),
+        .map((a) => ({ id: a.id, nome: a.name, pasta: caminhoDaPasta(a.folder), marcado: marcados.has(a.id), jogadores: jogadoresDe(a, cfg).join(", ") }))
+        .sort((a, b) => a.pasta.localeCompare(b.pasta, "pt-BR") || a.nome.localeCompare(b.nome, "pt-BR")),
       enderecoLogin: `${enderecoBase}/join`,
       enderecoDireto: `${enderecoBase}/game?${PARAMETRO}`,
     };

@@ -458,6 +458,8 @@ body.op2-vigilia .op2-transmissao { --op2-transmissao-nome: #f0c060; }
 .op2-transmissao-config__passos { margin: 0; padding-left: 1.2em; li { margin-bottom: 0.2em; } }
 .op2-transmissao-config__grade { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--op2-e2); }
 .op2-transmissao-config__atores { display: grid; grid-template-columns: 1fr 1fr; margin: 0; padding: 0; list-style: none; gap: 2px var(--op2-e3); }
+// A pasta embaixo do nome: é o que separa a Rhiona da Missão 1 da Rhiona da Missão 2.
+.op2-transmissao-config__pasta { display: block; padding-left: 1.6em; font-size: 0.75rem; }
 .op2-transmissao-config__rodape { display: flex; justify-content: flex-end; }
 .op2-transmissao-config code { user-select: all; word-break: break-all; }
 }

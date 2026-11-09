@@ -1576,7 +1576,7 @@
       "Linha": "Row",
       "Escala": "Scale",
       "MostrarCondicoes": "Show dread and conditions",
-      "QuemAjuda": "None checked: the players' characters show.",
+      "QuemAjuda": "None checked: the players' characters show. Each adventure brings its own copy of the pre-generated characters, with the same name: check the ones in the folder of the adventure being played, or the card won't light up on rolls and the HP will be the other copy's.",
       "Salvar": "Save",
       "Salvo": "Stream saved.",
       "Critico": "Critical!",

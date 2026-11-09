@@ -67,6 +67,7 @@
         <li><label class="op2-campo--inline">
           <input type="checkbox" name="atores.{{id}}" {{#if marcado}}checked{{/if}}> {{nome}}
           {{#if jogadores}}<span class="op2-ajuda">· {{jogadores}}</span>{{/if}}
+          {{#if pasta}}<span class="op2-ajuda op2-transmissao-config__pasta">{{pasta}}</span>{{/if}}
         </label></li>
       {{/each}}
     </ul>
