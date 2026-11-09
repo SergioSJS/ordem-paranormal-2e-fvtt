@@ -441,7 +441,10 @@ body.op2-transmissao-modo > *:not(#op2-transmissao, #op2-transmissao-cena) {
   }
 
   &.op2-transmissao__cards--inteiro { --op2-transmissao-retrato-altura: 136px; }
-  .op2-transmissao__dados { height: auto; max-height: 100%; justify-content: center; }
+  // A coluna não corta: era ela que comia o contorno de tudo encostado à esquerda (nome, quem
+  // joga, PV, PD). Cada linha que precisa de reticências corta sozinha, com folga para o contorno.
+  .op2-transmissao__dados { overflow: visible; height: auto; max-height: 100%; justify-content: center; }
+  .op2-transmissao__estado { margin: -3px; padding: 3px; }
 
   .op2-transmissao__nome,
   .op2-transmissao__jogador,
