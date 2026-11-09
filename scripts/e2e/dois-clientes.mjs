@@ -489,7 +489,9 @@ await gm.evaluate(async (id) => {
 await jog.waitForTimeout(1200);
 fixos.push(["pavor, condições e dano", await caixas()]);
 await gm.evaluate(async (id) => { await game.op2.rolarTeste(game.actors.get(id), { chavePericia: "percepcao", rapido: true, dt: 7 }); }, tx1.id);
-await jog.waitForTimeout(1500);
+// A rolagem chega ao jogador pelo chat; com o servidor carregado leva mais de 1,5 s. Espera acender (até 8 s).
+await jog.waitForFunction((id) => document.querySelectorAll(`#op2-transmissao [data-ator-id="${id}"].op2-transmissao__card--rolou .op2-transmissao__rolagem`).length === 2,
+  tx1.id, { timeout: 8000 }).catch(() => {});
 const acesoAgora = await jog.evaluate((id) => document.querySelectorAll(`#op2-transmissao [data-ator-id="${id}"].op2-transmissao__card--rolou .op2-transmissao__rolagem`).length, tx1.id);
 fixos.push(["rolar", await caixas()]);
 // O selo de "já agiu" não pode cair em cima do nome, e a faixa da cena não pode cobrir card nenhum.
