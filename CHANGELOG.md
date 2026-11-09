@@ -5,6 +5,8 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+## [0.10.0] — 2026-11-09
+
 **Modo Vigília**, o playtest beta *Contos da Vigília*, em paralelo ao modo moderno. Um setting de mundo escolhe
 o modo; os Atos I e II continuam como estavam.
 
