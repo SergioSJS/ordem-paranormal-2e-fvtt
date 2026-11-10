@@ -5,6 +5,8 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+## [0.11.0] — 2026-11-10
+
 **Revisão 1.1 do playtest beta.** O sistema monta as missões das duas revisões do PDF e segue as regras da 1.1.
 
 - **O PDF 1.1 monta as missões.** A 1.1 rediagramou o livro: o quadro dos pontos passou a ter o mesmo corpo do texto, e
