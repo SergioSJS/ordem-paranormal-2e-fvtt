@@ -112,7 +112,7 @@
         "stepMod": 0
       },
       "pontaria": {
-        "die": "d6",
+        "die": "d4",
         "atributo": "fisico",
         "stepMod": 0
       },

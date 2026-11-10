@@ -16,7 +16,7 @@ import {
   podeTentarHackNestaRodada, chancesDeErroHackSocial, linhaDaTabelaDeHack,
   tentativasPorRodadaDeDestrancar, tentativasDeDestrancarNaRodada,
 } from "./desafios.mjs";
-import { rolarTeste, renderizar, enviarParaChat, rotuloDePericia } from "../dice/teste.mjs";
+import { rolarTeste, renderizar, enviarParaChat, rotuloDePericia, escopoDoCritico } from "../dice/teste.mjs";
 import { enviarCardAoMestre } from "../ui/card-mestre.mjs";
 import { aplicarDano } from "../dice/falha-critica.mjs";
 import { stepDie } from "../dice/escada.mjs";
@@ -276,7 +276,7 @@ export async function testarFadigaDeSustentar(ator) {
   const roll = OP2Roll.paraComponentes([
     { chave: "pericia.atletismo", rotulo: rotuloDePericia("atletismo"), tipo: "pericia", dado: stepDie(pericia.dadoEfetivo, -fadiga) },
     { chave: `atributo.${pericia.atributo}`, rotulo: game.i18n.localize(`OP2.Atributo.${pericia.atributo}`), tipo: "atributo", dado: atributo.dadoEfetivo },
-  ], { dt: lerConfig("dtPadrao"), escopoCritico: lerConfig("escopoCritico"), rotulo, atorId: ator.id });
+  ], { dt: lerConfig("dtPadrao"), escopoCritico: escopoDoCritico(), rotulo, atorId: ator.id });
   await roll.evaluate();
   await enviarParaChat(roll, ator);
 

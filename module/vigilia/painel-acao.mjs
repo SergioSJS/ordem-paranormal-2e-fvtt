@@ -28,7 +28,7 @@ const ACOES_GERAIS = ["defender", "mirar", "preparar", "usar", "erguer", "erguer
 const LIVRES = new Set(["erguerLivre", "sacarLivre", "jogarSe"]);
 
 /**
- * Todo botão de combate de um ator, com a fase em que a regra o põe (beta §7.1): suporte
+ * Todo botão de combate de um ator, com a fase em que a regra o põe (beta §7.1): geral
  * para as ações gerais, distância e corpo a corpo para os ataques (manobra é corpo a corpo),
  * final para investigar. O painel mostra primeiro os da fase atual; os outros ficam em
  * "outras ações", sem sumir — a mesa decide (manual sempre possível).
@@ -43,12 +43,12 @@ function acoesDeCombate(ator, { temAnalise, ehPc, outrosPresos }) {
   return [
     ...soltar,
     ...ataquesDe(ator).map((a) => ({ qual: "ataque", ataque: a.id, rotulo: a.nome, fase: a.tipo === "distancia" ? "distancia" : "corpo", destaque: true })),
-    { qual: "atrapalhar", rotulo: t("OP2.Combate2.atrapalhar"), fase: "suporte" },
-    { qual: "fintar", rotulo: t("OP2.Combate2.fintar"), fase: "suporte" },
-    ...(temAnalise ? [{ qual: "analisar", rotulo: t("OP2.Analise.Titulo"), fase: "suporte" }] : []),
-    ...ACOES_GERAIS.map((g) => ({ qual: "geral", geral: g, rotulo: t(`OP2.Combate2.${g}`), fase: LIVRES.has(g) ? "livre" : "suporte" })),
+    { qual: "atrapalhar", rotulo: t("OP2.Combate2.atrapalhar"), fase: "geral" },
+    { qual: "fintar", rotulo: t("OP2.Combate2.fintar"), fase: "geral" },
+    ...(temAnalise ? [{ qual: "analisar", rotulo: t("OP2.Analise.Titulo"), fase: "geral" }] : []),
+    ...ACOES_GERAIS.map((g) => ({ qual: "geral", geral: g, rotulo: t(`OP2.Combate2.${g}`), fase: LIVRES.has(g) ? "livre" : "geral" })),
     ...MANOBRAS.map((m) => ({ qual: "manobra", manobra: m, rotulo: t(`OP2.Manobra.${m}.nome`), fase: "corpo" })),
-    ...(ehPc ? [{ qual: "investigar", rotulo: t("OP2.CenaAcao.Investigar"), fase: "final" }] : []),
+    ...(ehPc ? [{ qual: "investigar", rotulo: t("OP2.CenaAcao.Investigar"), fase: "geral" }] : []),
   ];
 }
 

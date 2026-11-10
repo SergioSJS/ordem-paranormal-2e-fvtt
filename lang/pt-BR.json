@@ -1018,6 +1018,11 @@
         "ehBeta": "Este é o PDF do playtest beta: escolha-o no grupo do modo Vigília."
       },
       "Importado": "{nome}: importado para o mundo.",
+      "AtualizarPontos": "Atualizar as pistas no mundo ({n})",
+      "AtualizarPontosAjuda": "Reescreve o quadro dos pontos desta missão que já estão no mundo pelo do PDF lido. Quem descobriu cada pista continua com ela; fichas, cenas e tokens não mudam.",
+      "AtualizarPontosTitulo": "Atualizar as pistas",
+      "AtualizarPontosPergunta": "Os {n} pontos de {nome} que já estão no mundo vão receber o quadro do PDF lido agora: DTs, perícias e o texto de cada pista. Quem descobriu uma pista continua com ela. Edições suas no quadro desses pontos são substituídas.",
+      "AtualizarPontosFeito": "{pontos} pontos atualizados: {casadas} pistas mantidas, {novas} novas, {removidas} retiradas.",
       "MenuNome": "Aventuras do playtest",
       "MenuBotao": "Montar do PDF",
       "MenuAjuda": "Escolha o PDF do playtest e o sistema monta o Ato I (e o Ato II, se o PDF o trouxer) no compêndio deste mundo.",
@@ -1141,10 +1146,9 @@
       "empurrado": "Empurrado"
     },
     "Fase": {
-      "suporte": "Suporte",
+      "geral": "Geral",
       "distancia": "À distância",
       "corpo": "Corpo a corpo",
-      "final": "Final",
       "personagens": "Personagens",
       "criaturas": "Criaturas",
       "livre": "Ação livre (qualquer fase)"
@@ -1528,10 +1532,9 @@
       "NadaNestaFase": "Nada desta fase para este personagem.",
       "OutrasAcoes": "Outras ações (de outras fases ou livres)",
       "rodada": "Sem iniciativa. Cada um tem uma ação padrão na rodada e escolhe em que fase usá-la; quem age numa fase não age nas seguintes. Dentro da fase tudo é simultâneo, e uma fase acontece antes das próximas: derrubar alguém à distância impede o corpo a corpo dele.",
-      "suporte": "Ações gerais: atrapalhar, fintar, mirar, preparar, defender-se, erguer-se, sacar ou guardar. Também usar habilidade ou item e preparar esquiva.",
+      "geral": "Qualquer ação, exceto ataques: atrapalhar, fintar, mirar, preparar, defender-se, erguer-se, sacar ou guardar, usar habilidade ou item. Também mover-se, fugir e investigar no meio da luta.",
       "distancia": "Agredir à distância: Pontaria contra DT 7, com +3 em alcance longo. Atirar em quem está no corpo a corpo custa –2 passos, ou arrisque 1d6 (ímpar, acerta quem ele enfrentava).",
-      "corpo": "Agredir corpo a corpo: Luta contra DT 7. Dois que se atacam viram teste oposto, e no empate os dois acertam. Manobras (agarrar, derrubar, desarmar, empurrar, quebrar) entram no lugar do ataque.",
-      "final": "Mover-se, fugir, investigar no meio da luta ou fazer algo fora do combate. Depois vem o fim da rodada: efeitos do roteiro, condições que vencem, quem está morrendo.",
+      "corpo": "Agredir corpo a corpo: Luta contra DT 7. Dois que se atacam viram teste oposto, e no empate os dois acertam. Manobras (agarrar, derrubar, desarmar, empurrar, quebrar) entram no lugar do ataque. Depois vem o fim da rodada: efeitos do roteiro, condições que vencem, quem está morrendo.",
       "perseguicao": "Toda rodada, cada personagem avança: Atletismo DT 10, somando o RA se passar e o RB se falhar. Fôlego são dados bônus; esforço extra dá +1 passo e custa PV. Nas rodadas de corte, quem está abaixo do mínimo sofre o que a cena manda.",
       "personagens": "Cada personagem avança pela área ou usa uma ação especial: esconder-se, distrair, chamar atenção. Ação barulhenta descarta um dado de esconderijo.",
       "criaturas": "Um jogador rola 1d10 na tabela das criaturas. Na procura, quem tem dado de esconderijo com o mesmo valor de um dado do mestre perde esse dado. Sem dados, o personagem foi encontrado."
@@ -1646,7 +1649,10 @@
       "AguardaDefesa": "{alvo} está se defendendo: o dano só entra se a defesa perder.",
       "Protecao": "{bruto} antes da proteção, {final} depois.",
       "Caiu": "{nome} caiu.",
-      "Enlouqueceu": "{nome} chegou a 0 PD."
+      "Enlouqueceu": "{nome} chegou a 0 PD.",
+      "Empate": "Empate: rolem de novo",
+      "EmpateExplica": "Teste oposto empatado: os dois rolam de novo, até alguém vencer. A ação não se gasta outra vez.",
+      "RolarDeNovo": "Rolar de novo"
     },
     "Agarre": {
       "Explica": "Este ataque não fere ao acertar: agarra. Quem está agarrado só tenta se soltar e perde {dano} no fim de cada rodada.",

@@ -20,11 +20,16 @@ export const PONTOS = {
     { numero: "4.1", nome: "BAÚ ROMANO" }, { numero: "4.2", nome: "NICHO DA NÉVOA" },
     { numero: "05", nome: "ESCADARIA NATURAL" }, { numero: "5.1", nome: "INSCRIÇÃO ANTIGA" },
     { numero: "5.2", nome: "POTES DE ARGILA" }, { numero: "06", nome: "MONÓLITO PESADO" },
+    // Só a revisão 1.1 dá quadro aos nichos; na 1.0 o ponto existe só no mapa e no roteiro.
+    { numero: "07", nome: "NICHOS NA PAREDE", opcional: true },
   ],
 };
 
-/** Quantas linhas de quadro a revisão 1.0 tem: revisão nova com outro número pede conferência. */
-const LINHAS_DO_LIVRO = { "missao-1": 16, "missao-2": 24 };
+/**
+ * Quantas linhas de quadro cada revisão conferida tem (1.0, 1.1): revisão nova com outro número
+ * pede conferência.
+ */
+const LINHAS_DO_LIVRO = { "missao-1": [16], "missao-2": [24, 27] };
 
 /** Onde cada missão começa e termina, pelo que o livro imprime na página. */
 const LIMITES = {
@@ -55,22 +60,71 @@ function fonteDoQuadro(pedacos) {
 }
 
 const ehCabecalho = (p) => ["Perícia", "DT", "Informação"].includes(p.texto.trim());
+const ehNumeroDeDt = (p) => /^\d{1,2}$/.test(p.texto.trim());
+
+/**
+ * As colunas do quadro pelo cabeçalho "Perícia · DT · Informação", que as duas revisões imprimem.
+ * @returns {{dt: number, info: number, y: number}|null}
+ */
+function colunasDoCabecalho(pedacos) {
+  for (const l of emLinhas(pedacos)) {
+    const dt = l.pedacos.find((p) => p.texto.trim() === "DT");
+    const info = l.pedacos.find((p) => p.texto.trim() === "Informação");
+    if (dt && info && l.pedacos.some((p) => p.texto.trim() === "Perícia")) return { dt: dt.x, info: info.x, y: l.y };
+  }
+  return null;
+}
+
+/**
+ * Os pedaços do quadro, pela geometria (revisão 1.1 em diante). Na 1.0 o quadro tinha corpo próprio,
+ * menor que o do texto; na 1.1 tem o mesmo corpo e a mesma fonte do texto corrido, e só as colunas o
+ * separam. O quadro acaba na primeira linha que atravessa a coluna da DT: é o texto que vem depois.
+ * @param {{dt: number, info: number, y: number}} col
+ * @param {number} topo só o que está abaixo disto (o cabeçalho, ou o topo da página na continuação)
+ */
+function pedacosPorColunas(pedacos, col, topo) {
+  const atravessa = (p) => !ehCabecalho(p) && !ehNumeroDeDt(p) && p.x < col.info - 3 && p.x + p.largura > col.dt + 2;
+  const abaixo = pedacos.filter((p) => p.y < topo - 1);
+  let fim = -Infinity;
+  for (const l of emLinhas(abaixo)) {
+    if (l.pedacos.some(atravessa)) { fim = l.y; break; }
+  }
+  const doQuadro = abaixo.filter((p) => p.y > fim + 1 && !ehCabecalho(p));
+  return {
+    celulas: doQuadro.filter((p) => p.x >= col.info - 3),
+    dts: doQuadro.filter((p) => ehNumeroDeDt(p) && p.x > col.dt - 12 && p.x < col.info - 2),
+    rotulos: doQuadro.filter((p) => !ehNumeroDeDt(p) && p.x + p.largura <= col.dt + 2),
+  };
+}
 
 /**
  * O quadro de uma região da página.
- * @returns {{linhas: object[], topo: number, fundo: number}|null}
+ * @param {{dt: number, info: number}|null} [colunasAnteriores] as da página anterior do mesmo ponto:
+ *   o quadro que vira a página pode não repetir o cabeçalho.
+ * @returns {{linhas: object[], topo: number, fundo: number, colunas: object|null}|null}
  */
-function lerQuadro(pedacos, avisos = []) {
-  const fonte = fonteDoQuadro(pedacos);
-  const celulas = pedacos.filter((p) => p.fonte === fonte && !ehCabecalho(p));
+function lerQuadro(pedacos, avisos = [], colunasAnteriores = null) {
+  const cabecalho = colunasDoCabecalho(pedacos);
+  const colunas = cabecalho ?? colunasAnteriores;
+  let celulas;
+  let dtsBrutas;
+  let rotulosBrutos = null;
+  if (colunas) {
+    const topo = cabecalho ? cabecalho.y : Math.max(...pedacos.map((p) => p.y)) + 2;
+    ({ celulas, dts: dtsBrutas, rotulos: rotulosBrutos } = pedacosPorColunas(pedacos, colunas, topo));
+  } else {
+    // Sem cabeçalho nem colunas conhecidas: a leitura da 1.0, pela fonte própria do quadro.
+    const fonte = fonteDoQuadro(pedacos);
+    celulas = pedacos.filter((p) => p.fonte === fonte && !ehCabecalho(p));
+  }
   if (!celulas.length) return null;
   const colInfo = Math.min(...celulas.map((p) => p.x));
   const fundoCelulas = Math.min(...celulas.map((p) => p.y));
   const topoCelulas = Math.max(...celulas.map((p) => p.y));
   // Negrito dentro da célula vem em outra fonte, na mesma coluna e na mesma faixa.
-  const info = pedacos.filter((p) => !ehCabecalho(p) && p.x >= colInfo - 1 && p.y >= fundoCelulas - 2 && p.y <= topoCelulas + 2);
-  const dts = pedacos.filter((p) => /^\d{1,2}$/.test(p.texto.trim()) && p.x < colInfo - 2 && p.x > colInfo - 45
-    && p.y >= fundoCelulas - 12 && p.y <= topoCelulas + 12).sort((a, b) => b.y - a.y);
+  const info = colunas ? celulas : pedacos.filter((p) => !ehCabecalho(p) && p.x >= colInfo - 1 && p.y >= fundoCelulas - 2 && p.y <= topoCelulas + 2);
+  const dts = (dtsBrutas ?? pedacos.filter((p) => ehNumeroDeDt(p) && p.x < colInfo - 2 && p.x > colInfo - 45
+    && p.y >= fundoCelulas - 12 && p.y <= topoCelulas + 12)).sort((a, b) => b.y - a.y);
   if (!dts.length) return null;
 
   const linhasInfo = emLinhas(info);
@@ -98,7 +152,8 @@ function lerQuadro(pedacos, avisos = []) {
     fontes.set(p.fonte, (fontes.get(p.fonte) ?? 0) + 1);
   }
   const fonteRotulo = [...fontes.entries()].sort((x, y) => y[1] - x[1])[0]?.[0];
-  const rotulos = pedacos.filter((p) => naColuna(p) && p.fonte === fonteRotulo
+  // Pelas colunas, o fim do quadro já foi achado: rótulo é o que está à esquerda da DT.
+  const rotulos = rotulosBrutos ?? pedacos.filter((p) => naColuna(p) && p.fonte === fonteRotulo
     && p.y >= fundoCelulas - 30 && p.y <= topoCelulas + 26);
   const blocos = [];
   for (const l of emLinhas(rotulos)) {
@@ -124,7 +179,9 @@ function lerQuadro(pedacos, avisos = []) {
   });
   const donos = repartirRotulos(blocos, linhas, avisos);
   linhas.forEach((linha, k) => { linha.rotulo = donos[k]?.texto ?? ""; });
-  return { linhas, topo: Math.max(topoCelulas, ...dts.map((d) => d.y)) + 12, fundo: Math.min(fundoCelulas, ...dts.map((d) => d.y)) - 4 };
+  const topo = Math.max(topoCelulas, ...dts.map((d) => d.y), ...(cabecalho ? [cabecalho.y] : [])) + (cabecalho ? 2 : 12);
+  const fundo = Math.min(fundoCelulas, ...dts.map((d) => d.y), ...(colunas ? rotulos.map((r) => r.y) : [])) - 4;
+  return { linhas, topo, fundo, colunas };
 }
 
 /**
@@ -173,7 +230,10 @@ export function lerRotulo(rotulo) {
   const limpo = String(rotulo).trim();
   const condicao = /\((apenas [^)]*|caso [^)]*)\)/i.exec(limpo)?.[1] ?? "";
   const semCondicao = limpo.replace(/\((apenas [^)]*|caso [^)]*)\)/i, "").trim();
-  const [primeira, segunda] = semCondicao.split(/\s+ou\s+/i);
+  const [primeira, segundaBruta] = semCondicao.split(/\s+ou\s+/i);
+  // "Aptidão (artes) ou (folclore)" (revisão 1.1): a segunda é outro campo da mesma Aptidão.
+  const segunda = segundaBruta && /^\(/.test(segundaBruta.trim()) && /^apt[ií]d[aã]o/i.test(primeira.trim())
+    ? `Aptidão ${segundaBruta.trim()}` : segundaBruta;
   const chave = (t) => {
     const n = t.trim();
     if (/^of[ií]cio/i.test(n)) return "oficio";
@@ -193,13 +253,41 @@ export function lerRotulo(rotulo) {
   return { pericia: a ?? "percepcao", alternativa: b ?? "", condicao, rotulo: limpo, chaveConhecida: Boolean(a) };
 }
 
-/** Os títulos dos pontos numa página: corpo de título, texto igual ao nome da lista. */
+/**
+ * A condição impressa no começo do texto da linha: vai até a primeira palavra em maiúscula, que é
+ * onde a informação começa.
+ * @returns {{condicao: string, texto: string}}
+ */
+export function condicaoNoTexto(texto) {
+  const m = /^((?:Apenas|Caso|Somente)\s[^A-ZÀ-Ý“"]*?)\s+(?=[A-ZÀ-Ý“"])/u.exec(String(texto));
+  return m ? { condicao: m[1].trim(), texto: texto.slice(m[0].length) } : { condicao: "", texto };
+}
+
+const ehNumeroDoMapa = (p) => /^\d(\.\d)?\d?$/.test(p.texto.trim()) && p.altura >= 14;
+/** "01" e "1" são o mesmo ponto: a 1.0 imprime com zero, a 1.1 sem. */
+export const mesmoNumero = (a, b) => Number(a) === Number(b);
+
+/** O número grande do mapa, na margem, logo abaixo do título do ponto. */
+function numeroAoLado(pagina, y) {
+  const perto = pagina.pedacos.filter((p) => ehNumeroDoMapa(p) && p.y <= y + 8 && p.y >= y - 45);
+  return perto.sort((a, b) => Math.abs(a.y - y) - Math.abs(b.y - y))[0]?.texto.trim() ?? null;
+}
+
+/**
+ * Os títulos dos pontos numa página: corpo de título, texto igual ao nome da lista. Quando o número
+ * do mapa ao lado aponta outro ponto da lista, vale o número: a revisão 1.1 imprime o 5.1 (Inscrição
+ * Antiga) com o título da Pilha de Cinzas.
+ */
 function titulosNaPagina(pagina, pontos) {
   const achados = [];
   for (const l of emLinhas(pagina.pedacos)) {
     const texto = textoDaLinha(l).replace(/\s+/g, " ").trim().toUpperCase();
-    const cand = pontos.find((p) => texto === p.nome || texto === `${p.nome} (CONTINUAÇÃO)`);
-    if (cand) achados.push({ ponto: cand, y: l.y, continuacao: texto.includes("CONTINUA") });
+    let cand = pontos.find((p) => texto === p.nome || texto === `${p.nome} (CONTINUAÇÃO)`);
+    if (!cand) continue;
+    const continuacao = texto.includes("CONTINUA");
+    const numero = continuacao ? null : numeroAoLado(pagina, l.y);
+    if (numero && !mesmoNumero(numero, cand.numero)) cand = pontos.find((p) => mesmoNumero(p.numero, numero)) ?? cand;
+    achados.push({ ponto: cand, y: l.y, continuacao });
   }
   return achados;
 }
@@ -232,7 +320,8 @@ export function extrairPontosDaMissao(paginas, missao) {
     for (const r of regioes) {
       const pedacos = pagina.pedacos.filter((p) => p.y < r.topo + (r.titulo ? -1 : 0) && p.y >= r.fundo + 1);
       if (!pedacos.length) continue;
-      const quadro = lerQuadro(pedacos, avisos);
+      const quadro = lerQuadro(pedacos, avisos, r.titulo ? null : r.ponto.colunas);
+      if (quadro?.colunas) r.ponto.colunas = quadro.colunas;
       if (r.titulo) r.ponto.pagina = pagina.numero;
       const acima = (quadro ? pedacos.filter((p) => p.y > quadro.topo) : (r.titulo ? pedacos : [])).filter((p) => !ehCabecalho(p));
       const abaixo = quadro ? pedacos.filter((p) => p.y < quadro.fundo) : (r.titulo ? [] : pedacos);
@@ -257,21 +346,27 @@ export function extrairPontosDaMissao(paginas, missao) {
       }
       if (quadro) {
         for (const l of quadro.linhas) {
-          r.ponto.informacoes.push({ ...lerRotulo(l.rotulo), dt: l.dt, texto: l.texto });
+          const rotulo = lerRotulo(l.rotulo);
+          // Na revisão 1.1 a condição vem na coluna do texto, antes dele ("Apenas se alguém tiver
+          // encontrado o pergaminho esfarelado O pergaminho traz…"); na 1.0, no rótulo, entre parênteses.
+          const { condicao, texto } = rotulo.condicao ? { condicao: rotulo.condicao, texto: l.texto } : condicaoNoTexto(l.texto);
+          r.ponto.informacoes.push({ ...rotulo, condicao, dt: l.dt, texto });
         }
       }
       r.ponto.notas.push(...paragrafosDaPagina(abaixo).map((p) => p.texto));
       atual = r.ponto;
     }
   }
-  const pontos = [...porNome.values()];
-  for (const p of pontos) if (p.pagina === null) avisos.push(`Ponto não encontrado no PDF: ${p.nome}`);
+  const pontos = [...porNome.values()].map(({ colunas: _c, ...p }) => p);
+  const opcionais = new Set(lista.filter((p) => p.opcional).map((p) => p.nome));
+  for (const p of pontos) if (p.pagina === null && !opcionais.has(p.nome)) avisos.push(`Ponto não encontrado no PDF: ${p.nome}`);
   const achados = pontos.filter((p) => p.pagina !== null);
   // Quadro que sumiu não dá erro nenhum: sem isto, o ponto entra vazio e a mesa descobre jogando.
   for (const p of achados) if (!p.informacoes.length) avisos.push(`Ponto sem linhas no quadro: ${p.nome}`);
   const total = achados.reduce((n, p) => n + p.informacoes.length, 0);
-  if (achados.length === pontos.length && total !== LINHAS_DO_LIVRO[missao]) {
-    avisos.push(`O quadro tem ${total} linhas, e a versão conferida tinha ${LINHAS_DO_LIVRO[missao]}: confira contra o livro.`);
+  const obrigatorios = pontos.filter((p) => !opcionais.has(p.nome));
+  if (obrigatorios.every((p) => p.pagina !== null) && !LINHAS_DO_LIVRO[missao].includes(total)) {
+    avisos.push(`O quadro tem ${total} linhas, e as versões conferidas tinham ${LINHAS_DO_LIVRO[missao].join(" ou ")}: confira contra o livro.`);
   }
   return { pontos: achados, avisos };
 }

@@ -95,7 +95,17 @@ test("papéis dos dados: RA no maior, RB no menor, um dado por papel", () => {
   // Descartado não entra; com um contado só, ele é RA e RB.
   assert.deepEqual(a.papeisDosDados(d("d8:2", "d6:6:off")), { ra: 0, rb: 0 });
   assert.deepEqual(a.papeisDosDados(d("d8:2:off")), { ra: null, rb: null });
-  // Anulado pelo pavor também sai.
+  // Anulado pelo pavor sai da soma, mas segue valendo como RB (beta 1.1, p. 24).
   const comPavor = a.marcarPavor([...d("d8:7", "d6:2"), { indice: 2, dado: "d6", resultado: 4, contado: true, pavor: true }]);
-  assert.deepEqual(a.papeisDosDados(comPavor), { ra: 0, rb: 0 });
+  assert.deepEqual(a.papeisDosDados(comPavor), { ra: 0, rb: 1 });
+});
+
+test("beta 1.1: com 4 dados, o crítico se vê depois de descartar o menor (p. 11)", () => {
+  // 6, 6, 8, 9: sem o menor (um dos 6), sobra 6, 8, 9 — não é crítico.
+  assert.equal(a.valorCritico(d("d8:6", "d6:6", "d10:8", "d10:9"), "semMenor"), null);
+  assert.equal(a.valorCritico(d("d8:6", "d6:6", "d10:8", "d10:9"), "todos"), 6);
+  // 3, 7, 7, 9: o descartado é o 3, o par de 7 fica.
+  assert.equal(a.valorCritico(d("d4:3", "d8:7", "d8:7", "d10:9"), "semMenor"), 7);
+  // Com 3 dados nada se descarta.
+  assert.equal(a.valorCritico(d("d8:6", "d6:6", "d10:9"), "semMenor"), 6);
 });

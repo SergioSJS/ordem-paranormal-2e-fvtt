@@ -2,7 +2,7 @@
   "id": "ordem-paranormal-2e",
   "title": "Ordem Paranormal 2 — Playtest (Não-Oficial)",
   "description": "Sistema NÃO-OFICIAL dos playtests de Ordem Paranormal RPG 2, sob a Licença da Comunidade. Dois modos: moderno (alpha, Atos I e II), com investigação, desafios de acesso e as ferramentas da Ordo Realitas; e Vigília (beta, Contos da Vigília), com combate por fases, perseguição, furtividade, medo e relações. As aventuras saem do PDF que o mestre já tem e as artes, dos zips da editora: nenhum texto nem arte do livro no pacote. Palco de cena, overlay para OBS e efeitos de mesa. Feito por fã, sem afiliação com os detentores dos direitos de Ordem Paranormal RPG; o conteúdo do livro pertence a eles. Contém material gerado por inteligência artificial: o código é escrito com auxílio de IA e mantido pelo autor; os textos são do autor.",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "socket": true,
   "compatibility": {
     "minimum": "13",

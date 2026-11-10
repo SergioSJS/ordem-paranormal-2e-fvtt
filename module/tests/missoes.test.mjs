@@ -113,7 +113,8 @@ test("Missão 1: tudo amarrado, sem caminho fora do prefixo dos extras", () => {
   const enxurrada = aventura.actors.find((a) => a.name === "Fase 1: A Enxurrada");
   assert.deepEqual(enxurrada.system.perseguicao, PARAMETROS.enxurrada);
   const aughisk = aventura.actors.find((a) => a.name === "Aughisk");
-  assert.equal(aughisk.system.rd, 3);
+  // RD 10, a que a revisão 1.1 imprime (p. 45).
+  assert.equal(aughisk.system.rd, 10);
   assert.equal(aughisk.system.recursos.pv.max, 40);
   // Afogar agarra em vez de ferir: dano no fim da rodada, um passo a menos para se soltar (p. 33).
   const afogar = aventura.actors.find((a) => a.name === "Afogado").system.ataques.find((a) => a.nome === "Afogar");
@@ -253,15 +254,15 @@ test("Missão 2 sem senha na caixa avisa", () => {
   });
 }
 
-// Criaturas guardadas antes das decisões da mesa: o Afogar agarra, a RD do aughisk é 3.
+// Criaturas guardadas antes das decisões da mesa: o Afogar agarra; a RD da montagem antiga vira a da 1.1.
 {
   const { correcaoDaCriatura, corrigirCriaturasDaImportacao } = await import("../aventura/importacao.mjs");
   const afogadoVelho = () => ({ type: "npc", name: "Afogado 2", system: { rd: 0, ataques: [{ nome: "Garras", bonusDano: 1 }, { nome: "Afogar", bonusDano: 0 }] } });
-  test("criatura velha: o Afogar ganha o agarre, o aughisk passa a RD 3", () => {
+  test("criatura velha: o Afogar ganha o agarre, o aughisk passa à RD da revisão 1.1", () => {
     const m = correcaoDaCriatura(afogadoVelho());
     assert.equal(m["system.ataques"][1].efeito, "agarrar");
     assert.equal(m["system.ataques"][0].efeito, undefined);
-    assert.deepEqual(correcaoDaCriatura({ type: "npc", name: "Aughisk", system: { rd: 5, ataques: [] } }), { "system.rd": 3 });
+    assert.deepEqual(correcaoDaCriatura({ type: "npc", name: "Aughisk", system: { rd: 5, ataques: [] } }), { "system.rd": 10 });
   });
   test("criatura já corrigida ou editada à mão fica como está", () => {
     assert.equal(correcaoDaCriatura({ type: "npc", name: "Aughisk", system: { rd: 8, ataques: [] } }), null);
@@ -276,7 +277,99 @@ test("Missão 2 sem senha na caixa avisa", () => {
     const toCreate = { Actor: [afogadoVelho(), { type: "npc", name: "Aughisk", system: { rd: 5, ataques: [] } }] };
     assert.equal(corrigirCriaturasDaImportacao(toCreate, {}), 2);
     assert.equal(toCreate.Actor[0].system.ataques[1].danoPorRodada, "1d6");
-    assert.equal(toCreate.Actor[1].system.rd, 3);
+    assert.equal(toCreate.Actor[1].system.rd, 10);
     assert.equal(toCreate.Actor[1].flags["ordem-paranormal-2e"].criaturaCorrigida, true);
+  });
+}
+
+// Revisão 1.1 do beta em mundo montado com a 1.0: só números nossos, uma vez, sem tocar o editado.
+{
+  const { revisaoDoAtor, aplicarNoFonte, PERICIAS_DA_REVISAO_1_1 } = await import("../aventura/revisao-beta.mjs");
+  const { corrigirCriaturasDaImportacao } = await import("../aventura/importacao.mjs");
+  test("revisão 1.1: a RD 3 (decisão antiga) e a 5 (montagem antiga) do aughisk viram 10", () => {
+    assert.deepEqual(revisaoDoAtor({ type: "npc", name: "Aughisk", system: { rd: 3 } }), { "system.rd": 10 });
+    assert.deepEqual(revisaoDoAtor({ type: "npc", name: "Aughisk 2", system: { rd: 5 } }), { "system.rd": 10 });
+    assert.equal(revisaoDoAtor({ type: "npc", name: "Aughisk", system: { rd: 7 } }), null);
+  });
+  test("revisão 1.1: o Atletismo do afogado e as perícias corrigidas dos pré-gerados", () => {
+    assert.deepEqual(revisaoDoAtor({ type: "npc", name: "Afogado", system: { pericias: { atletismo: { die: "d8" } } } }),
+      { "system.pericias.atletismo.die": "d6" });
+    const rowan = { type: "personagem", name: "Rowan Lobo Castanho", system: { pericias: { acrobacia: { die: "d6" }, animais: { die: "d10" } } } };
+    // Animais editado à mão (d10) fica; Acrobacia ainda no dado da 1.0 é corrigida.
+    assert.deepEqual(revisaoDoAtor(rowan), { "system.pericias.acrobacia.die": "d4" });
+    assert.equal(revisaoDoAtor({ type: "personagem", name: "Rowan", system: { pericias: { acrobacia: { die: "d6" } } } }), null);
+    assert.ok(PERICIAS_DA_REVISAO_1_1.cormac.sobrevivencia);
+  });
+  test("revisão 1.1: uma vez só, com a marca no ator", () => {
+    const ator = aplicarNoFonte({ type: "npc", name: "Aughisk", system: { rd: 3 } }, { "system.rd": 10 });
+    assert.equal(ator.system.rd, 10);
+    ator.system.rd = 3;
+    assert.equal(revisaoDoAtor(ator), null);
+  });
+  test("revisão 1.1 na importação: a aventura guardada com a 1.0 entra corrigida", () => {
+    const toCreate = { Actor: [
+      { type: "personagem", name: "Muirenn da Lua Pálida", system: { pericias: { pontaria: { die: "d6" } } } },
+      { type: "npc", name: "Aughisk", system: { rd: 3, ataques: [] }, flags: { "ordem-paranormal-2e": { criaturaCorrigida: true } } },
+    ] };
+    assert.equal(corrigirCriaturasDaImportacao(toCreate, {}), 2);
+    assert.equal(toCreate.Actor[0].system.pericias.pontaria.die, "d4");
+    assert.equal(toCreate.Actor[1].system.rd, 10);
+  });
+}
+
+// Revisão 1.1 do livro no extrator: condição no texto, Aptidão com dois campos, repetidos.
+{
+  const { condicaoNoTexto, lerRotulo, mesmoNumero } = await import("../extrator/missoes.mjs");
+  const { marcarRepetidos } = await import("../aventura/missoes.mjs");
+  test("extrator 1.1: a condição impressa no começo do texto vira condição", () => {
+    assert.deepEqual(condicaoNoTexto("Apenas se alguém tiver encontrado o pergaminho esfarelado O pergaminho traz"),
+      { condicao: "Apenas se alguém tiver encontrado o pergaminho esfarelado", texto: "O pergaminho traz" });
+    assert.deepEqual(condicaoNoTexto("Caso já tenham encontrado uma ou mais runas “As inscrições”"),
+      { condicao: "Caso já tenham encontrado uma ou mais runas", texto: "“As inscrições”" });
+    assert.deepEqual(condicaoNoTexto("Há algo entalhado no piso."), { condicao: "", texto: "Há algo entalhado no piso." });
+  });
+  test("extrator 1.1: \"Aptidão (artes) ou (folclore)\" são dois campos da Aptidão", () => {
+    const r = lerRotulo("Aptidão (artes) ou (folclore)");
+    assert.deepEqual([r.pericia, r.alternativa], ["aptidao.artes", "aptidao.folclore"]);
+  });
+  test("extrator 1.1: o número do mapa sem o zero é o mesmo ponto", () => {
+    assert.ok(mesmoNumero("01", "1"));
+    assert.ok(mesmoNumero("5.1", "5.1"));
+    assert.ok(!mesmoNumero("5.1", "5.2"));
+  });
+  test("ponto com a descrição de outro ganha a nota", () => {
+    const [a, b] = marcarRepetidos([{ nome: "PILHA DE CINZAS", descricao: "X" }, { nome: "INSCRIÇÃO ANTIGA", descricao: "X" }]);
+    assert.equal(a.repete, undefined);
+    assert.match(b.repete, /Pilha de Cinzas/);
+  });
+}
+
+// "Atualizar as pistas no mundo": o quadro novo, com a revelação de quem já achou.
+{
+  const { mesclarInformacoes, similaridade } = await import("../aventura/atualizar-pontos.mjs");
+  const linha = (id, texto, extra = {}) => ({ id, pericia: "percepcao", dt: 8, texto, oculta: false, aberta: false, contadaPor: [], ...extra });
+  test("atualizar pistas: a linha reescrita fica com o id e o estado da antiga", () => {
+    // O Altar das Vinhas na 1.0: a linha do virote (trocada no livro, em rascunho) e a do pergaminho.
+    const antigas = [
+      linha("a0", "O virote de ferro não é a munição de uma besta comum", { oculta: true }),
+      linha("a1", "Em cima do altar, escondido pela vegetação, há um pergaminho esfarelado.", { contadaPor: ["x"] }),
+    ];
+    // A 1.1 tira o virote e muda a DT do pergaminho; o id que a montagem dá é por posição ("a0").
+    const novas = [linha("a0", "Em cima do altar, escondido pela vegetação, há um pergaminho esfarelado. Nele, seis formas.", { dt: 6 })];
+    let n = 0;
+    const r = mesclarInformacoes(antigas, novas, () => `novo${n++}`);
+    assert.equal(r.informacoes.length, 1);
+    assert.equal(r.informacoes[0].id, "a1");
+    assert.equal(r.informacoes[0].dt, 6);
+    assert.deepEqual(r.informacoes[0].contadaPor, ["x"]);
+    assert.deepEqual(r.removidas.map((v) => v.id), ["a0"]);
+  });
+  test("atualizar pistas: pista nova não herda a revelação de outra pelo id", () => {
+    const antigas = [linha("b0", "Há algumas mercadorias debaixo da carroça.")];
+    const novas = [linha("b0", "Há algo entalhado no próprio piso à frente do buraco.")];
+    const r = mesclarInformacoes(antigas, novas, () => "fresco");
+    assert.equal(r.informacoes[0].id, "fresco");
+    assert.equal(r.casadas, 0);
+    assert.ok(similaridade("um dois três quatro", "um dois três quatro") === 1);
   });
 }

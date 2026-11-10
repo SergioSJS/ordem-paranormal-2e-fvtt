@@ -178,7 +178,9 @@ export function casarEntradas(entradas, esperados) {
   for (const esperado of esperados) {
     // Imagem que encolhe ao subir muda de extensão: casa pelo nome que a editora dá.
     const slug = esperado.maxLado ? slugDeArquivo(esperado.nome) : esperado.destino.split("/").pop();
-    const exato = slugs.find((s) => s.slug === slug && !usados.has(s.entrada));
+    // `outros`: o nome que o arquivo ganhou numa revisão do zip (as fichas da 1.1 do beta).
+    const aceitos = [slug, ...(esperado.outros ?? []).map((o) => slugDeArquivo(o))];
+    const exato = slugs.find((s) => aceitos.includes(s.slug) && !usados.has(s.entrada));
     if (exato) { encontrados.push({ esperado, entrada: exato.entrada, aproximado: false }); usados.add(exato.entrada); }
     else semExato.push(esperado);
   }

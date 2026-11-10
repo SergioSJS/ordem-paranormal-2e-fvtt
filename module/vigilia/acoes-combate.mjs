@@ -15,11 +15,11 @@ import { aplicarDano } from "../dice/falha-critica.mjs";
 import { cardVigilia, donosDe } from "./card.mjs";
 import { escolherPericia } from "../dice/pericia-dialog.mjs";
 import {
-  montarAtaque, resolverCruzado, danoDoAcerto, defesaVenceu, resolverManobra, faseDoAtaque, venceuSoltura, passosDaSoltura,
+  montarAtaque, resolverCruzado, danoDoAcerto, defesaVenceu, resolverManobra, faseDoAtaque, venceuSoltura, passosDaSoltura, empatou,
 } from "./combate.mjs";
 import { danoDepoisDaProtecao } from "./dano.mjs";
 import { atorDe, cenaAcaoAtiva, participantesDe, registrarAcao, mudarCondicao } from "./cena-acao.mjs";
-import { MAX_MARCADORES, PASSOS_FINTA, DT_PADRAO } from "../config.mjs";
+import { MAX_MARCADORES, PASSOS_FINTA, DT_PADRAO, DT_ATAQUE } from "../config.mjs";
 import { alvosMarcados } from "./alvos.mjs";
 import { cardConfronto, lado, golpe, vereditoDoTeste } from "./confronto.mjs";
 
@@ -244,6 +244,15 @@ export async function defender(alvo, dataset, { rapido = false } = {}) {
     ? await rolarDadosDeNpc(alvo, dadosDoNpcPara(alvo, corpo ? "luta" : "acrobacia", "fisico", "d6"), { oposto: true, semCard: true })
     : await rolarTeste(alvo, { chavePericia: corpo && alvo.system.pericias.luta.valor > alvo.system.pericias.acrobacia.valor ? "luta" : "acrobacia", oposto: true, rapido, semCard: true, dadosExtras: [extra], contexto: game.i18n.localize("OP2.Combate2.DefesaTitulo") });
   if (!roll) return null;
+  if (empatou(roll.total, dataset.total)) {
+    const repetir = Object.fromEntries(Object.entries(dataset).filter(([k]) => !k.startsWith("op2") && k !== "grupo"));
+    await cardDeEmpate(alvo, {
+      titulo: game.i18n.localize("OP2.Combate2.DefesaTitulo"),
+      esquerda: { ...lado(atacante, null), total: Number(dataset.total) }, direita: lado(alvo, roll),
+      repetir: { ...repetir, atorUuid: alvo.uuid, tipo: "defender" }, rolls: [roll],
+    });
+    return { roll, empate: true };
+  }
   const venceu = defesaVenceu(roll.total, Number(dataset.total));
   const dano = danoDoAcerto({ ra: Number(dataset.ra), segunda: Number(dataset.segunda), critico: Number(dataset.critico) === 1 }, Number(dataset.bonusDano));
   await mudarCondicao(alvo, "defendendo", false);
@@ -335,8 +344,15 @@ export async function soltar(ator, { cena = cenaAcaoAtiva(), vitimaUuid, pericia
     : await rolarTeste(ator, { chavePericia: periciaUsada, oposto: Boolean(quemSegura), dt, passos, rapido, contexto, semCard: true });
   if (!meu) return null;
   const dele = quemSegura ? await rolarResposta(quemSegura, "luta", "fisico", contexto) : null;
-  const venceu = venceuSoltura(meu.total, dele?.total);
   if (cena) await registrarAcao(cena, ator, "corpo");
+  if (empatou(meu.total, dele?.total)) {
+    await cardDeEmpate(ator, {
+      titulo: contexto, esquerda: lado(ator, meu), direita: lado(quemSegura, dele),
+      repetir: { atorUuid: ator.uuid, tipo: "soltar", vitimaUuid: vitima.uuid, pericia: periciaUsada }, rolls: [meu, dele],
+    });
+    return { empate: true };
+  }
+  const venceu = venceuSoltura(meu.total, dele?.total);
   const texto = vitima !== ator ? "OP2.Agarre.TentouSoltarOutro" : (passos ? "OP2.Agarre.TentouSoltar" : "OP2.Agarre.TentouSoltarLivre");
   await cardConfronto(ator, {
     titulo: contexto,
@@ -484,22 +500,29 @@ async function rolarResposta(ator, pericia, atributo, contexto) {
 const PERICIA_PADRAO = { atrapalhar: "enganacao", fintar: "enganacao" };
 
 /** Ações gerais com teste oposto: Atrapalhar e Fintar (beta §7.2). */
-export async function acaoOposta(ator, qual, { cena = cenaAcaoAtiva(), alvoUuid: pedido, rapido = false } = {}) {
+export async function acaoOposta(ator, qual, { cena = cenaAcaoAtiva(), alvoUuid: pedido, rapido = false, pericia: periciaPedida } = {}) {
   const alvoUuid = pedido ?? await escolherAlvo(ator, cena, game.i18n.localize(`OP2.Combate2.${qual}`));
   if (!alvoUuid) return null;
   const alvo = atorDe(alvoUuid);
   // Atrapalhar é com "perícia coerente": quem joga diz qual (beta §7.2). Fintar é sempre Enganação.
-  const pericia = qual === "atrapalhar" && !rapido && !ehNpc(ator)
+  const pericia = periciaPedida || (qual === "atrapalhar" && !rapido && !ehNpc(ator)
     ? await escolherPericia(ator, { titulo: game.i18n.localize("OP2.Combate2.atrapalhar") })
-    : PERICIA_PADRAO[qual];
+    : PERICIA_PADRAO[qual]);
   if (!pericia) return null;
   const meu = ehNpc(ator)
     ? await rolarDadosDeNpc(ator, dadosDoNpcPara(ator, pericia, "emocao"), { oposto: true, atributo: "emocao", semCard: true })
     : await rolarTeste(ator, { chavePericia: pericia, oposto: true, rapido, semCard: true, contexto: game.i18n.localize(`OP2.Combate2.${qual}`) });
   if (!meu) return null;
   const dele = await rolarResposta(alvo, qual === "fintar" ? "intuicao" : "percepcao", qual === "fintar" ? "emocao" : "mente", game.i18n.localize(`OP2.Combate2.${qual}`));
+  if (cena) await registrarAcao(cena, ator, "geral");
+  if (empatou(meu.total, dele.total)) {
+    await cardDeEmpate(ator, {
+      titulo: game.i18n.localize(`OP2.Combate2.${qual}`), esquerda: lado(ator, meu), direita: lado(alvo, dele),
+      repetir: { atorUuid: ator.uuid, tipo: "oposta", qual, alvoUuid, pericia }, rolls: [meu, dele],
+    });
+    return { empate: true };
+  }
   const venceu = meu.total > dele.total;
-  if (cena) await registrarAcao(cena, ator, "suporte");
   const condicao = qual === "atrapalhar" ? { alvo, chave: "atrapalhado" } : { alvo: ator, chave: "fintando" };
   await cardConfronto(ator, {
     titulo: game.i18n.localize(`OP2.Combate2.${qual}`),
@@ -519,6 +542,40 @@ function vereditoOposto(ator, alvo, venceu) {
   return venceu
     ? { classe: "acerto", rotulo: game.i18n.format("OP2.Confronto.Vence", { nome: ator.name }) }
     : { classe: "erro", rotulo: game.i18n.format("OP2.Confronto.Vence", { nome: alvo.name }) };
+}
+
+/**
+ * O card do empate em teste oposto (beta 1.1, p. 11): ninguém vence, e o botão rola os dois lados
+ * de novo. A ação já foi gasta; repetir não gasta outra.
+ */
+async function cardDeEmpate(ator, { titulo, esquerda, direita, repetir, rolls }) {
+  await cardConfronto(ator, {
+    titulo,
+    selo: game.i18n.localize("OP2.Confronto.Oposto"),
+    esquerda, direita,
+    veredito: { classe: "empate", rotulo: game.i18n.localize("OP2.Confronto.Empate") },
+    linhas: [game.i18n.localize("OP2.Confronto.EmpateExplica")],
+    botoes: [{ rotulo: game.i18n.localize("OP2.Confronto.RolarDeNovo"), acao: "vigilia-repetir", dados: repetir }],
+    rolls,
+  });
+}
+
+/** O botão do empate: rola de novo o mesmo teste oposto, contra o mesmo alvo. */
+export async function repetirOposto(ator, d) {
+  if (d.tipo === "oposta") return acaoOposta(ator, d.qual, { alvoUuid: d.alvoUuid, pericia: d.pericia });
+  if (d.tipo === "manobra") return manobra(ator, d.qual, { alvoUuid: d.alvoUuid });
+  if (d.tipo === "soltar") return soltar(ator, { vitimaUuid: d.vitimaUuid, pericia: d.pericia });
+  if (d.tipo === "defender") {
+    // Os dois rolam de novo: o ataque também.
+    const atacante = atorDe(d.atacanteUuid);
+    const ataque = atacante ? ataquesDe(atacante).find((a) => a.nome === d.nomeAtaque) : null;
+    if (!ataque) return defender(ator, d);
+    const roll = await rolarAtaque(atacante, ataque, { oposto: true, rapido: true, contexto: game.i18n.localize("OP2.Combate2.DefesaTitulo") });
+    if (!roll) return null;
+    const r = roll.resultado ?? {};
+    return defender(ator, { ...d, total: roll.total, ra: r.ra, segunda: r.segunda ?? 0, critico: r.critico ? 1 : 0, sucesso: roll.total >= DT_ATAQUE ? 1 : 0 });
+  }
+  return null;
 }
 
 /**
@@ -556,8 +613,15 @@ export async function manobra(ator, qual, { cena = cenaAcaoAtiva(), alvoUuid: pe
   if (!meu) return null;
   const periciaResposta = ehNpc(alvo) || (alvo.system.pericias.luta.valor >= alvo.system.pericias.acrobacia.valor) ? "luta" : "acrobacia";
   const dele = await rolarResposta(alvo, periciaResposta, "fisico", game.i18n.localize(`OP2.Manobra.${qual}.nome`));
-  const { venceu, porCinco } = resolverManobra(meu.total, dele.total);
   if (cena) await registrarAcao(cena, ator, "corpo");
+  if (empatou(meu.total, dele.total)) {
+    await cardDeEmpate(ator, {
+      titulo: game.i18n.localize(`OP2.Manobra.${qual}.nome`), esquerda: lado(ator, meu), direita: lado(alvo, dele),
+      repetir: { atorUuid: ator.uuid, tipo: "manobra", qual, alvoUuid }, rolls: [meu, dele],
+    });
+    return { empate: true };
+  }
+  const { venceu, porCinco } = resolverManobra(meu.total, dele.total);
   const botoes = [];
   if (qual === "derrubar") botoes.push(botaoDeCondicao(alvo, "caido", venceu));
   // Agarrar guarda quem segura: é contra ele que a vítima testa para se soltar.
@@ -602,7 +666,7 @@ export async function acaoGeral(ator, qual, { cena = cenaAcaoAtiva() } = {}) {
   const livre = ["erguerLivre", "sacarLivre"].includes(qual);
   if (qual === "erguerLivre") await mudarCondicao(ator, "caido", false);
   if (livre) await mudarCondicao(ator, "apressado", true);
-  else if (cena && qual !== "jogarSe") await registrarAcao(cena, ator, "suporte");
+  else if (cena && qual !== "jogarSe") await registrarAcao(cena, ator, "geral");
   return cardVigilia(ator, {
     titulo: game.i18n.localize(`OP2.Combate2.${qual}`),
     texto: game.i18n.format(`OP2.Combate2.${qual}Texto`, { ator: nome(ator) }),

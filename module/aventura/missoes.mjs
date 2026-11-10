@@ -12,6 +12,8 @@
 import { SYSTEM_ID } from "../config.mjs";
 import { ident, COR_DAS_PASTAS, arquivoPublico, tituloLegivel, pasta, em, posicionarNaCena, escapar } from "./comum.mjs";
 import { slugDeArquivo } from "../ui/zip.mjs";
+import { mesmoNumero } from "../extrator/missoes.mjs";
+import { RD_DO_AUGHISK, MARCA_DA_REVISAO, REVISAO_ATUAL } from "./revisao-beta.mjs";
 
 const ASSETS = "systems/ordem-paranormal-2e/assets";
 /** Prefixo que os documentos usam; o importador troca pela pasta da missão no mundo. */
@@ -33,9 +35,10 @@ const imagem = (pastaZip, arquivo, sub, maxLado) => ({
   nome: `${pastaZip}/${arquivo}`,
   maxLado,
 });
-const direto = (pastaZip, arquivo, sub) => ({
+const direto = (pastaZip, arquivo, sub, outros = []) => ({
   destino: `${sub}/${slugDeArquivo(arquivo)}`,
   nome: `${pastaZip}/${arquivo}`,
+  ...(outros.length ? { outros } : {}),
 });
 const caminho = (destino) => `${PREFIXO}${destino}`;
 
@@ -56,7 +59,7 @@ export const EXTRAS = {
       ...COMUNS,
       ...["Afogado 1", "Afogado 2", "Aughisk"].map((n) => token(n, `${n}.png`)),
       ...PERSONAGENS_BASE.map((n) => token(n)),
-      direto("Fichas de personagens", "Playtest beta - fichas de personagens.pdf", "fichas"),
+      direto("Fichas de personagens", "Playtest beta - fichas de personagens.pdf", "fichas", ["Ordem 2 - Playtest Beta 1.1 - Fichas dos Personagens.pdf"]),
     ],
   },
   "missao-2": {
@@ -69,7 +72,7 @@ export const EXTRAS = {
       ...COMUNS,
       ...["Cria da floresta 1", "Cria da floresta 2", "Ellen Trechend"].map((n) => token(n, `${n}.png`)),
       ...[...PERSONAGENS_BASE, "Sorcha", "Cormac"].map((n) => token(n)),
-      direto("Fichas de personagens", "Playtest beta - fichas de personagens elite.pdf", "fichas"),
+      direto("Fichas de personagens", "Playtest beta - fichas de personagens elite.pdf", "fichas", ["Ordem 2 - Playtest Beta 1.1 - Fichas dos Personagens Elite.pdf"]),
     ],
   },
 };
@@ -127,8 +130,7 @@ const DESAFIO = (missao, nome, sistema) => ({
 /** O Afogar (p. 33): agarra em vez de ferir; 1d6 no fim de cada rodada; um passo a menos para se soltar. */
 export const AFOGAR = { efeito: "agarrar", danoPorRodada: "1d6", passosSoltar: -1 };
 
-/** A RD do aughisk: o livro não imprime; a mesa fixou 3 (docs/regras/LACUNAS.md). */
-export const RD_DO_AUGHISK = 3;
+export { RD_DO_AUGHISK } from "./revisao-beta.mjs";
 
 /** Parâmetros que o livro imprime por missão (beta §10, §11). */
 export const PARAMETROS = {
@@ -247,6 +249,7 @@ function itemDoPonto(missao, ponto, { handout, desafios = [], erros = {} }) {
   });
   const contexto = [
     ...ponto.caixa, ...ponto.notas, ...notasDeErro.map((n) => `Nota: ${n}`), ...(erros.nota ? [`Nota: ${erros.nota}`] : []),
+    ...(ponto.repete ? [`Nota: ${ponto.repete}`] : []),
   ];
   return {
     avisos,
@@ -258,13 +261,24 @@ function itemDoPonto(missao, ponto, { handout, desafios = [], erros = {} }) {
           ponto.descricao ? `<p>${escapar(ponto.descricao)}</p>` : "",
           handout ? `<p><img src="${caminho(handout)}" alt=""></p>` : "",
         ].join(""),
-        descricaoContextual: contexto.map((t) => `<p>${escapar(t)}</p>`).join(""),
+        descricaoContextual: contexto.map((t) => `<p>${escapar(t)}</p>`).join("") + (erros.html ?? ""),
         informacoes,
         desafios: desafios.map((d) => `Item.${d._id}`),
       },
       effects: [], folder: null, sort: 0, ownership: { default: 0 }, flags: {},
     },
   };
+}
+
+/**
+ * O livro às vezes imprime num ponto a descrição de outro (a 1.0 no 5.1, com a da escadaria; a 1.1
+ * no 4 e no 5.1, com a da pilha de cinzas). O ponto leva a nota, e a montagem avisa.
+ */
+export function marcarRepetidos(pontos) {
+  return pontos.map((p, i) => {
+    const original = pontos.slice(0, i).find((o) => o.descricao && o.descricao === p.descricao);
+    return original ? { ...p, repete: `o livro imprime aqui a descrição de ${tituloLegivel(original.nome)}.` } : p;
+  });
 }
 
 /** O que as duas missões têm em comum. */
@@ -306,7 +320,8 @@ function montar({ missao, titulo, raiz, extraido, fontes, pregeradosNomes, escol
   const avisos = [...(extraido.avisos ?? [])];
   const desafios = Object.values(desafiosPorPonto).flat().map(em(pastas.desafios));
   const pontos = [];
-  for (const p of extraido.pontos) {
+  for (const p of marcarRepetidos(extraido.pontos)) {
+    if (p.repete) avisos.push(`${tituloLegivel(p.nome)}: ${p.repete}`);
     const { item, avisos: deste } = itemDoPonto(missao, p, {
       handout: escolherHandout(p.numero), desafios: desafiosPorPonto[p.numero] ?? [], erros: erros[p.numero] ?? {},
     });
@@ -394,7 +409,7 @@ export function montarMissao1(extraido, fontes) {
   const m = "missao-1";
   const afogado = NPC("afogado", "Afogado", destinoDe(m, "afogado-1"), {
     pv: 10, atributos: { fisico: "d8", mente: "d4", emocao: "d4" },
-    pericias: { atletismo: PERICIA_NPC("Atletismo", "d8"), luta: PERICIA_NPC("Luta", "d6") },
+    pericias: { atletismo: PERICIA_NPC("Atletismo", "d6"), luta: PERICIA_NPC("Luta", "d6") },
     ataques: [
       { nome: "Garras", tipo: "corpo", dados: "d8+d6", bonusDano: 1 },
       // Afogar não fere ao acertar: agarra, e a vítima perde 1d6 no fim de cada rodada; para se
@@ -402,8 +417,7 @@ export function montarMissao1(extraido, fontes) {
       { nome: "Afogar", tipo: "corpo", dados: "d8+d6", bonusDano: 0, ...AFOGAR },
     ],
   });
-  // O livro não imprime a RD do aughisk; a mesa decidiu 3 (docs/regras/LACUNAS.md). As armas
-  // especiais (balista, tocha) ignoram 5, então passam inteiras.
+  // RD 10, a que a revisão 1.1 imprime (p. 45); a 1.0 não trazia. Balista e tocha ignoram 5.
   const aughisk = NPC("aughisk", "Aughisk", destinoDe(m, "aughisk"), {
     pv: 40, rd: RD_DO_AUGHISK, atributos: { fisico: "d10", mente: "d6", emocao: "d8" },
     pericias: { atletismo: PERICIA_NPC("Atletismo", "d10"), luta: PERICIA_NPC("Luta", "d10"), percepcao: PERICIA_NPC("Percepção", "d10") },
@@ -415,7 +429,7 @@ export function montarMissao1(extraido, fontes) {
   });
 
   // Já nascem com as decisões da mesa: a correção de mundos antigos (importacao.mjs) não as toca.
-  for (const criatura of [afogado, aughisk]) criatura.flags = { [SYSTEM_ID]: { criaturaCorrigida: true } };
+  for (const criatura of [afogado, aughisk]) criatura.flags = { [SYSTEM_ID]: { criaturaCorrigida: true, [MARCA_DA_REVISAO]: REVISAO_ATUAL } };
 
   const roteiroCena1 = EVENTO(m, "Cena 1, rodada a rodada", "Os afogados chegam.", [
     [1, "Todos sofrem 1d6 de dano emocional e testam Disciplina (DT 10): quem falhar recebe dado de pavor. Na fase corpo a corpo, cada afogado usa Garras."],
@@ -424,7 +438,7 @@ export function montarMissao1(extraido, fontes) {
   ]);
   const ciclo = [
     "O aughisk ataca em corpo a corpo.",
-    "O aughisk usa Investida Equina (fase de suporte, resolve no corpo a corpo). Afogados surgem e vão para a ilhota.",
+    "O aughisk usa Investida Equina (fase geral, resolve no corpo a corpo; quem perde fica atordoado e caído). Afogados surgem e vão para a ilhota.",
     "O aughisk começa a Enxurrada da Morte. Os afogados da onda atacam.",
     "O aughisk conclui a Enxurrada: Acrobacia DT 13; quem passa sofre 1d6, quem falha 2d6 e fica caído. Mais afogados surgem.",
   ];
@@ -484,7 +498,7 @@ export function montarMissao1(extraido, fontes) {
     ],
     descricao: "<p>Missão gratuita do playtest beta: o combate contra os afogados, a fuga da enxurrada, a ilhota e o confronto com o aughisk.</p>"
       + "<p>O texto sai do seu PDF. Mapas, tokens, handouts e trilha estão no zip da editora, que o sistema pede ao importar.</p>"
-      + "<p><strong>Por onde começar:</strong> abra o diário de roteiro e ligue as cenas no painel de ação, na ordem. A RD do aughisk é 3, decisão da mesa: o livro não imprime o valor.</p>"
+      + "<p><strong>Por onde começar:</strong> abra o diário de roteiro e ligue as cenas no painel de ação, na ordem.</p>"
       + "<p><strong>Luz:</strong> a ilhota nasce escura e na névoa, só com a tocha paranormal acesa no topo da pilha. Quando o grupo destruir a tocha, apague a luz dela na camada de iluminação. A escuridão e a névoa se ajustam na configuração da cena.</p>",
   });
 }
@@ -520,7 +534,7 @@ export function montarMissao2(lido, fontes) {
   const roteiroOndas = EVENTO(m, "As Ondas, rodada a rodada", "As crias chegam; a primeira rodada é de preparação.", [
     [1, "Preparação: posicionar, sacar, atirar ou seguir investigando. Bloquear a entrada exige exatamente dois personagens."],
     [2, "Primeira onda: uma cria por personagem."],
-    [5, "Segunda onda: mais uma cria por personagem. A partir daqui elas podem derrubar na fase de suporte."],
+    [5, "Segunda onda: mais uma cria por personagem. A partir daqui elas podem derrubar na fase geral."],
     [8, "Terceira onda, se a chama não acendeu. Intuição DT 10: matar não basta."],
     [11, "Quarta onda, se a chama não acendeu. Intuição DT 10: lembram do crânio e do ritual."],
     [14, "Nova onda, se a chama não acendeu."],
@@ -538,12 +552,15 @@ export function montarMissao2(lido, fontes) {
     "06": [DESAFIO(m, "Monólito pesado", { abordagens: { sustentar: true }, sustentar: { dt: 10, aoFalhar: "2d6 em quem estiver embaixo" } })],
   };
 
-  const nichos = {
+  const handoutResolvido = `<p>O enigma das pedras rúnicas: veja o roteiro, Cena 2. Resolvido, mostre o handout com as runas no diário de handouts.</p><p><img src="${caminho(destinoDe(m, "handout-nicho-parede.webp"))}" alt=""></p>`;
+  // A 1.1 dá quadro aos nichos e o ponto sai do PDF; na 1.0 o livro só lista o ponto, e ele nasce
+  // sem quadro, com o enigma no diário.
+  const nichosNoPdf = (extraido.pontos ?? []).some((p) => mesmoNumero(p.numero, "07"));
+  const nichos = nichosNoPdf ? null : {
     _id: ident(`vigilia-poi-${m}-07`), name: "Nichos na Parede", type: "ponto-interesse", img: caminho(destinoDe(m, "nicho-parede-sem-runas")),
     system: {
       descricaoBasica: `<p><img src="${caminho(destinoDe(m, "nicho-parede-sem-runas"))}" alt=""></p>`,
-      // O livro lista o ponto e não traz quadro: o enigma está no diário, na abertura da Cena 2.
-      descricaoContextual: `<p>O enigma das pedras rúnicas: veja o roteiro, Cena 2. Resolvido, mostre o handout com as runas no diário de handouts.</p><p><img src="${caminho(destinoDe(m, "handout-nicho-parede.webp"))}" alt=""></p>`,
+      descricaoContextual: handoutResolvido,
       informacoes: [], desafios: [],
     },
     effects: [], folder: null, sort: 0, ownership: { default: 0 }, flags: {},
@@ -566,15 +583,15 @@ export function montarMissao2(lido, fontes) {
     escolherHandout: (numero) => ({
       "01": destinoDe(m, "altar"), "02": destinoDe(m, "buraco"), "03": destinoDe(m, "pilha-de-cinzas"),
       "04": destinoDe(m, "plataforma"), 4.1: destinoDe(m, "plataforma"), "05": destinoDe(m, "escada"),
-      5.2: destinoDe(m, "potes"), "06": destinoDe(m, "monolito"),
+      5.2: destinoDe(m, "potes"), "06": destinoDe(m, "monolito"), "07": destinoDe(m, "nicho-parede-sem-runas"),
     }[numero] ?? null),
     desafiosPorPonto,
     erros: {
       "01": { linhas: [{ re: /virote de ferro/i, aviso: "o livro imprime aqui o texto do virote, de outra missão." }] },
       "02": { linhas: [{ re: /debaixo da carroça/i, aviso: "o livro imprime aqui o texto da carroça, de outra missão; a linha seguinte pressupõe um entalhe que esta revelaria." }] },
-      5.1: { nota: "O livro repete aqui a descrição e o desafio da escadaria." },
+      "07": { html: handoutResolvido },
     },
-    extrasDePonto: [nichos],
+    extrasDePonto: nichos ? [nichos] : [],
     npcs: () => {
       cria.system.notas = notasDeCriatura(extraido.roteiro ?? [], "CRIAS DA FLORESTA");
       return [cria, ellen];
