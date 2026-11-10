@@ -57,7 +57,7 @@ identificadores em pt-BR, e consistência aqui é o que evita `skill`, `pericia`
 |---|---|---|
 | Modo de jogo | `modo`: `moderno`, `vigilia` | setting de mundo; alpha = moderno, beta = Vigília |
 | Vocação | `ocupacao` (chave mantida) | só muda o rótulo |
-| Fase de combate | `fase`: `suporte`, `distancia`, `corpo`, `final` | `beta §7.1` |
+| Fase de combate | `fase`: `geral`, `distancia`, `corpo` (até a 1.1, também `suporte` e `final`) | `beta §7.1` |
 | Dado de pavor | `estado.pavor` | `beta §9.1` |
 | Relação | `relacoes[]`: `com`, `grau`, `rotulo`, `invocada` | `beta §9.2` |
 | Pontos de armadura | `armadura` | nunca "PA" |

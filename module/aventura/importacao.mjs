@@ -9,15 +9,19 @@
  *   - numa Missão guardada antes das cópias, cada pré-gerado vira a cópia da missão (o mesmo
  *     id que a montagem nova dá), os vínculos de investigação e cenas acompanham, e as cenas de
  *     ação chegam vazias. Sem isso, importar a segunda Missão levava os pré-gerados da primeira;
- *   - as criaturas da Missão 1 chegam com o Afogar que agarra e a RD 3 do aughisk.
+ *   - as criaturas da Missão 1 chegam com o Afogar que agarra;
+ *   - o que a revisão 1.1 do beta mudou nos números (RD 10 do aughisk, Atletismo do afogado, as
+ *     perícias corrigidas dos pré-gerados) chega à aventura guardada com a 1.0 (`revisao-beta.mjs`).
  *
- * E, ao abrir o mundo, as pastas das Missões que ainda estão vermelhas ficam verdes e as
- * criaturas já importadas recebem a mesma correção.
+ * E, ao abrir o mundo, as pastas das Missões que ainda estão vermelhas ficam verdes, os atores já
+ * importados recebem as mesmas correções e a cena de ação parada numa fase que a 1.1 tirou
+ * (suporte, final) passa para a fase geral.
  */
 import { SYSTEM_ID } from "../config.mjs";
 import { COR_DAS_PASTAS } from "./comum.mjs";
 import { ATOS } from "./mundo.mjs";
-import { idDaCopia, RD_DO_AUGHISK, AFOGAR } from "./missoes.mjs";
+import { idDaCopia, AFOGAR } from "./missoes.mjs";
+import { RD_DO_AUGHISK, revisaoDoAtor, aplicarNoFonte, MARCA_DA_REVISAO, REVISAO_ATUAL, FASE_DA_REVISAO } from "./revisao-beta.mjs";
 
 /** Marca no ator de que a correção das criaturas já passou: depois dela, vale o que o mestre editar. */
 const MARCA_DA_CORRECAO = "criaturaCorrigida";
@@ -104,27 +108,52 @@ export function correcaoDaCriatura(ator) {
   return Object.keys(mudancas).length ? mudancas : null;
 }
 
-/** Na importação: aplica a correção no próprio documento que vai entrar. Devolve quantos mudou. */
+/** Na importação: aplica as correções no próprio documento que vai entrar. Devolve quantos mudou. */
 export function corrigirCriaturasDaImportacao(toCreate, toUpdate) {
   let n = 0;
   for (const ator of [...(toCreate?.Actor ?? []), ...(toUpdate?.Actor ?? [])]) {
     const mudancas = correcaoDaCriatura(ator);
-    if (!mudancas) continue;
-    if (mudancas["system.ataques"]) ator.system.ataques = mudancas["system.ataques"];
-    if (mudancas["system.rd"] !== undefined) ator.system.rd = mudancas["system.rd"];
-    ator.flags = { ...(ator.flags ?? {}), [SYSTEM_ID]: { ...(ator.flags?.[SYSTEM_ID] ?? {}), [MARCA_DA_CORRECAO]: true } };
-    n += 1;
+    if (mudancas) {
+      if (mudancas["system.ataques"]) ator.system.ataques = mudancas["system.ataques"];
+      if (mudancas["system.rd"] !== undefined) ator.system.rd = mudancas["system.rd"];
+      ator.flags = { ...(ator.flags ?? {}), [SYSTEM_ID]: { ...(ator.flags?.[SYSTEM_ID] ?? {}), [MARCA_DA_CORRECAO]: true } };
+    }
+    const revisao = revisaoDoAtor(ator);
+    if (revisao) aplicarNoFonte(ator, revisao);
+    if (mudancas || revisao) n += 1;
   }
   return n;
 }
 
-/** Ao abrir o mundo: as criaturas já importadas (modelos e cópias em cena) recebem a correção. */
+/**
+ * Ao abrir o mundo: os atores já importados (modelos, cópias em cena, pré-gerados das missões)
+ * recebem as correções. A correção antiga vem primeiro: a RD 5 da montagem antiga vira a atual.
+ */
 export async function corrigirCriaturasDoMundo() {
   if (!game.user?.isGM) return 0;
-  const atualizacoes = game.actors.filter((a) => a.type === "npc")
-    .map((a) => ({ a, mudancas: correcaoDaCriatura({ type: a.type, name: a.name, system: a._source.system, flags: a._source.flags }) }))
-    .filter(({ mudancas }) => mudancas)
-    .map(({ a, mudancas }) => ({ _id: a.id, ...mudancas, [`flags.${SYSTEM_ID}.${MARCA_DA_CORRECAO}`]: true }));
+  const atualizacoes = [];
+  for (const a of game.actors.filter((x) => x.type === "npc" || x.type === "personagem")) {
+    const fonte = { type: a.type, name: a.name, system: foundry.utils.deepClone(a._source.system), flags: a._source.flags };
+    const correcao = a.type === "npc" ? correcaoDaCriatura(fonte) : null;
+    if (correcao) Object.assign(fonte.system, correcao["system.rd"] !== undefined ? { rd: correcao["system.rd"] } : {});
+    const revisao = revisaoDoAtor(fonte);
+    if (!correcao && !revisao) continue;
+    atualizacoes.push({
+      _id: a.id, ...(correcao ?? {}), ...(revisao ?? {}),
+      ...(correcao ? { [`flags.${SYSTEM_ID}.${MARCA_DA_CORRECAO}`]: true } : {}),
+      ...(revisao ? { [`flags.${SYSTEM_ID}.${MARCA_DA_REVISAO}`]: REVISAO_ATUAL } : {}),
+    });
+  }
+  if (atualizacoes.length) await CONFIG.Actor.documentClass.updateDocuments(atualizacoes);
+  return atualizacoes.length;
+}
+
+/** Ao abrir o mundo: a cena de ação de combate numa fase que a revisão 1.1 tirou vai para a geral. */
+export async function migrarFasesDasCenas() {
+  if (!game.user?.isGM) return 0;
+  const atualizacoes = game.actors
+    .filter((a) => a.type === "cena-acao" && FASE_DA_REVISAO[a._source.system?.fase])
+    .map((a) => ({ _id: a.id, "system.fase": FASE_DA_REVISAO[a._source.system.fase] }));
   if (atualizacoes.length) await CONFIG.Actor.documentClass.updateDocuments(atualizacoes);
   return atualizacoes.length;
 }
@@ -161,7 +190,10 @@ export function registrarAjustesDeImportacao() {
   Hooks.once("ready", () => {
     pintarPastasDasMissoes().catch((erro) => console.error(`${SYSTEM_ID} | cores das pastas`, erro));
     corrigirCriaturasDoMundo()
-      .then((n) => { if (n) console.log(`${SYSTEM_ID} | ${n} criatura(s) da Missão 1 corrigida(s): Afogar agarra, RD do aughisk 3`); })
+      .then((n) => { if (n) console.log(`${SYSTEM_ID} | ${n} ator(es) das missões corrigido(s) para a revisão ${REVISAO_ATUAL} do beta`); })
       .catch((erro) => console.error(`${SYSTEM_ID} | criaturas da missão`, erro));
+    migrarFasesDasCenas()
+      .then((n) => { if (n) console.log(`${SYSTEM_ID} | ${n} cena(s) de ação passada(s) para a fase geral`); })
+      .catch((erro) => console.error(`${SYSTEM_ID} | fases das cenas`, erro));
   });
 }

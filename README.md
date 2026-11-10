@@ -32,7 +32,7 @@ Um setting de mundo escolhe o modo; cada um traz as suas perícias, regras e ave
 
 **Modo Vigília: o beta, *Contos da Vigília*, Missões 1 e 2.**
 
-- [Combate por fases](#modo-vigília): suporte, distância, corpo a corpo e final. Tem card de confronto, manobras,
+- [Combate por fases](#modo-vigília): geral, distância e corpo a corpo. Tem card de confronto, manobras,
   armadura, lesões e traumas.
 - Perseguição, furtividade, dado de pavor e relações.
 - O [palco](#modo-vigília) conduz a cena sem abrir janela.
@@ -253,8 +253,8 @@ missões nascem sem personagens, porque cada mesa joga com os seus. **Nova cena*
 furtividade), parada, com os personagens dos jogadores ou os tokens selecionados, se você quiser; arrastar um ator da
 barra lateral para o painel também o põe na cena.
 
-**O guia da fase** diz o que dá para fazer agora: no suporte, as ações gerais; à distância e corpo a corpo, os ataques
-e as manobras; no final, mover-se, fugir, investigar. Cada personagem vê primeiro as ações da fase atual, e as outras
+**O guia da fase** diz o que dá para fazer agora: na geral, as ações gerais, mover-se, fugir e investigar; à distância
+e corpo a corpo, os ataques e as manobras. Cada personagem vê primeiro as ações da fase atual, e as outras
 continuam a um clique, em "outras ações".
 
 **O card de confronto** mostra no chat quem agiu em quem. Ataque, revide, defesa, manobra, atrapalhar e fintar saem
@@ -570,9 +570,13 @@ exclusivas de assinante, e o sistema pede o zip da editora na hora de importar.
 
 As **Missões do modo Vigília** também. Troque o **Modo de jogo** para Vigília e abra **Aventuras do playtest**:
 
-- O **PDF do beta** monta as duas missões; o gratuito, só a Missão 1.
+- O **PDF do beta** monta as duas missões; o gratuito, só a Missão 1. Vale a revisão 1.0 ou a **1.1**.
 - Depois, o sistema pede o zip da editora com mapas, tokens, handouts e músicas.
 - Cada missão vem com cena, pré-gerados, pontos, desafios, roteiro e as cenas de ação prontas para iniciar.
+- **Mundo montado com a 1.0?** As regras da 1.1 (três fases, crítico e empate) valem ao atualizar o sistema, e os
+  números (RD 10 do aughisk, as perícias corrigidas dos pré-gerados) chegam sozinhos ao abrir o mundo, sem tocar no
+  que você editou. Para os quadros dos pontos, leia o PDF 1.1 na janela e clique em **Atualizar as pistas no
+  mundo**: as DTs e as pistas mudam, e quem já achou cada pista continua com ela.
 
 Os marcadores dos pontos no mapa e os tokens na posição inicial da aventura vêm
 prontos quando `packs/sources/<ato>-cenas/posicoes.json` existe — é o que

@@ -5,6 +5,26 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+**Revisão 1.1 do playtest beta.** O sistema monta as missões das duas revisões do PDF e segue as regras da 1.1.
+
+- **O PDF 1.1 monta as missões.** A 1.1 rediagramou o livro: o quadro dos pontos passou a ter o mesmo corpo do texto, e
+  o extrator, que o achava pela fonte, lia os pontos sem nenhuma linha. Agora acha pelas colunas do cabeçalho
+  (Perícia, DT, Informação). A 1.0 continua idêntica ao gabarito. Também lê a condição impressa no começo da pista
+  ("Apenas se…"), a Aptidão com dois campos e o ponto pelo número do mapa (o 5.1 sai com o título da Pilha de Cinzas).
+  Os Nichos na Parede ganham o quadro da 1.1; ponto que repete a descrição de outro sai com nota.
+- **Três fases no combate**: geral, à distância e corpo a corpo (p. 18). A geral leva mover-se, fugir e investigar no
+  meio da luta, que estavam no final. Cena parada no suporte ou no final passa para a geral ao abrir o mundo.
+- **Crítico com 4 dados** descarta o menor antes (p. 11): 6, 6, 8, 9 não é mais crítico.
+- **Empate em teste oposto rola de novo** (p. 11): atrapalhar, fintar, manobras, soltar-se e defender-se mostram
+  "Empate: rolem de novo" com o botão. O corpo a corpo cruzado segue com os dois acertando.
+- **Dado anulado pelo pavor sai só da soma** (p. 24): continua valendo como RA, RB e para o crítico.
+- **RD do aughisk 10**, a que a 1.1 imprime; Investida Equina deixa caído; Atletismo do afogado d6.
+- **Pré-gerados com as fichas 1.1**: Rowan (Acrobacia d4, Animais d8), Muirenn (Pontaria d4), Cormac (Sobrevivência d4).
+- **Mundo montado com a 1.0** recebe os números ao abrir (só o que ainda está como a 1.0 deixou) e, pela janela de
+  aventuras, **Atualizar as pistas no mundo**: o quadro dos pontos sai do PDF novo, e quem já achou cada pista
+  continua com ela.
+- O zip 1.1 casa por inteiro, com o PDF das fichas no nome novo.
+
 ## [0.10.0] — 2026-11-09
 
 **Modo Vigília**, o playtest beta *Contos da Vigília*, em paralelo ao modo moderno. Um setting de mundo escolhe

@@ -35,3 +35,17 @@ node scripts/beta/gerar-personagens.mjs   # packs/sources/vigilia-personagens e 
    mandando na ordem de leitura.
 4. Confira as colunas de DT contra `pdftotext -bbox`: o multiconjunto de palavras não pega linha trocada.
 5. Rode `rodar-extrator.mjs` e `comparar-extrator.py`, e o e2e com `OP2_E2E_PDF_BETA` apontando para o PDF novo.
+
+### A revisão 1.1 (novembro/2026)
+
+A 1.1 rediagramou o livro (`jambo-arquivos/playtest2/v1.1/`). A leitura de referência (`extraido/`) é da 1.0;
+o que a 1.1 mudou está em `docs/regras/LACUNAS.md`, "Playtest beta: revisão 1.1". Para conferir as duas:
+
+```bash
+node scripts/beta/rodar-extrator.mjs <pdf 1.0> build/beta-v1.json && python3 scripts/beta/comparar-extrator.py build/beta-v1.json
+node scripts/beta/rodar-extrator.mjs <pdf 1.1> build/beta-v11.json   # 16 + 27 linhas, sem aviso
+```
+
+O e2e lê a 1.1 por padrão; `OP2_E2E_BETA=1.0` lê a 1.0. As correções das fichas 1.1 entram em
+`gerar-personagens.mjs` pela tabela de `module/aventura/revisao-beta.mjs`, que também corrige mundos já importados.
+

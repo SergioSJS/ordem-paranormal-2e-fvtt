@@ -64,7 +64,7 @@ Legenda: 🟢 reaproveita · 🟡 estende · 🔴 novo.
 | 🟢 Destrancar, Arrombar, Sustentar | Iguais | `cena/desafios.mjs` |
 | 🟡 Alcançar | Perícia por ponto | `item-desafio-acesso.mjs` |
 | 🔴 Equilíbrio, Escalar | Desafios novos | `item-desafio-acesso.mjs`, `desafios.mjs` (puro) |
-| 🔴 Combate por fases | Quatro fases, simultaneidade, ação por fase | **Módulo novo, ao lado** de `cena/combate.mjs` e `acoes-combate.mjs`, que ficam para o moderno com a opção desligada. `rodada.mjs` serve de base para o tracker |
+| 🔴 Combate por fases | Três fases (geral, distância, corpo a corpo; a 1.0 tinha quatro nas missões), simultaneidade, ação por fase | **Módulo novo, ao lado** de `cena/combate.mjs` e `acoes-combate.mjs`, que ficam para o moderno com a opção desligada. `rodada.mjs` serve de base para o tracker |
 | 🔴 Ações e manobras | 9 gerais, 5 manobras | `acoes-combate.mjs` novo, regras puras em módulo testável |
 | 🔴 Condições | Caído, agarrado, atordoado, moribundo, inconsciente, cobertura, ocultação | Sem Active Effects: passos em `stepMod`, estado em `estado.*` |
 | 🔴 Lesão e trauma | Tabelas 1d20, permanentes | Módulo novo, ao lado de `cena/ferimentos.mjs` e `queda.mjs` |

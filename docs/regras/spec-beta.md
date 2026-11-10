@@ -5,8 +5,15 @@
 > texto do livro, narração, quadros de ponto de interesse nem ficha de criatura: isso fica
 > em `jambo-arquivos/playtest2/v1/extraido/`, fora do repositório (`docs/README.md`).
 >
-> **Fonte.** Arquivos Secretos, Pacote #10, outubro/2026, v1.0, 76 páginas.
-> `p. N` é a página do PDF, igual ao número impresso no rodapé.
+> **Fonte.** Arquivos Secretos, Pacote #10, outubro/2026, v1.0, 76 páginas, e a **revisão 1.1**
+> (novembro/2026, 79 páginas), que vale onde as duas divergem. `p. N` é a página do PDF, igual ao
+> número impresso no rodapé; as páginas das regras (até a 27) são as mesmas nas duas, e as das
+> missões andam uma ou duas na 1.1.
+>
+> **O que a 1.1 mudou:** três fases no combate em tudo (§7.1), o crítico com 4 dados descarta o
+> menor (§3), empate em teste oposto rola de novo (§3), o dado anulado pelo pavor sai só da soma
+> (§9.1), a RD do aughisk impressa (10), Ofício com especialidade, e quadros, DTs e fichas dos
+> pré-gerados corrigidos (`docs/regras/LACUNAS.md`, "Playtest beta: revisão 1.1").
 >
 > **É o modo de jogo Vigília.** O alpha segue valendo como modo moderno, em paralelo
 > (`docs/regras/alpha-para-beta.md`).
@@ -74,7 +81,10 @@ Iguais ao alpha, com estes acréscimos:
 - Atributo + perícia, soma, DT padrão 7. Máximo de 4 dados rolados e 3 somados (p. 10, p. 12).
 - **Crítico:** dois ou mais dados iguais com valor ≥ 6. Em **testes estendidos e ataques**
   soma também a segunda maior rolagem à pontuação ou ao dano (p. 11). Sai a "informação
-  adicional" em investigação que o alpha dava.
+  adicional" em investigação que o alpha dava. **Com 4 dados, descarta o menor antes de ver o
+  crítico** (1.1, p. 11): 6, 6, 8, 9 não é crítico.
+- **Teste oposto empatado:** os dois rolam de novo, até haver vencedor (1.1, p. 11). Exceção: o
+  corpo a corpo cruzado (§7.3), em que o empate faz os dois acertarem.
 - **Falha crítica:** todos os dados em 1; mesma tabela 1d8 do alpha (p. 11).
 - **Ajuda:** gasta ação, exige perícia ≥ d6; +1 passo com d6/d8, +2 passos com d10/d12 (p. 11).
 - **Modificadores numéricos passam a existir.** O livro continua dizendo que tudo é passo,
@@ -140,12 +150,12 @@ nenhuma fase perde a rodada.
 
 | Fase | Conteúdo |
 |---|---|
-| **Suporte** (Geral, Tática) | Ações gerais, habilidades e itens, preparar esquiva |
+| **Geral** | Qualquer ação, exceto ataques: ações gerais, habilidades e itens, preparar esquiva, mover-se, fugir, investigar durante a luta |
 | **Ataques à distância** | Agredir à distância |
 | **Ataques corpo a corpo** | Agredir, manobras |
-| **Final** | Movimento puro, fuga, investigar durante a luta, ação não relacionada ao combate |
 
-O livro imprime três fases nas regras e quatro nas missões (lacuna; adotamos as quatro).
+A 1.0 imprimia três fases nas regras e quatro nas missões (suporte e final no lugar da geral); a
+1.1 unificou em três. Mundos com cena parada no suporte ou no final passam para a geral ao abrir.
 
 Dentro de uma fase, a ordem é a habitual (esquerda do mestre, sentido horário), mas **tudo é
 simultâneo**: quem morre na fase ainda resolve a ação daquela fase. Fases anteriores acontecem
@@ -281,6 +291,8 @@ pontos de RD`).
 
 Começa em d6 e rola junto em todo teste. Não soma; **anula os dados com resultado menor que ele**
 (empate não anula). Todos anulados = falha crítica, valor 0. Receber de novo: +1 passo.
+**O anulado sai só da soma** (1.1, p. 24): para RA, RB e crítico ele continua valendo. Com tudo
+anulado, a falha crítica vence o crítico.
 
 - **Vencendo:** se o dado de pavor der 1, o efeito termina.
 - **Controlando:** antes do teste, 1 PD para –1 passo no dado de pavor.

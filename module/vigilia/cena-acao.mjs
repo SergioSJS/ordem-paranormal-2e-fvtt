@@ -92,7 +92,7 @@ export function personagensDosJogadores() {
   return [...new Set([...escolhidos, ...comDono])];
 }
 
-const FASE_INICIAL = { combate: "suporte", perseguicao: "", furtividade: "personagens" };
+const FASE_INICIAL = { combate: "geral", perseguicao: "", furtividade: "personagens" };
 
 /** Liga a cena na rodada 1. As outras cenas de ação desligam. */
 export async function iniciarCena(cena) {
@@ -319,6 +319,8 @@ export function registrarCenaAcao() {
   registrarAcaoDeMestre("vigilia-registrar-acao", async ({ cenaUuid, ator, fase }) => {
     const cena = await fromUuid(cenaUuid);
     if (!cena) return;
+    // Repetir um teste oposto empatado não é outra ação: a mesma entrada não se repete.
+    if (cena.system.agiram.some((a) => a.ator === ator && a.fase === (fase ?? ""))) return;
     await cena.update({ "system.agiram": [...cena.system.agiram, { ator, fase: fase ?? "" }] });
   });
   registrarAcaoDeMestre("vigilia-alternar-agiu", async ({ cenaUuid, ator }) => {

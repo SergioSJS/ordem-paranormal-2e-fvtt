@@ -3995,7 +3995,7 @@ const relato = await page.evaluate(async (boasVindas) => {
     const cenaCheia = await Actor.create({ name: "Painel Cheio", type: "cena-acao", system: { tipo: "combate" } });
     await medir("ficha da cena de ação", await cenaCheia.sheet.render({ force: true }), false);
     const lotacao = await Promise.all(Array.from({ length: 8 }, (_v, i) => Actor.create({ name: `Lotação ${i}`, type: "personagem" })));
-    await cenaCheia.update({ "system.participantes": lotacao.map((a) => a.uuid), "system.ativa": true, "system.rodada": 1, "system.fase": "suporte" });
+    await cenaCheia.update({ "system.participantes": lotacao.map((a) => a.uuid), "system.ativa": true, "system.rodada": 1, "system.fase": "geral" });
     await medir("painel de ação", game.op2.painelAcao(cenaCheia));
     await cenaCheia.update({ "system.ativa": false });
     for (const d of [...lotacao, cenaCheia]) await d.delete();
@@ -4569,18 +4569,18 @@ const relato = await page.evaluate(async (boasVindas) => {
     const cena = await Actor.create({ name: "E2E Combate", type: "cena-acao", system: { tipo: "combate", participantes: [pc.uuid, outro.uuid, npc.uuid] } });
     await game.op2.iniciarCena(cena);
     await esperar(600);
-    ok("a cena começa na rodada 1, fase de suporte", cena.system.ativa && cena.system.rodada === 1 && cena.system.fase === "suporte");
+    ok("a cena começa na rodada 1, fase geral", cena.system.ativa && cena.system.rodada === 1 && cena.system.fase === "geral");
     const painel = game.op2.painelAcao(cena);
     await esperar(900);
     const el = painel.element;
-    ok("o painel mostra as quatro fases e uma linha por participante",
-      el.querySelectorAll(".op2-fase").length === 4 && el.querySelectorAll(".op2-linha-acao").length === 3);
+    ok("o painel mostra as três fases (beta 1.1) e uma linha por participante",
+      el.querySelectorAll(".op2-fase").length === 3 && el.querySelectorAll(".op2-linha-acao").length === 3);
     ok("o martelo aparece como ataque no painel", [...el.querySelectorAll('[data-qual="ataque"]')].some((b) => b.textContent.includes("Martelo")));
-    ok("no suporte, o painel põe as ações gerais em 'nesta fase' e o ataque corpo a corpo em 'outras ações'",
+    ok("na fase geral, o painel põe as ações gerais em 'nesta fase' e o ataque corpo a corpo em 'outras ações'",
       el.querySelector(`.op2-linha-acao[data-ator="${pc.uuid}"] .op2-linha-acao__botoes > [data-qual="atrapalhar"]`)
       && el.querySelector(`.op2-linha-acao[data-ator="${pc.uuid}"] .op2-linha-acao__mais [data-qual="ataque"]`));
-    ok("o guia da fase explica o suporte e a rodada inteira", /Ações gerais/.test(el.querySelector(".op2-guia-fase")?.textContent ?? "")
-      && el.querySelectorAll(".op2-guia-fase dt").length === 4);
+    ok("o guia da fase explica a geral e a rodada inteira", /Qualquer ação, exceto ataques/.test(el.querySelector(".op2-guia-fase")?.textContent ?? "")
+      && el.querySelectorAll(".op2-guia-fase dt").length === 3);
     await game.op2.avancarCena(cena);
     await game.op2.avancarCena(cena);
     ok("a fase anda até o corpo a corpo", cena.system.fase === "corpo");
@@ -4671,9 +4671,9 @@ const relato = await page.evaluate(async (boasVindas) => {
     // À mão, pelo painel: rodada, fase, "já agiu" e os campos da linha.
     await esperar(300);
     const elPainel = painel.element;
-    elPainel.querySelector(`.op2-fase[data-fase="final"]`).click();
+    elPainel.querySelector(`.op2-fase[data-fase="distancia"]`).click();
     await esperar(400);
-    ok("o mestre vai para qualquer fase clicando nela", cena.system.fase === "final");
+    ok("o mestre vai para qualquer fase clicando nela", cena.system.fase === "distancia");
     elPainel.querySelector('[data-action="ajustarRodada"][data-delta="1"]').click();
     await esperar(400);
     ok("o mestre ajusta a rodada à mão", cena.system.rodada === 2);
@@ -4746,11 +4746,11 @@ const relato = await page.evaluate(async (boasVindas) => {
     await cena.update({ "system.fase": "corpo" });
     const caido = await game.op2.rolarTeste(outro, { chavePericia: "acrobacia", dt: 7, rapido: true });
     ok("caído e atrapalhado baixam dois passos no teste físico", caido.dados.find((d) => d.componente.tipo === "pericia").dado === "d4");
-    await game.op2.avancarCena(cena);
+    // O corpo a corpo é a última das três fases: avançar vira a rodada.
     await game.op2.avancarCena(cena);
     await esperar(600);
-    ok("rodada nova: fase de suporte, ninguém agiu, e o que dura a rodada saiu",
-      cena.system.rodada === 2 && cena.system.fase === "suporte" && !cena.system.agiram.length
+    ok("rodada nova: fase geral, ninguém agiu, e o que dura a rodada saiu",
+      cena.system.rodada === 2 && cena.system.fase === "geral" && !cena.system.agiram.length
       && !outro.system.estado.condicoes.has("atrapalhado") && outro.system.estado.condicoes.has("caido"));
 
     // Lesão e trauma.
@@ -4925,8 +4925,11 @@ const relato = await page.evaluate(async (boasVindas) => {
   relato.passos.push(...vigilia);
 
   // As missões, pelo caminho de verdade: o PDF do mestre, os zips da editora, importar, jogar.
-  const BETA = "jambo-arquivos/playtest2/v1/2-agenteelite-completo";
-  const pdfBeta = process.env.OP2_E2E_PDF_BETA ?? `${BETA}/Ordem-2-Playtest-Beta-MISSAO-1-E-2.pdf`;
+  // A revisão 1.1 por padrão; `OP2_E2E_BETA=1.0` lê a primeira (as duas montam, com quadros diferentes).
+  const REV = process.env.OP2_E2E_BETA === "1.0" ? "1.0" : "1.1";
+  const BETA = `jambo-arquivos/playtest2/${REV === "1.0" ? "v1" : "v1.1"}/2-agenteelite-completo`;
+  const pdfBeta = process.env.OP2_E2E_PDF_BETA ?? (REV === "1.0"
+    ? `${BETA}/Ordem-2-Playtest-Beta-MISSAO-1-E-2.pdf` : `${BETA}/Ordem-2-Playtest-Beta-1.1-missao-1-e-2-recrutas-e-elite.pdf`);
   const zips = { "missao-1": `${BETA}/Ordem-2-Playtest-Beta-Missao-1-Extras.zip`, "missao-2": `${BETA}/Ordem-2-Playtest-Beta-Missao-2-Extras-Elite.zip` };
   if (!existsSync(pdfBeta)) {
     relato.passos.push([false, `sem o PDF do beta em ${pdfBeta}: as missões não foram exercitadas`]);
@@ -4935,7 +4938,8 @@ const relato = await page.evaluate(async (boasVindas) => {
     await page.waitForSelector('#op2-aventuras [data-modo="vigilia"] [data-pdf]', { state: "attached", timeout: 20000 });
     // O gratuito primeiro: só a Missão 1, e a janela diz que a 2 é do PDF de assinantes. O zip
     // dele é o mesmo da Missão 1 do completo (mesmo sha), então o envio abaixo cobre os dois.
-    const pdfGratuito = "jambo-arquivos/playtest2/v1/0-sobrevivente-gratuito/Ordem-2-Playtest-Beta-MISSAO-1.pdf";
+    const pdfGratuito = REV === "1.0" ? "jambo-arquivos/playtest2/v1/0-sobrevivente-gratuito/Ordem-2-Playtest-Beta-MISSAO-1.pdf"
+      : "jambo-arquivos/playtest2/v1.1/0-sobrevivente-gratuito/Ordem-2-Playtest-Beta-1.1-missao-1-sobreviventes.pdf";
     if (existsSync(pdfGratuito)) {
       await page.setInputFiles('#op2-aventuras [data-modo="vigilia"] [data-pdf]', pdfGratuito);
       await page.waitForSelector('#op2-aventuras [data-ato="missao-2"] .op2-aventuras__erro', { timeout: 180000 });
@@ -4958,8 +4962,10 @@ const relato = await page.evaluate(async (boasVindas) => {
       problemas: document.querySelector('#op2-aventuras [data-ato="missao-2"] .op2-aventuras__problemas')?.textContent ?? "",
     }));
     relato.passos.push([/6 pontos/.test(lido.m1) && /16 linhas/.test(lido.m1) && /3 cenas/.test(lido.m1) && /6 pré-gerados/.test(lido.m1), `Missão 1 montada do PDF (${lido.m1})`]);
-    relato.passos.push([/11 pontos|10 pontos/.test(lido.m2) && /24 linhas/.test(lido.m2) && /8 pré-gerados/.test(lido.m2), `Missão 2 montada do PDF (${lido.m2})`]);
-    relato.passos.push([/virote|carroça/i.test(lido.problemas), "a janela avisa dos quadros trocados no livro, sem travar a montagem"]);
+    // 1.0: 24 linhas, com o virote e a carroça trocados no livro. 1.1: 27, com os nichos e as
+    // descrições repetidas (Plataforma e Inscrição com a da Pilha de Cinzas).
+    relato.passos.push([(REV === "1.0" ? /10 pontos/ : /11 pontos/).test(lido.m2) && (REV === "1.0" ? /24 linhas/ : /27 linhas/).test(lido.m2) && /8 pré-gerados/.test(lido.m2), `Missão 2 montada do PDF ${REV} (${lido.m2})`]);
+    relato.passos.push([(REV === "1.0" ? /virote|carroça/i : /descrição de Pilha de Cinzas/i).test(lido.problemas), `a janela avisa dos erros de cópia do livro ${REV}, sem travar a montagem`]);
 
     for (const missao of ["missao-1", "missao-2"]) {
       await page.click(`#op2-aventuras [data-action="enviarZip"][data-ato="${missao}"]`);
@@ -4986,7 +4992,35 @@ const relato = await page.evaluate(async (boasVindas) => {
       }, missao, { timeout: 180000 });
     }
 
-    const missoes = await page.evaluate(async () => {
+    // Mundo montado com a 1.0 e PDF novo lido: "Atualizar as pistas no mundo" troca o quadro e
+    // mantém quem já achou cada pista. Simula o Altar como a 1.0 deixava: a linha do virote (trocada
+    // no livro, em rascunho) e a do pergaminho já contada ao grupo, com outra DT.
+    const altarAntes = await page.evaluate(async () => {
+      const altar = game.items.getName("Altar das Vinhas");
+      const infos = altar.system.toObject().informacoes;
+      const pergaminho = infos.find((i) => /pergaminho esfarelado/.test(i.texto));
+      const dono = game.actors.find((a) => a.type === "personagem")?.id ?? "";
+      const velhas = [
+        { ...infos[0], id: "linhaVirote00001", texto: "O virote de ferro não é a munição de uma besta comum.", dt: 4, oculta: true },
+        ...infos.map((i) => (i === pergaminho ? { ...i, dt: 99, contadaPor: [dono] } : i)),
+      ];
+      await altar.update({ "system.informacoes": velhas });
+      return { id: pergaminho.id, dono, n: infos.length };
+    });
+    await page.evaluate(() => game.op2.aventuras());
+    await page.waitForSelector('#op2-aventuras [data-action="atualizarPontos"][data-ato="missao-2"]', { timeout: 20000 });
+    await page.click('#op2-aventuras [data-action="atualizarPontos"][data-ato="missao-2"]');
+    await page.click('.application.dialog button[data-action="yes"], dialog.dialog button[data-action="yes"]');
+    await page.waitForFunction((n) => game.items.getName("Altar das Vinhas").system.informacoes.length === n, altarAntes.n, { timeout: 20000 });
+    const altarDepois = await page.evaluate((id) => {
+      const linha = game.items.getName("Altar das Vinhas").system.informacoes.find((i) => i.id === id);
+      return { dt: linha?.dt, contadaPor: linha?.contadaPor ?? [], virote: game.items.getName("Altar das Vinhas").system.informacoes.some((i) => /virote/.test(i.texto)) };
+    }, altarAntes.id);
+    // Na 1.0 a linha do virote está no próprio livro e fica; na 1.1 ela sai.
+    relato.passos.push([altarDepois.dt !== 99 && altarDepois.contadaPor.includes(altarAntes.dono) && (REV === "1.0" || !altarDepois.virote),
+      `"Atualizar as pistas no mundo" troca o quadro e mantém quem achou (DT ${altarDepois.dt}, contada por ${altarDepois.contadaPor.length})`]);
+
+    const missoes = await page.evaluate(async (REV) => {
       const passos = [];
       const ok = (titulo, condicao) => passos.push([Boolean(condicao), titulo]);
       const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -5020,7 +5054,11 @@ const relato = await page.evaluate(async (boasVindas) => {
       ok("a trilha toca da pasta do mundo", await servido(som.path));
 
       const altar = game.items.getName("Altar Das Vinhas") ?? game.items.find((i) => i.name.toLowerCase() === "altar das vinhas");
-      ok("linha trocada no livro nasce rascunho", altar.system.informacoes.find((l) => /virote/i.test(l.texto))?.oculta === true);
+      // 1.0: a linha do virote, trocada no livro, nasce rascunho. 1.1: o livro corrigiu, e a linha
+      // condicionada ("Apenas se…", agora impressa no texto) é que nasce rascunho.
+      ok(REV === "1.0" ? "linha trocada no livro nasce rascunho" : "linha condicionada da 1.1 nasce rascunho, e o virote sumiu",
+        REV === "1.0" ? altar.system.informacoes.find((l) => /virote/i.test(l.texto))?.oculta === true
+          : altar.system.informacoes.find((l) => /^\(Apenas se/.test(l.texto))?.oculta === true && !altar.system.informacoes.some((l) => /virote/i.test(l.texto)));
       const arvore = game.items.getName("Árvore");
       ok("o quadro da árvore tem as quatro linhas do PDF, com perícia e DT", arvore.system.informacoes.map((l) => `${l.pericia}${l.dt}`).join() === "percepcao6,percepcao8,pesquisar6,pesquisar8");
       ok("a descrição do ponto traz o handout", /<img/.test(arvore.system.descricaoBasica));
@@ -5156,9 +5194,11 @@ const relato = await page.evaluate(async (boasVindas) => {
       await esperar(400);
       ok("na barra do palco, + avança a rodada", combate.system.rodada === rodadaAntes + 1);
       clicar("[data-palco=rodada][data-delta='-1']");
+      await esperar(400);
       clicar("[data-palco=avancar]");
       await esperar(400);
-      ok("na barra do palco, avançar passa à fase seguinte", combate.system.fase === "final");
+      // Corpo a corpo é a última das três: avançar vira a rodada e volta à geral.
+      ok("na barra do palco, avançar depois do corpo a corpo vira a rodada", combate.system.fase === "geral" && combate.system.rodada === rodadaAntes + 1);
       clicar("[data-palco=parar]");
       await esperar(500);
       ok("na barra do palco, parar tira a cena do ar sem zerar a cena", !combate.system.ativa && !palco()
@@ -5204,11 +5244,11 @@ const relato = await page.evaluate(async (boasVindas) => {
 
       const bau = game.items.find((i) => i.name === "Baú romano");
       ok("a senha do baú sai do PDF", bau.system.senha.length === 4 && bau.system.abordagens.arrombar && bau.system.abordagens.destrancar);
-      ok("o Aughisk tem RD 3, a decisão da mesa (o livro não imprime)", game.actors.getName("Aughisk").system.rd === 3);
+      ok("o Aughisk tem a RD 10 que a revisão 1.1 imprime", game.actors.getName("Aughisk").system.rd === 10);
       ok("o Afogado da missão agarra com o Afogar", game.actors.getName("Afogado").system.ataques.some((x) => x.nome === "Afogar" && x.efeito === "agarrar" && x.danoPorRodada === "1d6"));
       await painel.close();
       return passos;
-    });
+    }, REV);
     relato.passos.push(...missoes);
   }
   await Promise.all([

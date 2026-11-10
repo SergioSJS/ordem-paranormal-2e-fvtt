@@ -8,6 +8,12 @@ import { OP2Roll } from "./op2-roll.mjs";
 import { TesteDialog } from "./teste-dialog.mjs";
 import { SelecaoDados } from "./selecao-dados.mjs";
 import { lerConfig } from "../settings/register.mjs";
+
+/**
+ * Que dados contam para o crítico. No Vigília a regra é do livro (beta 1.1, p. 11): com 4 dados,
+ * descarta o menor antes. No moderno, o setting do mundo (o alpha não define).
+ */
+export const escopoDoCritico = () => (modoAtual() === "vigilia" ? "semMenor" : lerConfig("escopoCritico"));
 import { stepDie } from "./escada.mjs";
 import { comoMestre } from "../ui/socket.mjs";
 import { cardVigilia } from "../vigilia/card.mjs";
@@ -111,7 +117,7 @@ export async function rolarTeste(ator, {
 
   const roll = OP2Roll.paraComponentes(dados, {
     dt: config.dt,
-    escopoCritico: lerConfig("escopoCritico"),
+    escopoCritico: escopoDoCritico(),
     rotulo: contexto ?? base.rotuloPericia,
     atorId: ator.id,
     modificador: config.modificador ?? 0,

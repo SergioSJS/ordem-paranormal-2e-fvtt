@@ -2,7 +2,7 @@
 import { registrarAcaoDeChat } from "../ui/chat.mjs";
 import { cardDeDano } from "../cena/rodada.mjs";
 import { rolarTesteBeta, rolarTabelaBeta, aplicarLinhaPorChave } from "./queda.mjs";
-import { revidar, defender, aplicarDanoDeCombate, pedirDanoManual } from "./acoes-combate.mjs";
+import { revidar, defender, aplicarDanoDeCombate, pedirDanoManual, repetirOposto } from "./acoes-combate.mjs";
 import { acaoChamativa, dizerNumeros, descartarIguais } from "./acoes-furtividade.mjs";
 import { mudarCondicao, marcarDerrubado, agarrar } from "./cena-acao.mjs";
 
@@ -29,6 +29,8 @@ export function registrarAcoesDeChatDaVigilia() {
   registrarAcaoDeChat("vigilia-dano-dono", soDono((ator, d) => aplicarDanoDeCombate(ator, d)));
   registrarAcaoDeChat("vigilia-revidar", soDono((ator, d) => revidar(ator, d)));
   registrarAcaoDeChat("vigilia-defender", soDono((ator, d) => defender(ator, d)));
+  // Empate em teste oposto: rola de novo, quem joga com quem agiu (beta 1.1, p. 11).
+  registrarAcaoDeChat("vigilia-repetir", soDono((ator, d) => repetirOposto(ator, d)));
   registrarAcaoDeChat("vigilia-perder-dado", soDono((ator) => acaoChamativa(ator)));
   registrarAcaoDeChat("vigilia-numeros", async (_ator, d) => dizerNumeros(await fromUuid(d.cena)));
   // A regra propõe, quem clica aplica: nada disso acontece sozinho (feedback de mesa).

@@ -71,6 +71,12 @@
             <button type="button" class="op2-botao op2-botao--pequeno" data-action="abrirAventura" data-ato="{{nome}}">
               <i class="fa-solid fa-eye" aria-hidden="true"></i> {{localize "OP2.Aventuras.Ver"}}
             </button>
+            {{#if pontosNoMundo}}
+              <button type="button" class="op2-botao op2-botao--pequeno" data-action="atualizarPontos" data-ato="{{nome}}"
+                data-tooltip="{{localize "OP2.Aventuras.AtualizarPontosAjuda"}}">
+                <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> {{localize "OP2.Aventuras.AtualizarPontos" n=pontosNoMundo}}
+              </button>
+            {{/if}}
             <button type="button" class="op2-botao" data-action="importar" data-ato="{{nome}}">
               <i class="fa-solid fa-file-import" aria-hidden="true"></i> {{localize "OP2.Aventuras.Importar"}}
             </button>

@@ -18,7 +18,8 @@ import { MAX_DADOS_CONTADOS, VALOR_MINIMO_CRITICO } from "../config.mjs";
 
 /**
  * Aplica o dado de pavor (beta §9.1): anula os dados com resultado MENOR que ele; empate
- * não anula. Dado anulado não conta para soma, RA, RB nem crítico (docs/regras/LACUNAS.md).
+ * não anula. Dado anulado sai só da soma: para RA, RB e crítico ele continua valendo (beta 1.1,
+ * p. 24, "Apenas em Testes"; a 1.0 não dizia, e o sistema tirava de tudo).
  * @param {DadoRolado[]} dados
  * @returns {DadoRolado[]}
  */
@@ -38,6 +39,9 @@ const doTeste = (dados) => dados.filter((d) => !d.pavor);
 /** @param {DadoRolado[]} dados */
 export const contados = (dados) => dados.filter((d) => d.contado && !d.pavor && !d.anulado);
 
+/** Os dados que valem para os efeitos do teste (RA, RB, crítico): os contados e os que o pavor anulou. */
+export const paraEfeitos = (dados) => dados.filter((d) => !d.pavor && (d.contado || d.anulado));
+
 /** @param {DadoRolado[]} dados */
 export const soma = (dados) => contados(dados).reduce((s, d) => s + d.resultado, 0);
 
@@ -47,13 +51,13 @@ export const soma = (dados) => contados(dados).reduce((s, d) => s + d.resultado,
  * @param {DadoRolado[]} dados
  */
 export function ra(dados) {
-  const v = contados(dados).map((d) => d.resultado);
+  const v = paraEfeitos(dados).map((d) => d.resultado);
   return v.length ? Math.max(...v) : 0;
 }
 
 /** Rolagem Baixa — o menor valor rolado. @param {DadoRolado[]} dados */
 export function rb(dados) {
-  const v = contados(dados).map((d) => d.resultado);
+  const v = paraEfeitos(dados).map((d) => d.resultado);
   return v.length ? Math.min(...v) : 0;
 }
 
@@ -64,10 +68,17 @@ export function rb(dados) {
  * 5 não conta; par de 1 é falha crítica, nunca crítico.
  *
  * @param {DadoRolado[]} dados
- * @param {"todos"|"contados"} [escopo] o playtest não define se descartados contam (spec §4.5)
+ * @param {"todos"|"contados"|"semMenor"} [escopo] o alpha não define se descartados contam (spec
+ *   §4.5); o beta 1.1 manda, com 4 dados, descartar o menor antes de ver o crítico (p. 11): `semMenor`.
  */
 export function valorCritico(dados, escopo = "todos", minimo = VALOR_MINIMO_CRITICO) {
-  const alvo = escopo === "contados" ? contados(dados) : doTeste(dados).filter((d) => !d.anulado);
+  const rolados = doTeste(dados);
+  // "Se rolar 4 dados": conta o que rolou, mesmo o que o pavor anulou.
+  if (escopo === "semMenor" && rolados.length >= 4) {
+    const menor = rolados.reduce((m, d) => (d.resultado < m.resultado ? d : m));
+    rolados.splice(rolados.indexOf(menor), 1);
+  }
+  const alvo = escopo === "contados" ? contados(dados) : rolados;
   const contagem = new Map();
   for (const d of alvo) {
     if (d.resultado < minimo) continue;
@@ -97,7 +108,7 @@ export const pontosDoEstendido = (r, { base = r.ra, somaCritico = false } = {}) 
 
 /** A segunda maior rolagem: é o que o crítico soma ao dano e à pontuação (beta §3). */
 export function segundaRolagem(dados) {
-  return contados(dados).map((d) => d.resultado).sort((a, b) => b - a)[1] ?? 0;
+  return paraEfeitos(dados).map((d) => d.resultado).sort((a, b) => b - a)[1] ?? 0;
 }
 
 /**
@@ -111,8 +122,11 @@ export function segundaRolagem(dados) {
 export function analisar(dados, {
   dt = null, escopoCritico = "todos", modificador = 0, minimoCritico = VALOR_MINIMO_CRITICO,
 } = {}) {
-  const critico = valorCritico(dados, escopoCritico, minimoCritico);
   const falhaCritica = ehFalhaCritica(dados, escopoCritico);
+  // O pavor que anula todos os dados faz falha crítica (beta §9.1): aí não há crítico, mesmo
+  // com os anulados valendo para os outros efeitos.
+  const tudoAnulado = contados(dados).length === 0 && dados.some((d) => d.anulado);
+  const critico = tudoAnulado ? null : valorCritico(dados, escopoCritico, minimoCritico);
   // Tudo anulado pelo pavor vale 0, com ou sem modificador (beta §9.1).
   const total = contados(dados).length ? soma(dados) + modificador : 0;
 
@@ -143,7 +157,7 @@ export function analisar(dados, {
  * @returns {{ra: number|null, rb: number|null}} os `indice`s
  */
 export function papeisDosDados(dados) {
-  const vivos = contados(dados);
+  const vivos = paraEfeitos(dados);
   if (!vivos.length) return { ra: null, rb: null };
   const maior = Math.max(...vivos.map((d) => d.resultado));
   const menor = Math.min(...vivos.map((d) => d.resultado));

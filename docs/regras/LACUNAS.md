@@ -527,7 +527,7 @@ entra sem apagar nada.
 
 | Assunto | O livro diz | Default proposto |
 |---|---|---|
-| **Fases do combate** | Carta (p. 2) e regras (p. 18): três — geral, distância, corpo a corpo. Missões (p. 32, p. 69) e `Personagens Caídos` (p. 24): quatro — suporte, distância, corpo a corpo, final. A p. 18 ainda cita "fase tática". | **Quatro.** É a única versão em que investigar durante a luta e fugir têm lugar, e as duas missões foram escritas nela. Geral = Tática = Suporte. Setting. |
+| **Fases do combate** | 1.0: carta (p. 2) e regras (p. 18), três — geral, distância, corpo a corpo; missões (p. 32, p. 69) e `Personagens Caídos` (p. 24), quatro — suporte, distância, corpo a corpo, final. | **Resolvido na 1.1: três**, em tudo; a geral leva mover-se, fugir e investigar durante a luta. Até a 1.1 o sistema usava quatro. |
 | **Perícia do conhecimento paranormal** | Lista (p. 9): Bruxaria. Fichas e quadros (p. 63): Ocultismo. | Uma chave só, `ocultismo`; rótulo "Bruxaria" no modo Vigília. |
 | **Perícia de ofício** | Lista (p. 9): Metalurgia. Fichas: Ofício (Metalurgia) e Ofício sem especialização. Quadros: Ofício, Ofício (metalurgia). | Chave `oficio`, com especialização livre. |
 | **Compartilhar** | Texto (p. 15): Pesquisar, perícia que saiu da lista. Tabela: Intuição. | Inspecionar, que é a chave `pesquisar` com outro rótulo no modo Vigília. O setting `compartilharPericia` continua valendo. |
@@ -547,11 +547,11 @@ entra sem apagar nada.
 | **Atordoado** | Usado em chefe e armas; sem definição. | Perde a ação pelo tempo indicado. Conferir no feedback. |
 | **Sobrecarregado, imóvel** | Citados em Agarrar. | Só rótulo no estado, o mestre arbitra. |
 | **Dano de impacto, absorção, frio** | Citados, sem tipos definidos. | Dano físico; o tipo é só texto. |
-| **RD do aughisk** | A criatura "perde sua redução de dano" (p. 38, p. 43), mas a ficha não imprime valor. As armas ignoram 5. | **3, decisão da mesa** (2026-11-08; antes, 5 por inferência). Campo editável; balista e tocha passam inteiras. |
+| **RD do aughisk** | 1.0: a criatura "perde sua redução de dano" (p. 38, p. 43), mas a ficha não imprime valor. As armas ignoram 5. | **Resolvido na 1.1: RD 10** (p. 45). Até lá, 3 por decisão da mesa (2026-11-08). Mundos com 3 ou 5 recebem 10 ao abrir. |
 | **Afogar** | A ficha lista Afogar como ação de corpo a corpo `d8+d6`, sem dano: agarra, a vítima perde d6 no fim de cada rodada e só tenta escapar (Acrobacia ou Luta à escolha, −1 passo, contra a Luta do afogado); aliado faz o mesmo teste, sem a redução. Não diz se o d6 passa por armadura, nem o que fazer com "agarrado" sem saber quem segura. | Ataque com efeito "Agarra": o acerto (e, para o mestre, mesmo o erro) agarra; card de fim de rodada com o dano, que segue o caminho normal (RD e escolha da armadura). Soltar-se e Soltar um aliado contra a Luta de quem segura; empate segura. "Agarrado" ligado à mão não sabe quem segura: soltar é contra DT 7 e não há dano de fim de rodada. |
 | **Patamar** | Iniciante a lenda são citados sem tabela de nível. Guardiã dá "+1 PV por patamar". | Campo manual, default iniciante para nível 3. |
 | **NEX** | "NEX 35%+ evita" no aughisk; fichas sem NEX. | Mantém o texto; ninguém evita. |
-| **Pavor com RA, RB e crítico** | Só define o valor do teste. | Dado anulado não conta para RA, RB nem crítico; o pavor não conta no limite de 4. |
+| **Pavor com RA, RB e crítico** | 1.0: só define o valor do teste. | **Resolvido na 1.1** (p. 24): o anulado sai só da soma e vale para RA, RB e crítico. Com tudo anulado, falha crítica. O pavor não conta no limite de 4. |
 | **Cura de lesão, trauma e pavor** | "Até serem curados", sem como. | Remoção manual pelo mestre. |
 | **Destrancar o baú** | Quatro d12 com senha impressa, sem máximo de tentativas (p. 65); a regra (p. 16) diz que a missão define. | Campo editável, começa sem limite, com aviso. Senha fixa, não rolada. |
 | **Alcance curto e longo, zonas** | Sem distância; zona só citada (p. 69). | Mestre arbitra; sem medição. |
@@ -584,4 +584,18 @@ Texto original preservado na extração. Linha claramente trocada nasce **rascun
 | Cormac (ficha) | Acrobacia `d4+d6` e Animais `d4+d8`: dados de atributo trocados. Herança cita "Diarmaid" | Mesma regra do Cavan; nota |
 | Nomes | Rhiona (fichas) × Rhionna (token); Branna (p. 51) × Brenna; Ellén × Ellen (token); aughisky (p. 34); `SORCHA: SORCHA:` em duas relações; Enxurrada de/da Morte | Grafia dominante; o importador mapeia o arquivo |
 | Texto | "chama ouro", "os os mortos", "poça grotesca que lodo", "Você uma interação", "ao à elevação" | Fica como está |
+
+## Playtest beta: revisão 1.1
+
+A 1.1 (novembro/2026) rediagramou o livro e corrigiu boa parte das contradições acima. O sistema lê as
+duas revisões; onde divergem, vale a 1.1. O que ela ainda traz de estranho:
+
+| Assunto | O livro diz | Default proposto |
+|---|---|---|
+| **Afogar, dano por rodada** | Ficha do afogado (p. 43): "perde **6d6** PV no final de cada rodada". Texto da missão (p. 32) e a 1.0: d6. | **d6.** 6d6 por rodada mata em duas; o resto do livro diz d6. |
+| **Inscrição Antiga (5.1)** | Sai com o título "Pilha de Cinzas" e a descrição dela (p. 66); o quadro e o número são da inscrição. | O extrator acha o ponto pelo número do mapa; a montagem avisa que a descrição é a da Pilha de Cinzas. |
+| **Plataforma Elevada (4)** | Sai com a descrição da Pilha de Cinzas (p. 64). | Mantém, com nota no ponto e aviso na montagem. |
+| **Empate na defesa** | Defender-se (p. 18) diz "se vencer"; empate em teste oposto rola de novo (p. 11). | Rola de novo, os dois: a defesa e o ataque. |
+| **Ofício** | Agora com especialidade, como a Aptidão: Alquimia, Carpintaria, Metalurgia (p. 9). Fichas: "Ofício (Metalurgia)". | Por ora uma perícia só, `oficio`; a especialidade é texto. |
+| **Fichas dos pré-gerados** | As fichas 1.1 corrigem perícias: Rowan (Acrobacia d4, Animais d8), Muirenn (Pontaria d4), Cormac (Sobrevivência d4); e o atributo impresso ao lado de algumas perícias. | Os pré-gerados do sistema seguem a 1.1; os já importados recebem ao abrir o mundo, quando o valor ainda é o da 1.0. O atributo já saía da p. 9. |
 

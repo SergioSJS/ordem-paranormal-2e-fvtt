@@ -1,14 +1,15 @@
 /**
  * Combate por fases do beta (beta §7), sem Foundry.
  *
- * O livro imprime três fases nas regras e quatro nas missões; adotamos as quatro, as únicas
- * em que investigar durante a luta e fugir têm lugar (docs/regras/LACUNAS.md).
+ * Três fases (beta 1.1, p. 18): geral (qualquer ação, exceto ataques, incluindo mover-se, fugir e
+ * investigar no meio da luta), ataques à distância e ataques corpo a corpo. A 1.0 imprimia quatro
+ * nas missões (suporte e final no lugar da geral); a 1.1 unificou.
  */
 import {
   DT_ATAQUE, BONUS_DT_SITUACAO, DT_FERIMENTO_BASE, DT_FERIMENTO_INCREMENTO, DT_PADRAO,
 } from "../config.mjs";
 
-export const FASES = ["suporte", "distancia", "corpo", "final"];
+export const FASES = ["geral", "distancia", "corpo"];
 
 
 export const CONDICOES = [
@@ -166,6 +167,13 @@ export function danoDoAcerto(leitura, bonusDano = 0) {
  * ataque, porque o texto pede "vencer".
  */
 export const defesaVenceu = (totalDefesa, totalAtaque) => totalDefesa > totalAtaque;
+
+/**
+ * Empate em teste oposto: os dois rolam de novo, até haver vencedor (beta 1.1, p. 11). Não vale
+ * para o corpo a corpo cruzado, em que o empate faz os dois acertarem (p. 19), nem para teste
+ * contra DT (sem `dele`).
+ */
+export const empatou = (meu, dele) => dele !== undefined && dele !== null && Number(meu) === Number(dele);
 
 /** Manobra: vence por 5 ou mais dá o efeito extra (beta §7.4). */
 export function resolverManobra(totalAtacante, totalAlvo) {

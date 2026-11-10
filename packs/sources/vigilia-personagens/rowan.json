@@ -22,12 +22,12 @@
     },
     "pericias": {
       "acrobacia": {
-        "die": "d6",
+        "die": "d4",
         "atributo": "fisico",
         "stepMod": 0
       },
       "animais": {
-        "die": "d6",
+        "die": "d8",
         "atributo": "emocao",
         "stepMod": 0
       },

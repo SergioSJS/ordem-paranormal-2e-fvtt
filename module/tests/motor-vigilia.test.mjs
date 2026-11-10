@@ -33,18 +33,20 @@ test("pavor: os três exemplos do livro (beta §9.1)", () => {
   assert.equal(analisar(comPavor([6, 5], 3)).total, 11);
 });
 
-test("pavor: empate não anula, e o dado de pavor não soma nem conta em RA", () => {
+test("pavor: empate não anula, o pavor não soma, e o anulado sai só da soma (beta 1.1, p. 24)", () => {
   const a = analisar(comPavor([4, 2], 4));
   assert.equal(a.total, 4);
   assert.equal(a.ra, 4);
-  assert.equal(a.rb, 4);
+  // O 2 anulado não soma, mas continua sendo a rolagem baixa.
+  assert.equal(a.rb, 2);
   const b = analisar(comPavor([6, 5], 8));
   assert.equal(b.falhaCritica, true);
-  assert.equal(b.ra, 0);
+  assert.equal(b.total, 0);
+  assert.equal(b.ra, 6);
 });
 
-test("pavor: dado anulado não forma crítico", () => {
-  // 6 e 6 com pavor 8: os dois somem, é falha crítica e não crítico.
+test("pavor: tudo anulado é falha crítica, nunca crítico", () => {
+  // 6 e 6 com pavor 8: os dois somem da soma, é falha crítica e não crítico.
   const a = analisar(comPavor([6, 6], 8));
   assert.equal(a.critico, false);
   assert.equal(a.falhaCritica, true);
@@ -144,12 +146,13 @@ test("combate: fases, ataque e cruzado (beta §7)", async () => {
     FASES, proximaFase, jaAgiu, lerPassos, passosDeCondicoes, montarAtaque, resolverCruzado,
     danoDoAcerto, defesaVenceu, resolverManobra, dtDeQueda, faseDoAtaque,
   } = await import("../vigilia/combate.mjs");
-  assert.deepEqual(FASES, ["suporte", "distancia", "corpo", "final"]);
-  assert.equal(proximaFase("corpo"), "final");
-  assert.equal(proximaFase("final"), null);
+  // Três fases (beta 1.1, p. 18): a geral junta o suporte e o final da 1.0.
+  assert.deepEqual(FASES, ["geral", "distancia", "corpo"]);
+  assert.equal(proximaFase("geral"), "distancia");
+  assert.equal(proximaFase("corpo"), null);
   assert.equal(faseDoAtaque("distancia"), "distancia");
-  assert.equal(jaAgiu([{ ator: "a", fase: "suporte" }], "a"), true);
-  assert.equal(jaAgiu([{ ator: "a", fase: "suporte" }], "b"), false);
+  assert.equal(jaAgiu([{ ator: "a", fase: "geral" }], "a"), true);
+  assert.equal(jaAgiu([{ ator: "a", fase: "geral" }], "b"), false);
   assert.deepEqual(lerPassos("atletismo -1, furtividade -1"), [{ chave: "atletismo", passos: -1 }, { chave: "furtividade", passos: -1 }]);
   assert.deepEqual(lerPassos("lixo, percepcao +2"), [{ chave: "percepcao", passos: 2 }]);
   assert.deepEqual(lerPassos(""), []);
@@ -220,4 +223,13 @@ test("soltar-se: contra quem segura só vencendo; sem quem segura, DT padrão; o
   assert.equal(passosDaSoltura(true, -1), -1);
   assert.equal(passosDaSoltura(false, -1), 0); // quem ajuda testa sem a penalidade (p. 33)
   assert.equal(passosDaSoltura(true, ""), 0);
+});
+
+test("beta 1.1: empate em teste oposto rola de novo; contra DT não há empate (p. 11)", async () => {
+  const { empatou } = await import("../vigilia/combate.mjs");
+  assert.equal(empatou(9, 9), true);
+  assert.equal(empatou(9, "9"), true);
+  assert.equal(empatou(9, 8), false);
+  assert.equal(empatou(9, undefined), false);
+  assert.equal(empatou(9, null), false);
 });

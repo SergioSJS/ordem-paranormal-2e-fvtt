@@ -117,7 +117,7 @@
         "stepMod": 0
       },
       "sobrevivencia": {
-        "die": "d8",
+        "die": "d4",
         "atributo": "mente",
         "stepMod": 0
       },

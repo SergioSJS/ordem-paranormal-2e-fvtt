@@ -1018,6 +1018,11 @@
         "ehBeta": "This is the beta playtest PDF: pick it in the Vigil mode group."
       },
       "Importado": "{nome}: imported into the world.",
+      "AtualizarPontos": "Update the clues in the world ({n})",
+      "AtualizarPontosAjuda": "Rewrites the clue table of this mission's points already in the world with the one from the PDF just read. Whoever found a clue keeps it; sheets, scenes and tokens don't change.",
+      "AtualizarPontosTitulo": "Update the clues",
+      "AtualizarPontosPergunta": "The {n} points of {nome} already in the world will get the clue table from the PDF just read: DCs, skills and each clue's text. Whoever found a clue keeps it. Your own edits to those tables are replaced.",
+      "AtualizarPontosFeito": "{pontos} points updated: {casadas} clues kept, {novas} new, {removidas} removed.",
       "MenuNome": "Playtest adventures",
       "MenuBotao": "Build from PDF",
       "MenuAjuda": "Pick the playtest PDF and the system builds Act I (and Act II, if the PDF includes it) in this world's compendium.",
@@ -1141,10 +1146,9 @@
       "empurrado": "Shoved"
     },
     "Fase": {
-      "suporte": "Support",
+      "geral": "General",
       "distancia": "Ranged",
       "corpo": "Melee",
-      "final": "Final",
       "personagens": "Characters",
       "criaturas": "Creatures",
       "livre": "Free action (any phase)"
@@ -1528,10 +1532,9 @@
       "NadaNestaFase": "Nothing in this phase for this character.",
       "OutrasAcoes": "Other actions (other phases or free)",
       "rodada": "No initiative. Everyone has one standard action per round and picks the phase to use it in; acting in a phase means not acting in the later ones. Within a phase everything is simultaneous, and a phase happens before the next: dropping someone at range stops their melee.",
-      "suporte": "General actions: hinder, feint, aim, ready, defend, stand up, draw or stow. Also use an ability or item and ready a dodge.",
+      "geral": "Any action except attacks: hinder, feint, aim, ready, defend, stand up, draw or stow, use an ability or item. Also move, flee and investigate mid-fight.",
       "distancia": "Ranged attack: Aim against DC 7, +3 at long range. Shooting into melee costs –2 steps, or risk 1d6 (odd hits whoever the target was fighting).",
-      "corpo": "Melee attack: Fight against DC 7. Two who attack each other make an opposed test, and on a tie both hit. Maneuvers (grapple, trip, disarm, shove, break) replace the attack.",
-      "final": "Move, flee, investigate mid-fight or do something outside the combat. Then the end of the round: script effects, expiring conditions, the dying.",
+      "corpo": "Melee attack: Fight against DC 7. Two who attack each other make an opposed test, and on a tie both hit. Maneuvers (grapple, trip, disarm, shove, break) replace the attack. Then the end of the round: script effects, expiring conditions, the dying.",
       "perseguicao": "Each round, every character advances: Athletics DC 10, adding the HR on a success and the LR on a failure. Breath dice are bonus dice; extra effort gives +1 step and costs HP. On cut rounds, whoever is below the minimum suffers what the scene says.",
       "personagens": "Each character advances through the area or uses a special action: hide, distract, draw attention. A noisy action discards a hiding die.",
       "criaturas": "A player rolls 1d10 on the creatures table. On a search, anyone with a hiding die matching one of the GM's dice loses that die. With no dice, the character has been found."
@@ -1646,7 +1649,10 @@
       "AguardaDefesa": "{alvo} is defending: damage only lands if the defense loses.",
       "Protecao": "{bruto} before protection, {final} after.",
       "Caiu": "{nome} is down.",
-      "Enlouqueceu": "{nome} reached 0 SP."
+      "Enlouqueceu": "{nome} reached 0 SP.",
+      "Empate": "Tie: roll again",
+      "EmpateExplica": "Tied opposed test: both roll again until someone wins. The action is not spent again.",
+      "RolarDeNovo": "Roll again"
     },
     "Agarre": {
       "Explica": "This attack does not hurt on a hit: it grabs. A grabbed victim can only try to break free and loses {dano} at the end of each round.",

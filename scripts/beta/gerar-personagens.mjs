@@ -112,6 +112,13 @@ function habilidadeDe(chave) {
   };
 }
 
+/**
+ * O que a revisão 1.1 das fichas corrigiu (Fichas dos Personagens 1.1, no zip da editora): o dado
+ * da perícia. A leitura das fichas é da 1.0; o resto não mudou. Mundos já importados recebem o
+ * mesmo por `correcaoDoPregerado` (module/aventura/importacao.mjs), que usa esta tabela.
+ */
+import { PERICIAS_DA_REVISAO_1_1 } from "../../module/aventura/revisao-beta.mjs";
+
 for (const f of fichas) {
   const nomeCurto = curto(f.nome);
   const pericias = Object.fromEntries(Object.entries(PERICIAS).map(([chave, def]) => [chave, { die: "d4", atributo: def.atributo, stepMod: 0 }]));
@@ -129,6 +136,10 @@ for (const f of fichas) {
     const chave = CHAVE_PERICIA[p.nome.replace(/\s*\(.*$/, "").trim()];
     if (!chave) throw new Error(`${f.nome}: perícia desconhecida: ${p.nome}`);
     pericias[chave].die = p.dado;
+  }
+  for (const [chave, { de, para }] of Object.entries(PERICIAS_DA_REVISAO_1_1[nomeCurto] ?? {})) {
+    if (pericias[chave].die !== de) throw new Error(`${f.nome}: ${chave} era ${pericias[chave].die}, a correção 1.1 espera ${de}`);
+    pericias[chave].die = para;
   }
   const nomesHab = [...f.habilidades.map((h) => h.nome), ...Object.keys(f.outros_blocos ?? {})];
   const habilidades = nomesHab.map(habilidadeDe);

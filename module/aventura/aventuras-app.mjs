@@ -13,6 +13,7 @@ import { LICENCA, SELO } from "../ui/licenca.mjs";
 import { ExtrasApp, extrasDaAventura, arquivosPresentes, pastaDosExtras, importarAventura } from "../ui/extras-aventura.mjs";
 import { linhasDoPdf, paginasDoArquivo } from "./pdf.mjs";
 import { ATOS, montarEGuardar, aventuraNoMundo, documentoDaAventura } from "./mundo.mjs";
+import { pontosNoMundo, atualizarPontosDoMundo } from "./atualizar-pontos.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -27,6 +28,7 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
       importar: AventurasApp.#importar,
       abrirAventura: AventurasApp.#abrirAventura,
       enviarZip: AventurasApp.#enviarZip,
+      atualizarPontos: AventurasApp.#atualizarPontos,
     },
   };
 
@@ -64,6 +66,8 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
         // Guardada por uma montagem anterior: o que só a montagem traz (luzes) pede o PDF de novo.
         desatualizada: noMundo && ato.modo === "vigilia" && !resultado?.ok
           && ((await documentoDaAventura(ato.aventura))?.getFlag(SYSTEM_ID, "revisaoDaMontagem") ?? 0) < REVISAO_DA_MONTAGEM,
+        // Pontos desta missão já no mundo: o PDF novo pode atualizar as pistas sem reimportar.
+        pontosNoMundo: noMundo && ato.modo === "vigilia" ? pontosNoMundo(await documentoDaAventura(ato.aventura)).length : 0,
       };
     }));
     // Cada modo com o próprio PDF e os próprios zips. Modo sem aventura ainda não aparece.
@@ -169,6 +173,25 @@ export class AventurasApp extends HandlebarsApplicationMixin(ApplicationV2) {
     ui.notifications.info(game.i18n.format("OP2.Aventuras.Importado", { nome: aventura.name }));
     Hooks.callAll("op2.aventurasMudaram");
     if (trocar) return void await trocarModo(trocarPara);
+    await this.render();
+  }
+
+  /**
+   * As pistas dos pontos já importados, pelas da aventura guardada (lida do PDF mais novo). Só o
+   * quadro muda; quem descobriu cada pista continua com ela.
+   */
+  static async #atualizarPontos(_evento, alvo) {
+    const ato = ATOS.find((a) => a.nome === alvo.dataset.ato);
+    const aventura = await documentoDaAventura(ato.aventura);
+    if (!aventura) return;
+    const n = pontosNoMundo(aventura).length;
+    const confirmou = await foundry.applications.api.DialogV2.confirm({
+      window: { title: "OP2.Aventuras.AtualizarPontosTitulo" },
+      content: `<p>${game.i18n.format("OP2.Aventuras.AtualizarPontosPergunta", { n, nome: aventura.name })}</p>`,
+    });
+    if (!confirmou) return;
+    const r = await atualizarPontosDoMundo(aventura);
+    ui.notifications.info(game.i18n.format("OP2.Aventuras.AtualizarPontosFeito", r));
     await this.render();
   }
 
