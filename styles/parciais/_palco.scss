@@ -1,7 +1,8 @@
 // O palco da cena de ação: teatro no rodapé, não grade (module/vigilia/palco.mjs).
 // Mora dentro de #ui-bottom, acima da hotbar, e acompanha a interface do core.
-// Cabe no vão livre entre os controles e a coluna da direita do core (chat, barra lateral), que
-// `encaixar()` mede: mais largo, passava por baixo deles. Sem espaço, as figuras encolhem.
+// Cabe no vão livre entre os controles e a barra lateral do core, que `encaixar()` mede: mais
+// largo, passava por baixo deles. Sem espaço, as figuras encolhem até um mínimo legível e depois
+// quebram em mais de uma fila. Nunca se sobrepõem.
 @layer system {
 .op2-palco {
   position: relative;
@@ -96,19 +97,25 @@
 .op2-palco__elenco {
   display: flex;
   max-width: 100%;
-  min-width: 0;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: flex-end;
+  row-gap: var(--op2-e2);
   // Espaço para o passo à frente de quem age.
   margin-top: 12px;
   gap: var(--op2-e3);
 }
 
 .op2-palco__lado {
+  // Encolhe até caber e quebra a fila por dentro; o mínimo é uma figura, então um lado nunca
+  // entra por cima do outro.
   display: flex;
-  min-width: 0;
   flex: 0 1 auto;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: flex-end;
   gap: var(--op2-e2);
+  row-gap: 18px;
 }
 
 .op2-palco__contra {
@@ -122,9 +129,9 @@
 .op2-palco__figura {
   position: relative;
   display: flex;
-  // Encolhe até a metade quando o elenco não cabe na coluna do meio.
-  flex: 0 1 96px;
-  min-width: 48px;
+  // O tamanho vem de `encaixar()`: o que cabe numa fila, entre 64 e 96 px.
+  flex: none;
+  width: var(--op2-palco-figura, 96px);
   flex-direction: column;
   align-items: center;
   margin: 0;

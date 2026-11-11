@@ -40,7 +40,7 @@ da editora (o gratuito do Ato I, o de assinante do Ato II) e o importador
 pré-gerados, cena, handouts e trilha vão em `assets/aventura/fontes-ato-*.json`, para
 dentro da aventura. O selo da licença (`assets/licenca/`) é o único arquivo da editora
 no pacote. Pronto para a rodada de teste manual que fecha a v1.
-**Versão:** 0.11.1 (a v1 é decisão de release).
+**Versão:** 0.11.2 (a v1 é decisão de release).
 **Fase 5 (modo Vigília):** M1 a M7 feitos. O playtest beta (combate por fases, perseguição,
 furtividade, medo, relações, duas missões medievais) corre em paralelo ao **modo moderno** (alpha, Atos I e
 II), que não perde nada; o combate novo vale nos dois, opcional e ligado por padrão no moderno. As missões

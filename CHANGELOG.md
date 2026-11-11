@@ -5,6 +5,15 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+## [0.11.2] — 2026-11-11
+
+- **O palco não sobrepõe mais as figuras.** A 0.11.1 encolhia o palco para caber no vão e deixava os retratos irem
+  até 48 px; sem espaço, o lado das criaturas entrava por cima do dos personagens. Agora cada figura tem o tamanho que
+  cabe numa fila (de 64 a 96 px) e, abaixo disso, o elenco quebra em mais filas. O vão também ficou mais justo: a
+  barra lateral e, com ela recolhida, a coluna do chat (onde as mensagens novas sobem) ficam de fora; os controles e
+  a lista de jogadores só contam se estiverem na altura do palco. Conferido com prints em 1920, 1366, 1280 e 1024 px,
+  com a barra lateral aberta e recolhida.
+
 ## [0.11.1] — 2026-11-11
 
 - **O palco não some mais atrás do chat e da barra lateral.** Em tela estreita, a faixa da cena de ação passava por

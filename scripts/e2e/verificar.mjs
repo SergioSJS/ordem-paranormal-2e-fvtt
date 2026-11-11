@@ -5125,28 +5125,44 @@ const relato = await page.evaluate(async (boasVindas) => {
       ok("o palco aparece no rodapé com todo mundo em cena",
         document.querySelectorAll("#op2-palco .op2-palco__figura").length === 8
         && document.querySelectorAll("#op2-palco .op2-palco__lado--criaturas .op2-palco__figura").length === 2);
-      // O palco cabe no vão entre os controles e a coluna da direita (chat, barra lateral), que no
-      // core cobre a ponta da coluna do meio; com o vão estreito, as figuras encolhem em vez de vazar.
+      // O palco cabe no vão entre os controles e a barra lateral (com ela recolhida, também fora da
+      // coluna do chat, onde as mensagens novas sobem); com o vão estreito, as figuras encolhem até
+      // 64 px e quebram em filas. Nenhuma figura por cima de outra. O teste anterior media só a
+      // borda e deixou passar os dois lados do elenco um por cima do outro.
       {
-        const direitaDe = (id) => document.getElementById(id)?.getBoundingClientRect().right ?? 0;
-        const coluna = document.getElementById("ui-right");
+        const palcoEl = document.getElementById("op2-palco");
         const medidas = [];
-        const cabe = () => {
-          const p = document.getElementById("op2-palco").getBoundingClientRect();
-          const limite = coluna.getBoundingClientRect().left;
-          const esquerda = Math.max(direitaDe("scene-controls"), direitaDe("players"));
-          const larguras = [...document.querySelectorAll("#op2-palco .op2-palco__figura")].map((f) => Math.round(f.getBoundingClientRect().width));
-          medidas.push(`palco ${Math.round(p.left)}–${Math.round(p.right)}, vão ${Math.round(esquerda)}–${Math.round(limite)}, figuras ${larguras}`);
-          return p.left >= esquerda && p.right <= limite && larguras.every((l) => l >= 47);
+        const confere = (rotulo) => {
+          const p = palcoEl.getBoundingClientRect();
+          const lateral = document.getElementById("sidebar").getBoundingClientRect().left;
+          const chatAqui = document.querySelector("#chat-notifications #chat-message")?.getBoundingClientRect().width;
+          const limite = chatAqui ? Math.min(lateral, document.getElementById("chat-notifications").getBoundingClientRect().left) : lateral;
+          const esquerda = document.getElementById("scene-controls").getBoundingClientRect().right;
+          const retratos = [...palcoEl.querySelectorAll(".op2-palco__retrato")].map((x) => x.getBoundingClientRect());
+          const sobrepoe = retratos.some((a, i) => retratos.some((b, k) => k > i && a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1));
+          const larguras = [...palcoEl.querySelectorAll(".op2-palco__figura")].map((f) => Math.round(f.getBoundingClientRect().width));
+          const certo = p.left >= esquerda && p.right <= limite && !sobrepoe && larguras.every((l) => l >= 60);
+          if (!certo) medidas.push(`${rotulo}: palco ${Math.round(p.left)}–${Math.round(p.right)}, vão ${Math.round(esquerda)}–${Math.round(limite)}, sobrepõe ${sobrepoe}, figuras ${larguras}`);
+          return certo;
         };
-        const cabeLargo = cabe();
-        // Uma coluna da direita bem mais larga, como numa tela estreita com o chat aberto.
-        coluna.style.minWidth = `${Math.round(coluna.getBoundingClientRect().width + window.innerWidth * 0.3)}px`;
-        await esperar(200);
-        const cabeEstreito = cabe();
-        coluna.style.minWidth = "";
-        await esperar(200);
-        ok(`o palco cabe no vão entre os controles e a barra lateral, e com o vão estreito as figuras encolhem${cabeLargo && cabeEstreito ? "" : ` (${medidas.join("; ")})`}`, cabeLargo && cabeEstreito);
+        const estava = ui.sidebar.expanded;
+        ui.sidebar.expand();
+        await esperar(500);
+        const aberta = confere("lateral aberta");
+        ui.sidebar.collapse();
+        await esperar(500);
+        const recolhida = confere("lateral recolhida");
+        // Vão bem estreito: os controles da esquerda ocupando 45% da tela.
+        const controles = document.getElementById("scene-controls");
+        controles.style.width = "45vw";
+        await esperar(500);
+        const estreito = confere("vão estreito");
+        const filas = new Set([...palcoEl.querySelectorAll(".op2-palco__figura")].map((f) => Math.round((f.offsetTop + f.offsetHeight) / 8))).size;
+        controles.style.width = "";
+        if (estava) ui.sidebar.expand();
+        await esperar(500);
+        ok(`o palco cabe no vão entre os controles e a barra lateral, sem figura por cima de outra, e no vão estreito quebra em filas${medidas.length ? ` (${medidas.join("; ")})` : ""}`,
+          aberta && recolhida && estreito && filas > 1);
       }
       const martelo = fx.ataquesDe(rhiona).find((a) => a.nome === "Martelo de forja");
       const golpe = await fx.atacar(rhiona, martelo, { cena: combate, rapido: true, escolha: { alvo: tokens[0].uuid } });
