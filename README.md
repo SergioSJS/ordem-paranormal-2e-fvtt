@@ -640,7 +640,7 @@ Detalhes do loop local, teste em duas versões do Foundry e convenções: [CLAUD
 
 ## Estado
 
-Em desenvolvimento. A última versão publicada é a 0.11.0: modo moderno (Atos I e II) e modo Vigília (as duas
+Em desenvolvimento. A última versão publicada é a 0.11.1: modo moderno (Atos I e II) e modo Vigília (as duas
 missões do beta, revisões 1.0 e 1.1), em teste de mesa.
 
 | Fase | O que entrou | Situação |
