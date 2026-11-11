@@ -167,24 +167,65 @@ async function desenhar() {
 
 /**
  * O palco no vão livre do rodapé. A coluna do meio do core (60% da tela) não basta: a coluna da
- * direita (chat recolhido, notificações, barra lateral) é absoluta e cobre a ponta dela, e o palco
- * ficava por baixo. O vão vai dos controles e da lista de jogadores, à esquerda, até essa coluna; o
- * palco se centra nele e não passa da largura dele (as figuras encolhem, ver `_palco.scss`).
+ * direita é absoluta e cobre a ponta dela, e o palco ficava por baixo do chat. O que ocupa a
+ * direita é a barra lateral e, com ela recolhida, a coluna do chat (onde as mensagens novas
+ * aparecem); com ela aberta, essa coluna fica vazia. À esquerda, os controles e a lista de
+ * jogadores, só se estiverem na altura do palco. O palco se centra no
+ * vão e não passa dele; as figuras ficam do tamanho que cabe numa fila (de 64 a 96 px) e, abaixo
+ * disso, quebram em mais filas (`_palco.scss`).
  */
+const FIGURA_MAXIMA = 96;
+const FIGURA_MINIMA = 64;
+
 function encaixar() {
   const el = elemento;
   const meio = document.getElementById("ui-middle");
   if (!el?.isConnected || !meio?.offsetWidth) return;
   const escala = meio.getBoundingClientRect().width / meio.offsetWidth || 1;
-  const direitaDe = (id) => {
-    const r = document.getElementById(id)?.getBoundingClientRect();
-    return r?.width ? r.right : 0;
+  // Só conta o que está na altura do palco: a lista de jogadores e o campo de mensagem costumam
+  // ficar na altura da hotbar, embaixo dele, e aí não roubam largura.
+  const faixa = el.getBoundingClientRect();
+  const visivel = (alvo) => {
+    const r = alvo?.getBoundingClientRect();
+    return r && r.width > 0 && r.height > 0 && getComputedStyle(alvo).visibility !== "hidden"
+      && r.top < faixa.bottom && r.bottom > faixa.top ? r : null;
   };
-  const esquerda = Math.max(direitaDe("scene-controls"), direitaDe("players")) + FOLGA;
-  const coluna = document.getElementById("ui-right")?.getBoundingClientRect();
-  const direita = (coluna?.width ? coluna.left : window.innerWidth) - FOLGA;
+  const daEsquerda = ["#scene-controls", "#players", "#players-active", "#players-inactive"]
+    .map((s) => visivel(document.querySelector(s))?.right ?? 0);
+  const daDireita = ["#sidebar"].map((s) => visivel(document.querySelector(s))?.left ?? window.innerWidth);
+  // Barra lateral recolhida: o chat mora na coluna da direita, e cada mensagem nova sobe ali por
+  // cima do que estiver embaixo. No combate é toda rolagem: a coluna inteira fica de fora.
+  const notificacoes = document.getElementById("chat-notifications");
+  if (notificacoes?.querySelector("#chat-message")?.getBoundingClientRect().width) {
+    daDireita.push(notificacoes.getBoundingClientRect().left);
+  }
+  const esquerda = Math.max(0, ...daEsquerda) + FOLGA;
+  const direita = Math.min(window.innerWidth, ...daDireita) - FOLGA;
   if (direita - esquerda < 200) return;
-  el.style.setProperty("--op2-palco-largura", `${Math.floor((direita - esquerda) / escala)}px`);
+  const largura = Math.floor((direita - esquerda) / escala);
+  el.style.setProperty("--op2-palco-largura", `${largura}px`);
+
+  // O tamanho da figura: o que sobra do vão, sem as margens e os vãos entre elas, dividido por quantas são.
+  const figuras = el.querySelectorAll(".op2-palco__figura").length;
+  if (figuras) {
+    const px = (alvo, prop) => (alvo ? parseFloat(getComputedStyle(alvo)[prop]) || 0 : 0);
+    const lados = [...el.querySelectorAll(".op2-palco__lado")].filter((l) => l.children.length);
+    const elenco = el.querySelector(".op2-palco__elenco");
+    const contra = el.querySelector(".op2-palco__contra");
+    const fixo = px(el, "paddingLeft") + px(el, "paddingRight") + px(el, "borderLeftWidth") * 2
+      + (contra ? (contra.offsetWidth + 2 * px(elenco, "columnGap")) : 0)
+      + lados.reduce((soma, l) => soma + (l.children.length - 1) * px(l, "columnGap"), 0);
+    // A conta dá o ponto de partida; a fila medida decide (o fundo de todas na mesma linha).
+    let tamanho = Math.max(FIGURA_MINIMA, Math.min(FIGURA_MAXIMA, Math.floor((largura - fixo) / figuras)));
+    const quebrou = () => new Set([...el.querySelectorAll(".op2-palco__figura")]
+      .map((f) => Math.round((f.offsetTop + f.offsetHeight) / 8))).size > 1;
+    el.style.setProperty("--op2-palco-figura", `${tamanho}px`);
+    while (tamanho > FIGURA_MINIMA && quebrou()) {
+      tamanho = Math.max(FIGURA_MINIMA, tamanho - 2);
+      el.style.setProperty("--op2-palco-figura", `${tamanho}px`);
+    }
+  }
+
   el.style.setProperty("--op2-palco-desvio", "0px");
   const r = el.getBoundingClientRect();
   const desvio = ((esquerda + direita) / 2 - (r.left + r.right) / 2) / escala;
@@ -196,7 +237,7 @@ function vigiarVao() {
   observador?.disconnect();
   if (typeof ResizeObserver === "undefined") return;
   observador = new ResizeObserver(() => encaixar());
-  for (const id of ["ui-right", "players", "scene-controls", "ui-middle"]) {
+  for (const id of ["ui-right", "sidebar", "chat-notifications", "players", "scene-controls", "ui-middle"]) {
     const alvo = document.getElementById(id);
     if (alvo) observador.observe(alvo);
   }
