@@ -5,6 +5,14 @@ Versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+## [0.11.1] — 2026-11-11
+
+- **O palco não some mais atrás do chat e da barra lateral.** Em tela estreita, a faixa da cena de ação passava por
+  baixo da coluna da direita do Foundry (chat recolhido, barra lateral), que cobre a ponta da coluna do meio. Agora o
+  palco mede o vão livre entre os controles e essa coluna, se centra nele e acompanha quando a barra lateral abre ou
+  fecha; sem espaço, os retratos encolhem até a metade em vez de vazar. A barra de fases quebra linha quando falta
+  largura.
+
 ## [0.11.0] — 2026-11-10
 
 **Revisão 1.1 do playtest beta.** O sistema monta as missões das duas revisões do PDF e segue as regras da 1.1.

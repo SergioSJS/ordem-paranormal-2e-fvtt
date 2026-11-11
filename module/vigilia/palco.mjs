@@ -30,6 +30,9 @@ const TEMPO_DA_LEGENDA = 6000;
 
 let elemento = null;
 let pendente = null;
+let observador = null;
+// Folga entre o palco e o que fica dos lados.
+const FOLGA = 12;
 
 const recolhido = () => {
   try { return localStorage.getItem(CHAVE_RECOLHIDO) === "1"; } catch { return false; }
@@ -90,6 +93,7 @@ function montarElemento() {
   if (fundo) fundo.prepend(elemento);
   else document.body.append(elemento);
   elemento.addEventListener("click", aoClicar);
+  vigiarVao();
   elemento.addEventListener("dblclick", (evento) => {
     const retrato = evento.target.closest(".op2-palco__retrato");
     if (!retrato) return;
@@ -130,6 +134,8 @@ async function desenhar() {
   if (!cena?.system.ativa || !participantesDe(cena).length) {
     elemento?.remove();
     elemento = null;
+    observador?.disconnect();
+    observador = null;
     return;
   }
   const el = montarElemento();
@@ -144,6 +150,7 @@ async function desenhar() {
   const abertos = [...el.querySelectorAll(".op2-palco__figura--menu details[open]")].map((d) => d.dataset.detalhe);
   el.innerHTML = await render(TEMPLATE, contextoDoPalco(cena));
   el.classList.toggle("op2-palco--recolhido", recolhido());
+  encaixar();
   const figuraDe = (uuid) => el.querySelector(`.op2-palco__figura[data-ator="${CSS.escape(uuid)}"]`);
   for (const uuid of aFrente) {
     const figura = figuraDe(uuid);
@@ -156,6 +163,44 @@ async function desenhar() {
     menu.classList.add("op2-palco__figura--menu");
     for (const chave of abertos) menu.querySelector(`details[data-detalhe="${chave}"]`)?.setAttribute("open", "");
   }
+}
+
+/**
+ * O palco no vão livre do rodapé. A coluna do meio do core (60% da tela) não basta: a coluna da
+ * direita (chat recolhido, notificações, barra lateral) é absoluta e cobre a ponta dela, e o palco
+ * ficava por baixo. O vão vai dos controles e da lista de jogadores, à esquerda, até essa coluna; o
+ * palco se centra nele e não passa da largura dele (as figuras encolhem, ver `_palco.scss`).
+ */
+function encaixar() {
+  const el = elemento;
+  const meio = document.getElementById("ui-middle");
+  if (!el?.isConnected || !meio?.offsetWidth) return;
+  const escala = meio.getBoundingClientRect().width / meio.offsetWidth || 1;
+  const direitaDe = (id) => {
+    const r = document.getElementById(id)?.getBoundingClientRect();
+    return r?.width ? r.right : 0;
+  };
+  const esquerda = Math.max(direitaDe("scene-controls"), direitaDe("players")) + FOLGA;
+  const coluna = document.getElementById("ui-right")?.getBoundingClientRect();
+  const direita = (coluna?.width ? coluna.left : window.innerWidth) - FOLGA;
+  if (direita - esquerda < 200) return;
+  el.style.setProperty("--op2-palco-largura", `${Math.floor((direita - esquerda) / escala)}px`);
+  el.style.setProperty("--op2-palco-desvio", "0px");
+  const r = el.getBoundingClientRect();
+  const desvio = ((esquerda + direita) / 2 - (r.left + r.right) / 2) / escala;
+  el.style.setProperty("--op2-palco-desvio", `${Math.round(desvio)}px`);
+}
+
+/** Reencaixa quando a tela, a barra lateral, a lista de jogadores ou o próprio palco mudam de tamanho. */
+function vigiarVao() {
+  observador?.disconnect();
+  if (typeof ResizeObserver === "undefined") return;
+  observador = new ResizeObserver(() => encaixar());
+  for (const id of ["ui-right", "players", "scene-controls", "ui-middle"]) {
+    const alvo = document.getElementById(id);
+    if (alvo) observador.observe(alvo);
+  }
+  observador.observe(elemento);
 }
 
 function abrirFicha(uuid) {

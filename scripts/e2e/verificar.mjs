@@ -4662,11 +4662,20 @@ const relato = await page.evaluate(async (boasVindas) => {
     await pc.update({ "system.estado.armaduraGasta": gastaAntes });
 
     // Condição e rodada.
-    await fx.acaoOposta(pc, "atrapalhar", { cena, alvoUuid: outro.uuid, rapido: true });
-    ok("vencer ou perder, a condição não entra sozinha: é botão do card", !outro.system.estado.condicoes.has("atrapalhado") && /vigilia-condicao/.test(ultimoCard()));
-    await fx.manobra(pc, "derrubar", { cena, alvoUuid: outro.uuid, rapido: true });
-    await esperar(300);
-    ok("manobra também não aplica sozinha", !outro.system.estado.condicoes.has("caido") && /vigilia-condicao/.test(ultimoCard()));
+    // Empate rola de novo (beta 1.1): o card de empate não tem o botão; repete até decidir.
+    const ateDecidir = async (rolar) => {
+      for (let i = 0; i < 6; i++) {
+        const r = await rolar();
+        await esperar(300);
+        if (!r?.empate) return;
+      }
+    };
+    await ateDecidir(() => fx.acaoOposta(pc, "atrapalhar", { cena, alvoUuid: outro.uuid, rapido: true }));
+    ok(`vencer ou perder, a condição não entra sozinha: é botão do card${/vigilia-condicao/.test(ultimoCard()) ? "" : ` (${ultimoCard().replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").slice(0, 200)})`}`,
+      !outro.system.estado.condicoes.has("atrapalhado") && /vigilia-condicao/.test(ultimoCard()));
+    await ateDecidir(() => fx.manobra(pc, "derrubar", { cena, alvoUuid: outro.uuid, rapido: true }));
+    ok(`manobra também não aplica sozinha${/vigilia-condicao/.test(ultimoCard()) ? "" : ` (${ultimoCard().replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").slice(0, 200)})`}`,
+      !outro.system.estado.condicoes.has("caido") && /vigilia-condicao/.test(ultimoCard()));
     await outro.update({ "system.estado.condicoes": ["atrapalhado", "caido"] });
     // À mão, pelo painel: rodada, fase, "já agiu" e os campos da linha.
     await esperar(300);
@@ -4815,8 +4824,12 @@ const relato = await page.evaluate(async (boasVindas) => {
       await esperar(500);
       ok("no fim da rodada, o agarrado perde o dano do agarre: card com o botão, nada aplicado sozinho",
         game.messages.contents.slice(-4).some((m) => /vigilia-rolar-dano/.test(m.content) && m.content.includes(pc.uuid) && /1d6/.test(m.content)));
-      const solta = await fx.soltar(pc, { cena, rapido: true });
-      await esperar(400);
+      // Empate rola de novo (beta 1.1): repete até decidir.
+      let solta = null;
+      for (let i = 0; i < 6 && (!solta || solta.empate); i++) {
+        solta = await fx.soltar(pc, { cena, rapido: true });
+        await esperar(400);
+      }
       ok("soltar-se é teste oposto contra quem segura, e o card propõe soltar",
         solta && /vigilia-condicao/.test(ultimoCard()) && /data-ligar="0"/.test(ultimoCard()));
       await mudarCondicao(pc, "agarrado", false);
@@ -5112,6 +5125,29 @@ const relato = await page.evaluate(async (boasVindas) => {
       ok("o palco aparece no rodapé com todo mundo em cena",
         document.querySelectorAll("#op2-palco .op2-palco__figura").length === 8
         && document.querySelectorAll("#op2-palco .op2-palco__lado--criaturas .op2-palco__figura").length === 2);
+      // O palco cabe no vão entre os controles e a coluna da direita (chat, barra lateral), que no
+      // core cobre a ponta da coluna do meio; com o vão estreito, as figuras encolhem em vez de vazar.
+      {
+        const direitaDe = (id) => document.getElementById(id)?.getBoundingClientRect().right ?? 0;
+        const coluna = document.getElementById("ui-right");
+        const medidas = [];
+        const cabe = () => {
+          const p = document.getElementById("op2-palco").getBoundingClientRect();
+          const limite = coluna.getBoundingClientRect().left;
+          const esquerda = Math.max(direitaDe("scene-controls"), direitaDe("players"));
+          const larguras = [...document.querySelectorAll("#op2-palco .op2-palco__figura")].map((f) => Math.round(f.getBoundingClientRect().width));
+          medidas.push(`palco ${Math.round(p.left)}–${Math.round(p.right)}, vão ${Math.round(esquerda)}–${Math.round(limite)}, figuras ${larguras}`);
+          return p.left >= esquerda && p.right <= limite && larguras.every((l) => l >= 47);
+        };
+        const cabeLargo = cabe();
+        // Uma coluna da direita bem mais larga, como numa tela estreita com o chat aberto.
+        coluna.style.minWidth = `${Math.round(coluna.getBoundingClientRect().width + window.innerWidth * 0.3)}px`;
+        await esperar(200);
+        const cabeEstreito = cabe();
+        coluna.style.minWidth = "";
+        await esperar(200);
+        ok(`o palco cabe no vão entre os controles e a barra lateral, e com o vão estreito as figuras encolhem${cabeLargo && cabeEstreito ? "" : ` (${medidas.join("; ")})`}`, cabeLargo && cabeEstreito);
+      }
       const martelo = fx.ataquesDe(rhiona).find((a) => a.nome === "Martelo de forja");
       const golpe = await fx.atacar(rhiona, martelo, { cena: combate, rapido: true, escolha: { alvo: tokens[0].uuid } });
       await esperar(400);

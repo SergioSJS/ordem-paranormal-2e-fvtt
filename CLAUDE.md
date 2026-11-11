@@ -39,14 +39,14 @@ da editora (o gratuito do Ato I, o de assinante do Ato II) e o importador
 pré-gerados, cena, handouts e trilha vão em `assets/aventura/fontes-ato-*.json`, para
 dentro da aventura. O selo da licença (`assets/licenca/`) é o único arquivo da editora
 no pacote. Pronto para a rodada de teste manual que fecha a v1.
-**Versão:** 0.11.0 (a v1 é decisão de release).
+**Versão:** 0.11.1 (a v1 é decisão de release).
 **Fase 5 (modo Vigília):** M1 a M7 feitos. O playtest beta (combate por fases, perseguição,
 furtividade, medo, relações, duas missões medievais) corre em paralelo ao **modo moderno** (alpha, Atos I e
 II), que não perde nada; o combate novo vale nos dois, opcional e ligado por padrão no moderno. As missões
 saem do PDF e dos zips do mestre, como os atos (`module/extrator/missoes.mjs`, `module/aventura/missoes.mjs`).
 O PDF gratuito do beta (só a Missão 1) monta igual ao completo, e o e2e lê os dois. **Revisão 1.1 do beta** (nov/2026): o sistema lê a 1.0 e a 1.1 (o extrator acha o quadro pelas colunas do cabeçalho; a 1.1 tirou a fonte própria) e segue as regras da 1.1 — três fases, crítico com 4 dados sem o menor, empate oposto rola de novo, anulado pelo pavor só sai da soma, RD 10 do aughisk. Mundo da 1.0 recebe os números ao abrir (`module/aventura/revisao-beta.mjs`) e os quadros por "Atualizar as pistas no mundo" (`module/aventura/atualizar-pontos.mjs`). O e2e lê a 1.1; `OP2_E2E_BETA=1.0` lê a primeira.
 **Próximo:** a rodada de mesa de verdade. **v13 e v14 exercitados pelo e2e** (13.351 e 14.363, com o PDF e
-os zips reais: 814 verificações cada; `dois-clientes.mjs`, 46, confere a visão do jogador) — o bundle da cena leva os dois formatos de
+os zips reais: 815 verificações cada; `dois-clientes.mjs`, 46, confere a visão do jogador) — o bundle da cena leva os dois formatos de
 fundo, e o que só existe no v14 (níveis, `Collection#every`, `Note.author`) é tratado com guarda dos dois lados.
 
 ## Convenções
